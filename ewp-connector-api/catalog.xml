@@ -5,10 +5,10 @@
 
     <system
         systemId="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobilities/v0.12.1/endpoints/update-request.xsd"
-        uri="../../ewp-specs-api-omobilities/endpoints/update-request.xsd"/>
+        uri="update-request.xsd"/>
 	<system
         systemId="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobilities/master/endpoints/get-response.xsd"
-        uri="../../ewp-specs-api-omobilities/endpoints/get-response.xsd"/>
+        uri="get-response.xsd"/>
 
     
     
