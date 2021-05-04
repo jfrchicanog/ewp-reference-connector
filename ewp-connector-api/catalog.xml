@@ -1,0 +1,15 @@
+<!DOCTYPE catalog
+    PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN"
+           "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+    <system
+        systemId="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobilities/v0.12.1/endpoints/update-request.xsd"
+        uri="../../ewp-specs-api-omobilities/endpoints/update-request.xsd"/>
+	<system
+        systemId="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobilities/master/endpoints/get-response.xsd"
+        uri="../../ewp-specs-api-omobilities/endpoints/get-response.xsd"/>
+
+    
+    
+</catalog>

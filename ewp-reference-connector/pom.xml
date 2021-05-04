@@ -176,6 +176,7 @@
                     <installDirectory>target/node-installation-dir</installDirectory>
                     <!-- workingDirectory>src/main/frontend</workingDirectory>
                     <skip>${frontend.skip}</skip -->
+		    <skip>${frontend.skip}</skip>
                 </configuration>
             </plugin>
             <plugin>

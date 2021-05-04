@@ -75,6 +75,7 @@
                             <goal>xjc</goal>
                         </goals>
                         <configuration>
+                        	<catalog>catalog.xml</catalog>
                         </configuration>
                     </execution>
                 </executions>
