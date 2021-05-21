@@ -28,23 +28,25 @@ public class InstitutionLoader extends AbstractStartupLoader {
         String factSheetOrgUnit2 = "{'url':[{'text':'http://mobility-factsheet.ikea.se/orgunit2','lang':'en'}],'contactDetails':{'streetAddress':" + streetAddressOrgUnit2 + ",'phoneNumber':{'e164':'+4579145664'}}}";
         String organizationUnits="[{'id':'" + IKEA_OU1_ID + "','organizationUnitCode':'ikea.ou1.se','otherId':" + otherIdsOrgUnit1 + ",'name':" + organizationUnit1Names + ",'factSheet':" + factSheetOrgUnit1 + "},{'id':'" + IKEA_OU2_ID + "','organizationUnitCode':'ikea.ou2.se','otherId':" + otherIdsOrgUnit2 + ",'name':" + organizationUnit2Names + ",'factSheet':" + factSheetOrgUnit2 + "}]";
         String factSheetInstitution = "{'url':[{'text':'http://mobility-factsheet.ikea.se/ikea','lang':'en'}],'contactDetails':{'streetAddress':" + streetAddressForIkea + ",'url':" + websiteUrlForIkea + ",'email':['info@ikea.university.se'],'mailingAddress':{'postOfficeBox':'Box 123'},'phoneNumber':{'e164':'+4579123245'},'faxNumber':{'e164':'+45791232457'}}}";
-        persistInstitution("{'institutionId':'ikea.university.se','otherId':" + otherIds + ",'name':" + names + ",'organizationUnits':" + organizationUnits + ",'factSheet':" + factSheetInstitution + "}");
+        String courseCatalog = "[{'text':'http://mobility-factsheet.ikea.se/course','lang':'sv'},{'text':'http://mobility-factsheet.ikea.se/course','lang':'en'}]";
+        persistInstitution("{'institutionId':'ikea.university.se','otherId':" + otherIds + ",'name':" + names + ",'organizationUnits':" + organizationUnits + ",'factSheet':" + factSheetInstitution + ",'courseCatalog':" + courseCatalog + "}");
     }
     
     @Override
     public void createDemoDataPomodoro() throws IOException {
-        String otherIds = "[{'idType':'euc','idValue':'23654'},{'idType':'local','idValue':'POMO22'}]";
+        String otherIds = "[{'idType':'erasmus-charter','idValue':'23654'},{'idType':'local','idValue':'POMO22'}]";
         String names = "[{'text':'Pomodoro Universitet','lang':'sv'},{'text':'Pomodoro University','lang':'en'}]";
         String streetAddressForPomodoro = "{'addressLine':['Pizza valley 12'],'postalCode':'55667','locality':'Sunny town','country':'it'}";
         String websiteUrlForPomodoro = "[{'text':'http://www.pomodorouniversita.it','lang':'it'},{'text':'http://www.pomodorouniversity.it','lang':'en'}]";
         String organizationUnit1Names = "[{'text':'Institutionen för matematik och matematisk statistik','lang':'sv'},{'text':'Department of Mathematics and Mathematical Statistics','lang':'en'}]";
         String streetAddressOrgUnit1 = "{'addressLine':['Pizza valley 121'],'floor':'3','postalCode':'55668','locality':'Sunny town','country':'it'}";
         String websiteUrlForOrgUnit1 = "[{'text':'http://www.pomodoromatematik.it','lang':'it'},{'text':'http://www.pomodoromath.it','lang':'en'}]";
-        String otherIdsOrgUnit1 = "[{'idType':'euc','idValue':'23998'},{'idType':'local','idValue':'P5445'}]";
+        String otherIdsOrgUnit1 = "[{'idType':'erasmus-charter','idValue':'23998'},{'idType':'local','idValue':'P5445'}]";
         String factSheetOrgUnit1 = "{'url':[{'text':'http://mobility-factsheet.pomodoro.it/orgunit1','lang':'en'}],'contactDetails':{'streetAddress':" + streetAddressOrgUnit1 + ",'url':" + websiteUrlForOrgUnit1 + ",'phoneNumber':{'e164':'+5678973355'}}}";
         String organizationUnits = "[{'id':'" + POMODORO_OU1_ID + "','organizationUnitCode':'pomodoro.ou1.it','otherId':" + otherIdsOrgUnit1 + ",'name':" + organizationUnit1Names + ",'factSheet':" + factSheetOrgUnit1 + "}]";
         String factSheetInstitution = "{'url':[{'text':'http://mobility-factsheet.pomodoro.it/orgunit1','lang':'en'}],'contactDetails':{'streetAddress':" + streetAddressForPomodoro + ",'url':" + websiteUrlForPomodoro + ",'phoneNumber':{'e164':'+5678978910'}}}";
-        persistInstitution("{'institutionId':'pomodoro.university.it','otherId':" + otherIds + ",'name':" + names + ",'organizationUnits':" + organizationUnits + ",'factSheet':" + factSheetInstitution + "}");
+        String courseCatalog = "[{'text':'http://mobility-factsheet.pomodoro.it/course','lang':'sv'},{'text':'http://mobility-factsheet.pomodoro.it/course','lang':'en'}]";
+        persistInstitution("{'institutionId':'pomodoro.university.it','otherId':" + otherIds + ",'name':" + names + ",'organizationUnits':" + organizationUnits + ",'factSheet':" + factSheetInstitution + ",'courseCatalog':" + courseCatalog + "}");
     }
     
     public boolean dataAlreadyExist() {

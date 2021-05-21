@@ -53,6 +53,9 @@ public class Institution implements Serializable{
     @JoinColumn(name = "FACT_SHEET")
     private FactSheet factSheet;
     
+    @Column(name = "COURSE_CATALOG")
+    private List<LanguageItem> courseCatalog;
+    
     public String getId() {
         return id;
     }
@@ -117,7 +120,15 @@ public class Institution implements Serializable{
         this.logoUrl = logoUrl;
     }
 
-    @Override
+    public List<LanguageItem> getCourseCatalog() {
+		return courseCatalog;
+	}
+
+	public void setCourseCatalog(List<LanguageItem> courseCatalog) {
+		this.courseCatalog = courseCatalog;
+	}
+
+	@Override
     public int hashCode() {
         int hash = 5;
         hash = 41 * hash + Objects.hashCode(this.id);

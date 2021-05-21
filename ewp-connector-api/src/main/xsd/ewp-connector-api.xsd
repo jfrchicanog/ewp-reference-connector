@@ -35,11 +35,11 @@
     />
     
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-institutions/v2.0.0/response.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-institutions/v2.2.0/response.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-institutions/tree/stable-v2"
     />
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-institutions/v2.0.0/manifest-entry.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-institutions/v2.2.0/manifest-entry.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-institutions/blob/stable-v2/manifest-entry.xsd"
     />
 

@@ -4,6 +4,8 @@ import eu.erasmuswithoutpaper.api.architecture.StringWithOptionalLang;
 import eu.erasmuswithoutpaper.api.institutions.InstitutionsResponse;
 import eu.erasmuswithoutpaper.api.registry.OtherHeiId;
 import eu.erasmuswithoutpaper.api.types.contact.Contact;
+import eu.erasmuswithoutpaper.common.control.ConverterHelper;
+
 import static eu.erasmuswithoutpaper.common.control.ConverterHelper.convertToFlexibleAddress;
 import static eu.erasmuswithoutpaper.common.control.ConverterHelper.convertToHttpWithOptionalLang;
 import static eu.erasmuswithoutpaper.common.control.ConverterHelper.convertToStringWithOptionalLang;
@@ -53,6 +55,7 @@ public class InstitutionConverter {
                     
                 }
                 
+                hei.getCourseCatalogueUrl().addAll(convertToHttpWithOptionalLang(institution.getCourseCatalog()));
                 return hei;
             }).collect(Collectors.toList());
     }
