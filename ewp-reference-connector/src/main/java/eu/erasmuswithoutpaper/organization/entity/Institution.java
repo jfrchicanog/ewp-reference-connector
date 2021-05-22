@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -52,6 +53,9 @@ public class Institution implements Serializable{
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "FACT_SHEET")
     private FactSheet factSheet;
+    
+    @Column(name = "COURSE_CATALOG")
+    private List<LanguageItem> courseCatalog;
     
     public String getId() {
         return id;
@@ -117,7 +121,15 @@ public class Institution implements Serializable{
         this.logoUrl = logoUrl;
     }
 
-    @Override
+    public List<LanguageItem> getCourseCatalog() {
+		return courseCatalog;
+	}
+
+	public void setCourseCatalog(List<LanguageItem> courseCatalog) {
+		this.courseCatalog = courseCatalog;
+	}
+
+	@Override
     public int hashCode() {
         int hash = 5;
         hash = 41 * hash + Objects.hashCode(this.id);

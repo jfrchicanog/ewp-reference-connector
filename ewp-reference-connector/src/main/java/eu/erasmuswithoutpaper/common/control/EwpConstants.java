@@ -16,7 +16,7 @@ public class EwpConstants {
     public static final String INCOMING_MOBILITIES_TORS_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-imobility-tor-cnr/blob/stable-v1/manifest-entry.xsd";
     
     public static final String ECHO_VERSION = "2.0.1";
-    public static final String INSTITUTION_VERSION = "2.0.0";
+    public static final String INSTITUTION_VERSION = "2.2.0";
     public static final String DISCOVERY_VERSION = "4.1.0";
     public static final String ORGANIZATION_UNIT_VERSION = "2.0.0";
     public static final String COURSES_VERSION = "0.7.0";
