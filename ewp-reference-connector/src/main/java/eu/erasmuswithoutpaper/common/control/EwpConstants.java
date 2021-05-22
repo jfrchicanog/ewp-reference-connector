@@ -15,7 +15,7 @@ public class EwpConstants {
     public static final String INCOMING_MOBILITIES_TORS_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-imobility-tors/blob/stable-v1/manifest-entry.xsd";
     public static final String INCOMING_MOBILITIES_TORS_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-imobility-tor-cnr/blob/stable-v1/manifest-entry.xsd";
     
-    public static final String ECHO_VERSION = "2.0.0";
+    public static final String ECHO_VERSION = "2.0.1";
     public static final String INSTITUTION_VERSION = "2.0.0";
     public static final String DISCOVERY_VERSION = "4.1.0";
     public static final String ORGANIZATION_UNIT_VERSION = "2.0.0";
@@ -30,7 +30,7 @@ public class EwpConstants {
     public static final String IIAS_VERSION = "2.0.1";
     public static final String IIA_CNR_VERSION = "2.0.1";
 
-    public static final String ECHO_CLIENT_VERSION = "2.0.0";
+    public static final String ECHO_CLIENT_VERSION = "2.0.1";
     public static final String INSTITUTION_CLIENT_VERSION = "2.0.0";
     public static final String DISCOVERY_CLIENT_VERSION = "4.0.0";
     public static final String ORGANIZATION_UNIT_CLIENT_VERSION = "2.0.0";

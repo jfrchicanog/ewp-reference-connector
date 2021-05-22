@@ -17,11 +17,11 @@
     />
 
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-echo/v2.0.0/response.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-echo/v2.0.1/response.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-echo/tree/stable-v2"
     />
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-echo/v2.0.0/manifest-entry.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-echo/v2.0.1/manifest-entry.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-echo/blob/stable-v2/manifest-entry.xsd"
     />
 
