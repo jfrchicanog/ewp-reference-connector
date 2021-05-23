@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -34,6 +35,9 @@ import javax.enterprise.inject.Instance;
 @Stateless
 @Path("")
 public class ManifestResource {
+	
+	private final Logger LOGGER = Logger.getLogger(this.getClass().getCanonicalName());
+	
     @PersistenceContext(unitName = "connector")
     EntityManager em;
 
@@ -70,6 +74,8 @@ public class ManifestResource {
         manifestEntries.forEach(me -> apisImplemented.getAny().add(me.getManifestEntry(getBaseUri())));
         
         manifest.setApisImplemented(apisImplemented);
+        
+        manifestEntries.forEach(me -> LOGGER.info(""+me));
         
         manifest.setInstitutionsCovered(getInstitutionsCovered());
         manifest.setClientCredentialsInUse(getClientCredentialsInUse());

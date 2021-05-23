@@ -54,7 +54,8 @@ public class Institution implements Serializable{
     @JoinColumn(name = "FACT_SHEET")
     private FactSheet factSheet;
     
-    @Column(name = "COURSE_CATALOG")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+    @JoinTable(name = "COURSE_CATALOG")
     private List<LanguageItem> courseCatalog;
     
     public String getId() {

@@ -49,6 +49,10 @@ public class InstitutionResource {
             throw new EwpWebApplicationException("Max number of institution id's has exceeded.", Response.Status.BAD_REQUEST);
         }
         
+        if (heiIdList.isEmpty()) {
+        	throw new EwpWebApplicationException("hei_id required.", Response.Status.BAD_REQUEST);
+        }
+        
         InstitutionsResponse response = new InstitutionsResponse();
         
         heiIdList.stream()
