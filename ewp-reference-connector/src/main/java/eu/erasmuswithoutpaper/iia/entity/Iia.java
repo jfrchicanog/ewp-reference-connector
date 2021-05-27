@@ -1,23 +1,29 @@
 
 package eu.erasmuswithoutpaper.iia.entity;
 
-import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
 import org.apache.johnzon.mapper.JohnzonConverter;
+
+import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 
 @Entity
 @NamedQueries({
@@ -53,6 +59,14 @@ public class Iia implements Serializable{
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
     @JoinColumn(name = "IIA_ID")
     List<CooperationCondition> cooperationConditions;
+    
+    @Column(name = "CONDITIONS_HASH", nullable = true)
+    private String conditionsHash;
+    
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "PDF", nullable = true)
+    private byte[] pdf;
     
     public Iia(){
     }
@@ -109,7 +123,23 @@ public class Iia implements Serializable{
         this.cooperationConditions = cooperationConditions;
     }
 
-    @Override
+    public String getConditionsHash() {
+		return conditionsHash;
+	}
+
+	public void setConditionsHash(String conditionsHash) {
+		this.conditionsHash = conditionsHash;
+	}
+
+	public byte[] getPdf() {
+		return pdf;
+	}
+
+	public void setPdf(byte[] pdf) {
+		this.pdf = pdf;
+	}
+
+	@Override
     public int hashCode() {
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.id);

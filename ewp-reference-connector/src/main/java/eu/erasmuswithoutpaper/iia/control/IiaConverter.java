@@ -1,7 +1,9 @@
 package eu.erasmuswithoutpaper.iia.control;
 
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.CooperationConditions;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
+import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification.RecommendedLanguageSkill;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTeacherMobilitySpec;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTrainingMobilitySpec;
@@ -11,6 +13,8 @@ import eu.erasmuswithoutpaper.api.iias.endpoints.StudentTraineeshipMobilitySpec;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
+
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import javax.persistence.EntityManager;
@@ -21,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.sun.org.apache.xml.internal.security.c14n.Canonicalizer;
 
 public class IiaConverter {
     @PersistenceContext(unitName = "connector")
@@ -64,12 +70,11 @@ public class IiaConverter {
 
             converted.setCooperationConditions(convertToCooperationConditions(iia.getCooperationConditions()));
             converted.setInEffect(true);
-
             return converted;
         }).collect(Collectors.toList());
     }
 
-    private IiasGetResponse.Iia.CooperationConditions convertToCooperationConditions(List<CooperationCondition> cooperationConditions) {
+	private IiasGetResponse.Iia.CooperationConditions convertToCooperationConditions(List<CooperationCondition> cooperationConditions) {
         // TODO: Add this
         Map<String, List<CooperationCondition>> ccMap = cooperationConditions
                 .stream()
@@ -144,12 +149,13 @@ public class IiaConverter {
         //conv.getReceivingAcademicYearId();
         //conv.getReceivingContact();
         if (cc.getReceivingPartner().getOrganizationUnitId() != null) {
-            conv.getReceivingOunitId().add(cc.getReceivingPartner().getOrganizationUnitId());
+            conv.setReceivingOunitId(cc.getReceivingPartner().getOrganizationUnitId());
         }
+        
         conv.getRecommendedLanguageSkill();
         conv.getSendingContact();
         if (cc.getSendingPartner().getOrganizationUnitId() != null) {
-            conv.getSendingOunitId().add(cc.getSendingPartner().getOrganizationUnitId());
+            conv.setSendingOunitId(cc.getSendingPartner().getOrganizationUnitId());
         }
         //conv.setIscedFCode();
         conv.setMobilitiesPerYear(BigInteger.valueOf(cc.getMobilityNumber().getNumber()));
@@ -159,11 +165,12 @@ public class IiaConverter {
     
     private void addToStudentMobilitySpecification(StudentMobilitySpecification conv, CooperationCondition cc) {
         //conv.setAvgMonths(BigInteger.ONE);
-        conv.setTotalMonths(cc.getDuration().getNumber().toBigInteger());
+        conv.setTotalMonthsPerYear(new BigDecimal(cc.getDuration().getNumber().toBigInteger(),2));
+        conv.getEqfLevel().add(cc.getEqfLevel());
     }
 
     private void addToStaffMobilitySpecification(StaffMobilitySpecification conv, CooperationCondition cc) {
         //conv.setAvgDays(BigInteger.ONE);
-        conv.setTotalDays(cc.getDuration().getNumber().toBigInteger());
+        conv.setTotalDaysPerYear(new BigDecimal(cc.getDuration().getNumber().toBigInteger(), 2));
     }
 }

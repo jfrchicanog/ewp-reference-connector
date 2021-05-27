@@ -1,13 +1,14 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
-import eu.erasmuswithoutpaper.api.architecture.Empty;
+import java.math.BigInteger;
+
+import javax.inject.Inject;
+
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.iias.Iias;
+import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 import eu.erasmuswithoutpaper.common.control.EwpConstants;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
-import java.math.BigInteger;
-import javax.inject.Inject;
-import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 
 public class IiaManifestEntry implements ManifestEntryStrategy {
     @Inject
@@ -22,7 +23,7 @@ public class IiaManifestEntry implements ManifestEntryStrategy {
         iias.setMaxIiaIds(BigInteger.valueOf(globalProperties.getMaxIiaIds()));
         iias.setMaxIiaCodes(BigInteger.valueOf(globalProperties.getMaxIiaIds()));
 
-        iias.setSendsNotifications(new Empty());
+       // iias.setSendsNotifications(new Empty());
         return iias;
     }
 }
