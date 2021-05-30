@@ -126,6 +126,16 @@ public class RegistryClient {
         return getHeiUrls(heiId, EwpConstants.IIAS_CNR_NAMESPACE, "iia-cnr", EwpConstants.IIA_CNR_CLIENT_VERSION);
     }
     
+    public List<HeiEntry> getIiaApprovalHeisWithUrls() {
+        List<HeiEntry> heis = getHeis(EwpConstants.IIAS_APPROVAL_NAMESPACE, "iias-approval", EwpConstants.IIAS_APPROVAL_CLIENT_VERSION);
+        heis.stream().forEach(hei -> hei.setUrls(getIiaApprovalHeiUrls(hei.getId())));
+        return heis;
+    }
+
+    public Map<String, String> getIiaApprovalHeiUrls(String heiId) {
+        return getHeiUrls(heiId, EwpConstants.IIAS_APPROVAL_NAMESPACE, "iias-approval", EwpConstants.IIAS_APPROVAL_CLIENT_VERSION);
+    }
+    
     public List<HeiEntry> getOmobilitiesHeisWithUrls() {
         List<HeiEntry> heis = getHeis(EwpConstants.OUTGOING_MOBILITIES_NAMESPACE, "omobilities", EwpConstants.OUTGOING_MOBILITIES_CLIENT_VERSION);
         heis.stream().forEach(hei -> hei.setUrls(getOmobilitiesHeiUrls(hei.getId())));
