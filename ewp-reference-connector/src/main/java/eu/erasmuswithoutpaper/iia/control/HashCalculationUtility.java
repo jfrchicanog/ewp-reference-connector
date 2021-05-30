@@ -1,3 +1,6 @@
+/**
+ * Utility class for calculating the hash
+ */
 package eu.erasmuswithoutpaper.iia.control;
 
 import java.io.ByteArrayInputStream;
