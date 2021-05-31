@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.iia.approval.boundary;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,12 +19,16 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
+import eu.erasmuswithoutpaper.api.iias.approval.cnr.ObjectFactory;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.iia.approval.control.IiaApprovalConverter;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
+import eu.erasmuswithoutpaper.notification.entity.Notification;
+import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
 
 @Stateless
 @Path("iiasApproval")
@@ -55,6 +60,23 @@ public class IiaApprovalResource {
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response iiasApprovalPost(@FormParam("approving_hei_id") String heiId, @FormParam("iia_approval_id") List<String> iiaIdList) {
         return iiaApprovalGet(heiId, iiaIdList);
+    }
+    
+    @POST
+    @Path("cnr")
+    @Produces(MediaType.APPLICATION_XML)
+    public javax.ws.rs.core.Response cnrPost(@FormParam("approving_hei_id") String approvingHeiId, @FormParam("iia_approval_id") String iiaApprovalId) {
+        if (approvingHeiId == null || approvingHeiId.isEmpty() || iiaApprovalId == null || iiaApprovalId.isEmpty()) {
+            throw new EwpWebApplicationException("Missing argumanets for notification.", Response.Status.BAD_REQUEST);
+        }
+        Notification notification = new Notification();
+        notification.setType(NotificationTypes.IIAAPPROVAL);
+        notification.setHeiId(approvingHeiId);
+        notification.setChangedElementIds(iiaApprovalId);
+        notification.setNotificationDate(new Date());
+        em.persist(notification);
+         
+        return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaApprovalCnrResponse(new Empty())).build();
     }
     
     private javax.ws.rs.core.Response iiaApprovalGet(String heiId, List<String> iiaIdList) {

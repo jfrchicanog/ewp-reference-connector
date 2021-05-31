@@ -55,6 +55,15 @@ public class GuiNotificationResource {
         GenericEntity<List<HeiEntry>> entity = new GenericEntity<List<HeiEntry>>(iiaCnrHeis) {};
         return javax.ws.rs.core.Response.ok(entity).build();
     }
+    
+    @GET
+    @Path("iia-approval-cnr-heis")
+    public javax.ws.rs.core.Response iiaApprovalCnrHeis() {
+        List<HeiEntry> iiaApprovalCnrHeis = registryClient.getIiaApprovalCnrHeisWithUrls();
+        
+        GenericEntity<List<HeiEntry>> entity = new GenericEntity<List<HeiEntry>>(iiaApprovalCnrHeis) {};
+        return javax.ws.rs.core.Response.ok(entity).build();
+    }
 
     @GET
     @Path("omobility-cnr-heis")
