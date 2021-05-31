@@ -21,7 +21,7 @@ public class IiaApprovalManifestEntry implements ManifestEntryStrategy {
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         IiasApproval iiasApproval = new IiasApproval();
-        iiasApproval.setVersion(EwpConstants.IIAS_VERSION);
+        iiasApproval.setVersion(EwpConstants.IIAS_APPROVAL_VERSION);
         iiasApproval.setMaxIiaIds(BigInteger.valueOf(globalProperties.getMaxIiaIds()));
         
         LOGGER.info(iiasApproval.getVersion());
