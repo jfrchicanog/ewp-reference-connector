@@ -38,7 +38,34 @@
 
 	<build>
 		<plugins>
-
+	<plugin>
+                <!-- We use this plugin to ensure that our usage of the
+                maven-jaxb2-plugin is JDK 8 compatible in absence of a fix
+                for jaxb2-maven-plugin. -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <id>set-additional-system-properties</id>
+                        <goals>
+                            <goal>set-system-properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <properties>
+                        <property>
+                            <name>javax.xml.accessExternalDTD</name>
+                            <value>all</value>
+                        </property>
+                        <property>
+                            <name>javax.xml.accessExternalSchema</name>
+                            <value>all</value>
+                        </property>
+                    </properties>
+                </configuration>
+            </plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jaxb2-maven-plugin</artifactId>
@@ -86,5 +113,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<jaxb2.version>2.3</jaxb2.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<javax.xml.accessExternalDTD>all</javax.xml.accessExternalDTD>
+		<javax.xml.accessExternalSchema>all</javax.xml.accessExternalSchema>
 	</properties>
 </project>
