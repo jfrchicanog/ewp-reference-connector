@@ -123,6 +123,10 @@ public class GlobalProperties {
     public int getMaxIiaIds() {
         return getIntProperty("ewp.api.iias.max.ids", 1);
     }
+    
+    public int getMaxFactsheetIds() {
+        return getIntProperty("ewp.api.factsheet.max.ids", 1);
+    }
             
     private int getIntProperty(String key, int defaultValue) {
         String value = getProperty(key);
