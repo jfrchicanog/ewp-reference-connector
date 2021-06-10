@@ -95,6 +95,17 @@
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/blob/stable-v1/manifest-entry.xsd"
     />
     
+     <xs:import
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-factsheet/v1.0.0/response.xsd"
+        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-factsheet/tree/stable-v1"
+    />
+
+     <xs:import
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-factsheet/v1.0.0/manifest-entry.xsd"
+        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-factsheet/blob/stable-v1/manifest-entry.xsd"
+    />
+    
+    
     <xs:import
         schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-courses/master/response.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-courses/tree/stable-v1"
