@@ -73,9 +73,16 @@ public class HttpSignature {
     
     public void signResponse(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
         MultivaluedMap<String, String> reqHeaders = requestContext.getHeaders();
+        MultivaluedMap<String,Object> resHeaders = responseContext.getHeaders();
         try {
             String requestID = reqHeaders.getFirst("X-Request-Id");
             String requestAuthorization = reqHeaders.getFirst("Authorization");
+            String wwwAuthenticate = (String)resHeaders.getFirst("WWW-Authenticate");
+            resHeaders.remove("WWW-Authenticate");
+            
+            String wantDigest = (String)resHeaders.getFirst("Want-Digest");
+            resHeaders.remove("Want-Digest");
+            
             Signature reqSig = null;
             if (requestAuthorization != null) {
                 reqSig = Signature.fromString(requestAuthorization);
@@ -100,6 +107,12 @@ public class HttpSignature {
             }
             if (reqSig != null) {
                 headers.put("X-Request-Signature", reqSig.getSignature());
+            }
+            if (wwwAuthenticate != null) {
+            	headers.put("WWW-Authenticate", wwwAuthenticate);
+            }
+            if (wantDigest != null) {
+            	headers.put("Want-Digest", wantDigest);
             }
 
             // Update the other header lists as well
