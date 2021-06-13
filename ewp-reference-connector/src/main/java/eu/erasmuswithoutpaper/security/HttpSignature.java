@@ -251,13 +251,15 @@ public class HttpSignature {
                             .withResponseCode(javax.ws.rs.core.Response.Status.BAD_REQUEST)
                             .build();
                 }
-                final String digestCalculated = "SHA-256=" + new String(Base64.encodeBase64(digest));
+                final String digestCalculated = new String(Base64.encodeBase64(digest));
 
                 String requestDigest = null;
                 if (reqHeaders.containsKey("digest")) {
                     requestDigest = Arrays
                             .stream(reqHeaders.getFirst("digest").split(","))
-                            .filter(d -> d.startsWith("SHA-256=")).findFirst().orElse(null);
+                            .filter(d -> d.toUpperCase().startsWith("SHA-256="))
+                            .map(d -> d.substring("SHA-256=".length()))
+                            .findFirst().orElse(null);
                 }
                 if (!digestCalculated.equals(requestDigest)) {
                     return AuthenticateMethodResponse.builder()
