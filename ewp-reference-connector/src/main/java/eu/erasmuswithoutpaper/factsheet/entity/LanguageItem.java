@@ -5,9 +5,14 @@ import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 
-@Entity
+@Entity(name="FactsheetLanguageItem")
+@NamedQuery(name = LanguageItem.findAll, query = "SELECT fl FROM FactsheetLanguageItem fl")
 public class LanguageItem implements Serializable {
+	
+	private static final String PREFIX = "eu.erasmuswithoutpaper.factsheet.entity.LanguageItem.";
+    public static final String findAll = PREFIX + "all";
     
     public static final String SWEDISH = "sv";
     public static final String ENGLISH = "en";

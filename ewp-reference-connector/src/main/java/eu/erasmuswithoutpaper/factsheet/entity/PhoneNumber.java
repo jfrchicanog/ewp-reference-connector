@@ -6,13 +6,18 @@ import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 
 /**
  * Represetation of phone numbers and fax numbers.
  */
 
-@Entity
+@Entity(name="FactsheePhoneNumber")
+@NamedQuery(name = PhoneNumber.findAll, query = "SELECT fp FROM FactsheePhoneNumber fp")
 public class PhoneNumber implements Serializable {
+	
+	private static final String PREFIX = "eu.erasmuswithoutpaper.factsheet.entity.PhoneNumber.";
+    public static final String findAll = PREFIX + "all";
     
     @Id
     @GeneratedValue(generator="system-uuid")
