@@ -98,10 +98,7 @@ public class OutgoingMobilityResource {
             } else if (request.getUpdateComponentsStudiedV1()!= null) {
                 type = MobilityUpdateRequestType.UPDATE_COMPONENTS_STUDIED_V1;
                 updateInformation = mapper.writeValueAsString(request.getUpdateComponentsStudiedV1());
-            } else if (request.getUpdateStatusesV1() != null) {
-                type = MobilityUpdateRequestType.UPDATE_STATUSES_V1;
-                updateInformation = mapper.writeValueAsString(request.getUpdateStatusesV1());
-            }
+            } 
             
             MobilityUpdateRequest mobilityUpdateRequest = new MobilityUpdateRequest();
             mobilityUpdateRequest.setType(type);

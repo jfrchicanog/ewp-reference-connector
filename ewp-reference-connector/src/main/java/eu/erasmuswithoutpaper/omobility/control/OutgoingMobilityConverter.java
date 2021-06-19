@@ -1,5 +1,18 @@
 package eu.erasmuswithoutpaper.omobility.control;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.xml.datatype.DatatypeConfigurationException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.ComponentRecognized;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.ComponentStudied;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.ListOfChangesToComponentsRecognized;
@@ -8,20 +21,15 @@ import eu.erasmuswithoutpaper.api.omobilities.endpoints.ListOfChangesToComponent
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.ListOfChangesToComponentsStudied.InsertComponentStudied;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.MobilityStatus;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobilityForStudies;
+import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobilityForStudies.NomineeLanguageSkill;
 import eu.erasmuswithoutpaper.common.control.ConverterHelper;
+import eu.erasmuswithoutpaper.omobility.entity.LanguageSkill;
 import eu.erasmuswithoutpaper.omobility.entity.Mobility;
 import eu.erasmuswithoutpaper.omobility.entity.RecognizedLaComponent;
 import eu.erasmuswithoutpaper.omobility.entity.StudiedLaComponent;
 import eu.erasmuswithoutpaper.organization.entity.LanguageItem;
-import eu.erasmuswithoutpaper.organization.entity.Person;
 import eu.erasmuswithoutpaper.organization.entity.MobilityParticipant;
-import java.util.Arrays;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.xml.datatype.DatatypeConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import eu.erasmuswithoutpaper.organization.entity.Person;
 
 public class OutgoingMobilityConverter {
     private static final Logger logger = LoggerFactory.getLogger(OutgoingMobilityConverter.class);
@@ -42,6 +50,14 @@ public class OutgoingMobilityConverter {
         studentMobilityForStudies.setEqfLevelStudiedAtNomination(mobility.getEqfLevel());
         //studentMobilityForStudies.setNomineeIscedFCode(value);
         studentMobilityForStudies.setOmobilityId(mobility.getId());
+        
+        studentMobilityForStudies.setSendingAcademicTermEwpId(mobility.getSendingAcademicTermEwpId());
+        studentMobilityForStudies.setNonStandardMobilityPeriod(new Empty());
+        studentMobilityForStudies.setReceivingAcademicYearId(mobility.getReceivingAcademicYearId());
+        studentMobilityForStudies.setNomineeIscedFCode(mobility.getNomineeIscedFCode());
+        
+        studentMobilityForStudies.getNomineeLanguageSkill().addAll(convertToNomineeLanguageSkill(mobility.getNomineeLanguageSkill()));
+        
         try {
             studentMobilityForStudies.setPlannedArrivalDate(ConverterHelper.convertToXmlGregorianCalendar(mobility.getPlannedArrivalDate()));
         } catch (DatatypeConfigurationException ex) {
@@ -60,7 +76,22 @@ public class OutgoingMobilityConverter {
         return studentMobilityForStudies;
     }
 
-    private ListOfChangesToComponentsRecognized convertToComponentRecognized(List<RecognizedLaComponent> recognizedLaComponents) {
+    private Collection<NomineeLanguageSkill> convertToNomineeLanguageSkill(
+			List<LanguageSkill> nomineeLanguageSkill) {
+		
+    	nomineeLanguageSkill.stream().map((langskill) ->{
+    		
+    		NomineeLanguageSkill nomineeLangSkill = new NomineeLanguageSkill();
+    		
+    		nomineeLangSkill.setCefrLevel(langskill.getCefrLevel());
+    		nomineeLangSkill.setLanguage(langskill.getLanguage());
+    		return null;
+    	}).collect(Collectors.toList());
+    	
+    	return null;
+	}
+
+	private ListOfChangesToComponentsRecognized convertToComponentRecognized(List<RecognizedLaComponent> recognizedLaComponents) {
         ListOfChangesToComponentsRecognized listOfChangesToComponentsRecognized = new ListOfChangesToComponentsRecognized();
         if (recognizedLaComponents == null) {
             return listOfChangesToComponentsRecognized;

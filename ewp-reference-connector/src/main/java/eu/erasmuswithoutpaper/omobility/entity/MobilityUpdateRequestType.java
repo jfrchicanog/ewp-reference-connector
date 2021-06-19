@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum MobilityUpdateRequestType {
-    APPROVE_COMPONENTS_STUDIED_DRAFT_V1, UPDATE_COMPONENTS_STUDIED_V1, UPDATE_STATUSES_V1;
+    APPROVE_COMPONENTS_STUDIED_DRAFT_V1, UPDATE_COMPONENTS_STUDIED_V1;
     
     public static String[] names() {
         MobilityUpdateRequestType[] statuses = values();

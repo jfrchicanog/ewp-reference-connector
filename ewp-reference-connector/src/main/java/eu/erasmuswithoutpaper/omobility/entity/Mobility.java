@@ -1,10 +1,12 @@
 
 package eu.erasmuswithoutpaper.omobility.entity;
 
+import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
 import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -12,9 +14,11 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -45,6 +49,14 @@ public class Mobility implements Serializable {
     private String receivingInstitutionId;
     private String receivingOrganizationUnitId;
     private String mobilityParticipantId;
+    
+    private String sendingAcademicTermEwpId;
+    private String receivingAcademicYearId;
+    private String nomineeIscedFCode;
+    
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "LANGSKILL_MOBILITY")
+    List<LanguageSkill> nomineeLanguageSkill;
     
     @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinColumn(name = "MOBILITY_TYPE_ID", referencedColumnName = "ID")
@@ -219,7 +231,39 @@ public class Mobility implements Serializable {
         this.learningAgreement = learningAgreement;
     }
     
-    @Override
+    public String getSendingAcademicTermEwpId() {
+		return sendingAcademicTermEwpId;
+	}
+
+	public void setSendingAcademicTermEwpId(String sendingAcademicTermEwpId) {
+		this.sendingAcademicTermEwpId = sendingAcademicTermEwpId;
+	}
+
+	public String getReceivingAcademicYearId() {
+		return receivingAcademicYearId;
+	}
+
+	public void setReceivingAcademicYearId(String receivingAcademicYearId) {
+		this.receivingAcademicYearId = receivingAcademicYearId;
+	}
+
+	public String getNomineeIscedFCode() {
+		return nomineeIscedFCode;
+	}
+
+	public void setNomineeIscedFCode(String nomineeIscedFCode) {
+		this.nomineeIscedFCode = nomineeIscedFCode;
+	}
+
+	public List<LanguageSkill> getNomineeLanguageSkill() {
+		return nomineeLanguageSkill;
+	}
+
+	public void setNomineeLanguageSkill(List<LanguageSkill> nomineeLanguageSkill) {
+		this.nomineeLanguageSkill = nomineeLanguageSkill;
+	}
+
+	@Override
     public int hashCode() {
         int hash = 7;
         hash = 37 * hash + Objects.hashCode(this.id);
