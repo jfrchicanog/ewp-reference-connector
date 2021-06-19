@@ -15,10 +15,10 @@ import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = FactsheetAdditionalInfo.findAll, query = "SELECT a FROM AdditionalInfo a")
+    @NamedQuery(name = FactsheetAdditionalInfo.findAll, query = "SELECT a FROM FactsheetAdditionalInfo a")
 })
 public class FactsheetAdditionalInfo implements Serializable {
-    private static final String PREFIX = "eu.erasmuswithoutpaper.factsheet.entity.AdditionalInfo.";
+    private static final String PREFIX = "eu.erasmuswithoutpaper.factsheet.entity.FactsheetAdditionalInfo.";
     public static final String findAll = PREFIX + "all";
 
     @Id
