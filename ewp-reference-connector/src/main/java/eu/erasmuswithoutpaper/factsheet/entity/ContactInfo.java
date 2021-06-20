@@ -31,7 +31,7 @@ public class ContactInfo implements Serializable {
     private String email;
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "CONTACT_URL")
+    @JoinTable(name = "FACTSHEET_CONTACT_URL")
     private List<LanguageItem> url;
     
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

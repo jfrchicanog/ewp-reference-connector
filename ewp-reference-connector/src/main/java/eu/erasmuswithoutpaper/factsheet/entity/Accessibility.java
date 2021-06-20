@@ -15,10 +15,10 @@ import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = Accessibility.findAll, query = "SELECT a FROM Accesiblity a")
+    @NamedQuery(name = Accessibility.findAll, query = "SELECT a FROM Accessibility a")
 })
 public class Accessibility implements Serializable {
-    private static final String PREFIX = "eu.erasmuswithoutpaper.factsheet.entity.Accesiblity.";
+    private static final String PREFIX = "eu.erasmuswithoutpaper.factsheet.entity.Accessibility.";
     public static final String findAll = PREFIX + "all";
 
     @Id
