@@ -13,7 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -57,7 +57,7 @@ public class Iia implements Serializable{
     private Date modifyDate;
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinColumn(name = "IIA_ID")
+    @JoinTable(name = "IIA_COOPERATION_CONDITION")
     List<CooperationCondition> cooperationConditions;
     
     @Column(name = "CONDITIONS_HASH", nullable = true)

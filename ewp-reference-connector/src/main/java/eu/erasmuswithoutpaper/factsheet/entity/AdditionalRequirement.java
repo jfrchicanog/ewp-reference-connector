@@ -30,7 +30,7 @@ public class AdditionalRequirement implements Serializable {
     private String details;
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "CONTACT_URL")
+    @JoinTable(name = "INFO_WEB_SITE")
     private List<LanguageItem> informationWebsite;
     
     public String getId() {
