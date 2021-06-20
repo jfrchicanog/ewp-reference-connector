@@ -16,10 +16,10 @@ import javax.persistence.OneToMany;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = AdditionalRequirement.findAll, query = "SELECT r FROM AditionalRequirement r")
+    @NamedQuery(name = AdditionalRequirement.findAll, query = "SELECT r FROM AdditionalRequirement r")
 })
 public class AdditionalRequirement implements Serializable {
-    private static final String PREFIX = "eu.erasmuswithoutpaper.factsheet.entity.AditionalRequirement.";
+    private static final String PREFIX = "eu.erasmuswithoutpaper.factsheet.entity.AdditionalRequirement.";
     public static final String findAll = PREFIX + "all";
 
     @Id
