@@ -18,24 +18,24 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-@ApplicationPath("gui")
+@ApplicationPath("disabled-gui")
 public class GuiJAXRSConfiguration extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> resources = new HashSet<>();
-        resources.add(GuiHomeResource.class);
-        resources.add(GuiInstitutionResource.class);
-        resources.add(GuiPersonResource.class);
-        resources.add(GuiContactResource.class);
-        resources.add(GuiAcademicTermResource.class);
-        resources.add(GuiLosResource.class);
-        resources.add(GuiLoiResource.class);
-        resources.add(GuiIiaPartnerResource.class);
-        resources.add(GuiIiaResource.class);
-        resources.add(GuiEchoResource.class);
-        resources.add(GuiOutgoingMobilityResource.class);
-        resources.add(GuiMobilityParticipantResource.class);
-        resources.add(GuiNotificationResource.class);
+//        resources.add(GuiHomeResource.class);
+//        resources.add(GuiInstitutionResource.class);
+//        resources.add(GuiPersonResource.class);
+//        resources.add(GuiContactResource.class);
+//        resources.add(GuiAcademicTermResource.class);
+//        resources.add(GuiLosResource.class);
+//        resources.add(GuiLoiResource.class);
+//        resources.add(GuiIiaPartnerResource.class);
+//        resources.add(GuiIiaResource.class);
+//        resources.add(GuiEchoResource.class);
+//        resources.add(GuiOutgoingMobilityResource.class);
+//        resources.add(GuiMobilityParticipantResource.class);
+//        resources.add(GuiNotificationResource.class);
         return resources;
     }
 }
