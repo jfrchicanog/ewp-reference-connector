@@ -27,13 +27,8 @@ public class OutgoingMobilityManifestEntry implements ManifestEntryStrategy {
         mobilities.setIndexUrl(baseUri + "omobilities/index");
         mobilities.setGetUrl(baseUri + "omobilities/get");
         mobilities.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxMobilityIds()));
-        mobilities.setUpdateUrl(baseUri + "omobilities/update");
 
         mobilities.setSendsNotifications(new Empty());
-        Omobilities.SupportedUpdateTypes supportedUpdateTypes = new Omobilities.SupportedUpdateTypes();
-        supportedUpdateTypes.setApproveComponentsStudiedDraftV1(new Empty());
-        supportedUpdateTypes.setUpdateComponentsStudiedV1(new Empty());
-        mobilities.setSupportedUpdateTypes(supportedUpdateTypes);
         
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         

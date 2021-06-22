@@ -83,9 +83,9 @@ public class Mobility implements Serializable {
     private String iscedCode;
     private byte eqfLevel;
     
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "LEARNING_AGREEMENT")
-    private LearningAgreement learningAgreement;
+    //@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    //@JoinColumn(name = "LEARNING_AGREEMENT")
+    //private LearningAgreement learningAgreement;
     
     public String getId() {
         return id;
@@ -223,14 +223,6 @@ public class Mobility implements Serializable {
         this.eqfLevel = eqfLevel;
     }
 
-    public LearningAgreement getLearningAgreement() {
-        return learningAgreement;
-    }
-
-    public void setLearningAgreement(LearningAgreement learningAgreement) {
-        this.learningAgreement = learningAgreement;
-    }
-    
     public String getSendingAcademicTermEwpId() {
 		return sendingAcademicTermEwpId;
 	}

@@ -13,20 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
-import eu.erasmuswithoutpaper.api.omobilities.endpoints.ComponentRecognized;
-import eu.erasmuswithoutpaper.api.omobilities.endpoints.ComponentStudied;
-import eu.erasmuswithoutpaper.api.omobilities.endpoints.ListOfChangesToComponentsRecognized;
-import eu.erasmuswithoutpaper.api.omobilities.endpoints.ListOfChangesToComponentsRecognized.InsertComponentRecognized;
-import eu.erasmuswithoutpaper.api.omobilities.endpoints.ListOfChangesToComponentsStudied;
-import eu.erasmuswithoutpaper.api.omobilities.endpoints.ListOfChangesToComponentsStudied.InsertComponentStudied;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.MobilityStatus;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobilityForStudies;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobilityForStudies.NomineeLanguageSkill;
 import eu.erasmuswithoutpaper.common.control.ConverterHelper;
 import eu.erasmuswithoutpaper.omobility.entity.LanguageSkill;
 import eu.erasmuswithoutpaper.omobility.entity.Mobility;
-import eu.erasmuswithoutpaper.omobility.entity.RecognizedLaComponent;
-import eu.erasmuswithoutpaper.omobility.entity.StudiedLaComponent;
 import eu.erasmuswithoutpaper.organization.entity.LanguageItem;
 import eu.erasmuswithoutpaper.organization.entity.MobilityParticipant;
 import eu.erasmuswithoutpaper.organization.entity.Person;
@@ -39,16 +31,9 @@ public class OutgoingMobilityConverter {
 
     public StudentMobilityForStudies convertToStudentMobilityForStudies(Mobility mobility) {
         StudentMobilityForStudies studentMobilityForStudies = new StudentMobilityForStudies();
-        if (mobility.getLearningAgreement() != null) {
-            studentMobilityForStudies.setComponentsRecognized(convertToComponentsRecognized(mobility.getLearningAgreement().getRecognizedLaComponents()));
-            studentMobilityForStudies.setComponentsStudied(convertToComponentsStudied(mobility.getLearningAgreement().getStudiedLaComponents()));
-        }
         
-        // TODO: add this
-        //studentMobilityForStudies.getNomineeLanguageSkill();
         studentMobilityForStudies.setEqfLevelStudiedAtDeparture(mobility.getEqfLevel());
         studentMobilityForStudies.setEqfLevelStudiedAtNomination(mobility.getEqfLevel());
-        //studentMobilityForStudies.setNomineeIscedFCode(value);
         studentMobilityForStudies.setOmobilityId(mobility.getId());
         
         studentMobilityForStudies.setSendingAcademicTermEwpId(mobility.getSendingAcademicTermEwpId());
@@ -90,52 +75,6 @@ public class OutgoingMobilityConverter {
     	
     	return null;
 	}
-
-	private ListOfChangesToComponentsRecognized convertToComponentRecognized(List<RecognizedLaComponent> recognizedLaComponents) {
-        ListOfChangesToComponentsRecognized listOfChangesToComponentsRecognized = new ListOfChangesToComponentsRecognized();
-        if (recognizedLaComponents == null) {
-            return listOfChangesToComponentsRecognized;
-        }
-        
-        recognizedLaComponents.stream().map((c) -> {
-            ComponentRecognized componentRecognized = new ComponentRecognized();
-            componentRecognized.setLosId(c.getLosId());
-            componentRecognized.setLoiId(c.getLoiId());
-            return componentRecognized;
-        }).map(cr -> {
-            InsertComponentRecognized icr = new InsertComponentRecognized();
-            icr.setComponentRecognized(cr);
-            return icr;
-        }).forEach(icr -> listOfChangesToComponentsRecognized.getInsertComponentRecognizedOrRemoveComponentRecognized().add(icr));
-        
-        return listOfChangesToComponentsRecognized;
-    }
-    
-    private ListOfChangesToComponentsStudied convertToComponentStudied(List<StudiedLaComponent> studiedLaComponents) {
-        ListOfChangesToComponentsStudied listOfChangesToComponentsStudied = new ListOfChangesToComponentsStudied();
-        if (studiedLaComponents == null) {
-            return listOfChangesToComponentsStudied;
-        }
-        
-        studiedLaComponents.stream().map((c) -> {
-            ComponentStudied componentStudied = new ComponentStudied();
-            componentStudied.setLosId(c.getLosId());
-            componentStudied.setLosCode(c.getLosCode());
-            componentStudied.setLoiId(c.getLoiId());
-            componentStudied.setAcademicTermDisplayName(c.getAcademicTermDisplayName());
-            componentStudied.setTitle(c.getTitle());
-            
-            // TODO: Add this
-            //componentStudied.getCredit();
-            return componentStudied;
-        }).map(cs -> {
-            InsertComponentStudied ics = new InsertComponentStudied();
-            ics.setComponentStudied(cs);
-            return ics;
-        }).forEach(ics -> listOfChangesToComponentsStudied.getInsertComponentStudiedOrRemoveComponentStudied().add(ics));
-        
-        return listOfChangesToComponentsStudied;
-    }
 
     private StudentMobilityForStudies.ReceivingHei convertToReceivingHei(String iiaId, String institutionId, String organizationUnitId) {
         StudentMobilityForStudies.ReceivingHei receivingHei = new StudentMobilityForStudies.ReceivingHei();
@@ -184,17 +123,5 @@ public class OutgoingMobilityConverter {
             mobilityStudent.setStreetAddress(ConverterHelper.convertToFlexibleAddress(student.getContactDetails().getStreetAddress()));
         }
         return mobilityStudent;
-    }
-
-    private StudentMobilityForStudies.ComponentsRecognized convertToComponentsRecognized(List<RecognizedLaComponent> recognizedLaComponents) {
-        StudentMobilityForStudies.ComponentsRecognized componentsRecognized = new StudentMobilityForStudies.ComponentsRecognized();
-        componentsRecognized.setLatestApprovedChanges(convertToComponentRecognized(recognizedLaComponents));
-        return componentsRecognized;
-    }
-
-    private StudentMobilityForStudies.ComponentsStudied convertToComponentsStudied(List<StudiedLaComponent> studiedLaComponents) {
-        StudentMobilityForStudies.ComponentsStudied componentsStudied = new StudentMobilityForStudies.ComponentsStudied();
-        componentsStudied.setLatestApprovedChanges(convertToComponentStudied(studiedLaComponents));
-        return componentsStudied;
     }
 }

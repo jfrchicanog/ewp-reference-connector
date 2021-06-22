@@ -1,16 +1,8 @@
 
 package eu.erasmuswithoutpaper.omobility.boundary;
 
-import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
-import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
-import eu.erasmuswithoutpaper.common.control.HeiEntry;
-import eu.erasmuswithoutpaper.common.control.RegistryClient;
-import eu.erasmuswithoutpaper.common.control.RestClient;
-import eu.erasmuswithoutpaper.omobility.entity.LearningAgreementComponentStatus;
-import eu.erasmuswithoutpaper.omobility.entity.Mobility;
-import eu.erasmuswithoutpaper.omobility.entity.MobilityStatus;
-import eu.erasmuswithoutpaper.omobility.entity.MobilityUpdateRequest;
 import java.util.List;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -23,6 +15,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
+import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
+import eu.erasmuswithoutpaper.common.control.HeiEntry;
+import eu.erasmuswithoutpaper.common.control.RegistryClient;
+import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.omobility.entity.Mobility;
+import eu.erasmuswithoutpaper.omobility.entity.MobilityStatus;
 
 @Stateless
 @Path("omobility")
@@ -62,15 +62,6 @@ public class GuiOutgoingMobilityResource {
     }
     
     @GET
-    @Path("lacomponent_statuses")
-    public Response getLaComponentStatuses() {
-        String[] statuses = LearningAgreementComponentStatus.names();
-        GenericEntity<String[]> entity = new GenericEntity<String[]>(statuses) {};
-        
-        return Response.ok(entity).build();
-    }
-    
-    @GET
     @Path("omobilities-heis")
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response omobilitiesHeis() {
@@ -94,31 +85,6 @@ public class GuiOutgoingMobilityResource {
     public javax.ws.rs.core.Response omobilitiesGet(ClientRequest clientRequest) {
         ClientResponse omobilitiesResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.omobilities.endpoints.OmobilitiesGetResponse.class);
         return javax.ws.rs.core.Response.ok(omobilitiesResponse).build();
-    }
-    
-    @POST
-    @Path("omobilities-update")
-    @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response omobilitiesUpdate(ClientRequest clientRequest) {
-        ClientResponse omobilitiesResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.omobilities.endpoints.OmobilitiesUpdateResponse.class);
-        return javax.ws.rs.core.Response.ok(omobilitiesResponse).build();
-    }
-
-    @GET
-    @Path("update/get_all")
-    public Response getAllUpdateRequests() {
-        List<MobilityUpdateRequest> notificationList = em.createNamedQuery(MobilityUpdateRequest.findAll).getResultList();
-        GenericEntity<List<MobilityUpdateRequest>> entity = new GenericEntity<List<MobilityUpdateRequest>>(notificationList) {};
-        
-        return Response.ok(entity).build();
-    }
-    
-    @GET
-    @Path("update/count")
-    public Response getCountUpdateRequest() {
-        List<MobilityUpdateRequest> notificationList = em.createNamedQuery(MobilityUpdateRequest.findAll).getResultList();
-        
-        return Response.ok("{\"count\":"+notificationList.size()+"}").build();
     }
     
     @GET
