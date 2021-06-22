@@ -1,10 +1,12 @@
 package eu.erasmuswithoutpaper.discovery.boundary;
 
+import eu.erasmuswithoutpaper.PublicAPI;
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.discovery.Discovery;
 import eu.erasmuswithoutpaper.common.control.EwpConstants;
 import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 
+@PublicAPI
 public class DiscoveryManifestEntry implements ManifestEntryStrategy {
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
