@@ -89,4 +89,15 @@ public class ConverterHelper {
         XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
         return date2;
     }
+    
+    public static PhoneNumber convertToPhoneNumber(eu.erasmuswithoutpaper.factsheet.entity.PhoneNumber phoneNumber) {
+        PhoneNumber factsheetPhoneNumber = new PhoneNumber();
+        if (phoneNumber != null) {
+        	factsheetPhoneNumber.setE164(phoneNumber.getE164());
+        	factsheetPhoneNumber.setExt(phoneNumber.getExtensionNumber());
+        	factsheetPhoneNumber.setOtherFormat(phoneNumber.getOtherFormat());
+        }
+        
+        return factsheetPhoneNumber;
+    }
 }
