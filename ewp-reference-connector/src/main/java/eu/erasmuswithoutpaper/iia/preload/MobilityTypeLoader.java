@@ -25,4 +25,9 @@ public class MobilityTypeLoader extends AbstractStartupLoader {
         MobilityType mobilityType = JsonHelper.mapToObject(MobilityType.class, mobilityTypeJson);
         em.persist(mobilityType);
     }
+
+	@Override
+	public void createDemoDataUma() throws IOException {
+		createDemoDataIkea();
+	}
 }

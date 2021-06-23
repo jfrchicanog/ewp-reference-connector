@@ -15,7 +15,8 @@ public class GlobalProperties {
     private static final Logger logger = LoggerFactory.getLogger(GlobalProperties.class);
     public static enum University {
         IKEA_U,
-        POMODORO_U
+        POMODORO_U,
+        UMA_U
     }
     
     Properties properties;
@@ -36,22 +37,29 @@ public class GlobalProperties {
         if (overrideProperties != null) {
             try {
                 properties.load(new FileInputStream(overrideProperties));
-                logger.info("Override properties from file '{0}'.", overrideProperties);
+                logger.info("Override properties from file {}.", overrideProperties);
             } catch (IOException ex) {
                 logger.error("Can't get override properties", ex);
             }
         }
         
+        logger.info("ewp.instance= "+properties.getProperty("ewp.instance"));
         switch(properties.getProperty("ewp.instance")) {
             case "POMODORO":
                 university = University.POMODORO_U;
                 defaultUniversityName = "Pomodoro University";
+                break;
+            case "UMA":
+            	university = University.UMA_U;
+                defaultUniversityName = "University of Malaga";
                 break;
             default:
                 university = University.IKEA_U;
                 defaultUniversityName = "IKEA University";
                 break;
         }
+        
+        logger.info("Using demo data from "+defaultUniversityName);
         
     }
     

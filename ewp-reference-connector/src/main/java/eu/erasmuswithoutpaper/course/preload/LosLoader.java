@@ -122,4 +122,10 @@ public class LosLoader extends AbstractStartupLoader {
         
         return learningOppSpec;
     }
+
+	@Override
+	public void createDemoDataUma() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 }

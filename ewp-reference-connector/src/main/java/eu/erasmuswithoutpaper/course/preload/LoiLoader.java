@@ -199,4 +199,10 @@ public class LoiLoader extends AbstractStartupLoader {
         
         return organizationUnitList.get(0).getId();
     }
+
+	@Override
+	public void createDemoDataUma() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 }

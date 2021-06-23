@@ -69,182 +69,6 @@ angular
             });
     });
 
-angular.module('academicterm', []);
-angular.module('academicterm').controller('AcademicTermController', function ($scope, AcademicTermService, InstitutionService) {
-    $scope.getAllAcademicTerms = function(){
-        AcademicTermService.getAll(
-            function(result) {
-                $scope.academicTerms = result;
-        });
-    };
-    
-    $scope.addAcademicTerm = function(){
-        var selectedAcademicYear;
-        angular.forEach($scope.academicYears, function(item) {
-            if (item.id === $scope.newAcademicTerm.academicYearId) {
-                selectedAcademicYear = item;
-            }
-        });
-        $scope.newAcademicTerm.academicYear = selectedAcademicYear;
-        var academicYearText = $scope.newAcademicTerm_selectedTerm === 0 ? selectedAcademicYear.startYear : selectedAcademicYear.endYear;
-        var enAcademicTermText = $scope.terms[$scope.newAcademicTerm_selectedTerm].en + ' ' + academicYearText;
-        var seAcademicTermText = $scope.terms[$scope.newAcademicTerm_selectedTerm].se + ' ' + academicYearText;
-        $scope.newAcademicTerm.dispName = [{text:enAcademicTermText,'lang':'en'}, {text:seAcademicTermText,'lang':'se'}];
-        $scope.saveAcademicTerm($scope.newAcademicTerm);
-        
-        $scope.cancelAddAcademicTerm();
-    };
-    
-    $scope.cancelAddAcademicTerm = function(){
-        $scope.newAcademicTerm = {};
-        $scope.newAcademicTerm_selectedTerm = 0;
-        $scope.showAddAcademicTermForm = false;
-    };
-    
-    $scope.saveAcademicTerm = function(academicterm) {
-        AcademicTermService.addNew(academicterm, function(result) {
-            $scope.getAllAcademicTerms();
-        });
-    };
-    
-    $scope.addOrganizationUnitsToList = function(obj) {
-        angular.forEach(obj.organizationUnits, function(item) {
-            $scope.organizations.push(item);
-        });
-    };
-    
-    $scope.viewAddAcademicTermForm = function() {
-        InstitutionService.getLocal(
-            function(result) {
-            $scope.institutions = result;
-        });
-        
-        AcademicTermService.getAcademicYears(
-            function(result) {
-            $scope.academicYears = result;
-        });
-
-        $scope.organizations = [];
-        $scope.showAddAcademicTermForm = true;
-    };
-    
-    $scope.institutionChanged = function() {
-        var currentInst;
-        angular.forEach($scope.institutions, function(item) {
-            if (item.institutionId === $scope.newAcademicTerm.institutionId) {
-                currentInst = item;
-            }
-        });
-        
-        $scope.organizations = [];
-        $scope.addOrganizationUnitsToList(currentInst);
-    };
-    
-    $scope.terms = [{label:'Fall', en:'Fall semester', se:'Hösttermin'}, {label:'Spring', en:'Spring semester', se:'Vårtermin'}];
-    $scope.cancelAddAcademicTerm();
-    $scope.getAllAcademicTerms();
-});
-
-angular.module('academicterm').service('AcademicTermService', function ($http) {
-    return {
-        getAll: function (callback) {
-            $http.get('gui/academic_term/get_all').success(callback);
-        },
-        addNew: function (academicterm, callback) {
-            $http.post('gui/academic_term/add', academicterm).success(callback);
-        },
-        getAcademicYears: function (callback) {
-            $http.get('gui/academic_term/list_academic_years').success(callback);
-        }
-    };
-});
-
-angular.module('contact', []);
-angular.module('contact').controller('ContactController', function ($scope, ContactService, PersonService, InstitutionService) {
-
-    $scope.getAllContacts = function() {
-       ContactService.getAll(
-            function(result) {
-            $scope.contacts = result;
-        });
-    };
-    
-    $scope.viewAddContactForm = function() {
-        InstitutionService.getLocal(
-            function(result) {
-            $scope.institutions = result;
-        });
-
-        PersonService.getAll(
-            function(result) {
-            $scope.persons = result;
-        });
-        
-        ContactService.getContactRoles(function(result) {
-            $scope.roles = result;
-        });
-        $scope.organizations = [];
-        $scope.showAddContactForm = true;
-    };
-
-    $scope.addOrganizationUnitsToList = function(obj) {
-        angular.forEach(obj.organizationUnits, function(item) {
-            $scope.organizations.push(item);
-            $scope.addOrganizationUnitsToList(item);
-        });
-    };
-    
-    $scope.institutionChanged = function() {
-        var currentInst;
-        angular.forEach($scope.institutions, function(item) {
-            if (item.institutionId === $scope.newContact.institutionId) {
-                currentInst = item;
-            }
-        });
-        
-        $scope.organizations = [];
-        $scope.addOrganizationUnitsToList(currentInst);
-    };
-    
-    $scope.addContact  = function(){
-        var currentPerson;
-        angular.forEach($scope.persons, function(item) {
-            if (item.personId === $scope.newContact.personId) {
-                currentPerson = item;
-            }
-        });
-        $scope.newContact.person = currentPerson;
-        ContactService.addNew($scope.newContact,
-            function(result) {
-                $scope.newContact = {};
-                $scope.showAddContactForm = false;
-                $scope.getAllContacts();
-        });
-    };
-    
-    $scope.cancelAddContact = function(){
-        $scope.newContact = {};
-        $scope.showAddContactForm = false;
-    };
-    
-    $scope.getAllContacts();
-});
-angular.module('contact').service('ContactService', function ($http) {
-    return {
-        getAll: function (callback) {
-            $http.get('gui/contact/get_all',
-                { method: 'GET'
-                }).success(callback);
-        },
-        addNew: function (contact, callback) {
-            $http.post('gui/contact/add', contact).success(callback);
-        },
-        getContactRoles: function (callback) {
-            $http.get('gui/contact/contact_roles').success(callback);
-        }
-    };
-});
-
 /**
 * vkBeautify - javascript plugin to pretty-print or minify text in XML, JSON, CSS and SQL formats.
 *  
@@ -604,6 +428,182 @@ window.vkbeautify = new vkbeautify();
 })();
 
 
+angular.module('academicterm', []);
+angular.module('academicterm').controller('AcademicTermController', function ($scope, AcademicTermService, InstitutionService) {
+    $scope.getAllAcademicTerms = function(){
+        AcademicTermService.getAll(
+            function(result) {
+                $scope.academicTerms = result;
+        });
+    };
+    
+    $scope.addAcademicTerm = function(){
+        var selectedAcademicYear;
+        angular.forEach($scope.academicYears, function(item) {
+            if (item.id === $scope.newAcademicTerm.academicYearId) {
+                selectedAcademicYear = item;
+            }
+        });
+        $scope.newAcademicTerm.academicYear = selectedAcademicYear;
+        var academicYearText = $scope.newAcademicTerm_selectedTerm === 0 ? selectedAcademicYear.startYear : selectedAcademicYear.endYear;
+        var enAcademicTermText = $scope.terms[$scope.newAcademicTerm_selectedTerm].en + ' ' + academicYearText;
+        var seAcademicTermText = $scope.terms[$scope.newAcademicTerm_selectedTerm].se + ' ' + academicYearText;
+        $scope.newAcademicTerm.dispName = [{text:enAcademicTermText,'lang':'en'}, {text:seAcademicTermText,'lang':'se'}];
+        $scope.saveAcademicTerm($scope.newAcademicTerm);
+        
+        $scope.cancelAddAcademicTerm();
+    };
+    
+    $scope.cancelAddAcademicTerm = function(){
+        $scope.newAcademicTerm = {};
+        $scope.newAcademicTerm_selectedTerm = 0;
+        $scope.showAddAcademicTermForm = false;
+    };
+    
+    $scope.saveAcademicTerm = function(academicterm) {
+        AcademicTermService.addNew(academicterm, function(result) {
+            $scope.getAllAcademicTerms();
+        });
+    };
+    
+    $scope.addOrganizationUnitsToList = function(obj) {
+        angular.forEach(obj.organizationUnits, function(item) {
+            $scope.organizations.push(item);
+        });
+    };
+    
+    $scope.viewAddAcademicTermForm = function() {
+        InstitutionService.getLocal(
+            function(result) {
+            $scope.institutions = result;
+        });
+        
+        AcademicTermService.getAcademicYears(
+            function(result) {
+            $scope.academicYears = result;
+        });
+
+        $scope.organizations = [];
+        $scope.showAddAcademicTermForm = true;
+    };
+    
+    $scope.institutionChanged = function() {
+        var currentInst;
+        angular.forEach($scope.institutions, function(item) {
+            if (item.institutionId === $scope.newAcademicTerm.institutionId) {
+                currentInst = item;
+            }
+        });
+        
+        $scope.organizations = [];
+        $scope.addOrganizationUnitsToList(currentInst);
+    };
+    
+    $scope.terms = [{label:'Fall', en:'Fall semester', se:'Hösttermin'}, {label:'Spring', en:'Spring semester', se:'Vårtermin'}];
+    $scope.cancelAddAcademicTerm();
+    $scope.getAllAcademicTerms();
+});
+
+angular.module('academicterm').service('AcademicTermService', function ($http) {
+    return {
+        getAll: function (callback) {
+            $http.get('gui/academic_term/get_all').success(callback);
+        },
+        addNew: function (academicterm, callback) {
+            $http.post('gui/academic_term/add', academicterm).success(callback);
+        },
+        getAcademicYears: function (callback) {
+            $http.get('gui/academic_term/list_academic_years').success(callback);
+        }
+    };
+});
+
+angular.module('contact', []);
+angular.module('contact').controller('ContactController', function ($scope, ContactService, PersonService, InstitutionService) {
+
+    $scope.getAllContacts = function() {
+       ContactService.getAll(
+            function(result) {
+            $scope.contacts = result;
+        });
+    };
+    
+    $scope.viewAddContactForm = function() {
+        InstitutionService.getLocal(
+            function(result) {
+            $scope.institutions = result;
+        });
+
+        PersonService.getAll(
+            function(result) {
+            $scope.persons = result;
+        });
+        
+        ContactService.getContactRoles(function(result) {
+            $scope.roles = result;
+        });
+        $scope.organizations = [];
+        $scope.showAddContactForm = true;
+    };
+
+    $scope.addOrganizationUnitsToList = function(obj) {
+        angular.forEach(obj.organizationUnits, function(item) {
+            $scope.organizations.push(item);
+            $scope.addOrganizationUnitsToList(item);
+        });
+    };
+    
+    $scope.institutionChanged = function() {
+        var currentInst;
+        angular.forEach($scope.institutions, function(item) {
+            if (item.institutionId === $scope.newContact.institutionId) {
+                currentInst = item;
+            }
+        });
+        
+        $scope.organizations = [];
+        $scope.addOrganizationUnitsToList(currentInst);
+    };
+    
+    $scope.addContact  = function(){
+        var currentPerson;
+        angular.forEach($scope.persons, function(item) {
+            if (item.personId === $scope.newContact.personId) {
+                currentPerson = item;
+            }
+        });
+        $scope.newContact.person = currentPerson;
+        ContactService.addNew($scope.newContact,
+            function(result) {
+                $scope.newContact = {};
+                $scope.showAddContactForm = false;
+                $scope.getAllContacts();
+        });
+    };
+    
+    $scope.cancelAddContact = function(){
+        $scope.newContact = {};
+        $scope.showAddContactForm = false;
+    };
+    
+    $scope.getAllContacts();
+});
+angular.module('contact').service('ContactService', function ($http) {
+    return {
+        getAll: function (callback) {
+            $http.get('gui/contact/get_all',
+                { method: 'GET'
+                }).success(callback);
+        },
+        addNew: function (contact, callback) {
+            $http.post('gui/contact/add', contact).success(callback);
+        },
+        getContactRoles: function (callback) {
+            $http.get('gui/contact/contact_roles').success(callback);
+        }
+    };
+});
+
 angular.module('connector').service('ClientCacheService', function ($http) {
     var cache = {};
     return {
@@ -889,114 +889,6 @@ angular.module('home').service('HomeService', function ($http) {
         }
     };
 });
-angular.module('loi', []);
-angular.module('loi').controller('LoiController', function ($scope, LoiService, LosService, AcademicTermService) {
-    $scope.getAllTopLevelLosParents = function(){
-        LosService.getAllTopLevelParents(
-            function(result) {
-                $scope.losList = result;
-        });
-    };
-    
-    $scope.showLos = function(los) {
-        $scope.currentLos=los;
-    };
-
-    $scope.toggleLosMenuItem = function(los) {
-        event.preventDefault();
-        event.stopPropagation();
-        los.expanded = !los.expanded;
-    };
-    
-    $scope.viewAddLearningOppInstanceForm = function() {
-        $scope.creditLevels = ['Bachelor', 'Master', 'PhD'];
-        LoiService.getGradingSchemes(
-            function(result) {
-                $scope.gradingSchemes = result;
-        });
-        
-        AcademicTermService.getAll(
-            function(result) {
-                $scope.academicTerms = result;
-        });
-        
-        $scope.organizations = [];
-        $scope.showAddLearningOppInstanceForm = true;
-    };
-    
-    $scope.cancelAddLearningOppInstance = function(){
-        $scope.newLearningOppInstance = {credits: [{value: '',  scheme: '', level: ''}]};
-        $scope.showAddLearningOppInstanceForm = false;
-        $scope.selectedGradingSchemeId = '';
-    };
-    
-    $scope.addLearningOppInstance = function(){
-        var selectedAcademicTerm;
-        angular.forEach($scope.academicTerms, function(item) {
-            if (item.id === $scope.newLearningOppInstance.academicTermId) {
-                selectedAcademicTerm = item;
-            }
-        });
-        $scope.newLearningOppInstance.academicTerm = selectedAcademicTerm;
-        
-        var selectedGradingScheme;
-        angular.forEach($scope.gradingSchemes, function(item) {
-            if (item.id === $scope.selectedGradingSchemeId) {
-                selectedGradingScheme = item;
-            }
-        });
-        $scope.newLearningOppInstance.gradingScheme = selectedGradingScheme;
-        
-        $scope.currentLos.learningOpportunityInstances.push($scope.newLearningOppInstance);
-        $scope.saveLearningOppSpec($scope.currentLos);
-        
-        $scope.showAddLearningOppInstanceForm = false;
-        $scope.newLearningOppInstance = {credits: [{value: '',  scheme: '', level: ''}]};
-        $scope.currentLos = '';
-    };
-    
-    $scope.addResultDistributionCategory = function() {
-        if (!$scope.newLearningOppInstance.resultDistribution) {
-            $scope.newLearningOppInstance.resultDistribution = {};
-        }
-        if (!$scope.newLearningOppInstance.resultDistribution.resultDistributionCategory) {
-            $scope.newLearningOppInstance.resultDistribution.resultDistributionCategory = [];
-        }
-        $scope.newLearningOppInstance.resultDistribution.resultDistributionCategory.push({label:'', count:0});
-    };
-
-    $scope.addResultDistributionDescription = function() {
-        if (!$scope.newLearningOppInstance.resultDistribution) {
-            $scope.newLearningOppInstance.resultDistribution = {};
-        }
-        if (!$scope.newLearningOppInstance.resultDistribution.description) {
-            $scope.newLearningOppInstance.resultDistribution.description = [];
-        }
-        $scope.newLearningOppInstance.resultDistribution.description.push({text:'', lang:''});
-    };
-    
-    $scope.saveLearningOppSpec = function(learningOppSpec) {
-        LosService.save(learningOppSpec, function(result) {
-            $scope.getAllTopLevelLosParents();
-        });
-    };
-    
-    $scope.addCredit = function() {
-        $scope.newLearningOppInstance.credits.push({value: '',  scheme: '', level: ''});
-    };
-    
-    $scope.getAllTopLevelLosParents();
-    $scope.cancelAddLearningOppInstance();
-});
-
-angular.module('loi').service('LoiService', function ($http) {
-    return {
-        getGradingSchemes: function (callback) {
-            $http.get('gui/loi/grading_schemes').success(callback);
-        }
-    };
-});
-
 angular.module('iia', []);
 angular.module('iia').controller('IiaClientController', function ($scope, IiaService, ClientCacheService) {
     IiaService.getIiaHeis(function(result) {
@@ -1405,6 +1297,332 @@ angular.module('institution').controller('OrganizationUnitClientController', fun
     $scope.organizationUnitRequest = {method: "GET"};
 });
 
+angular.module('loi', []);
+angular.module('loi').controller('LoiController', function ($scope, LoiService, LosService, AcademicTermService) {
+    $scope.getAllTopLevelLosParents = function(){
+        LosService.getAllTopLevelParents(
+            function(result) {
+                $scope.losList = result;
+        });
+    };
+    
+    $scope.showLos = function(los) {
+        $scope.currentLos=los;
+    };
+
+    $scope.toggleLosMenuItem = function(los) {
+        event.preventDefault();
+        event.stopPropagation();
+        los.expanded = !los.expanded;
+    };
+    
+    $scope.viewAddLearningOppInstanceForm = function() {
+        $scope.creditLevels = ['Bachelor', 'Master', 'PhD'];
+        LoiService.getGradingSchemes(
+            function(result) {
+                $scope.gradingSchemes = result;
+        });
+        
+        AcademicTermService.getAll(
+            function(result) {
+                $scope.academicTerms = result;
+        });
+        
+        $scope.organizations = [];
+        $scope.showAddLearningOppInstanceForm = true;
+    };
+    
+    $scope.cancelAddLearningOppInstance = function(){
+        $scope.newLearningOppInstance = {credits: [{value: '',  scheme: '', level: ''}]};
+        $scope.showAddLearningOppInstanceForm = false;
+        $scope.selectedGradingSchemeId = '';
+    };
+    
+    $scope.addLearningOppInstance = function(){
+        var selectedAcademicTerm;
+        angular.forEach($scope.academicTerms, function(item) {
+            if (item.id === $scope.newLearningOppInstance.academicTermId) {
+                selectedAcademicTerm = item;
+            }
+        });
+        $scope.newLearningOppInstance.academicTerm = selectedAcademicTerm;
+        
+        var selectedGradingScheme;
+        angular.forEach($scope.gradingSchemes, function(item) {
+            if (item.id === $scope.selectedGradingSchemeId) {
+                selectedGradingScheme = item;
+            }
+        });
+        $scope.newLearningOppInstance.gradingScheme = selectedGradingScheme;
+        
+        $scope.currentLos.learningOpportunityInstances.push($scope.newLearningOppInstance);
+        $scope.saveLearningOppSpec($scope.currentLos);
+        
+        $scope.showAddLearningOppInstanceForm = false;
+        $scope.newLearningOppInstance = {credits: [{value: '',  scheme: '', level: ''}]};
+        $scope.currentLos = '';
+    };
+    
+    $scope.addResultDistributionCategory = function() {
+        if (!$scope.newLearningOppInstance.resultDistribution) {
+            $scope.newLearningOppInstance.resultDistribution = {};
+        }
+        if (!$scope.newLearningOppInstance.resultDistribution.resultDistributionCategory) {
+            $scope.newLearningOppInstance.resultDistribution.resultDistributionCategory = [];
+        }
+        $scope.newLearningOppInstance.resultDistribution.resultDistributionCategory.push({label:'', count:0});
+    };
+
+    $scope.addResultDistributionDescription = function() {
+        if (!$scope.newLearningOppInstance.resultDistribution) {
+            $scope.newLearningOppInstance.resultDistribution = {};
+        }
+        if (!$scope.newLearningOppInstance.resultDistribution.description) {
+            $scope.newLearningOppInstance.resultDistribution.description = [];
+        }
+        $scope.newLearningOppInstance.resultDistribution.description.push({text:'', lang:''});
+    };
+    
+    $scope.saveLearningOppSpec = function(learningOppSpec) {
+        LosService.save(learningOppSpec, function(result) {
+            $scope.getAllTopLevelLosParents();
+        });
+    };
+    
+    $scope.addCredit = function() {
+        $scope.newLearningOppInstance.credits.push({value: '',  scheme: '', level: ''});
+    };
+    
+    $scope.getAllTopLevelLosParents();
+    $scope.cancelAddLearningOppInstance();
+});
+
+angular.module('loi').service('LoiService', function ($http) {
+    return {
+        getGradingSchemes: function (callback) {
+            $http.get('gui/loi/grading_schemes').success(callback);
+        }
+    };
+});
+
+angular.module('los', []);
+angular.module('los').controller('CourseReplicationClientController', function ($scope, LosService, ClientCacheService) {
+    LosService.getCourseReplicationHeis(function(result) {
+        $scope.heis = result;
+        if ($scope.heis) {
+            $scope.urls = [];
+            angular.forEach($scope.heis, function(hei) {
+                if ($scope.urls.indexOf(hei.urls['url']) === -1) {
+                    $scope.urls.push(hei.urls['url']);
+                }
+            });
+        }
+    });
+    $scope.urlChanged = function() {
+        $scope.urlHeis = [{name:'<Missing Institution>', id:'missing'}];
+        angular.forEach($scope.heis, function(hei) {
+            if (hei.urls['url'] === $scope.courseReplicationRequest.url) {
+                $scope.urlHeis.push(hei);
+            }
+        });
+    };
+    $scope.sendCourseReplicationRequest = function() {
+        LosService.getCourseReplication($scope.courseReplicationRequest, function(result) {
+            $scope.losResult = result;
+            if (result && result.result && result.result.losId) {
+                ClientCacheService.add('CourseReplication', $scope.courseReplicationRequest.heiId, result.result.losId);
+            }
+        });
+    };
+    
+    $scope.courseReplicationRequest = {method: "GET"};
+});
+
+angular.module('los').controller('CoursesClientController', function ($scope, LosService, ClientCacheService) {
+    LosService.getCourseHeis(function(result) {
+        $scope.heis = result;
+        if ($scope.heis) {
+            $scope.urls = [];
+            angular.forEach($scope.heis, function(hei) {
+                if ($scope.urls.indexOf(hei.urls['url']) === -1) {
+                    $scope.urls.push(hei.urls['url']);
+                }
+            });
+        }
+    });
+    $scope.urlChanged = function() {
+        $scope.urlHeis = [{name:'<Missing Institution>', id:'missing'}];
+        angular.forEach($scope.heis, function(hei) {
+            if (hei.urls['url'] === $scope.coursesRequest.url) {
+                $scope.urlHeis.push(hei);
+            }
+        });
+    };
+    
+    $scope.institutionChanged = function() {
+        $scope.heiLosIds = ['<Missing Los Id>'];
+        var losIds = ClientCacheService.get('CourseReplication', $scope.coursesRequest.heiId);
+        angular.forEach(losIds, function(losId) {
+            $scope.heiLosIds.push(losId);
+        });
+    };
+    
+    $scope.sendCoursesRequest = function() {
+        if ($scope.cachedIds) {
+            $scope.coursesRequest.params = {'los_id': $scope.cachedLosIds};
+        } else {
+            var losIds = $scope.manuallyLosIds.split(',');
+            $scope.coursesRequest.params = {'los_id': losIds};
+        }
+        LosService.getCourse($scope.coursesRequest, function(result) {
+            $scope.losResult = result;
+        });
+    };
+    
+    $scope.coursesRequest = {method: "GET"};
+});
+
+angular.module('los').controller('LosController', function ($scope, LosService, InstitutionService) {
+    $scope.getAllTopLevelLosParents = function(){
+        LosService.getAllTopLevelParents(
+            function(result) {
+                $scope.losList = result;
+        });
+    };
+    
+    $scope.viewAddLearningOppSpecRootForm = function() {
+        InstitutionService.getLocal(
+            function(result) {
+            $scope.institutions = result;
+        });
+        
+        $scope.lostypes = ['DEGREE_PROGRAMME', 'MODULE', 'COURSE'];
+        
+        $scope.showAddLearningOppSpecForm = true;
+        $scope.currentLos = undefined;
+    };
+    
+    $scope.institutionChanged = function() {
+        var currentInst;
+        angular.forEach($scope.institutions, function(item) {
+            if (item.institutionId === $scope.newLearningOppSpec.institutionId) {
+                currentInst = item;
+            }
+        });
+        
+        $scope.organizations = [];
+        $scope.addOrganizationUnitsToList(currentInst);
+    };
+    
+    $scope.addOrganizationUnitsToList = function(obj) {
+        angular.forEach(obj.organizationUnits, function(item) {
+            $scope.organizations.push(item);
+            $scope.addOrganizationUnitsToList(item);
+        });
+    };
+
+    $scope.viewAddLearningOppSpecForm = function(los) {
+        if (los.type === 'DEGREE_PROGRAMME') {
+            $scope.lostypes = ['MODULE', 'COURSE'];
+        } else if (los.type === 'MODULE') {
+            $scope.lostypes = ['COURSE'];
+        } else if (los.type === 'COURSE') {
+            $scope.lostypes = ['CLASS'];
+        }
+        
+        $scope.institutions = [];
+        $scope.showAddLearningOppSpecForm = true;
+        $scope.currentLos = los;
+    };
+    
+    $scope.addLOSUrl = function() {
+        if (!$scope.newLearningOppSpec.url) {
+            $scope.newLearningOppSpec.url = [];
+        }
+        $scope.newLearningOppSpec.url.push({text:'', lang:''});
+    };
+    
+    $scope.addLearningOppSpec = function() {
+        if ($scope.currentLos) {
+            $scope.newLearningOppSpec.institutionId = $scope.currentLos.institutionId;
+            $scope.currentLos.learningOpportunitySpecifications.push($scope.newLearningOppSpec);
+            $scope.saveLearningOppSpec($scope.currentLos);
+        } else {
+            $scope.newLearningOppSpec.topLevelParent = true;
+            $scope.saveLearningOppSpec($scope.newLearningOppSpec);
+        }
+        
+        $scope.showAddLearningOppSpecForm = false;
+        $scope.newLearningOppSpec = {};
+        $scope.newLearningOppSpec = {name:[{text:'', lang: ''}]};
+        $scope.currentLos = '';
+    };
+    
+    $scope.saveLearningOppSpec = function(learningOppSpec) {
+        LosService.save(learningOppSpec, function(result) {
+            $scope.getAllTopLevelLosParents();
+        });
+    };
+    
+    $scope.cancelAddLearningOppSpec = function(){
+        $scope.newLearningOppSpec = {name:[{text:'', lang: ''}], eqfLevel:1};
+        $scope.showAddLearningOppSpecForm = false;
+    };
+    
+    $scope.addNameForLearningOppSpec = function() {
+        $scope.newLearningOppSpec.name.push({text: '',  lang: ''});
+    };
+    
+    $scope.addDescriptionForLearningOppSpec = function() {
+        if (!$scope.newLearningOppSpec.description) {
+            $scope.newLearningOppSpec.description = [];
+        }
+        $scope.newLearningOppSpec.description.push({text: '',  lang: ''});
+    };
+    
+    $scope.showLos = function(los) {
+        $scope.currentLos=los;
+    };
+    $scope.toggleLosMenuItem = function(los) {
+        event.preventDefault();
+        event.stopPropagation();
+        los.expanded = !los.expanded;
+    };
+    
+    $scope.eqfLevels=['1','2','3','4','5','6','7','8'];
+    $scope.getAllTopLevelLosParents();
+    $scope.cancelAddLearningOppSpec();
+});
+
+angular.module('los').service('LosService', function ($http) {
+    return {
+        getAll: function (callback) {
+            $http.get('gui/los/get_all').success(callback);
+        },
+        getAllTopLevelParents: function (callback) {
+            $http.get('gui/los/get_top_level_parents').success(callback);
+        },
+        save: function (learningOppSpec, callback) {
+            $http.post('gui/los/save', learningOppSpec).success(callback);
+        },
+        getByInstitutionId: function (institutionId, callback) {
+            $http.get('gui/los/get_by_institution_id', {params: {institutionId: institutionId}}).success(callback);
+        },
+        getCourseReplicationHeis: function (callback) {
+            $http.get('gui/los/course-replication').success(callback);
+        },
+        getCourseReplication: function (courseReplicationRequest, callback) {
+            $http.post('gui/los/course-replication', courseReplicationRequest).success(callback);
+        },
+        getCourseHeis: function (callback) {
+            $http.get('gui/los/courses').success(callback);
+        },
+        getCourse: function (courseRequest, callback) {
+            $http.post('gui/los/courses', courseRequest).success(callback);
+        }
+    };
+});
+
 angular.module('menu', []);
 angular.module('menu').controller('MenuController', function ($scope, $location, NotificationService, MobilityService, $interval) {
     $scope.rootMenu = [{name:'Organization',
@@ -1771,10 +1989,10 @@ angular.module('mobility').service('MobilityService', function ($http) {
             $http.post('gui/omobility/omobilities-get', courseRequest).success(callback);
         },
         getAllMobilityUpdateRequests: function (callback) {
-            $http.get('gui/omobility/update/get_all').success(callback);
+           // $http.get('gui/omobility/update/get_all').success(callback);
         },
         getCountMobilityUpdateRequests: function (callback) {
-            $http.get('gui/omobility/update/count').success(callback);
+           // $http.get('gui/omobility/update/count').success(callback);
         },
         getImobilityHeis: function (callback) {
             $http.get('gui/omobility/imobilities-heis').success(callback);
@@ -2083,224 +2301,6 @@ angular.module('mobilityParticipant').service('MobilityParticipantService', func
         },
         addNew: function (contact, callback) {
             $http.post('gui/participant/add', contact).success(callback);
-        }
-    };
-});
-
-angular.module('los', []);
-angular.module('los').controller('CourseReplicationClientController', function ($scope, LosService, ClientCacheService) {
-    LosService.getCourseReplicationHeis(function(result) {
-        $scope.heis = result;
-        if ($scope.heis) {
-            $scope.urls = [];
-            angular.forEach($scope.heis, function(hei) {
-                if ($scope.urls.indexOf(hei.urls['url']) === -1) {
-                    $scope.urls.push(hei.urls['url']);
-                }
-            });
-        }
-    });
-    $scope.urlChanged = function() {
-        $scope.urlHeis = [{name:'<Missing Institution>', id:'missing'}];
-        angular.forEach($scope.heis, function(hei) {
-            if (hei.urls['url'] === $scope.courseReplicationRequest.url) {
-                $scope.urlHeis.push(hei);
-            }
-        });
-    };
-    $scope.sendCourseReplicationRequest = function() {
-        LosService.getCourseReplication($scope.courseReplicationRequest, function(result) {
-            $scope.losResult = result;
-            if (result && result.result && result.result.losId) {
-                ClientCacheService.add('CourseReplication', $scope.courseReplicationRequest.heiId, result.result.losId);
-            }
-        });
-    };
-    
-    $scope.courseReplicationRequest = {method: "GET"};
-});
-
-angular.module('los').controller('CoursesClientController', function ($scope, LosService, ClientCacheService) {
-    LosService.getCourseHeis(function(result) {
-        $scope.heis = result;
-        if ($scope.heis) {
-            $scope.urls = [];
-            angular.forEach($scope.heis, function(hei) {
-                if ($scope.urls.indexOf(hei.urls['url']) === -1) {
-                    $scope.urls.push(hei.urls['url']);
-                }
-            });
-        }
-    });
-    $scope.urlChanged = function() {
-        $scope.urlHeis = [{name:'<Missing Institution>', id:'missing'}];
-        angular.forEach($scope.heis, function(hei) {
-            if (hei.urls['url'] === $scope.coursesRequest.url) {
-                $scope.urlHeis.push(hei);
-            }
-        });
-    };
-    
-    $scope.institutionChanged = function() {
-        $scope.heiLosIds = ['<Missing Los Id>'];
-        var losIds = ClientCacheService.get('CourseReplication', $scope.coursesRequest.heiId);
-        angular.forEach(losIds, function(losId) {
-            $scope.heiLosIds.push(losId);
-        });
-    };
-    
-    $scope.sendCoursesRequest = function() {
-        if ($scope.cachedIds) {
-            $scope.coursesRequest.params = {'los_id': $scope.cachedLosIds};
-        } else {
-            var losIds = $scope.manuallyLosIds.split(',');
-            $scope.coursesRequest.params = {'los_id': losIds};
-        }
-        LosService.getCourse($scope.coursesRequest, function(result) {
-            $scope.losResult = result;
-        });
-    };
-    
-    $scope.coursesRequest = {method: "GET"};
-});
-
-angular.module('los').controller('LosController', function ($scope, LosService, InstitutionService) {
-    $scope.getAllTopLevelLosParents = function(){
-        LosService.getAllTopLevelParents(
-            function(result) {
-                $scope.losList = result;
-        });
-    };
-    
-    $scope.viewAddLearningOppSpecRootForm = function() {
-        InstitutionService.getLocal(
-            function(result) {
-            $scope.institutions = result;
-        });
-        
-        $scope.lostypes = ['DEGREE_PROGRAMME', 'MODULE', 'COURSE'];
-        
-        $scope.showAddLearningOppSpecForm = true;
-        $scope.currentLos = undefined;
-    };
-    
-    $scope.institutionChanged = function() {
-        var currentInst;
-        angular.forEach($scope.institutions, function(item) {
-            if (item.institutionId === $scope.newLearningOppSpec.institutionId) {
-                currentInst = item;
-            }
-        });
-        
-        $scope.organizations = [];
-        $scope.addOrganizationUnitsToList(currentInst);
-    };
-    
-    $scope.addOrganizationUnitsToList = function(obj) {
-        angular.forEach(obj.organizationUnits, function(item) {
-            $scope.organizations.push(item);
-            $scope.addOrganizationUnitsToList(item);
-        });
-    };
-
-    $scope.viewAddLearningOppSpecForm = function(los) {
-        if (los.type === 'DEGREE_PROGRAMME') {
-            $scope.lostypes = ['MODULE', 'COURSE'];
-        } else if (los.type === 'MODULE') {
-            $scope.lostypes = ['COURSE'];
-        } else if (los.type === 'COURSE') {
-            $scope.lostypes = ['CLASS'];
-        }
-        
-        $scope.institutions = [];
-        $scope.showAddLearningOppSpecForm = true;
-        $scope.currentLos = los;
-    };
-    
-    $scope.addLOSUrl = function() {
-        if (!$scope.newLearningOppSpec.url) {
-            $scope.newLearningOppSpec.url = [];
-        }
-        $scope.newLearningOppSpec.url.push({text:'', lang:''});
-    };
-    
-    $scope.addLearningOppSpec = function() {
-        if ($scope.currentLos) {
-            $scope.newLearningOppSpec.institutionId = $scope.currentLos.institutionId;
-            $scope.currentLos.learningOpportunitySpecifications.push($scope.newLearningOppSpec);
-            $scope.saveLearningOppSpec($scope.currentLos);
-        } else {
-            $scope.newLearningOppSpec.topLevelParent = true;
-            $scope.saveLearningOppSpec($scope.newLearningOppSpec);
-        }
-        
-        $scope.showAddLearningOppSpecForm = false;
-        $scope.newLearningOppSpec = {};
-        $scope.newLearningOppSpec = {name:[{text:'', lang: ''}]};
-        $scope.currentLos = '';
-    };
-    
-    $scope.saveLearningOppSpec = function(learningOppSpec) {
-        LosService.save(learningOppSpec, function(result) {
-            $scope.getAllTopLevelLosParents();
-        });
-    };
-    
-    $scope.cancelAddLearningOppSpec = function(){
-        $scope.newLearningOppSpec = {name:[{text:'', lang: ''}], eqfLevel:1};
-        $scope.showAddLearningOppSpecForm = false;
-    };
-    
-    $scope.addNameForLearningOppSpec = function() {
-        $scope.newLearningOppSpec.name.push({text: '',  lang: ''});
-    };
-    
-    $scope.addDescriptionForLearningOppSpec = function() {
-        if (!$scope.newLearningOppSpec.description) {
-            $scope.newLearningOppSpec.description = [];
-        }
-        $scope.newLearningOppSpec.description.push({text: '',  lang: ''});
-    };
-    
-    $scope.showLos = function(los) {
-        $scope.currentLos=los;
-    };
-    $scope.toggleLosMenuItem = function(los) {
-        event.preventDefault();
-        event.stopPropagation();
-        los.expanded = !los.expanded;
-    };
-    
-    $scope.eqfLevels=['1','2','3','4','5','6','7','8'];
-    $scope.getAllTopLevelLosParents();
-    $scope.cancelAddLearningOppSpec();
-});
-
-angular.module('los').service('LosService', function ($http) {
-    return {
-        getAll: function (callback) {
-            $http.get('gui/los/get_all').success(callback);
-        },
-        getAllTopLevelParents: function (callback) {
-            $http.get('gui/los/get_top_level_parents').success(callback);
-        },
-        save: function (learningOppSpec, callback) {
-            $http.post('gui/los/save', learningOppSpec).success(callback);
-        },
-        getByInstitutionId: function (institutionId, callback) {
-            $http.get('gui/los/get_by_institution_id', {params: {institutionId: institutionId}}).success(callback);
-        },
-        getCourseReplicationHeis: function (callback) {
-            $http.get('gui/los/course-replication').success(callback);
-        },
-        getCourseReplication: function (courseReplicationRequest, callback) {
-            $http.post('gui/los/course-replication', courseReplicationRequest).success(callback);
-        },
-        getCourseHeis: function (callback) {
-            $http.get('gui/los/courses').success(callback);
-        },
-        getCourse: function (courseRequest, callback) {
-            $http.post('gui/los/courses', courseRequest).success(callback);
         }
     };
 });

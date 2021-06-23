@@ -86,4 +86,10 @@ public class MobilityLoader extends AbstractStartupLoader {
         
         return iiaList.get(0).getId();
     }
+
+	@Override
+	public void createDemoDataUma() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 }

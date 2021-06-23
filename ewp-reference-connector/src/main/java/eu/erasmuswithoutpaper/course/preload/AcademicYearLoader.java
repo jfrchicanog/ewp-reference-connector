@@ -29,4 +29,10 @@ public class AcademicYearLoader extends AbstractStartupLoader {
         AcademicYear academicYear = JsonHelper.mapToObject(AcademicYear.class, academicYearJson);
         em.persist(academicYear);
     }
+
+	@Override
+	public void createDemoDataUma() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 }
