@@ -4,8 +4,10 @@
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
 
     <system
-        systemId="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobilities/v0.15.1/endpoints/update-request.xsd"
+        systemId="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobility-las/v0.1.0/endpoints/update-request.xsd"
         uri="update-request.xsd"/>
-    
+    <system
+        systemId="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobility-las/v0.1.0/endpoints/get-response.xsd"
+        uri="get-response.xsd"/>
     
 </catalog>

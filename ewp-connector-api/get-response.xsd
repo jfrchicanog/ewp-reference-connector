@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:a="https://github.com/erasmus-without-paper/ewp-specs-types-address/tree/stable-v1"
     xmlns:p="https://github.com/erasmus-without-paper/ewp-specs-types-phonenumber/tree/stable-v1"
     xmlns:course="https://github.com/erasmus-without-paper/ewp-specs-api-courses/tree/stable-v1"
     xmlns:trm="https://github.com/erasmus-without-paper/ewp-specs-types-academic-term/tree/stable-v1"
@@ -9,19 +8,14 @@
     xmlns:ewp="https://github.com/erasmus-without-paper/ewp-specs-architecture/blob/stable-v1/common-types.xsd"
     elementFormDefault="qualified"
 
-    targetNamespace="https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/blob/stable-v1/endpoints/get-response.xsd"
-    xmlns="https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/blob/stable-v1/endpoints/get-response.xsd"
+    targetNamespace="https://github.com/erasmus-without-paper/ewp-specs-api-omobility-las/blob/stable-v1/endpoints/get-response.xsd"
+    xmlns="https://github.com/erasmus-without-paper/ewp-specs-api-omobility-las/blob/stable-v1/endpoints/get-response.xsd"
 >
     <!-- WRTODO: Do not release until dependants are released: Courses API -->
 
     <xs:import
         schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-architecture/stable-v1/common-types.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-architecture/blob/stable-v1/common-types.xsd"
-    />
-
-    <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-types-address/stable-v1/schema.xsd"
-        namespace="https://github.com/erasmus-without-paper/ewp-specs-types-address/tree/stable-v1"
     />
 
     <xs:import
@@ -48,581 +42,311 @@
         </xs:documentation>
     </xs:annotation>
 
-    <xs:element name="omobilities-get-response">
+    <xs:element name="omobility-las-get-response">
         <xs:annotation>
             <xs:documentation>
                 This describes the format of the response returned by the EWP Outgoing
-                Mobilities API.
+                Mobility Learning Agreements API.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:group ref="SequenceOfMobilities" minOccurs="1" maxOccurs="1">
+                <xs:element name="la" type="LearningAgreement" minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>
                         <xs:documentation>
-                            Clients should use the `omobility-id` subelements to match objects with their
-                            `omobility_id` request parameters.
+                            This represents a single Learning Agreement.
+
+                            Immutable elements
+                            ------------------
+
+                            Every mobility has its unique sending-hei, receiving-hei and nominee, which
+                            MUST NOT change after the mobility is created. For example, if it turns out
+                            that a different student will be nominated for this mobility, then a new
+                            omobility-id MUST be created for such nomination. However, the properties of
+                            these mobility-related entities still MAY change. E.g. the student's name may
+                            get updated.
                         </xs:documentation>
                     </xs:annotation>
-                </xs:group>
+                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-
-    <xs:group name="SequenceOfMobilities">
-        <xs:annotation>
-            <xs:documentation>
-                This is global, because it is used in external XSDs. It MUST stay this way, for
-                backward compatibility.
-            </xs:documentation>
-        </xs:annotation>
+                    
+    <xs:complexType name="LearningAgreement">
         <xs:sequence>
-            <xs:group ref="SingleMobilityObject" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="omobility-id" type="ewp:AsciiPrintableIdentifier">
                 <xs:annotation>
                     <xs:documentation>
-                        A list of matching mobilities.
-
-                        Currently there's only type of mobility exposed by this API. More types MAY
-                        come in the future.
+                        Identifier of the mobility (as assigned by the sending HEI). Immutable.
+                        If the HEI also implement the Outgoing Mobilities API, the omobility-id
+                        for the given mobility MUST be the same in both APIs.
                     </xs:documentation>
                 </xs:annotation>
-            </xs:group>
-        </xs:sequence>
-    </xs:group>
+            </xs:element>
+            <xs:element name="sending-hei" type="MobilityInstitution">
+                <xs:annotation>
+                    <xs:documentation>
+                        This describes the sending HEI - the home institution of the student being sent.
+                    </xs:documentation>
+                </xs:annotation>
+             </xs:element>
+            <xs:element name="receiving-hei" type="MobilityInstitution">
+                <xs:annotation>
+                    <xs:documentation>
+                        This describes the receiving HEI - the institution which will be hosting the student.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="receiving-academic-year-id" type="trm:AcademicYearId">
+                <xs:annotation>
+                    <xs:documentation>
+                        Academic year during which this mobility takes place (or is supposed to take
+                        place).
 
-    <xs:group name="SingleMobilityObject">
-        <xs:annotation>
-            <xs:documentation>
-                Represents a single mobility of any type.
+                        Note, that sending and receiving HEIs MAY use different academic year
+                        identifiers (e.g. "2010/2011" vs. "2010/2010" or "2011/2011"). This
+                        particular identifier is the year identifier at the *receiving* HEI, not the
+                        sending HEI.
 
-                This is global, because it is used in external XSDs. It MUST stay this way, for
-                backward compatibility.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:choice>
-            <xs:element ref="student-mobility-for-studies"/>
-        </xs:choice>
-    </xs:group>
+                        This means that the sending HEI MUST know how the receiving HEI identifies its
+                        academic years (i.e. whether it lies on the northern or southern hemisphere),
+                        and be able to match its mobilities with these identifiers.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="student">
+                <xs:annotation>
+                    <xs:documentation>
+                        The section describes the student who is being sent for this mobility.
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="given-names" type="xs:string" />
+                        <xs:element name="family-name" type="xs:string" />
+                        <xs:element name="birth-date" type="xs:date" />
+                        <xs:element name="citizenship" type="ewp:CountryCode">
+                            <xs:annotation>
+                                <xs:documentation>
+                                    Code of the country to which the person belongs administratively and that
+                                    issues the ID card and/or passport.
+                                </xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="gender" type="ewp:Gender" />
+                        <xs:element name="email" type="ewp:Email" />
+                        <xs:element ref="p:phone-number" minOccurs="0" maxOccurs="unbounded">
+                            <xs:annotation>
+                                <xs:documentation>
+                                    A list of phone numbers at which this person can possibly be reached.
+                                    The "best" numbers should be listed first.
+                                </xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="planned-mobility-start" type="xs:gYearMonth">
+                <xs:annotation>
+                    <xs:documentation>
+                        Planned start date of the mobility (when the student is supposed to arrive).
+                        Only month and year.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="planned-mobility-end" type="xs:gYearMonth">
+                <xs:annotation>
+                    <xs:documentation>
+                        Planned end date of the mobility (when the student is supposed to leave).
+                        Only month and year.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="eqf-level-studied-at-departure" type="ewp:EqfLevel">
+                <xs:annotation>
+                    <xs:documentation>
+                        The student is sent for the mobility as part of one of his study programmes. 
+                        This field contains the student's EQF level on this programme *at the time of
+                        the departure*.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="student-isced-f-code" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        The student is sent to the mobility as part of one of his study programmes.
+                        This field contains the ISCED-F field of education code that is closest to the
+                        subject this programme (or, as EUC put is, "closest to the degree to be awarded
+                        to the student by the Sending Institution").
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="student-language-skill">
+                <xs:annotation>
+                    <xs:documentation>
+                        The level of language competence in the main language of instruction
+                        that the student already has or agrees to acquire by the start of the study period.
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="language" type="xs:language">
+                            <xs:annotation>
+                                <xs:documentation>
+                                    The BCP 47 code of the language.
+                                </xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="cefr-level" type="ewp:CefrLevel">
+                            <xs:annotation>
+                                <xs:documentation>
+                                    The level of language skill.
+                                </xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="components-studied">
+                <xs:annotation>
+                    <xs:documentation>
+                        Different versions of the list of components studied (or planned to be studied)
+                        at the receiving HEI.
 
-    <xs:element name="student-mobility-for-studies">
-        <xs:complexType>
-            <xs:annotation>
-                <xs:documentation>
-                    This describes a single Student Mobility for Studies.
+                        We need different versions of this list because the EUC LA template (attached in
+                        this XSD's repository) requires it. As has been reported by WP2, the receiving
+                        HEI might also need all these versions.
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:sequence minOccurs="0" maxOccurs="1">
+                            <xs:annotation>
+                                <xs:documentation>
+                                    The "before mobility" and "latest approved" sections are optional. It is allowed
+                                    to have only the "latest draft" section (this indicates that no LA has yet been
+                                    approved).
 
-                    In the future, it may become a "subclass" of a more generic Mobility parent class
-                    (and some of the fields might be moved to the parent).
-
-                    Immutable elements
-                    ------------------
-
-                    Every mobility has its unique sending-hei, receiving-hei and nominee, which
-                    MUST NOT change after the mobility is created. For example, if it turns out
-                    that a different student will be nominated for this mobility, then a new
-                    omobility-id MUST be created for such nomination. However, the properties of
-                    these mobility-related entities still MAY change. E.g. the student's name may
-                    get updated.
-                </xs:documentation>
-            </xs:annotation>
-            <xs:sequence>
-                <xs:element name="omobility-id" type="ewp:AsciiPrintableIdentifier" minOccurs="1" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Identifier of the mobility (as assigned by the sending HEI). Immutable.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="sending-hei" minOccurs="1" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            This describes the sending HEI - the home institution of the student being sent.
-                        </xs:documentation>
-                    </xs:annotation>
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="hei-id" type="xs:string" minOccurs="1" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        SCHAC ID of the institution. Immutable.
-                                        https://github.com/erasmus-without-paper/ewp-specs-api-registry/#schac-identifiers
-
-                                        Clients can fetch more information on this HEI from the Institutions API
-                                        served on the sending HEI's servers.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="ounit-id" type="ewp:AsciiPrintableIdentifier" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        Optional organizational unit ID. If given, then it refers to the unit within
-                                        the sending HEI's organizational structure, which is responsible for this
-                                        student.
-
-                                        Clients can fetch more information on this unit from Organizational Units API
-                                        served on the sending HEI's servers.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="iia-id" type="ewp:AsciiPrintableIdentifier" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        Optional ID of the Institutional Agreement based on which the student is being
-                                        nominated/sent.
-
-                                        This ID should be provided by the server ONLY if it implements EWP's
-                                        Interinstitutional Agreements API. Clients can fetch more information on this
-                                        agreement from IIAs API served on the sending HEI's servers (e.g. contact
-                                        information to an appropriate IRO representative responsible for sending
-                                        students for mobilities based on this IIA).
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="receiving-hei" minOccurs="1" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            This describes the receiving HEI - the institution which will be hosting the
-                            student.
-                        </xs:documentation>
-                    </xs:annotation>
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="hei-id" type="xs:string" minOccurs="1" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        SCHAC ID of the institution. Immutable.
-                                        https://github.com/erasmus-without-paper/ewp-specs-api-registry/#schac-identifiers
-
-                                        Clients can fetch more information on this HEI from the Institutions API
-                                        served on the *receiving HEI's* servers.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="ounit-id" type="ewp:AsciiPrintableIdentifier" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        Optional organizational onit ID. If given, then it refers to the unit within
-                                        the receiving HEI's organizational structure, which is responsible for receiving
-                                        this student.
-
-                                        If provided, then it MUST have the value of the "external" ounit-id, exactly as
-                                        it has been assigned by the *receiving HEI* in its Organizational Units API.
-                                        Clients can fetch more information on this unit from Organizational Units API
-                                        served on the *receiving HEI's* servers.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="iia-id" type="ewp:AsciiPrintableIdentifier" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        Each IIA partner can assign an ID of its own to the same IIA. If the server is
-                                        aware of the *receiving HEI's* ID assigned to the IIA based on which the
-                                        student is being sent, then it outputs it here.
-
-                                        Clients can fetch more information on this agreement from IIAs API served on
-                                        the *receiving HEI's* servers (e.g. contact information of the coordinator who
-                                        will receive the students).
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="receiving-academic-year-id" type="trm:AcademicYearId" minOccurs="1" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Academic year during which this mobility takes place (or is supposed to take
-                            place).
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="student" minOccurs="1" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            The section describes the student who is being sent for this mobility. Immutable.
-
-                            These fields MAY change in time (e.g. after the student changes his name or
-                            address).
-                        </xs:documentation>
-                    </xs:annotation>
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="given-names" type="ewp:StringWithOptionalLang" minOccurs="1" maxOccurs="unbounded">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        The given names of the person.
-
-                                        It MAY be specified in multiple languages (and/or multiple alphabets), as it
-                                        has been explained in the `contact` element:
-                                        https://github.com/erasmus-without-paper/ewp-specs-types-contact
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="family-name" type="ewp:StringWithOptionalLang" minOccurs="1" maxOccurs="unbounded">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        The family name of the person.
-
-                                        It MAY be specified in multiple languages (and/or multiple alphabets), as it
-                                        has been explained in the `contact` element:
-                                        https://github.com/erasmus-without-paper/ewp-specs-types-contact
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="birth-date" type="xs:date" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        RECOMMENDED. Date of birth.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="citizenship" type="ewp:CountryCode" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        Code of the country to which the person belongs administratively and that
-                                        issues the ID card and/or passport. E.g. "PL".
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="gender" type="ewp:Gender" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        Optional code of the gender.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="email" type="ewp:Email" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        Email address at which student should be contacted.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="photo-url" minOccurs="0" maxOccurs="unbounded">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        If given, then it contains the URLs at which the client may fetch the photo of
-                                        the student. Multiple URLs may be provided with multiple versions of the photo,
-                                        or various types of the photo.
-
-                                        * Whenever possible, the server SHOULD provide an up-to-date photo in a
-                                          standard EU passport photo aspect ratio (width x height = 35 x 45), eligable
-                                          to be used for a student card. Such photo SHOULD come first in this list.
-
-                                        * Other photos in many aspect ratios may follow. They may be variations of the
-                                          same photo (e.g. without cropping, or with a different cropping), or they may
-                                          be completely different photos.
-
-                                        * All URLs MUST be accessible to anonymous requesters as described here:
-                                          https://github.com/erasmus-without-paper/ewp-specs-sec-cliauth-none
-
-                                        * URLs MAY contain some kind of access tokens which may expire in time. Clients
-                                          MAY send the URL directly to their users' brosers, but they should be aware
-                                          that such URLs may expire at any moment. If the clients need to have a copy
-                                          of the photo, then they MUST copy the contents of the photo to their servers.
-                                    </xs:documentation>
-                                </xs:annotation>
-                                <xs:complexType>
-                                    <xs:simpleContent>
-                                        <xs:extension base="ewp:HTTPS">
-                                            <xs:attribute name="size-px" use="optional">
-                                                <xs:annotation>
-                                                    <xs:documentation>
-                                                        If given, then this attribute contains the exact dimensions (width and height)
-                                                        of the photo, in pixels. These are expressed by a single string of two values
-                                                        concatenated with "x" character, e.g. "350x450" means that the photo's width is
-                                                        350 pixels, and its height is 450 pixels.
-
-                                                        Clients may use this attribute to quickly browse through the list of URLs and
-                                                        pick one that suits their needs best (without actually fetching the images). It
-                                                        is RECOMMENDED (but not required) for the servers to supply it.
-                                                    </xs:documentation>
-                                                </xs:annotation>
-                                                <xs:simpleType>
-                                                    <xs:restriction base="xs:string">
-                                                        <xs:pattern value="[0-9]+x[0-9]+"/>
-                                                    </xs:restriction>
-                                                </xs:simpleType>
-                                            </xs:attribute>
-                                            <xs:attribute name="public" use="optional" type="xs:boolean" default="false">
-                                                <xs:annotation>
-                                                    <xs:documentation>
-                                                        By default, all photos MUST be treated as private personal data, and SHOULD
-                                                        NOT be viewed to other users.
-
-                                                        However, if this attribute is "true", then either it means that the **nominee
-                                                        himself** has granted for this photo to be viewed **publicly**. This means that
-                                                        the client MAY show this photo to all other students and staff members, and
-                                                        even to anonymous users of his system. However, this choice MAY change at any
-                                                        time, so - if the client rely on it - then it MUST revalidate if the photo is
-                                                        still public every now and then.
-                                                    </xs:documentation>
-                                                </xs:annotation>
-                                            </xs:attribute>
-                                            <xs:attribute name="date" use="optional" type="xs:date">
-                                                <xs:annotation>
-                                                    <xs:documentation>
-                                                        If given, then it indicates the time when the photo has been taken, or
-                                                        uploaded. This date can be used by the client to verify if the photo is "fresh
-                                                        enough", for example for the purposes of issuing student cards, etc.
-                                                    </xs:documentation>
-                                                </xs:annotation>
-                                            </xs:attribute>
-                                        </xs:extension>
-                                    </xs:simpleContent>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element ref="a:street-address" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        Optional street address of the person's home.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element ref="a:mailing-address" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        The postal address of this person. (This is usually much more useful
-                                        than street address.)
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element ref="p:phone-number" minOccurs="0" maxOccurs="unbounded">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        A list of phone numbers at which this person can possibly be reached.
-                                        The "best" numbers should be listed first.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="status" type="MobilityStatus" minOccurs="1" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Current status of the mobility.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="planned-arrival-date" type="xs:date" minOccurs="0" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Planned start date of the mobility (when the student is supposed to arrive).
-                            This date is provided by the sending HEI before the mobility.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="planned-departure-date" type="xs:date" minOccurs="0" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Planned end date of the mobility (when the student is supposed to leave).
-                            This date is provided by the sending HEI before the mobility.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="eqf-level-studied-at-nomination" type="ewp:EqfLevel" minOccurs="0" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            The student is sent for the mobility as part of one of his study programmes.
-                            This field contains the student's EQF level on this programme *at the time of
-                            the nomination* (and it SHOULD NOT change in time, as opposed to the fields
-                            present in the `student` element).
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="eqf-level-studied-at-departure" type="ewp:EqfLevel" minOccurs="0" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            This is similar to the `eqf-level-studied-at-nomination` element, but this time
-                            we are interested in the EQF level the student **will have** when the mobility
-                            actually begins (according to many IROs this is more important than the one the
-                            students has at the time of the nomination).
-
-                            Server implementers are encouraged to supply both values. If it is not
-                            possible, then at least one SHOULD be supplied.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="nominee-isced-f-code" type="xs:string" minOccurs="0" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            The student is sent to the mobility as part of one of his study programmes.
-                            This field contains the ISCED-F field of education code that is closest to the
-                            subject this programme (or, as EUC put is, "closest to the degree to be awarded
-                            to the student by the Sending Institution").
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="nominee-language-skill" minOccurs="0" maxOccurs="unbounded">
-                    <xs:annotation>
-                        <xs:documentation>
-                            List of the student's language skills *at the time of the nomination* (they
-                            SHOULD NOT change in time).
-                        </xs:documentation>
-                    </xs:annotation>
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="language" type="xs:language" minOccurs="1" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        The BCP 47 code of the language.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="cefr-level" type="ewp:CefrLevel" minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        The level of language skill the student had.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="components-studied" minOccurs="1" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Different versions of the list of components studied (or planned to be studied)
-                            at the receiving HEI.
-
-                            We need different versions of this list because the EUC LA template (attached in
-                            this XSD's repository) requires it. As has been reported by WP2, the receiving
-                            HEI might also need all these versions.
-                        </xs:documentation>
-                    </xs:annotation>
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:sequence minOccurs="0" maxOccurs="1">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        The "before mobility" and "latest approved" sections are optional. It is allowed
-                                        to have only the "latest draft" section (this indicates that no LA has yet been
-                                        approved).
-
-                                        However, if "before mobility" section exists, then we also require "latest
-                                        approved" section to exist. In many cases, `latest-approved-changes` will be
-                                        empty, and `latest-approved-snapshot` will contain the exact contents as the
-                                        `before-mobility-snapshot` does. It might seem redundant, but we require it for
-                                        completeness (to make sure all partners understand what "latest approved"
-                                        means).
-                                    </xs:documentation>
-                                </xs:annotation>
-                                <xs:element name="before-mobility-changes" minOccurs="1" maxOccurs="1" type="ListOfChangesTo_ComponentsStudied">
-                                    <xs:annotation>
-                                        <xs:documentation>
-                                            This element is not used when PDF LA is generated, but it is still required.
-                                            It allows server implementers to include a history of changes to the "before
-                                            mobility" section, before it has been approved. If the server doesn't keep such
-                                            history, then an appropriately formatted copy of the `before-mobility-snapshot`
-                                            is returned here.
-                                        </xs:documentation>
-                                    </xs:annotation>
-                                </xs:element>
-                                <xs:element name="before-mobility-snapshot" minOccurs="1" maxOccurs="1" type="SnapshotOf_ComponentsStudied">
-                                    <xs:annotation>
-                                        <xs:documentation>
-                                            The snapshot of courses *planned* to be studied when the first version of the LA
-                                            is signed.
-
-                                            Note: This element corresponds to "Table A" on the EUC LA template (attached
-                                            in this XSD's repository).
-                                        </xs:documentation>
-                                    </xs:annotation>
-                                </xs:element>
-                                <xs:element name="latest-approved-changes" minOccurs="1" maxOccurs="1" type="ListOfChangesTo_ComponentsStudied">
-                                    <xs:annotation>
-                                        <xs:documentation>
-                                            The list of changes made to the LA components after it has been first signed.
-                                            When LA is signed for the first time this element is empty, but it is often
-                                            filled later on.
-
-                                            Note: This element corresponds to "Table A2" on the EUC LA template (attached
-                                            in this XSD's repository).
-                                        </xs:documentation>
-                                    </xs:annotation>
-                                </xs:element>
-                                <xs:element name="latest-approved-snapshot" minOccurs="1" maxOccurs="1" type="SnapshotOf_ComponentsStudied">
-                                    <xs:annotation>
-                                        <xs:documentation>
-                                            The latest approved snapshot of courses studied (or planned to the studedied). When
-                                            LA is signed for the first time this element contains the same courses as the
-                                            `before-mobility-snapshot` does, but this may change later in time.
-
-                                            Note: If you want to compare this to the tables in the EUC LA PDF template
-                                            (attached in this XSD's repository), then this element describes what "Table A"
-                                            would look like if all changes from "Table A2" were applied to it. It often
-                                            *resambles* "Table C", but it's NOT its equivalent (EWP ToRs API serves an
-                                            equivalent of "Table C"). You can discuss it here:
-                                            https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/issues/17
-                                        </xs:documentation>
-                                    </xs:annotation>
-                                </xs:element>
-                            </xs:sequence>
-                            <xs:element name="latest-draft-changes" minOccurs="1" maxOccurs="1" type="ListOfChangesTo_ComponentsStudied">
-                                <xs:annotation>
-                                    <xs:documentation>
-                                        This element is not used when PDF LA is generated, but it is still required. It
-                                        allows server implementers to publish proposed changes to the LA, before they
-                                        are approved. If the server doesn't store such proposals (or if it doesn't want
-                                        to publish them), then this element will be empty.
-                                    </xs:documentation>
-                                </xs:annotation>
-                            </xs:element>
-                            <xs:element name="latest-draft-snapshot" minOccurs="1" maxOccurs="1" type="SnapshotOf_ComponentsStudied">
+                                    However, if "before mobility" section exists, then we also require "latest
+                                    approved" section to exist. In many cases, `latest-approved-changes` will be
+                                    empty, and `latest-approved-snapshot` will contain the exact contents as the
+                                    `before-mobility-snapshot` does. It might seem redundant, but we require it for
+                                    completeness (to make sure all partners understand what "latest approved"
+                                    means).
+                                </xs:documentation>
+                            </xs:annotation>
+                            <xs:element name="before-mobility-changes" type="ListOfChangesTo_ComponentsStudied">
                                 <xs:annotation>
                                     <xs:documentation>
                                         This element is not used when PDF LA is generated, but it is still required.
-                                        Similar to the `latest-draft-changes` element, but the proposed changes are
-                                        presented in a unified form. If the server doesn't store proposals (or if it
-                                        doesn't want to publish them), then this element will contain a copy of the
-                                        `latest-approved-snapshot` (or, if no `latest-approved-snapshot` exists, then
-                                        it will be empty).
+                                        It allows server implementers to include a history of changes to the "before
+                                        mobility" section, before it has been approved. If the server doesn't keep such
+                                        history, then an appropriately formatted copy of the `before-mobility-snapshot`
+                                        is returned here.
+                                    </xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+                            <xs:element name="before-mobility-snapshot" type="SnapshotOf_ComponentsStudied">
+                                <xs:annotation>
+                                    <xs:documentation>
+                                        The snapshot of courses *planned* to be studied when the first version of the LA
+                                        is signed.
+
+                                        Note: This element corresponds to "Table A" on the EUC LA template (attached
+                                        in this XSD's repository).
+                                    </xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+                            <xs:element name="latest-approved-changes" type="ListOfChangesTo_ComponentsStudied">
+                                <xs:annotation>
+                                    <xs:documentation>
+                                        The list of changes made to the LA components after it has been first signed.
+                                        When LA is signed for the first time this element is empty, but it is often
+                                        filled later on.
+
+                                        Note: This element corresponds to "Table A2" on the EUC LA template (attached
+                                        in this XSD's repository).
+                                    </xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+                            <xs:element name="latest-approved-snapshot" type="SnapshotOf_ComponentsStudied">
+                                <xs:annotation>
+                                    <xs:documentation>
+                                        The latest approved snapshot of courses studied (or planned to the studedied). When
+                                        LA is signed for the first time this element contains the same courses as the
+                                        `before-mobility-snapshot` does, but this may change later in time.
+
+                                        Note: If you want to compare this to the tables in the EUC LA PDF template
+                                        (attached in this XSD's repository), then this element describes what "Table A"
+                                        would look like if all changes from "Table A2" were applied to it. It often
+                                        *resambles* "Table C", but it's NOT its equivalent (EWP ToRs API serves an
+                                        equivalent of "Table C"). You can discuss it here:
+                                        https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/issues/17
                                     </xs:documentation>
                                 </xs:annotation>
                             </xs:element>
                         </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="components-recognized" minOccurs="0" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Different versions of the list of components recognized (or planned to be
-                            recognized) at the sending HEI.
+                        <xs:element name="latest-draft-changes" type="ListOfChangesTo_ComponentsStudied">
+                            <xs:annotation>
+                                <xs:documentation>
+                                    This element is not used when PDF LA is generated, but it is still required. It
+                                    allows server implementers to publish proposed changes to the LA, before they
+                                    are approved. If the server doesn't store such proposals (or if it doesn't want
+                                    to publish them), then this element will be empty.
+                                </xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="latest-draft-snapshot" type="SnapshotOf_ComponentsStudied">
+                            <xs:annotation>
+                                <xs:documentation>
+                                    This element is not used when PDF LA is generated, but it is still required.
+                                    Similar to the `latest-draft-changes` element, but the proposed changes are
+                                    presented in a unified form. If the server doesn't store proposals (or if it
+                                    doesn't want to publish them), then this element will contain a copy of the
+                                    `latest-approved-snapshot` (or, if no `latest-approved-snapshot` exists, then
+                                    it will be empty).
+                                </xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="components-recognized" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        Different versions of the list of components recognized (or planned to be
+                        recognized) at the sending HEI.
 
-                            We need different versions of this list because the EUC LA template (attached in
-                            this XSD's repository) requires it.
+                        We need different versions of this list because the EUC LA template (attached in
+                        this XSD's repository) requires it.
 
-                            PLEASE READ THE ANNOTATIONS ON THE `components-studied` ELEMENT. The
-                            `components-recognized` element has the same base format as the
-                            `components-studied` element does, and so, **we are not describing this format
-                            here again**. The only difference is that other types of entities are described
-                            by it - in EUC LA template, these entities are described by tables "B" and
-                            "B2" (while `components-studied` describe tables "A" and "A2").
+                        PLEASE READ THE ANNOTATIONS ON THE `components-studied` ELEMENT. The
+                        `components-recognized` element has the same base format as the
+                        `components-studied` element does, and so, **we are not describing this format
+                        here again**. The only difference is that other types of entities are described
+                        by it - in EUC LA template, these entities are described by tables "B" and
+                        "B2" (while `components-studied` describe tables "A" and "A2").
 
-                            Note, that very few servers are planning to provide this feature at the initial
-                            stages of EWP adoption:
-                            https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/issues/11
-                        </xs:documentation>
-                    </xs:annotation>
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:sequence minOccurs="0" maxOccurs="1">
-                                <xs:element name="before-mobility-changes" minOccurs="1" maxOccurs="1" type="ListOfChangesTo_ComponentsRecognized"/>
-                                <xs:element name="before-mobility-snapshot" minOccurs="1" maxOccurs="1" type="SnapshotOf_ComponentsRecognized"/>
-                                <xs:element name="latest-approved-changes" minOccurs="1" maxOccurs="1" type="ListOfChangesTo_ComponentsRecognized"/>
-                                <xs:element name="latest-approved-snapshot" minOccurs="1" maxOccurs="1" type="SnapshotOf_ComponentsRecognized"/>
-                            </xs:sequence>
-                            <xs:element name="latest-draft-changes" minOccurs="1" maxOccurs="1" type="ListOfChangesTo_ComponentsRecognized"/>
-                            <xs:element name="latest-draft-snapshot" minOccurs="1" maxOccurs="1" type="SnapshotOf_ComponentsRecognized"/>
+                        Note, that very few servers are planning to provide this feature at the initial
+                        stages of EWP adoption:
+                        https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/issues/11
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:sequence minOccurs="0" maxOccurs="1">
+                            <xs:element name="before-mobility-changes" type="ListOfChangesTo_ComponentsRecognized"/>
+                            <xs:element name="before-mobility-snapshot" type="SnapshotOf_ComponentsRecognized"/>
+                            <xs:element name="latest-approved-changes" type="ListOfChangesTo_ComponentsRecognized"/>
+                            <xs:element name="latest-approved-snapshot" type="SnapshotOf_ComponentsRecognized"/>
                         </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+                        <xs:element name="latest-draft-changes" type="ListOfChangesTo_ComponentsRecognized"/>
+                        <xs:element name="latest-draft-snapshot" type="SnapshotOf_ComponentsRecognized"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:element name="component-studied">
         <xs:annotation>
@@ -643,7 +367,6 @@
 
                             Notes for sending HEI implementers
                             ----------------------------------
-
                             This field is optional, but you are still REQUIRED to have a place for it in
                             your database.
 
@@ -701,7 +424,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="title" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:element name="title" type="xs:string">
                     <xs:annotation>
                         <xs:documentation>
                             Component title at the receiving institution. This field MAY be entered "by
@@ -759,7 +482,7 @@
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="scheme" type="xs:string" minOccurs="1" maxOccurs="1">
+                            <xs:element name="scheme" type="xs:string">
                                 <xs:annotation>
                                     <xs:documentation>
                                         Currently there is only one predefined scheme you can have here - "ects"
@@ -769,7 +492,7 @@
                                     </xs:documentation>
                                 </xs:annotation>
                             </xs:element>
-                            <xs:element name="value" type="xs:decimal" minOccurs="1" maxOccurs="1">
+                            <xs:element name="value" type="xs:decimal">
                                 <xs:annotation>
                                     <xs:documentation>
                                         The number of credits being awarded.
@@ -798,7 +521,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="los-id" type="course:LosID" minOccurs="1" maxOccurs="1">
+                <xs:element name="los-id" type="course:LosID">
                     <xs:annotation>
                         <xs:documentation>
                             The EWP's LOS ID of the component, exactly as exposed via the sending HEI's
@@ -808,7 +531,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="loi-id" type="course:LoiID" minOccurs="1" maxOccurs="1">
+                <xs:element name="loi-id" type="course:LoiID">
                     <xs:annotation>
                         <xs:documentation>
                             The EWP's LOI ID of the component, exactly as exposed via the sending HEI's
@@ -820,57 +543,6 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-
-    <xs:simpleType name="MobilityStatus">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="nomination">
-                <xs:annotation>
-                    <xs:documentation>
-                        The sending HEI has nominated the student for mobility. The proposal has not
-                        yet been accepted nor rejected by the receiving HEI.
-
-                        This is the default status with which mobility entities are first created.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="rejected">
-                <xs:annotation>
-                    <xs:documentation>
-                        The nomination has been rejected by the receiving HEI.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="live">
-                <xs:annotation>
-                    <xs:documentation>
-                        The nomination has been accepted by the receiving HEI. This status doesn't
-                        usually change throughout the mobility.
-
-                        The mobility SHOULD have this stutus during the time when LA can be modified.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="recognized">
-                <xs:annotation>
-                    <xs:documentation>
-                        The student has returned from the mobility and all achievements have been
-                        recognized as indicated on the `component-recognized` list.
-
-                        At this point, the mobility SHOULD become read-only. The latest revision of it
-                        SHOULD be approved by all parties (no subsequent draft revisions should exist).
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="cancelled">
-                <xs:annotation>
-                    <xs:documentation>
-                        The nomination has been cancelled (either by the student, or by one of the
-                        partner HEIs).
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:enumeration>
-        </xs:restriction>
-    </xs:simpleType>
 
     <xs:complexType name="ListOfChangesTo_ComponentsStudied">
         <xs:annotation>
@@ -894,7 +566,7 @@
                     <xs:complexContent>
                         <xs:extension base="_SingleChangeToAList_INSERT">
                             <xs:sequence>
-                                <xs:element ref="component-studied" minOccurs="1" maxOccurs="1">
+                                <xs:element ref="component-studied">
                                     <xs:annotation>
                                         <xs:documentation>
                                             This describes the component to be inserted.
@@ -945,7 +617,7 @@
                     <xs:complexContent>
                         <xs:extension base="_SingleChangeToAList_INSERT">
                             <xs:sequence>
-                                <xs:element ref="component-recognized" minOccurs="1" maxOccurs="1">
+                                <xs:element ref="component-recognized">
                                     <xs:annotation>
                                         <xs:documentation>
                                             This describes the component to be inserted.
@@ -1009,7 +681,7 @@
                 </xs:annotation>
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="by-party" minOccurs="1" maxOccurs="1" type="ApprovingParty">
+                        <xs:element name="by-party" type="ApprovingParty">
                             <xs:annotation>
                                 <xs:documentation>
                                     The approving party.
@@ -1107,7 +779,7 @@
                 </xs:annotation>
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="display-text" type="ewp:MultilineString" minOccurs="1" maxOccurs="1">
+                        <xs:element name="display-text" type="ewp:MultilineString">
                             <xs:annotation>
                                 <xs:documentation>
                                     A human-readable description of the reason - preferrably in English. It will
@@ -1241,7 +913,7 @@
         <xs:complexContent>
             <xs:extension base="_SingleChangeToAList">
                 <xs:sequence>
-                     <xs:element name="index" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1">
+                     <xs:element name="index" type="xs:nonNegativeInteger">
                          <xs:annotation>
                              <xs:documentation>
                                  Zero-based index of the element before which to insert.
@@ -1263,7 +935,7 @@
         <xs:complexContent>
             <xs:extension base="_SingleChangeToAList">
                 <xs:sequence>
-                     <xs:element name="index" type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1">
+                     <xs:element name="index" type="xs:nonNegativeInteger">
                          <xs:annotation>
                              <xs:documentation>
                                  Zero-based index of the element to be removed.
@@ -1307,5 +979,54 @@
             </xs:enumeration>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="MobilityInstitution">
+        <xs:sequence>
+            <xs:element name="hei-id" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        SCHAC ID of the institution. Immutable.
+                        https://github.com/erasmus-without-paper/ewp-specs-api-registry/#schac-identifiers
+
+                        Clients can fetch more information on this HEI from the Institutions API
+                        served on the HEI's servers.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ounit-name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        Organizational unit name. It refers to the unit, which is responsible for this student.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="ounit-id" type="ewp:AsciiPrintableIdentifier" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        Organizational unit ID. It refers to the unit, which is responsible for this student.
+                        It is RECOMMENDED to provide it. It allows the client to fetch more information
+                        on this unit from the Organizational Units API or map it with the unit kept in the local database.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="contact-person">
+                <xs:annotation>
+                    <xs:documentation>
+                        Person who provides a link for administrative information and who,
+                        depending on the structure of the higher education institution, may be the departmental coordinator
+                        or works at the international relations office or equivalent body within the institution.
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="given-names" type="xs:string" />
+                        <xs:element name="family-name" type="xs:string" />
+                        <xs:element name="email" type="ewp:Email" />
+                        <xs:element ref="p:phone-number" minOccurs="0" maxOccurs="1" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
 
 </xs:schema>

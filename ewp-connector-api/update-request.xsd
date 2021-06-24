@@ -3,11 +3,11 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:xml="http://www.w3.org/XML/1998/namespace"
     xmlns:ewp="https://github.com/erasmus-without-paper/ewp-specs-architecture/blob/stable-v1/common-types.xsd"
-    xmlns:omobility="https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/blob/stable-v1/endpoints/get-response.xsd"
+    xmlns:la="https://github.com/erasmus-without-paper/ewp-specs-api-omobility-las/blob/stable-v1/endpoints/get-response.xsd"
     elementFormDefault="qualified"
 
-    targetNamespace="https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/blob/stable-v1/endpoints/update-request.xsd"
-    xmlns="https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/blob/stable-v1/endpoints/update-request.xsd"
+    targetNamespace="https://github.com/erasmus-without-paper/ewp-specs-api-omobility-las/blob/stable-v1/endpoints/update-request.xsd"
+    xmlns="https://github.com/erasmus-without-paper/ewp-specs-api-omobility-las/blob/stable-v1/endpoints/update-request.xsd"
 >
     <xs:import
         schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-architecture/stable-v1/common-types.xsd"
@@ -15,8 +15,8 @@
     />
 
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobilities/v0.15.1/endpoints/get-response.xsd"
-        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/blob/stable-v1/endpoints/get-response.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobility-las/v0.1.0/endpoints/get-response.xsd"
+        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-omobility-las/blob/stable-v1/endpoints/get-response.xsd"
     />
 
     <xs:annotation>
@@ -28,11 +28,11 @@
         </xs:documentation>
     </xs:annotation>
 
-    <xs:element name="omobilities-update-request">
+    <xs:element name="omobility-las-update-request">
         <xs:annotation>
             <xs:documentation>
                 This describes the format of the REQUEST to be submitted to the `update`
-                endpoint of EWP Outgoing Mobilities API.
+                endpoint of EWP Outgoing Mobility Learning Agreements API.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -40,9 +40,7 @@
                 <xs:element name="sending-hei-id" type="ewp:AsciiPrintableIdentifier" minOccurs="1" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
-                            ID of the sending HEI of the mobility (or mobilities) being updated.
-
-                            All updated mobilities in a single request MUST come from a single sending HEI.
+                            ID of the sending HEI of the learning agreement being updated.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
@@ -79,14 +77,14 @@
                 <xs:element name="omobility-id" type="ewp:AsciiPrintableIdentifier" minOccurs="1" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
-                            ID of the mobility which this update request is about.
+                            ID of the mobility/learning agreement which this update request is about.
 
                             The sending partner of this mobility MUST match the partner provided in
                             `sending-hei-id`.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="approving-party" minOccurs="1" maxOccurs="1" type="omobility:ApprovingParty">
+                <xs:element name="approving-party" minOccurs="1" maxOccurs="1" type="la:ApprovingParty">
                     <xs:annotation>
                         <xs:documentation>
                             The party which is approving. In almost all cases, this will be
@@ -103,7 +101,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="current-latest-draft-snapshot" minOccurs="1" maxOccurs="1" type="omobility:SnapshotOf_ComponentsStudied">
+                <xs:element name="current-latest-draft-snapshot" minOccurs="1" maxOccurs="1" type="la:SnapshotOf_ComponentsStudied">
                     <xs:annotation>
                         <xs:documentation>
                             The current state of the `latest-draft-snapshot`, which is also the state which
@@ -123,9 +121,9 @@
         <xs:annotation>
             <xs:documentation>
                 This request is sent by the receiving HEI when it want to suggest changes in
-                the `components-studied` section of the mobility object.
+                the `components-studied` section of the learning agreement object.
 
-                The sending HEI, on whose servers the mobility object is stored, MAY allow for
+                The sending HEI, on whose servers the learning agreement object is stored, MAY allow for
                 the receiving HEI to change `components-studied` freely, but it also MAY keep
                 these changes "on the side", and require a human to review them (e.g. a Sending
                 Coordinator, or a student).
@@ -136,14 +134,14 @@
                 <xs:element name="omobility-id" type="ewp:AsciiPrintableIdentifier" minOccurs="1" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
-                            ID of the mobility which this update request is about.
+                            ID of the mobility/learning agreement which this update request is about.
 
                             The sending partner of this mobility MUST match the partner provided in
                             `sending-hei-id`.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="current-latest-draft-snapshot" minOccurs="1" maxOccurs="1" type="omobility:SnapshotOf_ComponentsStudied">
+                <xs:element name="current-latest-draft-snapshot" minOccurs="1" maxOccurs="1" type="la:SnapshotOf_ComponentsStudied">
                     <xs:annotation>
                         <xs:documentation>
                             The current state of the `latest-draft-snapshot`, which is the *base for the
@@ -152,9 +150,9 @@
                             https://en.wikipedia.org/wiki/Edit_conflict
 
                             The client - the receiving HEI - extracts this element from the response of the
-                            Outgoing Mobilities API's `get` endpoint served at the sending HEI.
+                            Outgoing Mobility Learning Agreements API's `get` endpoint served at the sending HEI.
 
-                            If the contents of `current-latest-draft-snapshot` don't match the current
+                            If the content of `current-latest-draft-snapshot` does not match the current
                             values as kept in the server's database, then the server MUST respond with
                             HTTP 409 error response.
                             https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.10
@@ -166,20 +164,20 @@
                               request.").
 
                             * XML supplied by the client MAY use different XML namespace prefixes than the
-                              one the server uses in its Outgoing Mobilities API. These prefixes MUST NOT
-                              be taken into account when snapshots are being compared.
+                              one the server uses in its Outgoing Mobility Learning Agreements API.
+                              These prefixes MUST NOT be taken into account when snapshots are being compared.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="suggested-changes" minOccurs="1" maxOccurs="1" type="omobility:ListOfChangesTo_ComponentsStudied">
+                <xs:element name="suggested-changes" minOccurs="1" maxOccurs="1" type="la:ListOfChangesTo_ComponentsStudied">
                     <xs:annotation>
                         <xs:documentation>
                             The list of suggested changes. Changes are formatted in the same format as in
-                            Outgoing Mobilities API.
+                            the `get` endpoint.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="snapshot-with-changes-applied" minOccurs="1" maxOccurs="1" type="omobility:SnapshotOf_ComponentsStudied">
+                <xs:element name="snapshot-with-changes-applied" minOccurs="1" maxOccurs="1" type="la:SnapshotOf_ComponentsStudied">
                     <xs:annotation>
                         <xs:documentation>
                             This is the "target" snapshot which the requester is aiming for.
@@ -189,8 +187,8 @@
                             to be sure that they generate changes and snapshots properly.
 
                             If the server detects that the snapshot calculated by the client is different
-                            than a similar snapshot calculated by the server, then it MUST respond with an
-                            either HTTP 400 error. At this point, both parties should review their snapshot
+                            than a similar snapshot calculated by the server, then it MUST respond with
+                            an HTTP 400 error. At this point, both parties should review their snapshot
                             generation algorithms.
                         </xs:documentation>
                     </xs:annotation>
