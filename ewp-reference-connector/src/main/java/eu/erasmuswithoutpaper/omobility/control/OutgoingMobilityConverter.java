@@ -64,16 +64,14 @@ public class OutgoingMobilityConverter {
     private Collection<NomineeLanguageSkill> convertToNomineeLanguageSkill(
 			List<LanguageSkill> nomineeLanguageSkill) {
 		
-    	nomineeLanguageSkill.stream().map((langskill) ->{
+    	return nomineeLanguageSkill.stream().map((langskill) ->{
     		
     		NomineeLanguageSkill nomineeLangSkill = new NomineeLanguageSkill();
     		
     		nomineeLangSkill.setCefrLevel(langskill.getCefrLevel());
     		nomineeLangSkill.setLanguage(langskill.getLanguage());
-    		return null;
+    		return nomineeLangSkill;
     	}).collect(Collectors.toList());
-    	
-    	return null;
 	}
 
     private StudentMobilityForStudies.ReceivingHei convertToReceivingHei(String iiaId, String institutionId, String organizationUnitId) {
