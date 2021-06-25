@@ -127,6 +127,10 @@ public class GlobalProperties {
     public int getMaxFactsheetIds() {
         return getIntProperty("ewp.api.factsheet.max.ids", 1);
     }
+    
+    public int getMaxOmobilitylasIds() {
+        return getIntProperty("ewp.api.omobility.las.max.ids", 1);
+    }
             
     private int getIntProperty(String key, int defaultValue) {
         String value = getProperty(key);

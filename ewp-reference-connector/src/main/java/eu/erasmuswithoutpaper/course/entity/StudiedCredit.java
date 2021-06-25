@@ -10,7 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-public class Credit implements Serializable {
+public class StudiedCredit implements Serializable {
 
     @Id
     @GeneratedValue(generator="system-uuid")
@@ -74,7 +74,7 @@ public class Credit implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Credit other = (Credit) obj;
+        final StudiedCredit other = (StudiedCredit) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }

@@ -6,7 +6,7 @@ import eu.erasmuswithoutpaper.common.control.ConverterHelper;
 import static eu.erasmuswithoutpaper.common.control.ConverterHelper.convertToMultilineStringWithOptionalLang;
 import static eu.erasmuswithoutpaper.common.control.ConverterHelper.convertToStringWithOptionalLang;
 import static eu.erasmuswithoutpaper.common.control.ConverterHelper.convertToXmlGregorianCalendar;
-import eu.erasmuswithoutpaper.course.entity.Credit;
+import eu.erasmuswithoutpaper.course.entity.StudiedCredit;
 import eu.erasmuswithoutpaper.course.entity.GradingScheme;
 import eu.erasmuswithoutpaper.course.entity.LearningOpportunityInstance;
 import eu.erasmuswithoutpaper.course.entity.LearningOpportunitySpecification;
@@ -103,7 +103,7 @@ public class LearningOpportunitySpecificationConverter {
         return specifies;
     }
 
-    private List<CoursesResponse.LearningOpportunitySpecification.Specifies.LearningOpportunityInstance.Credit> convertToCredits(List<Credit> credits) {
+    private List<CoursesResponse.LearningOpportunitySpecification.Specifies.LearningOpportunityInstance.Credit> convertToCredits(List<StudiedCredit> credits) {
         return credits.stream().map((c) -> {
             CoursesResponse.LearningOpportunitySpecification.Specifies.LearningOpportunityInstance.Credit credit = new CoursesResponse.LearningOpportunitySpecification.Specifies.LearningOpportunityInstance.Credit();
             credit.setLevel(c.getLevel());

@@ -3,9 +3,12 @@ package eu.erasmuswithoutpaper;
 import eu.erasmuswithoutpaper.course.boundary.LosResource;
 import eu.erasmuswithoutpaper.discovery.boundary.ManifestResource;
 import eu.erasmuswithoutpaper.echo.boundary.EchoResource;
+import eu.erasmuswithoutpaper.factsheet.boundary.FactsheetResource;
+import eu.erasmuswithoutpaper.iia.approval.boundary.IiaApprovalResource;
 import eu.erasmuswithoutpaper.iia.boundary.IiaResource;
 import eu.erasmuswithoutpaper.imobility.boundary.IncomingMobilityResource;
 import eu.erasmuswithoutpaper.omobility.boundary.OutgoingMobilityResource;
+import eu.erasmuswithoutpaper.omobility.las.boundary.OutgoingMobilityLearningAgreementsResource;
 import eu.erasmuswithoutpaper.organization.boundary.InstitutionResource;
 import eu.erasmuswithoutpaper.organization.boundary.OrganizationUnitResource;
 import java.util.HashSet;
@@ -26,6 +29,9 @@ public class RestJAXRSConfiguration extends Application {
         resources.add(OutgoingMobilityResource.class);
         resources.add(IncomingMobilityResource.class);
         resources.add(IiaResource.class);
+        resources.add(IiaApprovalResource.class);
+        resources.add(FactsheetResource.class);
+        resources.add(OutgoingMobilityLearningAgreementsResource.class);
         return resources;
     }
 }

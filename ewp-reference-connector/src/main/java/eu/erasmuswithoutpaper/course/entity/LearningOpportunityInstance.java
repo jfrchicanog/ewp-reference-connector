@@ -35,7 +35,7 @@ public class LearningOpportunityInstance implements Serializable {
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "LOI_CREDITS")
-    private List<Credit> credits;
+    private List<StudiedCredit> credits;
     
     @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinColumn(name = "GRADING_SCHEME_ID", referencedColumnName = "ID")
@@ -64,11 +64,11 @@ public class LearningOpportunityInstance implements Serializable {
         this.academicTerm = academicTerm;
     }
 
-    public List<Credit> getCredits() {
+    public List<StudiedCredit> getCredits() {
         return credits;
     }
 
-    public void setCredits(List<Credit> credits) {
+    public void setCredits(List<StudiedCredit> credits) {
         this.credits = credits;
     }
 
