@@ -34,7 +34,7 @@ public class OmobilityLasUpdateRequest implements Serializable{
 	    
 	    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	    @JoinColumn(name = "UPDATE_COMPONENT_STUDIED",referencedColumnName = "ID")
-	    private OmobilityComponentRecognized updateComponentsStudied;
+	    private UpdateComponentsStudied updateComponentsStudied;
 	    
 	    public String getId() {
 	        return id;
@@ -60,11 +60,11 @@ public class OmobilityLasUpdateRequest implements Serializable{
 			this.approveComponentsStudiedDraft = approveComponentsStudiedDraft;
 		}
 
-		public OmobilityComponentRecognized getUpdateComponentsStudied() {
+		public UpdateComponentsStudied getUpdateComponentsStudied() {
 			return updateComponentsStudied;
 		}
 
-		public void setUpdateComponentsStudied(OmobilityComponentRecognized updateComponentsStudied) {
+		public void setUpdateComponentsStudied(UpdateComponentsStudied updateComponentsStudied) {
 			this.updateComponentsStudied = updateComponentsStudied;
 		}
 

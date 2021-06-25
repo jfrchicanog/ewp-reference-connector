@@ -1,8 +1,8 @@
 package eu.erasmuswithoutpaper.omobility.las.boundary;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -17,22 +17,25 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ComponentStudied;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasIndexResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateRequest;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateResponse;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
+import eu.erasmuswithoutpaper.omobility.las.entity.Approval;
 import eu.erasmuswithoutpaper.omobility.las.entity.ApproveComponentsStudiedDraft;
 import eu.erasmuswithoutpaper.omobility.las.entity.ApprovingParty;
+import eu.erasmuswithoutpaper.omobility.las.entity.ComponentsStudied;
+import eu.erasmuswithoutpaper.omobility.las.entity.Credit;
 import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
 import eu.erasmuswithoutpaper.omobility.las.entity.SnapshotOfComponentsStudied;
+import eu.erasmuswithoutpaper.omobility.las.entity.UpdateComponentsStudied;
 
 @Stateless
 @Path("omobilities")
@@ -77,7 +80,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         return mobilityGet(sendingHeiId, mobilityIdList);
     }
     
-   /* @POST
+    @POST
     @Path("/las/update")
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response omobilityLasUpdatePost(OmobilityLasUpdateRequest request) {
@@ -85,52 +88,111 @@ public class OutgoingMobilityLearningAgreementsResource {
             throw new EwpWebApplicationException("No update data was sent", Response.Status.BAD_REQUEST);
         }
 
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            //MobilityUpdateRequestType type = MobilityUpdateRequestType.APPROVE_COMPONENTS_STUDIED_DRAFT_V1;
-            String updateInformation = null;
-            if (request.getApproveComponentsStudiedDraftV1() != null) {
-                //type = MobilityUpdateRequestType.APPROVE_COMPONENTS_STUDIED_DRAFT_V1;
-                updateInformation = mapper.writeValueAsString(request.getApproveComponentsStudiedDraftV1());
-            } else if (request.getUpdateComponentsStudiedV1()!= null) {
-                //type = MobilityUpdateRequestType.UPDATE_COMPONENTS_STUDIED_V1;
-                updateInformation = mapper.writeValueAsString(request.getUpdateComponentsStudiedV1());
-            } 
-            
-            eu.erasmuswithoutpaper.omobility.las.entity.OmobilityLasUpdateRequest mobilityUpdateRequest = new eu.erasmuswithoutpaper.omobility.las.entity.OmobilityLasUpdateRequest();
-            //mobilityUpdateRequest.setType(type);
-            mobilityUpdateRequest.setSendingHeiId(request.getSendingHeiId());
-            
-            ApproveComponentsStudiedDraft appCmp = new ApproveComponentsStudiedDraft();
-            eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ApprovingParty aparty = request.getApproveComponentsStudiedDraftV1().getApprovingParty());
-            appCmp.setApprovingParty(aparty.value());
-            
-            SnapshotOfComponentsStudied sanpshotCmpStu = new SnapshotOfComponentsStudied();
-            sanpshotCmpStu.setInEffectSince(request.getApproveComponentsStudiedDraftV1().getCurrentLatestDraftSnapshot().getInEffectSince().);
-            sanpshotCmpStu.setApproval(request.getApproveComponentsStudiedDraftV1().getCurrentLatestDraftSnapshot().getApproval());
-            sanpshotCmpStu.setComponentStudied(request.getApproveComponentsStudiedDraftV1().getCurrentLatestDraftSnapshot().getComponentStudied());
-            sanpshotCmpStu.setShouldNowBeApprovedBy(request.getApproveComponentsStudiedDraftV1().getCurrentLatestDraftSnapshot().getShouldNowBeApprovedBy());
-            
-            appCmp.setCurrentLatestDraftSnapshot(currentLatestDraftSnapshot);
-            
-            mobilityUpdateRequest.setApproveComponentsStudiedDraft(approveComponentsStudiedDraft);
-            //mobilityUpdateRequest.setUpdateRequestDate(new Date());
-            //mobilityUpdateRequest.setUpdateInformation(updateInformation);
-            em.persist(mobilityUpdateRequest);
-        } catch (JsonProcessingException ex) {
-            throw new EwpWebApplicationException("Unexpected error", Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        eu.erasmuswithoutpaper.omobility.las.entity.OmobilityLasUpdateRequest mobilityUpdateRequest = new eu.erasmuswithoutpaper.omobility.las.entity.OmobilityLasUpdateRequest();
+        mobilityUpdateRequest.setSendingHeiId(request.getSendingHeiId());
+        
+        ApproveComponentsStudiedDraft appCmp = approveCmpStudiedDraft(request);
+        mobilityUpdateRequest.setApproveComponentsStudiedDraft(appCmp);
+        
+        UpdateComponentsStudied updateComponentsStudied = updateComponentsStudied(request);
+        mobilityUpdateRequest.setUpdateComponentsStudied(updateComponentsStudied);
+        
+        em.persist(mobilityUpdateRequest);
 
-        OmobilitiesUpdateResponse response = new OmobilitiesUpdateResponse();
+        OmobilityLasUpdateResponse response = new OmobilityLasUpdateResponse();
         MultilineStringWithOptionalLang message = new MultilineStringWithOptionalLang();
         message.setLang("en");
         message.setValue("Thank you! We will review your suggestion");
         response.getSuccessUserMessage().add(message);
         return javax.ws.rs.core.Response.ok(response).build();
-    }*/
-    
+    }
 
-    private javax.ws.rs.core.Response mobilityGet(String sendingHeiId, List<String> mobilityIdList) {
+	private UpdateComponentsStudied updateComponentsStudied(OmobilityLasUpdateRequest request) {
+		UpdateComponentsStudied updateComponentsStudied = new UpdateComponentsStudied();
+		
+		SnapshotOfComponentsStudied snapshotOfComponentsStudied = new SnapshotOfComponentsStudied();
+		snapshotOfComponentsStudied.setApproval(transformToAListApproval(request.getUpdateComponentsStudiedV1().getCurrentLatestDraftSnapshot().getApproval()));
+		snapshotOfComponentsStudied.setComponentStudied(transformToAListCmpStudied(request.getUpdateComponentsStudiedV1().getCurrentLatestDraftSnapshot().getComponentStudied()));
+		snapshotOfComponentsStudied.setInEffectSince(request.getUpdateComponentsStudiedV1().getCurrentLatestDraftSnapshot().getInEffectSince().toGregorianCalendar().getTime());
+		snapshotOfComponentsStudied.setShouldNowBeApprovedBy(transformToAListApprovedBy(request.getUpdateComponentsStudiedV1().getCurrentLatestDraftSnapshot().getShouldNowBeApprovedBy()));
+		
+		updateComponentsStudied.setCurrentLatestDraftSnapshot(snapshotOfComponentsStudied);
+		return updateComponentsStudied;
+	}
+
+	private ApproveComponentsStudiedDraft approveCmpStudiedDraft(OmobilityLasUpdateRequest request) {
+		ApproveComponentsStudiedDraft appCmp = new ApproveComponentsStudiedDraft();
+		eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ApprovingParty aparty = request.getApproveComponentsStudiedDraftV1().getApprovingParty();
+		appCmp.setApprovingParty(aparty.value());
+		
+		SnapshotOfComponentsStudied sanpshotCmpStu = new SnapshotOfComponentsStudied();
+		sanpshotCmpStu.setInEffectSince(request.getApproveComponentsStudiedDraftV1().getCurrentLatestDraftSnapshot().getInEffectSince().toGregorianCalendar().getTime());
+		sanpshotCmpStu.setApproval(transformToAListApproval(request.getApproveComponentsStudiedDraftV1().getCurrentLatestDraftSnapshot().getApproval()));
+		sanpshotCmpStu.setComponentStudied(transformToAListCmpStudied(request.getApproveComponentsStudiedDraftV1().getCurrentLatestDraftSnapshot().getComponentStudied()));
+		sanpshotCmpStu.setShouldNowBeApprovedBy(transformToAListApprovedBy(request.getApproveComponentsStudiedDraftV1().getCurrentLatestDraftSnapshot().getShouldNowBeApprovedBy()));
+		
+		appCmp.setCurrentLatestDraftSnapshot(sanpshotCmpStu);
+		return appCmp;
+	}
+
+    private List<ApprovingParty> transformToAListApprovedBy(
+			List<eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ApprovingParty> shouldNowBeApprovedBy) {
+		
+    	List<ApprovingParty> parties = shouldNowBeApprovedBy.stream().map(party -> {
+    		ApprovingParty theApprovingParty = ApprovingParty.valueOf(party.value());
+			return theApprovingParty;
+		}).collect(Collectors.toList());
+    	
+		return parties;
+	}
+
+	private List<ComponentsStudied> transformToAListCmpStudied(List<ComponentStudied> componentStudied) {
+		List<ComponentsStudied> cmpStudied = componentStudied.stream().map(cmp -> {
+			
+			ComponentsStudied theCmpStu = new ComponentsStudied();
+			theCmpStu.setAcademicTermDisplayName(cmp.getAcademicTermDisplayName());
+			theCmpStu.setCredit(transformToAListCredit(cmp.getCredit()));
+			theCmpStu.setLoiId(cmp.getLoiId());
+			theCmpStu.setLosCode(cmp.getLosCode());
+			theCmpStu.setTitle(cmp.getTitle());
+			
+			return theCmpStu;
+		}).collect(Collectors.toList());
+		
+		return cmpStudied;
+	}
+
+	private List<Credit> transformToAListCredit(
+			List<eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ComponentStudied.Credit> credit) {
+		
+		List<Credit> credits = credit.stream().map(c -> {
+			Credit theCredit = new Credit();
+			
+			theCredit.setScheme(c.getScheme());
+			theCredit.setValue(c.getValue());
+			
+			return theCredit;
+		}).collect(Collectors.toList());
+		
+		return credits;
+	}
+
+	private List<Approval> transformToAListApproval(
+			List<eu.erasmuswithoutpaper.api.omobilities.las.endpoints.SnapshotOfComponentsStudied.Approval> approval) {
+		
+		List<Approval> approvals = approval.stream().map(app -> {
+			Approval theApproval = new Approval();
+			
+			theApproval.setByParty(app.getByParty().value());
+			theApproval.setTimestamp(app.getTimestamp().toGregorianCalendar().getTime());
+			
+			return theApproval;
+		}).collect(Collectors.toList());
+		
+		return approvals;
+	}
+
+	private javax.ws.rs.core.Response mobilityGet(String sendingHeiId, List<String> mobilityIdList) {
         if (mobilityIdList.size() > properties.getMaxOmobilitylasIds()) {
             throw new EwpWebApplicationException("Max number of omobility learning agreements id's has exceeded.", Response.Status.BAD_REQUEST);
         }

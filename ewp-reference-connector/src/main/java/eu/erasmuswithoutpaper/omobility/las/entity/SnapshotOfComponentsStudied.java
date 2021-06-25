@@ -15,8 +15,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ApprovingParty;
-
 @Entity
 @NamedQueries({
     @NamedQuery(name = SnapshotOfComponentsStudied.findAll, query = "SELECT m FROM SnapshotOfComponentsStudied m")
@@ -40,7 +38,7 @@ public class SnapshotOfComponentsStudied implements Serializable{
    
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
     @JoinTable(name = "SHOULD_BE_APPROVED_BY")
-    private List<ApprovingParty> shouldNowBeApprovedBy;
+    private List<eu.erasmuswithoutpaper.omobility.las.entity.ApprovingParty> shouldNowBeApprovedBy;
     
     private Date inEffectSince;
     
@@ -68,11 +66,11 @@ public class SnapshotOfComponentsStudied implements Serializable{
 		this.approval = approval;
 	}
 
-	public List<ApprovingParty> getShouldNowBeApprovedBy() {
+	public List<eu.erasmuswithoutpaper.omobility.las.entity.ApprovingParty> getShouldNowBeApprovedBy() {
 		return shouldNowBeApprovedBy;
 	}
 
-	public void setShouldNowBeApprovedBy(List<ApprovingParty> shouldNowBeApprovedBy) {
+	public void setShouldNowBeApprovedBy(List<eu.erasmuswithoutpaper.omobility.las.entity.ApprovingParty> shouldNowBeApprovedBy) {
 		this.shouldNowBeApprovedBy = shouldNowBeApprovedBy;
 	}
 
