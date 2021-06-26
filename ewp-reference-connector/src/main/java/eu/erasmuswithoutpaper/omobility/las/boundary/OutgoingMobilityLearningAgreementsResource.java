@@ -30,7 +30,6 @@ import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
 import eu.erasmuswithoutpaper.omobility.las.entity.Approval;
 import eu.erasmuswithoutpaper.omobility.las.entity.ApproveComponentsStudiedDraft;
-import eu.erasmuswithoutpaper.omobility.las.entity.ApprovingParty;
 import eu.erasmuswithoutpaper.omobility.las.entity.ComponentsStudied;
 import eu.erasmuswithoutpaper.omobility.las.entity.Credit;
 import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
@@ -135,12 +134,11 @@ public class OutgoingMobilityLearningAgreementsResource {
 		return appCmp;
 	}
 
-    private List<ApprovingParty> transformToAListApprovedBy(
+    private List<String> transformToAListApprovedBy(
 			List<eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ApprovingParty> shouldNowBeApprovedBy) {
 		
-    	List<ApprovingParty> parties = shouldNowBeApprovedBy.stream().map(party -> {
-    		ApprovingParty theApprovingParty = ApprovingParty.valueOf(party.value());
-			return theApprovingParty;
+    	List<String> parties = shouldNowBeApprovedBy.stream().map(party -> {
+			return party.value();
 		}).collect(Collectors.toList());
     	
 		return parties;

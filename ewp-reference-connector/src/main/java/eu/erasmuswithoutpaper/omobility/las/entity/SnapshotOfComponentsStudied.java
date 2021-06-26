@@ -6,10 +6,14 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -36,9 +40,9 @@ public class SnapshotOfComponentsStudied implements Serializable{
     @JoinTable(name = "APPROVAL_STUDIED_SNAPSHOT")
     private List<Approval> approval;
    
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "SHOULD_BE_APPROVED_BY")
-    private List<eu.erasmuswithoutpaper.omobility.las.entity.ApprovingParty> shouldNowBeApprovedBy;
+    @ElementCollection
+    @CollectionTable(name="SHOULD_BE_APPROVED_BY", joinColumns=@JoinColumn(name="ID"))
+    private List<String> shouldNowBeApprovedBy;
     
     private Date inEffectSince;
     
@@ -66,11 +70,11 @@ public class SnapshotOfComponentsStudied implements Serializable{
 		this.approval = approval;
 	}
 
-	public List<eu.erasmuswithoutpaper.omobility.las.entity.ApprovingParty> getShouldNowBeApprovedBy() {
+	public List<String> getShouldNowBeApprovedBy() {
 		return shouldNowBeApprovedBy;
 	}
 
-	public void setShouldNowBeApprovedBy(List<eu.erasmuswithoutpaper.omobility.las.entity.ApprovingParty> shouldNowBeApprovedBy) {
+	public void setShouldNowBeApprovedBy(List<String> shouldNowBeApprovedBy) {
 		this.shouldNowBeApprovedBy = shouldNowBeApprovedBy;
 	}
 

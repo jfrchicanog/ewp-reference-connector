@@ -7,6 +7,8 @@ import java.util.Objects;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
@@ -21,6 +23,10 @@ import javax.persistence.NamedQuery;
 
 public class MobilityInstitution implements Serializable {
 
+	@Id
+    @GeneratedValue(generator="system-uuid")
+    String id;
+	
     private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution.";
     public static final String findAll = PREFIX + "all";
     public static final String findByHeiId = PREFIX + "findByHeiId";
@@ -34,6 +40,14 @@ public class MobilityInstitution implements Serializable {
     @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinColumn(name = "OMOBILITY_LAS_CONTACT_PERSON",referencedColumnName = "ID")
     ContactPerson contactPerson;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public String getHeiId() {
 		return heiId;

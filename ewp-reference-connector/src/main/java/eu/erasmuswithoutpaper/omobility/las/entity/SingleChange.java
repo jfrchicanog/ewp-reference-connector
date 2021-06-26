@@ -5,11 +5,18 @@ import java.math.BigInteger;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 
+@Entity
+@NamedQueries({
+    @NamedQuery(name = SingleChange.findAll, query = "SELECT la FROM SingleChange la"),
+})
 public class SingleChange implements Serializable{
 	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.SingleChange.";
     public static final String findAll = PREFIX + "all";
