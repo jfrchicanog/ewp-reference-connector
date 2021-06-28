@@ -237,5 +237,6 @@
 		<karmaConfPath>src/test/javascript/karma.conf.js</karmaConfPath>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<docker.plugin.version>0.4.13</docker.plugin.version>
+		<frontend.skip>true</frontend.skip>
 	</properties>
 </project>
