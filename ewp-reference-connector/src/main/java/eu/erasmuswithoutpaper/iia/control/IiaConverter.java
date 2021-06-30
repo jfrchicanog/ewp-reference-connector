@@ -69,7 +69,7 @@ public class IiaConverter {
             converted.getPartner().sort(heiIdComparator);
 
             converted.setCooperationConditions(convertToCooperationConditions(iia.getCooperationConditions()));
-            converted.setInEffect(true);
+            converted.setInEffect(iia.isInEfect());
             return converted;
         }).collect(Collectors.toList());
     }
