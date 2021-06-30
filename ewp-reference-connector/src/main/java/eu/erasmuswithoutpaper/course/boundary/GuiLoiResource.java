@@ -2,6 +2,8 @@
 package eu.erasmuswithoutpaper.course.boundary;
 
 import eu.erasmuswithoutpaper.course.entity.GradingScheme;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
+
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -19,6 +21,7 @@ public class GuiLoiResource {
     
     @GET
     @Path("grading_schemes")
+    @InternalAuthenticate
     public Response getGradingSchemes() {
         List<GradingScheme> gradingSchemeList = em.createNamedQuery(GradingScheme.findAll).getResultList();
         GenericEntity<List<GradingScheme>> entity = new GenericEntity<List<GradingScheme>>(gradingSchemeList) {};

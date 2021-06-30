@@ -23,6 +23,7 @@ import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.omobility.entity.Mobility;
 import eu.erasmuswithoutpaper.omobility.entity.MobilityStatus;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
 
 @Stateless
 @Path("omobility")
@@ -38,6 +39,7 @@ public class GuiOutgoingMobilityResource {
 
     @POST
     @Path("add")
+    @InternalAuthenticate
     @Consumes(MediaType.APPLICATION_JSON)
     public void add(Mobility mobility) {
         em.persist(mobility);
@@ -45,6 +47,7 @@ public class GuiOutgoingMobilityResource {
 
     @GET
     @Path("get_all")
+    @InternalAuthenticate
     public Response getAll() {
         List<Mobility> mobiltyList = em.createNamedQuery(Mobility.findAll).getResultList();
         GenericEntity<List<Mobility>> entity = new GenericEntity<List<Mobility>>(mobiltyList) {};
@@ -54,6 +57,7 @@ public class GuiOutgoingMobilityResource {
     
     @GET
     @Path("mobility_statuses")
+    @InternalAuthenticate
     public Response getMobilityStatuses() {
         String[] statuses = MobilityStatus.names();
         GenericEntity<String[]> entity = new GenericEntity<String[]>(statuses) {};
@@ -63,6 +67,7 @@ public class GuiOutgoingMobilityResource {
     
     @GET
     @Path("omobilities-heis")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response omobilitiesHeis() {
         List<HeiEntry> heis = registryClient.getOmobilitiesHeisWithUrls();
@@ -73,6 +78,7 @@ public class GuiOutgoingMobilityResource {
     
     @POST
     @Path("omobilities-index")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response omobilitiesIndex(ClientRequest clientRequest) {
         ClientResponse omobilitiesResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.omobilities.endpoints.OmobilitiesIndexResponse.class);
@@ -81,6 +87,7 @@ public class GuiOutgoingMobilityResource {
     
     @POST
     @Path("omobilities-get")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response omobilitiesGet(ClientRequest clientRequest) {
         ClientResponse omobilitiesResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.omobilities.endpoints.OmobilitiesGetResponse.class);
@@ -89,6 +96,7 @@ public class GuiOutgoingMobilityResource {
     
     @GET
     @Path("imobilities-heis")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response imobilitiesHeis() {
         List<HeiEntry> heis = registryClient.getImobilitiesHeisWithUrls();
@@ -99,6 +107,7 @@ public class GuiOutgoingMobilityResource {
     
     @POST
     @Path("imobilities-get")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response imobilitiesGet(ClientRequest clientRequest) {
         ClientResponse imobilitiesResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.imobilities.endpoints.ImobilitiesGetResponse.class);

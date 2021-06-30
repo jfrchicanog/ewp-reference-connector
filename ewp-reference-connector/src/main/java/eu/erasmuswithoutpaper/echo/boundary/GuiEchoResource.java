@@ -5,6 +5,8 @@ import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
+
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -26,6 +28,7 @@ public class GuiEchoResource {
     RestClient restClient;
     
     @GET
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response echoHeis() {
         List<HeiEntry> echoHeis = registryClient.getEchoHeis();
@@ -35,6 +38,7 @@ public class GuiEchoResource {
     }
 
     @POST
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response echo(ClientRequest request) {
         request.setUrl(registryClient.getEchoHeiUrls(request.getHeiId()).get("url"));
