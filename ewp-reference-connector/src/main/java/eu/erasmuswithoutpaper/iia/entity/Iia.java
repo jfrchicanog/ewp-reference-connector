@@ -43,6 +43,7 @@ public class Iia implements Serializable{
     String id;
     
     private String iiaCode;
+    private boolean inEfect;
     
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
@@ -137,6 +138,14 @@ public class Iia implements Serializable{
 
 	public void setPdf(byte[] pdf) {
 		this.pdf = pdf;
+	}
+
+	public boolean isInEfect() {
+		return inEfect;
+	}
+
+	public void setInEfect(boolean inEfect) {
+		this.inEfect = inEfect;
 	}
 
 	@Override

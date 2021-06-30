@@ -105,4 +105,28 @@ public class GuiIiaResource {
         ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.class);
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
     }
+    
+    @POST
+    @Path("update")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response update(Iia iia) {
+    	Iia foundIia = em.find(Iia.class, iia.getIiaCode());
+    	
+    	//Check if the iia exists
+    	if (foundIia == null) {
+    		return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+    	}
+		
+    	//check if the iia is a draft or proposal
+		if (foundIia.isInEfect()) {
+			return javax.ws.rs.core.Response.status(Response.Status.NOT_MODIFIED).build();
+		}
+		
+		em.persist(iia);
+		return javax.ws.rs.core.Response.ok().build();
+	} 
+    
+    
+
 }
