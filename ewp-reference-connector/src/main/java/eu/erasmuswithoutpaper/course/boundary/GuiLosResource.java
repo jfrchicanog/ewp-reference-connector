@@ -7,6 +7,8 @@ import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.course.entity.LearningOpportunitySpecification;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
+
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -37,6 +39,7 @@ public class GuiLosResource {
     @POST
     @Path("save")
     @Consumes(MediaType.APPLICATION_JSON)
+    @InternalAuthenticate
     public void save(LearningOpportunitySpecification los) {
         if (los.getId() == null || los.getId().isEmpty()) {
             em.persist(los);
@@ -47,6 +50,7 @@ public class GuiLosResource {
     
     @GET
     @Path("get_all")
+    @InternalAuthenticate
     public Response getAll() {
         List<LearningOpportunitySpecification> losList = em.createNamedQuery(LearningOpportunitySpecification.findAll).getResultList();
         GenericEntity<List<LearningOpportunitySpecification>> entity = new GenericEntity<List<LearningOpportunitySpecification>>(losList) {};
@@ -56,6 +60,7 @@ public class GuiLosResource {
 
     @GET
     @Path("get_top_level_parents")
+    @InternalAuthenticate
     public Response getAllTopLevelParents() {
         List<LearningOpportunitySpecification> losList = em.createNamedQuery(LearningOpportunitySpecification.findAllTopLevelParents).getResultList();
         GenericEntity<List<LearningOpportunitySpecification>> entity = new GenericEntity<List<LearningOpportunitySpecification>>(losList) {};
@@ -65,6 +70,7 @@ public class GuiLosResource {
     
     @GET
     @Path("get_by_institution_id")
+    @InternalAuthenticate
     public Response getByInstitutionId(@QueryParam("institutionId") String institutionId) {
         List<LearningOpportunitySpecification> losList = em.createNamedQuery(LearningOpportunitySpecification.findByInstitutionId).setParameter("institutionId", institutionId).getResultList();
         GenericEntity<List<LearningOpportunitySpecification>> entity = new GenericEntity<List<LearningOpportunitySpecification>>(losList) {};
@@ -74,6 +80,7 @@ public class GuiLosResource {
     
     @GET
     @Path("course-replication")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response courseReplicationHeis() {
         List<HeiEntry> heis = registryClient.getCoursesReplicationHeisWithUrls();
@@ -84,6 +91,7 @@ public class GuiLosResource {
     
     @POST
     @Path("course-replication")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response courseReplication(ClientRequest request) {
         ClientResponse response = restClient.sendRequest(request, eu.erasmuswithoutpaper.api.courses.replication.CourseReplicationResponse.class);
@@ -92,6 +100,7 @@ public class GuiLosResource {
 
     @GET
     @Path("courses")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response coursesHeis() {
         List<HeiEntry> heis = registryClient.getCoursesHeisWithUrls();
@@ -102,6 +111,7 @@ public class GuiLosResource {
     
     @POST
     @Path("courses")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response courses(ClientRequest request) {
         ClientResponse response = restClient.sendRequest(request, eu.erasmuswithoutpaper.api.courses.CoursesResponse.class);

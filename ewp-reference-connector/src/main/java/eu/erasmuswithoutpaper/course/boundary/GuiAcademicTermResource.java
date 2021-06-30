@@ -3,6 +3,8 @@ package eu.erasmuswithoutpaper.course.boundary;
 
 import eu.erasmuswithoutpaper.course.entity.AcademicTerm;
 import eu.erasmuswithoutpaper.course.entity.AcademicYear;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
+
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -24,12 +26,14 @@ public class GuiAcademicTermResource {
     @POST
     @Path("add")
     @Consumes(MediaType.APPLICATION_JSON)
+    @InternalAuthenticate
     public void add(AcademicTerm academicTerm) {
         em.persist(academicTerm);
     }
     
     @GET
     @Path("get_all")
+    @InternalAuthenticate
     public Response getAll() {
         List<AcademicTerm> academicTermList = em.createNamedQuery(AcademicTerm.findAll).getResultList();
         GenericEntity<List<AcademicTerm>> entity = new GenericEntity<List<AcademicTerm>>(academicTermList) {};
@@ -39,6 +43,7 @@ public class GuiAcademicTermResource {
 
     @GET
     @Path("list_academic_years")
+    @InternalAuthenticate
     public Response listAcademicYears() {
         List<AcademicYear> academicYearList = em.createNamedQuery(AcademicYear.findAll).getResultList();
         GenericEntity<List<AcademicYear>> entity = new GenericEntity<List<AcademicYear>>(academicYearList) {};

@@ -6,6 +6,8 @@ import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
+
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -35,6 +37,7 @@ public class GuiInstitutionResource {
     @POST
     @Path("save")
     @Consumes(MediaType.APPLICATION_JSON)
+    @InternalAuthenticate
     public void save(Institution institution) {
         if (institution.getId() == null || institution.getId().isEmpty()) {
             em.persist(institution);
@@ -45,6 +48,7 @@ public class GuiInstitutionResource {
     
     @GET
     @Path("get_all")
+    @InternalAuthenticate
     public Response getAll() {
         List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
 
@@ -65,6 +69,7 @@ public class GuiInstitutionResource {
     @POST
     @Path("heis")
     @Produces(MediaType.APPLICATION_JSON)
+    @InternalAuthenticate
     public javax.ws.rs.core.Response institutions(ClientRequest request) {
         ClientResponse response = restClient.sendRequest(request, eu.erasmuswithoutpaper.api.institutions.InstitutionsResponse.class);
         return javax.ws.rs.core.Response.ok(response).build();
@@ -73,6 +78,7 @@ public class GuiInstitutionResource {
     @GET
     @Path("ounits-heis")
     @Produces(MediaType.APPLICATION_JSON)
+    @InternalAuthenticate
     public javax.ws.rs.core.Response organizationUnitsHeis() {
         List<HeiEntry> organizationUnitHeis = registryClient.getEwpOrganizationUnitHeisWithUrls();
         
@@ -83,6 +89,7 @@ public class GuiInstitutionResource {
     @POST
     @Path("ounits-heis")
     @Produces(MediaType.APPLICATION_JSON)
+    @InternalAuthenticate
     public javax.ws.rs.core.Response organizationUnits(ClientRequest request) {
         ClientResponse response = restClient.sendRequest(request, eu.erasmuswithoutpaper.api.ounits.OunitsResponse.class);
         return javax.ws.rs.core.Response.ok(response).build();

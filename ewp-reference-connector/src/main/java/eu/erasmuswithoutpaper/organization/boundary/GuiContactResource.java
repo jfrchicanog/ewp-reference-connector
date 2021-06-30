@@ -3,6 +3,8 @@ package eu.erasmuswithoutpaper.organization.boundary;
 
 import eu.erasmuswithoutpaper.organization.entity.Contact;
 import eu.erasmuswithoutpaper.organization.entity.ContactRoles;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
+
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -24,12 +26,14 @@ public class GuiContactResource {
     @POST
     @Path("add")
     @Consumes(MediaType.APPLICATION_JSON)
+    @InternalAuthenticate
     public void add(Contact contact) {
         em.persist(contact);
     }
     
     @GET
     @Path("get_all")
+    @InternalAuthenticate
     public Response getAll() {
         List<Contact> contactList = em.createNamedQuery(Contact.findAll).getResultList();
             
@@ -39,6 +43,7 @@ public class GuiContactResource {
     
     @GET
     @Path("contact_roles")
+    @InternalAuthenticate
     public Response getContactRoles() {
         String[] statuses = ContactRoles.names();
         GenericEntity<String[]> entity = new GenericEntity<String[]>(statuses) {};

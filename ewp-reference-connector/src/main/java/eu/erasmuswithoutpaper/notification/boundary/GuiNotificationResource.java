@@ -7,6 +7,8 @@ import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
+
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -32,6 +34,7 @@ public class GuiNotificationResource {
 
     @GET
     @Path("get_all")
+    @InternalAuthenticate
     public Response getAll() {
         List<Notification> notificationList = em.createNamedQuery(Notification.findAll).getResultList();
         GenericEntity<List<Notification>> entity = new GenericEntity<List<Notification>>(notificationList) {};
@@ -41,6 +44,7 @@ public class GuiNotificationResource {
     
     @GET
     @Path("count")
+    @InternalAuthenticate
     public Response getCount() {
         List<Notification> notificationList = em.createNamedQuery(Notification.findAll).getResultList();
         
@@ -49,6 +53,7 @@ public class GuiNotificationResource {
     
     @GET
     @Path("iia-cnr-heis")
+    @InternalAuthenticate
     public javax.ws.rs.core.Response iiaCnrHeis() {
         List<HeiEntry> iiaCnrHeis = registryClient.getIiaCnrHeisWithUrls();
         
@@ -58,6 +63,7 @@ public class GuiNotificationResource {
     
     @GET
     @Path("iia-approval-cnr-heis")
+    @InternalAuthenticate
     public javax.ws.rs.core.Response iiaApprovalCnrHeis() {
         List<HeiEntry> iiaApprovalCnrHeis = registryClient.getIiaApprovalCnrHeisWithUrls();
         
@@ -67,6 +73,7 @@ public class GuiNotificationResource {
 
     @GET
     @Path("omobility-cnr-heis")
+    @InternalAuthenticate
     public javax.ws.rs.core.Response omobilityCnrHeis() {
         List<HeiEntry> cnrHeis = registryClient.getOmobilitiesCnrHeisWithUrls();
         
@@ -76,6 +83,7 @@ public class GuiNotificationResource {
 
     @GET
     @Path("imobility-cnr-heis")
+    @InternalAuthenticate
     public javax.ws.rs.core.Response imobilityCnrHeis() {
         List<HeiEntry> cnrHeis = registryClient.getImobilitiesCnrHeisWithUrls();
         
@@ -85,6 +93,7 @@ public class GuiNotificationResource {
 
     @GET
     @Path("tors-cnr-heis")
+    @InternalAuthenticate
     public javax.ws.rs.core.Response torsCnrHeis() {
         List<HeiEntry> cnrHeis = registryClient.getImobilityTorsCnrHeisWithUrls();
         
@@ -94,6 +103,7 @@ public class GuiNotificationResource {
     
     @POST
     @Path("notify")
+    @InternalAuthenticate
     public javax.ws.rs.core.Response notify(ClientRequest request) {
         ClientResponse response = restClient.sendRequest(request, String.class);
         return javax.ws.rs.core.Response.ok(response).build();
