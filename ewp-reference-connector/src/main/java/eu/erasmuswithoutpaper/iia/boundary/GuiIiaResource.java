@@ -1,6 +1,9 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -20,6 +23,7 @@ import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.DurationUnitVariants;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.MobilityNumberVariants;
@@ -123,10 +127,47 @@ public class GuiIiaResource {
 			return javax.ws.rs.core.Response.status(Response.Status.NOT_MODIFIED).build();
 		}
 		
+		if (iia.getIiaCode() == null || iia.getIiaCode().isEmpty()) {
+			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		if (iia.getStartDate() == null) {
+			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
+		if (iia.getCooperationConditions().size() == 0) {
+			
+			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+			
+		} else if (!validateConditions(iia.getCooperationConditions())) {
+			
+			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		
 		em.persist(iia);
 		return javax.ws.rs.core.Response.ok().build();
 	} 
     
-    
+    private boolean validateConditions(List<CooperationCondition> conditions) {
+    	
+    	Predicate<CooperationCondition> condition = new Predicate<CooperationCondition>()
+        {
+            @Override
+            public boolean test(CooperationCondition c) {
+                if (c.getSendingPartner() == null || c.getReceivingPartner() == null) {
+                	return true;
+                } else if (c.getSendingPartner().getInstitutionId() == null || c.getSendingPartner().getInstitutionId().isEmpty()) {
+            		return true;
+            	}else if (c.getReceivingPartner().getInstitutionId() == null || c.getReceivingPartner().getInstitutionId().isEmpty()) {
+            		return true;
+            	}
+                return false;
+            }
+
+        };
+        
+        List<CooperationCondition> wrongConditions = conditions.stream().filter(condition).collect(Collectors.toList());
+    	 return wrongConditions.isEmpty();
+    }
 
 }
