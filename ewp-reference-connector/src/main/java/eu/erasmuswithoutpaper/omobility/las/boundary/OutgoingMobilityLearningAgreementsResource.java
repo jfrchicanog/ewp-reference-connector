@@ -68,14 +68,14 @@ public class OutgoingMobilityLearningAgreementsResource {
     @GET
     @Path("/las/get")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response mobilityGetGet(@QueryParam("sending_hei_id") String sendingHeiId, @QueryParam("omobility_id") List<String> mobilityIdList) {
+    public javax.ws.rs.core.Response omobilityGetGet(@QueryParam("sending_hei_id") String sendingHeiId, @QueryParam("omobility_id") List<String> mobilityIdList) {
         return mobilityGet(sendingHeiId, mobilityIdList);
     }
     
     @POST
     @Path("/las/et")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response mobilityGetPost(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("omobility_id") List<String> mobilityIdList) {
+    public javax.ws.rs.core.Response omobilityGetPost(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("omobility_id") List<String> mobilityIdList) {
         return mobilityGet(sendingHeiId, mobilityIdList);
     }
     
