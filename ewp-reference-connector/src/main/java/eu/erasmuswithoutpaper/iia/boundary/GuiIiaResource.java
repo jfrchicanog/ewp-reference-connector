@@ -1,6 +1,7 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -20,16 +21,18 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
+import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.Approval;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
-import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.DurationUnitVariants;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
+import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
 import eu.erasmuswithoutpaper.iia.entity.MobilityNumberVariants;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
 
@@ -118,8 +121,11 @@ public class GuiIiaResource {
     @Path("update")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response update(Iia iia) {
-    	Iia foundIia = em.find(Iia.class, iia.getIiaCode());
+    public javax.ws.rs.core.Response update(@FormParam("iia") Iia iia) {
+    	//Find the iia by code
+    	List<Iia> foundIias = em.createNamedQuery(Iia.findByIiaCode).setParameter("iiaCode", iia.getIiaCode()).getResultList();
+    	
+    	Iia foundIia = ( foundIias != null && !foundIias.isEmpty() ) ? foundIias.get(0) : null;
     	
     	//Check if the iia exists
     	if (foundIia == null) {
@@ -149,19 +155,48 @@ public class GuiIiaResource {
 		}
 		
 		em.persist(iia);
-		return javax.ws.rs.core.Response.ok().build();
+
+		//Notify the partner about the modification using the API GUI IIA CNR 
+		ClientRequest clientRequest = notifyPartner(iia);
+		ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
+		
+		return javax.ws.rs.core.Response.ok(iiaResponse).build();
 	} 
     
-    @POST
+    private ClientRequest notifyPartner(Iia iia) {
+    	//Getting agreement partners
+		IiaPartner partnerSending = null;
+		IiaPartner partnerReceiving = null;
+		
+		for (CooperationCondition condition : iia.getCooperationConditions()) {
+			partnerSending = condition.getSendingPartner();
+			partnerReceiving = condition.getReceivingPartner();
+        }
+		
+    	//Get the url for notify the institute
+    	Map<String, String> urls = registryClient.getIiaCnrHeiUrls(partnerSending.getInstitutionId());
+    	List<String> urlValues = new ArrayList<String>(urls.values());
+    	
+    	//Notify the other institution about the modification 
+    	ClientRequest clientRequest = new ClientRequest();
+    	clientRequest.setUrl(urls.get(urlValues.get(0)));//get the first and only one url
+    	clientRequest.setHeiId(partnerReceiving.getInstitutionId());
+    	clientRequest.setMethod(HttpMethodEnum.POST);
+    	clientRequest.setHttpsec(true);
+    	
+    	return clientRequest;
+	}
+
+	@POST
     @Path("iias-approve")
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response iiasApprove(@FormParam("hei_id") String heiId, @FormParam("iia_code") String iiaCode) {
     	if (heiId == null || heiId.isEmpty() || iiaCode == null || iiaCode.isEmpty()) {
-            throw new EwpWebApplicationException("Missing argumanets for notification.", Response.Status.BAD_REQUEST);
+    		return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
     	
-    	//seek the iia by code
-    	List<Iia> foundIia = em.createNamedQuery(Iia.findByIiaCode).setParameter("iiaCode", iiaCode).getResultList();
+    	//seek the iia by code and by the ouid of the sending institution
+    	List<Iia> foundIia = em.createNamedQuery(Iia.findByIiaCodeByHeid).setParameter("iiaCode", iiaCode).setParameter("heid", heiId).getResultList();
     	
     	if (foundIia.isEmpty()) {
     		return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
@@ -169,20 +204,62 @@ public class GuiIiaResource {
     	
     	//get the first one found
     	Iia theIia = foundIia.get(0);
-    	theIia.setInEfect(true);//it was approved
-    	em.persist(theIia);
+    	
+    	//Getting agreement partners
+		IiaPartner partnerReceiving = null;
+		
+		for (CooperationCondition condition : theIia.getCooperationConditions()) {
+			partnerReceiving = condition.getReceivingPartner();
+        }
+    			
+    	//Verify if tha agreement is approved by the oter institution. 
+    	Map<String, String> urlsGet = registryClient.getIiaApprovalHeiUrls(heiId);
+    	List<String> urlGetValues = new ArrayList<String>(urlsGet.values());
+    	
+    	ClientRequest clientRequestGetIia = new ClientRequest();
+    	clientRequestGetIia.setUrl(urlGetValues.get(0));//get the first and only one url
+    	clientRequestGetIia.setHeiId(partnerReceiving.getInstitutionId());
+    	clientRequestGetIia.setMethod(HttpMethodEnum.GET);
+    	clientRequestGetIia.setHttpsec(true);
+    	
+    	List<String> iiaIds = new ArrayList<>();
+    	iiaIds.add(theIia.getId());
+    	
+    	Map<String,List<String>> params = new HashMap<>();
+    	params.put("iia_approval_id", iiaIds);
+    	
+    	clientRequestGetIia.setParams(params);
+    	
+    	ClientResponse iiaApprovalResponse = restClient.sendRequest(clientRequestGetIia, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
+    	eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse response = (IiasApprovalResponse) iiaApprovalResponse.getResult();
+    	
+    	Approval approval = response.getApproval().stream()
+    			  .filter(app -> theIia.getIiaCode().equals(app.getIiaId()))
+    			  .findAny()
+    			  .orElse(null);
+    	
+    	if(approval != null) {
+    		theIia.setInEfect(true);//it was approved
+        	em.persist(theIia);
+    	}
     	
     	//Get the url for notify the institute
     	Map<String, String> urls = registryClient.getIiaApprovalCnrHeiUrls(heiId);
     	List<String> urlValues = new ArrayList<String>(urls.values());
     	
-    	ClientRequest clientRequest = new ClientRequest();
-    	clientRequest.setUrl(urls.get(urlValues.get(0)));//get the first and only one url
-    	clientRequest.setHeiId(heiId);
-    	clientRequest.setMethod(HttpMethodEnum.POST);
-    	clientRequest.setHttpsec(true);
+    	//Notify the other institution about the approval 
+    	ClientRequest clientRequestNotifyApproval = new ClientRequest();
+    	clientRequestNotifyApproval.setUrl(urlValues.get(0));//get the first and only one url
+    	clientRequestNotifyApproval.setHeiId(partnerReceiving.getInstitutionId());
+    	clientRequestNotifyApproval.setMethod(HttpMethodEnum.POST);
+    	clientRequestNotifyApproval.setHttpsec(true);
     	
-        ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
+    	Map<String,List<String>> paramsCnr = new HashMap<>();
+    	paramsCnr.put("iia_approval_id", iiaIds);
+    	
+    	clientRequestGetIia.setParams(paramsCnr);
+    	
+        ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
     }
     

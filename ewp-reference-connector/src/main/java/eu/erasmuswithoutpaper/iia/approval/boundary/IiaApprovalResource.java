@@ -51,21 +51,21 @@ public class IiaApprovalResource {
     @GET
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response iiasApprovalGet(@QueryParam("approving_hei_id ") String heiId, @QueryParam("iia_approval_id") List<String> iiaIdList) {
+    public javax.ws.rs.core.Response iiasApprovalGet(@QueryParam("hei_id ") String heiId, @QueryParam("iia_approval_id") List<String> iiaIdList) {
         return iiaApprovalGet(heiId, iiaIdList);
     }
     
     @POST
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response iiasApprovalPost(@FormParam("approving_hei_id") String heiId, @FormParam("iia_approval_id") List<String> iiaIdList) {
+    public javax.ws.rs.core.Response iiasApprovalPost(@FormParam("hei_id") String heiId, @FormParam("iia_approval_id") List<String> iiaIdList) {
         return iiaApprovalGet(heiId, iiaIdList);
     }
     
     @POST
     @Path("cnr")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response cnrPost(@FormParam("approving_hei_id") String approvingHeiId, @FormParam("iia_approval_id") String iiaApprovalId) {
+    public javax.ws.rs.core.Response cnrPost(@FormParam("hei_id") String approvingHeiId, @FormParam("iia_approval_id") String iiaApprovalId) {
         if (approvingHeiId == null || approvingHeiId.isEmpty() || iiaApprovalId == null || iiaApprovalId.isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for notification.", Response.Status.BAD_REQUEST);
         }
