@@ -24,6 +24,7 @@ import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.factsheet.control.FactsheetConverter;
 import eu.erasmuswithoutpaper.factsheet.entity.MobilityFactsheet;
+import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 
 @Stateless
 @Path("factsheet")
@@ -44,14 +45,14 @@ public class FactsheetResource {
     HttpServletRequest httpRequest;
           
     @GET
-    @Path("get")
+    @EwpAuthenticate
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response factsheetGet(@QueryParam("hei_id") List<String> factsheetIdList) {
         return factsheet(factsheetIdList);
     }
     
     @POST
-    @Path("get")
+    @EwpAuthenticate
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response factsheetPost(@FormParam("hei_id") List<String> factsheetIdList) {
         return factsheet(factsheetIdList);
