@@ -10,10 +10,12 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 
 @Entity
 @NamedQueries({
@@ -34,6 +36,10 @@ public class IiaPartner implements Serializable{
     @ManyToMany(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinTable(name = "IIA_PARTNER_CONTACTS")
     private List<Contact> contacts;
+    
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "SINGING_CONTACT_PARTNER")
+    private Contact signingContact;
 
     public String getId() {
         return id;
@@ -67,7 +73,15 @@ public class IiaPartner implements Serializable{
         this.contacts = contacts;
     }
 
-    @Override
+    public Contact getSigningContact() {
+		return signingContact;
+	}
+
+	public void setSigningContact(Contact signingContact) {
+		this.signingContact = signingContact;
+	}
+
+	@Override
     public int hashCode() {
         int hash = 5;
         hash = 97 * hash + Objects.hashCode(this.id);

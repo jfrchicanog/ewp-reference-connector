@@ -1,7 +1,35 @@
 package eu.erasmuswithoutpaper.iia.control;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
+import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
+
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
-import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.CooperationConditions;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification.RecommendedLanguageSkill;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
@@ -10,25 +38,17 @@ import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTrainingMobilitySpec;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StudentMobilitySpecification;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StudentStudiesMobilitySpec;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StudentTraineeshipMobilitySpec;
+import eu.erasmuswithoutpaper.api.iias.endpoints.SubjectArea;
+import eu.erasmuswithoutpaper.api.types.contact.Contact;
+import eu.erasmuswithoutpaper.common.control.ConverterHelper;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import com.sun.org.apache.xml.internal.security.c14n.Canonicalizer;
+import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
 
 public class IiaConverter {
+	private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
+	
     @PersistenceContext(unitName = "connector")
     EntityManager em;
 
@@ -70,6 +90,22 @@ public class IiaConverter {
 
             converted.setCooperationConditions(convertToCooperationConditions(iia.getCooperationConditions()));
             converted.setInEffect(iia.isInEfect());
+            
+            try {
+            	JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.class);
+            	Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            	jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            	
+            	StringWriter sw = new StringWriter();
+            	jaxbMarshaller.marshal(converted, sw);
+            	String xmlString = sw.toString();
+            	
+				converted.setConditionsHash(HashCalculationUtility.calculateSha256(xmlString));
+			} catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
+					| IOException | ParserConfigurationException | TransformerException | JAXBException e) {
+				logger.error("Can't calculate sha256", e);
+			}
+            
             return converted;
         }).collect(Collectors.toList());
     }
@@ -120,6 +156,22 @@ public class IiaConverter {
         converted.setHeiId(partner.getInstitutionId());
         converted.setOunitId(partner.getOrganizationUnitId());
         converted.setIiaCode(iia.getIiaCode());
+        
+        converted.setIiaId(iia.getId());//TODO Let me know if it is ok
+        
+        try {
+			converted.setSigningDate(ConverterHelper.convertToXmlGregorianCalendar(iia.getModifyDate()));
+		} catch (DatatypeConfigurationException e) {
+			 logger.error("Can't convert date", e);
+		}//TODO Iia has two other properties startDate, endDate
+        
+        Contact contact = new Contact();
+    	
+    	contact.setPersonGender(partner.getSigningContact().getPerson().getGender().value());
+    	contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(partner.getSigningContact().getContactDetails().getMailingAddress()));
+    	contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(partner.getSigningContact().getContactDetails().getStreetAddress()));
+        
+        converted.setSigningContact(contact);
         return converted;
     }
 
@@ -136,7 +188,6 @@ public class IiaConverter {
     private StudentStudiesMobilitySpec convertToStudentStudiesMobilitySpec(CooperationCondition cc) {
         StudentStudiesMobilitySpec conv = new StudentStudiesMobilitySpec();
         addToStudentMobilitySpecification(conv, cc);
-        conv.getEqfLevel().add(cc.getEqfLevel());
         return conv;
     }
     private StudentTraineeshipMobilitySpec convertToStudentTraineeshipMobilitySpec(CooperationCondition cc) {
@@ -146,31 +197,93 @@ public class IiaConverter {
     }
     
     private void addToMobilitySpecification(MobilitySpecification conv , CooperationCondition cc) {
-        //conv.getReceivingAcademicYearId();
-        //conv.getReceivingContact();
-        if (cc.getReceivingPartner().getOrganizationUnitId() != null) {
+    	List<RecommendedLanguageSkill> recommendedSkills = cc.getRecommendedLanguageSkill().stream().map((langskill) ->{
+    		
+    		RecommendedLanguageSkill recommendedLangSkill = new RecommendedLanguageSkill();
+    		
+    		recommendedLangSkill.setCefrLevel(langskill.getCefrLevel());
+    		recommendedLangSkill.setLanguage(langskill.getLanguage());
+    		
+    		SubjectArea subjectArea= new SubjectArea();
+    		subjectArea.setIscedClarification(langskill.getSubjectArea().getIscedClarification());
+    		subjectArea.setIscedFCode(langskill.getSubjectArea().getIscedFCode());
+    		
+    		recommendedLangSkill.setSubjectArea(subjectArea);
+    		return recommendedLangSkill;
+    	}).collect(Collectors.toList());
+    	
+    	conv.getReceivingAcademicYearId().addAll(cc.getReceivingAcademicYearId());
+        
+    	if (cc.getReceivingPartner().getOrganizationUnitId() != null) {
             conv.setReceivingOunitId(cc.getReceivingPartner().getOrganizationUnitId());
         }
         
-        conv.getRecommendedLanguageSkill();
-        conv.getSendingContact();
+        conv.getRecommendedLanguageSkill().addAll(recommendedSkills);
+        
+        
+        List<SubjectArea> subjectAreas = cc.getSubjectAreas().stream().map(subject -> {
+        	SubjectArea subjectArea= new SubjectArea();
+        	
+     		subjectArea.setIscedClarification(subject.getIscedClarification());
+     		subjectArea.setIscedFCode(subject.getIscedFCode());
+     		
+        	return subjectArea;
+        }).collect(Collectors.toList());
+       
+        conv.getSubjectArea().addAll(subjectAreas);
+        
+        List<Contact> contactReceivings = cc.getReceivingPartner().getContacts().stream().map(recContact -> {
+        	Contact contact = new Contact();
+        	
+        	contact.setPersonGender(recContact.getPerson().getGender().value());
+        	contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getMailingAddress()));
+        	contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getStreetAddress()));
+        	return contact;
+        }).collect(Collectors.toList());
+        
+        conv.getReceivingContact().addAll(contactReceivings);
+        
+        List<Contact> contactsSending = cc.getSendingPartner().getContacts().stream().map(sendContact -> {
+        	Contact contact = new Contact();
+        	
+        	contact.setPersonGender(sendContact.getPerson().getGender().value());
+        	contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getMailingAddress()));
+        	contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getStreetAddress()));
+        	return contact;
+        }).collect(Collectors.toList());
+        
+        conv.getSendingContact().addAll(contactsSending);
+        
         if (cc.getSendingPartner().getOrganizationUnitId() != null) {
             conv.setSendingOunitId(cc.getSendingPartner().getOrganizationUnitId());
         }
-        //conv.setIscedFCode();
         conv.setMobilitiesPerYear(BigInteger.valueOf(cc.getMobilityNumber().getNumber()));
         conv.setReceivingHeiId(cc.getReceivingPartner().getInstitutionId());
         conv.setSendingHeiId(cc.getSendingPartner().getInstitutionId());
+        conv.setOtherInfoTerms(cc.getOtherInfoTerms());
     }
     
     private void addToStudentMobilitySpecification(StudentMobilitySpecification conv, CooperationCondition cc) {
         //conv.setAvgMonths(BigInteger.ONE);
         conv.setTotalMonthsPerYear(new BigDecimal(cc.getDuration().getNumber().toBigInteger(),2));
-        conv.getEqfLevel().add(cc.getEqfLevel());
+        
+        List<Byte> eqfLevels = new ArrayList<Byte>();
+        byte[] arrEqfLevel = cc.getEqfLevel();
+        for (int i = 0; i <arrEqfLevel.length; i++) {
+        	eqfLevels.add(new Byte(arrEqfLevel[i]));
+		}
+        
+        conv.getEqfLevel().addAll(eqfLevels);
+        
+        conv.setBlended(cc.isBlended());
+        
+        addToMobilitySpecification(conv , cc);
     }
 
     private void addToStaffMobilitySpecification(StaffMobilitySpecification conv, CooperationCondition cc) {
         //conv.setAvgDays(BigInteger.ONE);
         conv.setTotalDaysPerYear(new BigDecimal(cc.getDuration().getNumber().toBigInteger(), 2));
+        
+        addToMobilitySpecification(conv , cc);
     }
 }

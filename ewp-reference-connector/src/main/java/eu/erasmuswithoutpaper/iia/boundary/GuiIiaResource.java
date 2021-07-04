@@ -196,7 +196,20 @@ public class GuiIiaResource {
         }
     	
     	//seek the iia by code and by the ouid of the sending institution
-    	List<Iia> foundIia = em.createNamedQuery(Iia.findByIiaCodeByHeid).setParameter("iiaCode", iiaCode).setParameter("heid", heiId).getResultList();
+    	List<Iia> foundIia = em.createNamedQuery(Iia.findByIiaCode).setParameter("iiaCode", iiaCode).getResultList();
+    	
+    	Predicate<Iia> condition = new Predicate<Iia>()
+        {
+            @Override
+            public boolean test(Iia iia) {
+            	List<CooperationCondition> cooperationConditions = iia.getCooperationConditions();
+            	
+            	List<CooperationCondition> filtered = cooperationConditions.stream().filter(c -> heiId.equals(c.getSendingPartner().getInstitutionId())).collect(Collectors.toList());
+                return !filtered.isEmpty() ;
+            }
+        };
+        
+    	foundIia.stream().filter(condition).collect(Collectors.toList());
     	
     	if (foundIia.isEmpty()) {
     		return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
@@ -208,8 +221,8 @@ public class GuiIiaResource {
     	//Getting agreement partners
 		IiaPartner partnerReceiving = null;
 		
-		for (CooperationCondition condition : theIia.getCooperationConditions()) {
-			partnerReceiving = condition.getReceivingPartner();
+		for (CooperationCondition cooCondition : theIia.getCooperationConditions()) {
+			partnerReceiving = cooCondition.getReceivingPartner();
         }
     			
     	//Verify if tha agreement is approved by the oter institution. 

@@ -8,6 +8,7 @@ import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
+import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
 import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
@@ -18,6 +19,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -71,15 +73,25 @@ public class IiaResource {
     @GET
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response getGet(@QueryParam("hei_id") String heiId, @QueryParam("iia_id") List<String> iiaIdList) {
-        return iiaGet(heiId, iiaIdList);
+    @EwpAuthenticate
+    public javax.ws.rs.core.Response getGet(@QueryParam("hei_id") String heiId, @QueryParam("iia_id") List<String> iiaIdList, @QueryParam("iia_code") List<String> iiaCodeList) {
+        if (iiaIdList == null || iiaIdList.isEmpty()) {
+        	return  iiaGet(heiId, iiaCodeList);
+        }
+        
+    	return iiaGet(heiId, iiaIdList);
     }
     
     @POST
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response getPost(@FormParam("hei_id") String heiId, @FormParam("iia_id") List<String> iiaIdList) {
-        return iiaGet(heiId, iiaIdList);
+    @EwpAuthenticate
+    public javax.ws.rs.core.Response getPost(@FormParam("hei_id") String heiId, @FormParam("iia_id") List<String> iiaIdList, @QueryParam("iia_code") List<String> iiaCodeList) {
+    	if (iiaIdList == null || iiaIdList.isEmpty()) {
+        	return  iiaGet(heiId, iiaCodeList);
+        }
+    	
+    	return iiaGet(heiId, iiaIdList);
     }
 
     @POST
@@ -107,7 +119,26 @@ public class IiaResource {
         IiasGetResponse response = new IiasGetResponse();
         
         // TODO: Should IIA hold hei/institution id (if not hei_id will not be used, only use iia id)
-        List<Iia> iiaList = iiaIdList.stream().map(id -> em.find(Iia.class, id)).filter(iia -> iia != null).collect(Collectors.toList());
+        Predicate<Iia> condition = new Predicate<Iia>()
+        {
+        	boolean match = false;
+        	
+            @Override
+            public boolean test(Iia iia) {
+            	List<CooperationCondition> cConditions = iia.getCooperationConditions();
+            	
+            	cConditions.forEach(c -> {
+            		if (heiId.equals(c.getSendingPartner().getInstitutionId()) || heiId.equals(c.getReceivingPartner().getInstitutionId())) {
+            			match = true;
+                    } 
+            	});
+                
+                return match;
+            }
+
+        };
+        
+        List<Iia> iiaList = iiaIdList.stream().map(id -> em.find(Iia.class, id)).filter(iia -> iia != null).filter(condition).collect(Collectors.toList());
         if (!iiaList.isEmpty()) {
             response.getIia().addAll(iiaConverter.convertToIias(heiId, iiaList));
         }

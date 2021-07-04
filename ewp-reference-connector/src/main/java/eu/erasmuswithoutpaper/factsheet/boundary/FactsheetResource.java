@@ -46,14 +46,14 @@ public class FactsheetResource {
     @GET
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response factsheetGet(@QueryParam("factsheet_id") List<String> factsheetIdList) {
+    public javax.ws.rs.core.Response factsheetGet(@QueryParam("hei_id") List<String> factsheetIdList) {
         return factsheet(factsheetIdList);
     }
     
     @POST
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response factsheetPost(@FormParam("factsheet_id") List<String> factsheetIdList) {
+    public javax.ws.rs.core.Response factsheetPost(@FormParam("hei_id") List<String> factsheetIdList) {
         return factsheet(factsheetIdList);
     }
     

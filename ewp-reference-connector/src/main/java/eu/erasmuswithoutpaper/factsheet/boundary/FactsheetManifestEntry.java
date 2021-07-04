@@ -23,7 +23,7 @@ public class FactsheetManifestEntry implements ManifestEntryStrategy {
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         Factsheet factsheet = new Factsheet();
         factsheet.setVersion(EwpConstants.FACTSHEET_VERSION);
-        factsheet.setUrl(baseUri + "iias/factsheet");
+        factsheet.setUrl(baseUri + "factsheet/get");
         factsheet.setMaxHeiIds(BigInteger.valueOf(globalProperties.getMaxFactsheetIds()));
         
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();

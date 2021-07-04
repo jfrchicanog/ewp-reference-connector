@@ -31,7 +31,7 @@ import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerExcepti
 
 public class HashCalculationUtility {
 	
-	public String calculateSha256(String xmlDocument) throws SAXException, IOException, ParserConfigurationException, TransformerException, InvalidCanonicalizerException, CanonicalizationException, NoSuchAlgorithmException {
+	public static String calculateSha256(String xmlDocument) throws SAXException, IOException, ParserConfigurationException, TransformerException, InvalidCanonicalizerException, CanonicalizationException, NoSuchAlgorithmException {
 		byte[] xmlByte = xmlDocument.getBytes("utf-8");
 		InputStream in = new ByteArrayInputStream(xmlByte);
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
@@ -71,7 +71,7 @@ public class HashCalculationUtility {
 		}
 	}
 
-	private String convertToString(Document doc) throws TransformerException {
+	private static String convertToString(Document doc) throws TransformerException {
 		DOMSource domSource = new DOMSource(doc);
 		
 		StringWriter writer = new StringWriter();
@@ -85,11 +85,11 @@ public class HashCalculationUtility {
 		return writer.toString();
 	}
 
-	private boolean isExcludedNode(Node element) {
+	private static boolean isExcludedNode(Node element) {
 		return "sending-contact".equals(element.getNodeName().trim()) || "receiving-contact".equals(element.getNodeName().trim());
 	}
 	
-	private byte[] canonicalizeXML(String xmlText) throws InvalidCanonicalizerException, CanonicalizationException, ParserConfigurationException, IOException, SAXException {
+	private static byte[] canonicalizeXML(String xmlText) throws InvalidCanonicalizerException, CanonicalizationException, ParserConfigurationException, IOException, SAXException {
 		byte[] xmlBytes = xmlText.getBytes();
 		
 		Canonicalizer canon = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
@@ -98,7 +98,7 @@ public class HashCalculationUtility {
 		return canonXmlBytes;
 	}
 	
-	private String getSHA256(byte[] input) throws NoSuchAlgorithmException {
+	private static String getSHA256(byte[] input) throws NoSuchAlgorithmException {
 		MessageDigest digest = MessageDigest.getInstance("SHA-256");
 		byte[] encodedhash = digest.digest(input);
 		
