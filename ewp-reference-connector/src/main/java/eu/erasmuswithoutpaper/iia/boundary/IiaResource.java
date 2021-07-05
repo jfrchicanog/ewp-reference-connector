@@ -97,6 +97,7 @@ public class IiaResource {
     @POST
     @Path("cnr")
     @Produces(MediaType.APPLICATION_XML)
+    @EwpAuthenticate
     public javax.ws.rs.core.Response cnrPost(@FormParam("notifier_hei_id") String notifierHeiId, @FormParam("iia_id") String iiaId) {
         if (notifierHeiId == null || notifierHeiId.isEmpty() || iiaId == null || iiaId.isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for notification.", Response.Status.BAD_REQUEST);

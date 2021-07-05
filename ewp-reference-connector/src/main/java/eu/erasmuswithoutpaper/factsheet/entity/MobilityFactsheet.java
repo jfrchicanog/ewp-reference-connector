@@ -14,20 +14,27 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 @Entity
-@NamedQuery(name = MobilityFactsheet.findAll, query = "SELECT mf FROM MobilityFactsheet mf")
+@NamedQueries({
+	@NamedQuery(name = MobilityFactsheet.findAll, query = "SELECT mf FROM MobilityFactsheet mf"),
+	@NamedQuery(name = MobilityFactsheet.findByHeid, query = "SELECT mf FROM MobilityFactsheet mf WHERE mf.heiId = :heiId")
+})
 public class MobilityFactsheet implements Serializable {
     
     private static final String PREFIX = "eu.erasmuswithoutpaper.factsheet.entity.MobilityFactsheet.";
     public static final String findAll = PREFIX + "all";
+    public static final String findByHeid= PREFIX + "heid";
 
     @Id
     @GeneratedValue(generator="system-uuid")
     String id;
+    
+    private String heiId;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "AUTOM_TERM_ID", referencedColumnName = "ID")
@@ -76,7 +83,15 @@ public class MobilityFactsheet implements Serializable {
         this.id = id;
     }
     
-    public CalendarEntry getStudentApplicationTerm() {
+    public String getHeiId() {
+		return heiId;
+	}
+
+	public void setHeiId(String heiId) {
+		this.heiId = heiId;
+	}
+
+	public CalendarEntry getStudentApplicationTerm() {
 		return studentApplicationTerm;
 	}
 

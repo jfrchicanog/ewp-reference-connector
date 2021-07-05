@@ -47,29 +47,33 @@ public class FactsheetResource {
     @GET
     @EwpAuthenticate
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response factsheetGet(@QueryParam("hei_id") List<String> factsheetIdList) {
-        return factsheet(factsheetIdList);
+    public javax.ws.rs.core.Response factsheetGet(@QueryParam("hei_id") List<String> factsheetHeiIdList) {
+        return factsheet(factsheetHeiIdList);
     }
     
     @POST
     @EwpAuthenticate
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response factsheetPost(@FormParam("hei_id") List<String> factsheetIdList) {
-        return factsheet(factsheetIdList);
+    public javax.ws.rs.core.Response factsheetPost(@FormParam("hei_id") List<String> factsheetHeiIdList) {
+        return factsheet(factsheetHeiIdList);
     }
     
-    private javax.ws.rs.core.Response factsheet(List<String> factsheetIdList) {
-        if (factsheetIdList.size() > properties.getMaxFactsheetIds()) {
+    private javax.ws.rs.core.Response factsheet(List<String> factsheetHeiIdList) {
+        if (factsheetHeiIdList.size() > properties.getMaxFactsheetIds()) {
             throw new EwpWebApplicationException("Max number of FACTSHEET id's has exceeded.", Response.Status.BAD_REQUEST);
         }
         
-        if (factsheetIdList.isEmpty()) {
-        	throw new EwpWebApplicationException("factsheet_id required.", Response.Status.BAD_REQUEST);
+        if (factsheetHeiIdList.isEmpty()) {
+        	throw new EwpWebApplicationException("hei_id required.", Response.Status.BAD_REQUEST);
         }
         
         FactsheetResponse response = new FactsheetResponse();
         
-        List<MobilityFactsheet> factsheetList = factsheetIdList.stream().map(id -> em.find(MobilityFactsheet.class, id)).filter(factsheet -> factsheet != null).collect(Collectors.toList());
+        List<MobilityFactsheet> factsheetList = factsheetHeiIdList.stream().map(heiid -> {
+        	MobilityFactsheet factSheet = em.createNamedQuery(MobilityFactsheet.findByHeid, MobilityFactsheet.class).setParameter("heiId", heiid).getSingleResult();
+        	return factSheet;
+        }).collect(Collectors.toList());
+        
         if (!factsheetList.isEmpty()) {
             response.getFactsheet().addAll(factsheetConverter.convertToFactsheet(factsheetList));
         }
