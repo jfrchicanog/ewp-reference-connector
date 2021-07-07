@@ -1,6 +1,8 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
+
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -18,6 +20,7 @@ public class GuiIiaPartnerResource {
     
     @GET
     @Path("get_all")
+    @InternalAuthenticate
     public Response getAll() {
         List<IiaPartner> iiaPartnerList = em.createNamedQuery(IiaPartner.findAll).getResultList();
         GenericEntity<List<IiaPartner>> entity = new GenericEntity<List<IiaPartner>>(iiaPartnerList) {};

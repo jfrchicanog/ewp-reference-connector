@@ -35,6 +35,7 @@ import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
 import eu.erasmuswithoutpaper.iia.entity.MobilityNumberVariants;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
 
 @Stateless
 @Path("iia")
@@ -50,6 +51,7 @@ public class GuiIiaResource {
 
     @GET
     @Path("get_all")
+    @InternalAuthenticate
     public Response getAll() {
         List<Iia> iiaList = em.createNamedQuery(Iia.findAll).getResultList();
         GenericEntity<List<Iia>> entity = new GenericEntity<List<Iia>>(iiaList) {};
@@ -59,6 +61,7 @@ public class GuiIiaResource {
 
     @GET
     @Path("mobility_types")
+    @InternalAuthenticate
     public Response getMobilityTypes() {
         List<MobilityType> mobilityTypeList = em.createNamedQuery(MobilityType.findAll).getResultList();
         GenericEntity<List<MobilityType>> entity = new GenericEntity<List<MobilityType>>(mobilityTypeList) {};
@@ -68,6 +71,7 @@ public class GuiIiaResource {
     
     @GET
     @Path("mobility_unit_variants")
+    @InternalAuthenticate
     public Response getMobilityNumberVariants() {
         String[] statuses = MobilityNumberVariants.names();
         GenericEntity<String[]> entity = new GenericEntity<String[]>(statuses) {};
@@ -77,6 +81,7 @@ public class GuiIiaResource {
 
     @GET
     @Path("duration_unit_variants")
+    @InternalAuthenticate
     public Response getDurationUnitVariants() {
         String[] statuses = DurationUnitVariants.names();
         GenericEntity<String[]> entity = new GenericEntity<String[]>(statuses) {};
@@ -86,6 +91,7 @@ public class GuiIiaResource {
     
     @POST
     @Path("add")
+    @InternalAuthenticate
     @Consumes(MediaType.APPLICATION_JSON)
     public void add(Iia iia) {
         em.persist(iia);
@@ -93,6 +99,7 @@ public class GuiIiaResource {
 
     @GET
     @Path("heis")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response iiaHeis() {
         List<HeiEntry> heis = registryClient.getIiaHeisWithUrls();
@@ -103,6 +110,7 @@ public class GuiIiaResource {
     
     @POST
     @Path("iias-index")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response iiasIndex(ClientRequest clientRequest) {
         ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse.class);
@@ -111,6 +119,7 @@ public class GuiIiaResource {
     
     @POST
     @Path("iias")
+    @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response iias(ClientRequest clientRequest) {
         ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.class);

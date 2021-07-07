@@ -1,9 +1,5 @@
 package eu.erasmuswithoutpaper.security;
 
-import eu.erasmuswithoutpaper.common.control.GlobalProperties;
-import eu.erasmuswithoutpaper.common.control.RegistryClient;
-import eu.erasmuswithoutpaper.error.control.EwpSecWebApplicationException;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.security.cert.X509Certificate;
@@ -16,8 +12,14 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.ext.Provider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import eu.erasmuswithoutpaper.common.control.GlobalProperties;
+import eu.erasmuswithoutpaper.common.control.RegistryClient;
+import eu.erasmuswithoutpaper.error.control.EwpSecWebApplicationException;
+import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 
 @Provider
 public class JaxRsAuthenticateInterceptor implements ContainerRequestFilter, ContainerResponseFilter  {
@@ -39,11 +41,19 @@ public class JaxRsAuthenticateInterceptor implements ContainerRequestFilter, Con
     public void filter(ContainerRequestContext requestContext) throws IOException {
         Method method = resourceInfo.getResourceMethod();
 
-        if (method == null || method.getAnnotation(EwpAuthenticate.class) == null) {
-            return;
+        if (method  == null) {
+        	return;
         }
         
-        AuthenticateMethodResponse httpSignatureVerifyResponse = httpSignature.verifyHttpSignatureRequest(requestContext);
+        if (method.getAnnotation(EwpAuthenticate.class) != null) {
+        	ewpAuthorization(requestContext);
+        } else if (method.getAnnotation(InternalAuthenticate.class) != null) {
+        	internalAuthorization(requestContext);
+        }
+    }
+
+	private void ewpAuthorization(ContainerRequestContext requestContext) {
+		AuthenticateMethodResponse httpSignatureVerifyResponse = httpSignature.verifyHttpSignatureRequest(requestContext);
         if (httpSignatureVerifyResponse.isRequiredMethodInfoFulfilled()) {
             if (!httpSignatureVerifyResponse.isVerifiedOk()) {
                 throw new EwpSecWebApplicationException(httpSignatureVerifyResponse.errorMessage(), httpSignatureVerifyResponse.status(), EwpSecWebApplicationException.AuthMethod.HTTPSIG);
@@ -60,7 +70,14 @@ public class JaxRsAuthenticateInterceptor implements ContainerRequestFilter, Con
         }
         
         throw new EwpSecWebApplicationException(httpSignatureVerifyResponse.hasErrorMessage() ? httpSignatureVerifyResponse.errorMessage() : "No authorization method found in the request", httpSignatureVerifyResponse.status());
-    }
+	}
+	
+	private void internalAuthorization(ContainerRequestContext requestContext) {
+		String algoriaToken = requestContext.getHeaderString("Algoria-Token");
+		if (!properties.getAlgoriaToken().equals(algoriaToken)) {
+			throw new EwpWebApplicationException("No valid authorization token found in the request", javax.ws.rs.core.Response.Status.UNAUTHORIZED);
+		}
+	}
     
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {

@@ -1,6 +1,8 @@
 package eu.erasmuswithoutpaper.home.boundary;
 
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
+
 import java.util.Optional;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -24,6 +26,7 @@ public class GuiHomeResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("name")
+    @InternalAuthenticate
     public Response name() {
         return Response.ok(properties.getUniversityName()).build();
     }
@@ -31,6 +34,7 @@ public class GuiHomeResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("hostname")
+    @InternalAuthenticate
     public Response hostname() {
         Optional<String> hostnameProperty = properties.getHostname();
         String hostname = hostnameProperty.isPresent() ? hostnameProperty.get() : uriInfo.getBaseUri().getHost();

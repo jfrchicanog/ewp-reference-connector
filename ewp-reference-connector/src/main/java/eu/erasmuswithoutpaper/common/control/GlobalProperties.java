@@ -21,6 +21,7 @@ public class GlobalProperties {
     Properties properties;
     University university;
     String defaultUniversityName;
+    String defaultAlgoriaToken = "675701176db0293a8cac23814481f8e50b320fbd";
     
     @PostConstruct
     private void loadProperties() {
@@ -128,8 +129,13 @@ public class GlobalProperties {
         return getIntProperty("ewp.api.factsheet.max.ids", 1);
     }
     
+
     public int getMaxOmobilitylasIds() {
         return getIntProperty("ewp.api.omobility.las.max.ids", 1);
+    }
+
+    public String getAlgoriaToken() {
+    	return getProperty("ewp.algoria.token", defaultAlgoriaToken);
     }
             
     private int getIntProperty(String key, int defaultValue) {
