@@ -77,6 +77,8 @@ public class IiaResource {
     public javax.ws.rs.core.Response getGet(@QueryParam("hei_id") String heiId, @QueryParam("iia_id") List<String> iiaIdList, @QueryParam("iia_code") List<String> iiaCodeList) {
         if (iiaIdList == null || iiaIdList.isEmpty()) {
         	return  iiaGet(heiId, iiaCodeList);
+        } else if (iiaCodeList != null && !iiaCodeList.isEmpty()) {
+        	throw new EwpWebApplicationException("Providing both iia_code and iia_id is not correct", Response.Status.BAD_REQUEST);
         }
         
     	return iiaGet(heiId, iiaIdList);
@@ -86,9 +88,11 @@ public class IiaResource {
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response getPost(@FormParam("hei_id") String heiId, @FormParam("iia_id") List<String> iiaIdList, @QueryParam("iia_code") List<String> iiaCodeList) {
+    public javax.ws.rs.core.Response getPost(@FormParam("hei_id") String heiId, @FormParam("iia_id") List<String> iiaIdList, @FormParam("iia_code") List<String> iiaCodeList) {
     	if (iiaIdList == null || iiaIdList.isEmpty()) {
         	return  iiaGet(heiId, iiaCodeList);
+        } else if (iiaCodeList != null && !iiaCodeList.isEmpty()) {
+        	throw new EwpWebApplicationException("Providing both iia_code and iia_id is not correct", Response.Status.BAD_REQUEST);
         }
     	
     	return iiaGet(heiId, iiaIdList);
