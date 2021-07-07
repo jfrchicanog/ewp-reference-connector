@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -25,7 +26,9 @@ public class SingleChange implements Serializable{
     @GeneratedValue(generator="system-uuid")
     String id;
 
+    @Column(name="index_field")
     private BigInteger index;
+    @Column(name="delete_field")
     private boolean delete;
     
     private String displayText;
