@@ -114,14 +114,25 @@ public class IiaResource {
         if (notifierHeiId == null || notifierHeiId.isEmpty() || iiaId == null || iiaId.isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for notification.", Response.Status.BAD_REQUEST);
         }
-        Notification notification = new Notification();
-        notification.setType(NotificationTypes.IIA);
-        notification.setHeiId(notifierHeiId);
-        notification.setChangedElementIds(iiaId);
-        notification.setNotificationDate(new Date());
-        em.persist(notification);
-         
-        return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build();
+        
+        Collection<String> heisCoveredByCertificate;
+        if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+        } else {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+        }
+        
+        if (heisCoveredByCertificate.contains(notifierHeiId)) {
+        	 Notification notification = new Notification();
+             notification.setType(NotificationTypes.IIA);
+             notification.setHeiId(notifierHeiId);
+             notification.setChangedElementIds(iiaId);
+             notification.setNotificationDate(new Date());
+             em.persist(notification);
+             
+        }
+        
+        return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build(); 
     }
     
     private javax.ws.rs.core.Response iiaGet(String heiId, List<String> iiaIdList) {
