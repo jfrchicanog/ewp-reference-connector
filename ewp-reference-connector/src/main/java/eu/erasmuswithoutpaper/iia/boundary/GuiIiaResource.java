@@ -128,6 +128,7 @@ public class GuiIiaResource {
     
     @POST
     @Path("update")
+    @InternalAuthenticate
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response update(Iia iia) {
