@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -18,6 +19,7 @@ import javax.persistence.PersistenceContext;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -30,6 +32,7 @@ import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
 import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
 
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.CooperationConditions;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification.RecommendedLanguageSkill;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
@@ -45,6 +48,7 @@ import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
 import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
+import eu.erasmuswithoutpaper.internal.JsonHelper;
 
 public class IiaConverter {
 	private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
@@ -92,12 +96,16 @@ public class IiaConverter {
             converted.setInEffect(iia.isInEfect());
             
             try {
-            	JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.class);
+            	JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
             	Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
             	jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             	
             	StringWriter sw = new StringWriter();
-            	jaxbMarshaller.marshal(converted, sw);
+            	CooperationConditions cc = converted.getCooperationConditions();
+            	
+            	cc = removeContactInfo(cc);
+            	
+            	jaxbMarshaller.marshal(cc, sw);
             	String xmlString = sw.toString();
             	
 				converted.setConditionsHash(HashCalculationUtility.calculateSha256(xmlString));
@@ -109,6 +117,46 @@ public class IiaConverter {
             return converted;
         }).collect(Collectors.toList());
     }
+    
+	private CooperationConditions removeContactInfo(CooperationConditions cc) {
+		List<StaffTeacherMobilitySpec> staffTeacherMobilitySpec = cc.getStaffTeacherMobilitySpec().stream().map(t -> {
+			t.getReceivingContact().clear();
+			t.getSendingContact().clear();
+			
+			return t;
+		}).collect(Collectors.toList());
+		cc.getStaffTeacherMobilitySpec().clear();
+		cc.getStaffTeacherMobilitySpec().addAll(staffTeacherMobilitySpec);
+		
+		List<StaffTrainingMobilitySpec> staffTrainingMobilitySpec = cc.getStaffTrainingMobilitySpec().stream().map(t -> {
+			t.getReceivingContact().clear();
+			t.getSendingContact().clear();
+			
+			return t;
+		}).collect(Collectors.toList());
+		cc.getStaffTrainingMobilitySpec().clear();
+		cc.getStaffTrainingMobilitySpec().addAll(staffTrainingMobilitySpec);
+		
+		List<StudentStudiesMobilitySpec> studentMobilitySpecification = cc.getStudentStudiesMobilitySpec().stream().map(t -> {
+			t.getReceivingContact().clear();
+			t.getSendingContact().clear();
+			
+			return t;
+		}).collect(Collectors.toList());
+		cc.getStudentStudiesMobilitySpec().clear();
+		cc.getStudentStudiesMobilitySpec().addAll(studentMobilitySpecification);
+		
+		List<StudentTraineeshipMobilitySpec> studentTraineeshipMobilitySpec = cc.getStudentTraineeshipMobilitySpec().stream().map(t -> {
+			t.getReceivingContact().clear();
+			t.getSendingContact().clear();
+			
+			return t;
+		}).collect(Collectors.toList());
+		cc.getStudentTraineeshipMobilitySpec().clear();
+		cc.getStudentTraineeshipMobilitySpec().addAll(studentTraineeshipMobilitySpec);
+		
+		return cc;
+	}
 
 	private IiasGetResponse.Iia.CooperationConditions convertToCooperationConditions(List<CooperationCondition> cooperationConditions) {
         // TODO: Add this
