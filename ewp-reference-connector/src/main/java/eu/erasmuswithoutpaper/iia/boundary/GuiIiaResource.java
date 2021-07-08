@@ -130,7 +130,7 @@ public class GuiIiaResource {
     @Path("update")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response update(@FormParam("iia") Iia iia) {
+    public javax.ws.rs.core.Response update(Iia iia) {
     	//Find the iia by code
     	List<Iia> foundIias = em.createNamedQuery(Iia.findByIiaCode).setParameter("iiaCode", iia.getIiaCode()).getResultList();
     	
