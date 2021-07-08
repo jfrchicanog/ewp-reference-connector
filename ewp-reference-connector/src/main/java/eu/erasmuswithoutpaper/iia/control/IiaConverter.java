@@ -252,11 +252,14 @@ public class IiaConverter {
     		recommendedLangSkill.setCefrLevel(langskill.getCefrLevel());
     		recommendedLangSkill.setLanguage(langskill.getLanguage());
     		
-    		SubjectArea subjectArea= new SubjectArea();
-    		subjectArea.setIscedClarification(langskill.getSubjectArea().getIscedClarification());
-    		subjectArea.setIscedFCode(langskill.getSubjectArea().getIscedFCode());
+    		if (langskill.getSubjectArea() != null) {
+    			SubjectArea subjectArea= new SubjectArea();
+        		subjectArea.setIscedClarification(langskill.getSubjectArea().getIscedClarification());
+        		subjectArea.setIscedFCode(langskill.getSubjectArea().getIscedFCode());
+        		
+        		recommendedLangSkill.setSubjectArea(subjectArea);
+    		}
     		
-    		recommendedLangSkill.setSubjectArea(subjectArea);
     		return recommendedLangSkill;
     	}).collect(Collectors.toList());
     	
@@ -268,18 +271,19 @@ public class IiaConverter {
         
         conv.getRecommendedLanguageSkill().addAll(recommendedSkills);
         
-        
-        List<SubjectArea> subjectAreas = cc.getSubjectAreas().stream().map(subject -> {
-        	SubjectArea subjectArea= new SubjectArea();
-        	
-     		subjectArea.setIscedClarification(subject.getIscedClarification());
-     		subjectArea.setIscedFCode(subject.getIscedFCode());
-     		
-        	return subjectArea;
-        }).collect(Collectors.toList());
+        if (cc.getSubjectAreas() != null && !cc.getSubjectAreas().isEmpty()) {
+        	 List<SubjectArea> subjectAreas = cc.getSubjectAreas().stream().map(subject -> {
+             	SubjectArea subjectArea= new SubjectArea();
+             	
+          		subjectArea.setIscedClarification(subject.getIscedClarification());
+          		subjectArea.setIscedFCode(subject.getIscedFCode());
+          		
+             	return subjectArea;
+             }).collect(Collectors.toList());
+            
+             conv.getSubjectArea().addAll(subjectAreas);
+        }
        
-        conv.getSubjectArea().addAll(subjectAreas);
-        
         List<Contact> contactReceivings = cc.getReceivingPartner().getContacts().stream().map(recContact -> {
         	Contact contact = new Contact();
         	
