@@ -58,6 +58,35 @@ public class GuiIiaResource {
         
         return Response.ok(entity).build();
     }
+    
+    @GET
+    @Path("get_all")
+    @InternalAuthenticate
+    public Response getHei(String heiId) {
+        List<Iia> iiaList = em.createNamedQuery(Iia.findAll).getResultList();
+        
+        Predicate<Iia> condition = new Predicate<Iia>()
+        {
+            @Override
+            public boolean test(Iia iia) {
+            	List<CooperationCondition> cooperationConditions = iia.getCooperationConditions();
+            	
+            	List<CooperationCondition> filtered = cooperationConditions.stream().filter(c -> heiId.equals(c.getSendingPartner().getInstitutionId())).collect(Collectors.toList());
+                return !filtered.isEmpty() ;
+            }
+        };
+        
+        if (!iiaList.isEmpty()) {
+        	 List<Iia> filteredList = iiaList.stream().filter(condition).collect(Collectors.toList());
+        	
+        	if (!filteredList.isEmpty()) {
+        		GenericEntity<List<Iia>> entity = new GenericEntity<List<Iia>>(iiaList) {};
+        		 return Response.ok(entity).build();
+        	}
+        }
+        
+        return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+    }
 
     @GET
     @Path("mobility_types")
