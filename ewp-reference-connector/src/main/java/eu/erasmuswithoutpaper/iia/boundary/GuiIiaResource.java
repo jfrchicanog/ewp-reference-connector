@@ -17,6 +17,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -60,9 +61,9 @@ public class GuiIiaResource {
     }
     
     @GET
-    @Path("get_all")
+    @Path("get_heiid")
     @InternalAuthenticate
-    public Response getHei(String heiId) {
+    public Response getHei(@QueryParam("hei_id") String heiId) {
         List<Iia> iiaList = em.createNamedQuery(Iia.findAll).getResultList();
         
         Predicate<Iia> condition = new Predicate<Iia>()
