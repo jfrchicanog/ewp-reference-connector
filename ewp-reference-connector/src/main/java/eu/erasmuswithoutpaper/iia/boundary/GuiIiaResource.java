@@ -84,9 +84,9 @@ public class GuiIiaResource {
         		GenericEntity<List<Iia>> entity = new GenericEntity<List<Iia>>(iiaList) {};
         		 return Response.ok(entity).build();
         	}
-        }
+        } 
         
-        return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        return javax.ws.rs.core.Response.ok().build();
     }
 
     @GET
