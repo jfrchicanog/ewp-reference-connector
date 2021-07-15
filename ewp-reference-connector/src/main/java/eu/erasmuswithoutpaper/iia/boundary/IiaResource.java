@@ -83,13 +83,27 @@ public class IiaResource {
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
     public javax.ws.rs.core.Response getGet(@QueryParam("hei_id") String heiId, @QueryParam("iia_id") List<String> iiaIdList, @QueryParam("iia_code") List<String> iiaCodeList) {
-        if (iiaIdList == null || iiaIdList.isEmpty()) {
-        	return  iiaGet(heiId, iiaCodeList);
-        } else if (iiaCodeList != null && !iiaCodeList.isEmpty()) {
+        if ( (iiaCodeList != null && !iiaCodeList.isEmpty()) && (iiaIdList != null && !iiaIdList.isEmpty()) ) {
         	throw new EwpWebApplicationException("Providing both iia_code and iia_id is not correct", Response.Status.BAD_REQUEST);
         }
         
-    	return iiaGet(heiId, iiaIdList);
+        if ( (iiaCodeList == null || iiaCodeList.isEmpty()) && (iiaIdList == null || iiaIdList.isEmpty()) ) {
+        	throw new EwpWebApplicationException("Missing argumanets, iia_code or iia_id is required", Response.Status.BAD_REQUEST);
+        }
+        
+        List<String> iiaIdentifiers = new ArrayList<>();
+        
+        //Flag to define the search criteria. It is two possible way for identifying an IIA, by identifiers OR local IIA codes.
+        boolean byLocalCodes = false;
+        
+        if (iiaIdList != null && !iiaIdList.isEmpty()) {
+        	iiaIdentifiers = iiaIdList;
+        } else {
+        	iiaIdentifiers = iiaCodeList;
+        	byLocalCodes = true;
+        }
+		return iiaGet(heiId, iiaIdentifiers, byLocalCodes);
+        	
     }
     
     @POST
@@ -97,13 +111,26 @@ public class IiaResource {
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
     public javax.ws.rs.core.Response getPost(@FormParam("hei_id") String heiId, @FormParam("iia_id") List<String> iiaIdList, @FormParam("iia_code") List<String> iiaCodeList) {
-    	if (iiaIdList == null || iiaIdList.isEmpty()) {
-        	return  iiaGet(heiId, iiaCodeList);
-        } else if (iiaCodeList != null && !iiaCodeList.isEmpty()) {
-        	throw new EwpWebApplicationException("Providing both iia_code and iia_id is not correct", Response.Status.BAD_REQUEST);
-        }
-    	
-    	return iiaGet(heiId, iiaIdList);
+    	 if ( (iiaCodeList != null && !iiaCodeList.isEmpty()) && (iiaIdList != null && !iiaIdList.isEmpty()) ) {
+         	throw new EwpWebApplicationException("Providing both iia_code and iia_id is not correct", Response.Status.BAD_REQUEST);
+         }
+         
+         if ( (iiaCodeList == null || iiaCodeList.isEmpty()) && (iiaIdList == null || iiaIdList.isEmpty()) ) {
+         	throw new EwpWebApplicationException("Missing argumanets, iia_code or iia_id is required", Response.Status.BAD_REQUEST);
+         }
+         
+         List<String> iiaIdentifiers = new ArrayList<>();
+         
+         //Flag to define the search criteria. It is two possible way for identifying an IIA, by identifiers OR local IIA codes.
+         boolean byLocalCodes = false;
+         
+         if (iiaIdList != null && !iiaIdList.isEmpty()) {
+         	iiaIdentifiers = iiaIdList;
+         } else {
+         	iiaIdentifiers = iiaCodeList;
+         	byLocalCodes = true;
+         }
+ 		return iiaGet(heiId, iiaIdentifiers, byLocalCodes);
     }
 
     @POST
@@ -135,7 +162,7 @@ public class IiaResource {
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build(); 
     }
     
-    private javax.ws.rs.core.Response iiaGet(String heiId, List<String> iiaIdList) {
+    private javax.ws.rs.core.Response iiaGet(String heiId, List<String> iiaIdList, boolean byLocalCodes) {
         if (iiaIdList.size() > properties.getMaxIiaIds()) {
             throw new EwpWebApplicationException("Max number of IIA id's has exceeded.", Response.Status.BAD_REQUEST);
         }
@@ -162,7 +189,13 @@ public class IiaResource {
 
         };
         
-        List<Iia> iiaList = iiaIdList.stream().map(id -> em.find(Iia.class, id)).filter(iia -> iia != null).filter(condition).collect(Collectors.toList());
+        List<Iia> iiaList = null;
+        if (byLocalCodes) {
+        	iiaList = iiaIdList.stream().map(iiaCode -> em.createNamedQuery(Iia.findByIiaCode,Iia.class).setParameter("iiaCode", iiaCode).getSingleResult()).filter(iia -> iia != null).filter(condition).collect(Collectors.toList());
+        } else {
+        	iiaList = iiaIdList.stream().map(id -> em.find(Iia.class, id)).filter(iia -> iia != null).filter(condition).collect(Collectors.toList());
+        }
+        
         if (!iiaList.isEmpty()) {
             response.getIia().addAll(iiaConverter.convertToIias(heiId, iiaList));
         }
