@@ -66,7 +66,7 @@ public class IiaResource {
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response indexGet(@QueryParam("hei_id") String heiId, @QueryParam("partner_hei_id") String partner_hei_id, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id, @QueryParam("modified_since ") String modified_since ) {
+    public javax.ws.rs.core.Response indexGet(@QueryParam("hei_id") String heiId, @QueryParam("partner_hei_id") String partner_hei_id, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id, @QueryParam("modified_since ") String modified_since) {
         return iiaIndex(heiId, partner_hei_id, receiving_academic_year_id, modified_since);
     }
     
@@ -74,7 +74,7 @@ public class IiaResource {
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response indexPost(@FormParam("hei_id") String heiId,@QueryParam("partner_hei_id") String partner_hei_id, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id,  @QueryParam("modified_since ") String modified_since) {
+    public javax.ws.rs.core.Response indexPost(@FormParam("hei_id") String heiId,@FormParam("partner_hei_id") String partner_hei_id, @FormParam("receiving_academic_year_id") String receiving_academic_year_id,  @QueryParam("modified_since ") String modified_since) {
         return iiaIndex(heiId, partner_hei_id, receiving_academic_year_id, modified_since);
     }
     
@@ -204,23 +204,21 @@ public class IiaResource {
         }
         
 		IiasIndexResponse response = new IiasIndexResponse();
-        List<Iia> iiaList =  em.createNamedQuery(Iia.findAll).getResultList();
-        
-        List<Iia> filteredIiaList = new ArrayList<Iia>();
+        List<Iia> filteredIiaList = em.createNamedQuery(Iia.findAll).getResultList();
         		
-        if (!iiaList.isEmpty()) {
-        	filteredIiaList = iiaList.stream().filter(iia -> equalHeiId.test(iia, heiId)).collect(Collectors.toList());
+        if (!filteredIiaList.isEmpty()) {
+        	filteredIiaList = filteredIiaList.stream().filter(iia -> equalHeiId.test(iia, heiId)).collect(Collectors.toList());
         	
         	if (partner_hei_id != null) {
-    			filteredIiaList = iiaList.stream().filter(iia -> equalPartnerHeiId.test(iia, partner_hei_id)).collect(Collectors.toList());
+    			filteredIiaList = filteredIiaList.stream().filter(iia -> equalPartnerHeiId.test(iia, partner_hei_id)).collect(Collectors.toList());
     		}
     		
     		if (receiving_academic_year_id != null) {
-    			filteredIiaList = iiaList.stream().filter(iia -> anyMatchReceivingAcademicYear.test(iia, receiving_academic_year_id)).collect(Collectors.toList());
+    			filteredIiaList = filteredIiaList.stream().filter(iia -> anyMatchReceivingAcademicYear.test(iia, receiving_academic_year_id)).collect(Collectors.toList());
     		}
     		
     		if (modified_since != null) {
-    			filteredIiaList = iiaList.stream().filter(iia -> compareModifiedSince.test(iia, calendarModifySince)).collect(Collectors.toList());
+    			filteredIiaList = filteredIiaList.stream().filter(iia -> compareModifiedSince.test(iia, calendarModifySince)).collect(Collectors.toList());
     		}
         }
         
