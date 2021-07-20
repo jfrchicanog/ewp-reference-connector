@@ -49,7 +49,7 @@ public class ContactLoader extends AbstractStartupLoader {
 		String ouIdIkea = InstitutionLoader.UMA_OU1_ID ;
         persistContact("{'institutionId':'uma.es','organizationUnitId':'" + ouIdIkea + "','role':'INSURANCE','contactDetails':{'email':['rrii@uma.es']}}", getPerson("9001013344"));
         persistContact("{'institutionId':'uma.es','organizationUnitId':'" + ouIdIkea + "','role':'ADMISSION'}", getPerson("9011046365"));
-        persistContact("{'institutionId':'uma.es','role':'ADMISSION'}", getPerson("9107146991"));
+        persistContact("{'institutionId':'uma.es','role':'ADMISSION'}", getPerson("9001013344"));
         persistContact("{'institutionId':'uma.es','organizationUnitId':'" + ouIdIkea + "','role':'COURSE'}", getPerson("8906093845"));
 		
 	}
