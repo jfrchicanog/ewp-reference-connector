@@ -119,41 +119,26 @@ public class IiaConverter {
     }
     
 	private CooperationConditions removeContactInfo(CooperationConditions cc) {
-		List<StaffTeacherMobilitySpec> staffTeacherMobilitySpec = cc.getStaffTeacherMobilitySpec().stream().map(t -> {
+		cc.getStaffTeacherMobilitySpec().forEach(t -> {
 			t.getReceivingContact().clear();
 			t.getSendingContact().clear();
-			
-			return t;
-		}).collect(Collectors.toList());
-		cc.getStaffTeacherMobilitySpec().clear();
-		cc.getStaffTeacherMobilitySpec().addAll(staffTeacherMobilitySpec);
+		});
 		
-		List<StaffTrainingMobilitySpec> staffTrainingMobilitySpec = cc.getStaffTrainingMobilitySpec().stream().map(t -> {
+		cc.getStaffTrainingMobilitySpec().forEach(t -> {
 			t.getReceivingContact().clear();
 			t.getSendingContact().clear();
 			
-			return t;
-		}).collect(Collectors.toList());
-		cc.getStaffTrainingMobilitySpec().clear();
-		cc.getStaffTrainingMobilitySpec().addAll(staffTrainingMobilitySpec);
+		});
 		
-		List<StudentStudiesMobilitySpec> studentMobilitySpecification = cc.getStudentStudiesMobilitySpec().stream().map(t -> {
+		cc.getStudentStudiesMobilitySpec().forEach(t -> {
 			t.getReceivingContact().clear();
 			t.getSendingContact().clear();
-			
-			return t;
-		}).collect(Collectors.toList());
-		cc.getStudentStudiesMobilitySpec().clear();
-		cc.getStudentStudiesMobilitySpec().addAll(studentMobilitySpecification);
+		});
 		
-		List<StudentTraineeshipMobilitySpec> studentTraineeshipMobilitySpec = cc.getStudentTraineeshipMobilitySpec().stream().map(t -> {
+		cc.getStudentTraineeshipMobilitySpec().forEach(t -> {
 			t.getReceivingContact().clear();
 			t.getSendingContact().clear();
-			
-			return t;
-		}).collect(Collectors.toList());
-		cc.getStudentTraineeshipMobilitySpec().clear();
-		cc.getStudentTraineeshipMobilitySpec().addAll(studentTraineeshipMobilitySpec);
+		});
 		
 		return cc;
 	}
