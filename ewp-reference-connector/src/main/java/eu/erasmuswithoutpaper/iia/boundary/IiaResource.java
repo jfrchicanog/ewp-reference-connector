@@ -66,7 +66,7 @@ public class IiaResource {
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response indexGet(@QueryParam("hei_id") String heiId, @QueryParam("partner_hei_id") String partner_hei_id, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id, @QueryParam("modified_since ") String modified_since) {
+    public javax.ws.rs.core.Response indexGet(@QueryParam("hei_id") String heiId, @QueryParam("partner_hei_id") String partner_hei_id, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id, @QueryParam("modified_since") String modified_since) {
         return iiaIndex(heiId, partner_hei_id, receiving_academic_year_id, modified_since);
     }
     
@@ -74,7 +74,7 @@ public class IiaResource {
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response indexPost(@FormParam("hei_id") String heiId,@FormParam("partner_hei_id") String partner_hei_id, @FormParam("receiving_academic_year_id") String receiving_academic_year_id,  @QueryParam("modified_since ") String modified_since) {
+    public javax.ws.rs.core.Response indexPost(@FormParam("hei_id") String heiId,@FormParam("partner_hei_id") String partner_hei_id, @FormParam("receiving_academic_year_id") String receiving_academic_year_id,  @QueryParam("modified_since") String modified_since) {
         return iiaIndex(heiId, partner_hei_id, receiving_academic_year_id, modified_since);
     }
     
@@ -156,7 +156,8 @@ public class IiaResource {
              notification.setChangedElementIds(iiaId);
              notification.setNotificationDate(new Date());
              em.persist(notification);
-             
+        } else {
+        	throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
         }
         
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build(); 
