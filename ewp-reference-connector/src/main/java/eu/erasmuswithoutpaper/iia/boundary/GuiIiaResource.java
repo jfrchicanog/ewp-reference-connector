@@ -265,7 +265,7 @@ public class GuiIiaResource {
 			partnerReceiving = cooCondition.getReceivingPartner();
         }
     			
-    	//Verify if tha agreement is approved by the oter institution. 
+    	//Verify if the agreement is approved by the other institution. 
     	Map<String, String> urlsGet = registryClient.getIiaApprovalHeiUrls(heiId);
     	List<String> urlGetValues = new ArrayList<String>(urlsGet.values());
     	

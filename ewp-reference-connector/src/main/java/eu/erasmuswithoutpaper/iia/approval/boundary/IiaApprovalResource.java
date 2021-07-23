@@ -1,11 +1,14 @@
 package eu.erasmuswithoutpaper.iia.approval.boundary;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
@@ -15,15 +18,25 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
 import eu.erasmuswithoutpaper.api.iias.approval.cnr.ObjectFactory;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
+import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.iia.approval.control.IiaApprovalConverter;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
@@ -41,6 +54,9 @@ public class IiaApprovalResource {
     
     @Inject
     RegistryClient registryClient;
+    
+    @Inject
+    RestClient restClient;
     
     @Inject
     IiaApprovalConverter iiaApprovalConverter;
@@ -75,7 +91,45 @@ public class IiaApprovalResource {
         notification.setChangedElementIds(iiaApprovalId);
         notification.setNotificationDate(new Date());
         em.persist(notification);
-         
+        
+        try {
+        	
+	        //Send notification to Algoria
+	        ObjectMapper mapper = new ObjectMapper();
+	        ObjectNode node = mapper.createObjectNode();
+	        node.put("agreement_uuid", iiaApprovalId);
+	        node.put("description", "Approved Agreement");
+        
+			String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+			
+			ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+			clientBuilder.sslContext(SSLContext.getDefault());
+			
+			WebTarget target = clientBuilder.build().target("https://relacionesi.uma.es/algoria/ewp_approved_agreement_notifications/");
+	        target.property("http.autoredirect", true);
+	        
+            Invocation.Builder postBuilder = target.request().accept(MediaType.APPLICATION_JSON_TYPE);
+    		postBuilder = postBuilder.header("Authorization", "Token 83796a548ff904efcc2811ba2cf6d4049009d149");
+    		
+    		Response response = postBuilder.post(Entity.json(json));
+    		if (400 == response.getStatusInfo().getStatusCode() || 404 == response.getStatusInfo().getStatusCode()) {
+    			throw new EwpWebApplicationException("The agreement was not found into Algoria", Response.Status.NOT_FOUND);
+    		} else if (401 == response.getStatusInfo().getStatusCode()) {
+    			String responseJSON =  (String) response.getEntity();
+    			
+    			JsonNode nodeRespose = mapper.readTree(responseJSON);
+    			String detail = nodeRespose.findValue("detail").textValue();
+    			throw new EwpWebApplicationException(detail, Response.Status.UNAUTHORIZED);
+    		}
+    		
+		} catch (JsonProcessingException e) {
+			throw new EwpWebApplicationException("Can not generate json for Algoria notification", Response.Status.BAD_REQUEST);
+		} catch (NoSuchAlgorithmException e) {
+			throw new EwpWebApplicationException("Error client builder ssl context", Response.Status.BAD_REQUEST);
+		} catch (IOException e) {
+			throw new EwpWebApplicationException("Error parsing the response", Response.Status.BAD_REQUEST);
+		}
+        
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaApprovalCnrResponse(new Empty())).build();
     }
     
