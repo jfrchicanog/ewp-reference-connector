@@ -1,6 +1,11 @@
+/**
+ * Create a new task for notification to Algoria of an approval or modification of a IIa. It has the responability to enqueue the task and check the result.
+ */
 package eu.erasmuswithoutpaper.iia.common;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -41,6 +46,12 @@ public class IiaTaskService {
 	
 	private final static CompletionService<String> completionService = new ExecutorCompletionService<String>(exeService,queue);
 	
+	private static Map<String, Integer> taskIterationCountMap = new HashMap<String,Integer>();
+	
+	/**
+	 * The task is enqueue
+	 * @param task
+	 */
 	public static void addTask(Callable<String> task) {
 		completionService.submit(task);
 		
@@ -91,6 +102,10 @@ public class IiaTaskService {
 	   	return callableTask;
 	}
 
+	/**
+	 * When the task is done the result is checked, if the received status code is service unavailable then the task is enqueue again after two hour.
+	 * It is only possible to do this operation 10 times.
+	 */
 	private static void checkNextResult() {
 				
 		try {
@@ -132,21 +147,33 @@ public class IiaTaskService {
 					
 					logger.info("The service (server) is temporarily unavailable but should be restored in the future");
 					
-					//Schedule add the task again after two hour
-					ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-					scheduler.schedule(new Runnable() {
+					//Evaluate the amount of sending iia notification attempts 
+					Integer count = taskIterationCountMap.get(iiaApprovalId);
+					if (count == null) {
+						taskIterationCountMap.put(iiaApprovalId, 1);
+					} else if (count == 10) {
+						taskIterationCountMap.remove(iiaApprovalId);
+					} else {
+						count++;
 						
-			            @Override
-			            public void run() {
-			            	
-			            	//Reinsert the task into the queue
-							Callable<String> callableTask = createTask(iiaApprovalId, mode);
-							addTask(callableTask);
-			            }
-			            
-		            }, 2, TimeUnit.HOURS);
-					
-					scheduler.shutdown();
+						taskIterationCountMap.put(iiaApprovalId, count);
+						
+						//Schedule add the task again after two hour
+						ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+						scheduler.schedule(new Runnable() {
+							
+				            @Override
+				            public void run() {
+				            	
+				            	//Reinsert the task into the queue
+								Callable<String> callableTask = createTask(iiaApprovalId, mode);
+								addTask(callableTask);
+				            }
+				            
+			            }, 2, TimeUnit.HOURS);
+						
+						scheduler.shutdown();
+					}
 				}
 			}
 		} catch (InterruptedException | ExecutionException | IOException e) {
