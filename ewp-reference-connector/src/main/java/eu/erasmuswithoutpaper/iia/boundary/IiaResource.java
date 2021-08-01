@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ import eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
+import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
@@ -61,6 +63,9 @@ public class IiaResource {
     
     @Context
     HttpServletRequest httpRequest;
+    
+    @Inject
+    GlobalProperties globalProperties;
     
     @GET
     @Path("index")
@@ -91,15 +96,23 @@ public class IiaResource {
         	throw new EwpWebApplicationException("Missing argumanets, iia_code or iia_id is required", Response.Status.BAD_REQUEST);
         }
         
+        if (iiaIdList.size() > properties.getMaxIiaIds()) {
+            throw new EwpWebApplicationException("Max number of IIA ids has exceeded.", Response.Status.BAD_REQUEST);
+        }
+        
+        if (iiaCodeList.size() > properties.getMaxIiaCodes()) {
+            throw new EwpWebApplicationException("Max number of IIA codes has exceeded.", Response.Status.BAD_REQUEST);
+        }
+        
         List<String> iiaIdentifiers = new ArrayList<>();
         
         //Flag to define the search criteria. It is two possible way for identifying an IIA, by identifiers OR local IIA codes.
         boolean byLocalCodes = false;
         
         if (iiaIdList != null && !iiaIdList.isEmpty()) {
-        	iiaIdentifiers = iiaIdList;
+        	iiaIdentifiers.addAll(iiaIdList);
         } else {
-        	iiaIdentifiers = iiaCodeList;
+        	iiaIdentifiers.addAll(iiaCodeList);
         	byLocalCodes = true;
         }
 		return iiaGet(heiId, iiaIdentifiers, byLocalCodes);
@@ -156,6 +169,10 @@ public class IiaResource {
              notification.setChangedElementIds(iiaId);
              notification.setNotificationDate(new Date());
              em.persist(notification);
+             
+             //Register and execute Algoria notification
+             execNotificationToAlgoria(iiaId);
+             
         } else {
         	throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
         }
@@ -163,10 +180,15 @@ public class IiaResource {
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build(); 
     }
     
+    private void execNotificationToAlgoria(String iiaId) {
+    	
+		Callable<String> callableTask = IiaTaskService.createTask(iiaId, IiaTaskService.MODIFIED);
+		
+	   	//Put the task in the queue
+	   	IiaTaskService.addTask(callableTask);
+	}
+    
     private javax.ws.rs.core.Response iiaGet(String heiId, List<String> iiaIdList, boolean byLocalCodes) {
-        if (iiaIdList.size() > properties.getMaxIiaIds()) {
-            throw new EwpWebApplicationException("Max number of IIA id's has exceeded.", Response.Status.BAD_REQUEST);
-        }
         
         IiasGetResponse response = new IiasGetResponse();
         
@@ -225,6 +247,10 @@ public class IiaResource {
             heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
         } else {
             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+        }
+        
+        if (!heisCoveredByCertificate.contains(heiId)) {
+        	throw new EwpWebApplicationException("The client signature does not cover the hei_id .", Response.Status.BAD_REQUEST);
         }
         
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
