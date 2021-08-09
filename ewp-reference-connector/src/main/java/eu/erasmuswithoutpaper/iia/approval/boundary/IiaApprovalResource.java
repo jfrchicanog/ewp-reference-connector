@@ -5,7 +5,9 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
@@ -176,9 +178,12 @@ public class IiaApprovalResource {
         //Getting all agreements which corresponds to the list of identifiers
         List<Iia> iiaList = iiaIdList.stream().map(id -> em.find(Iia.class, id)).filter(iia -> iia != null).collect(Collectors.toList());
         if(!iiaList.isEmpty()) {
+        	Map<String, String> heiIds = new HashMap<String,String>();
+        	heiIds.put("Owner", owner_hei_id);
+        	heiIds.put("HeiId", heiId);
         	
         	//Apply filter by the heiId and the owner of the copy
-        	iiaList = iiaList.stream().filter(iia -> equalPartnerHeiId.test(iia, owner_hei_id)).filter(iia -> equalHeiId.test(iia, heiId)).collect(Collectors.toList());
+        	iiaList = iiaList.stream().filter(iia -> equalCheckHeiId.test(iia, heiIds)).collect(Collectors.toList());
         	
         	if(!iiaList.isEmpty()) {
         		//Extract the iia ids
@@ -200,26 +205,18 @@ public class IiaApprovalResource {
         return javax.ws.rs.core.Response.ok(response).build();
     } 
 	
-	BiPredicate<Iia,String> equalHeiId = new BiPredicate<Iia,String>()
-    {
-        @Override
-        public boolean test(Iia iia, String heiId) {
-        	
-        	List<CooperationCondition> cConditions = iia.getCooperationConditions();
-        	
-        	Stream<CooperationCondition> stream = cConditions.stream().filter(c -> c.getReceivingPartner().getInstitutionId().equals(heiId));
-        	 
-            return !stream.collect(Collectors.toList()).isEmpty();
-        }
-    };
-    
-    BiPredicate<Iia,String> equalPartnerHeiId = new BiPredicate<Iia,String>()
+    BiPredicate<Iia,Map<String, String>> equalCheckHeiId = new BiPredicate<Iia,Map<String, String>>()
 	{
 		@Override
-		public boolean test(Iia iia, String owner_hei_id) {
+		public boolean test(Iia iia, Map<String, String> heiIds) {
 			List<CooperationCondition> cConditions = iia.getCooperationConditions();
 			
-			Stream<CooperationCondition> stream = cConditions.stream().filter(c -> ( c.getSendingPartner().getInstitutionId().equals(owner_hei_id) || c.getReceivingPartner().getInstitutionId().equals(owner_hei_id) ));
+			String owner_hei_id = heiIds.get("Owner");
+			String hei_id = heiIds.get("HeiId");
+			
+			Stream<CooperationCondition> stream = cConditions.stream().filter(c -> ( 
+					(c.getSendingPartner().getInstitutionId().equals(owner_hei_id) && c.getReceivingPartner().getInstitutionId().equals(hei_id)) || 
+					(c.getReceivingPartner().getInstitutionId().equals(owner_hei_id) && c.getSendingPartner().getInstitutionId().equals(hei_id)) ) );
 			
 			return !stream.collect(Collectors.toList()).isEmpty();
 		}
