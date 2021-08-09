@@ -44,6 +44,7 @@ import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
 import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
+import eu.erasmuswithoutpaper.organization.entity.Institution;
 
 @Stateless
 @Path("iiasApproval")
@@ -108,7 +109,11 @@ public class IiaApprovalResource {
              heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
          }
          
-         //TODO queda verificar que el owner_hei_id se corresponse con el id de UMA
+         List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
+         boolean ownerHeiIdCoverd = institutionList.stream().anyMatch(institution -> owner_hei_id.equals(institution.getInstitutionId()));
+         if (!ownerHeiIdCoverd) {
+        	 throw new EwpWebApplicationException("The owner_hei_id is not covered by the server.", Response.Status.BAD_REQUEST);
+         }
          
          if (heisCoveredByCertificate.contains(approvingHeiId)) {
         	 Notification notification = new Notification();

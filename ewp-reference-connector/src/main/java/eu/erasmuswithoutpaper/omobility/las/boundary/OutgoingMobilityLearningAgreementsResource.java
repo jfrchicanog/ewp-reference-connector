@@ -102,8 +102,23 @@ public class OutgoingMobilityLearningAgreementsResource {
             throw new EwpWebApplicationException("No update data was sent", Response.Status.BAD_REQUEST);
         }
         
-        if(request.getSendingHeiId() == null || request.getSendingHeiId().isEmpty()) {
+        if (request.getSendingHeiId() == null || request.getSendingHeiId().isEmpty()) {
         	throw new EwpWebApplicationException("Mising required parameter, sending-hei-id is required", Response.Status.BAD_REQUEST);
+        }
+        
+        if (request.getApproveComponentsStudiedDraftV1() != null) {
+        	String omobilityId = request.getApproveComponentsStudiedDraftV1().getOmobilityId();
+        	
+        	OlearningAgreement olearningAgreement = em.find(OlearningAgreement.class, omobilityId);
+        	
+        	if (olearningAgreement != null) {
+        		if (!request.getSendingHeiId().equals(olearningAgreement.getSendingHei().getHeiId())) {
+        			throw new EwpWebApplicationException("Sending Hei Id doesn't match Omobility Id's sending HEI", Response.Status.BAD_REQUEST);
+        		}
+        	}
+        	
+        } else if (request.getUpdateComponentsStudiedV1() != null) {
+        	
         }
         
         Collection<String> heisCoveredByCertificate;
