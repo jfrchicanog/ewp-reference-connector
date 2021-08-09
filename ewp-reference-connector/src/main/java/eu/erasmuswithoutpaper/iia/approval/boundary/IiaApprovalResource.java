@@ -111,12 +111,20 @@ public class IiaApprovalResource {
              heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
          }
          
+         //Checking if owner_hei_id is covered by the lits of institutions from the server
          List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
          boolean ownerHeiIdCoverd = institutionList.stream().anyMatch(institution -> owner_hei_id.equals(institution.getInstitutionId()));
          if (!ownerHeiIdCoverd) {
         	 throw new EwpWebApplicationException("The owner_hei_id is not covered by the server.", Response.Status.BAD_REQUEST);
          }
          
+         //Checking if approving_hei_id is covered by the lits of institutions from the server
+         boolean approvingHeiIdCoverd = institutionList.stream().anyMatch(institution -> approvingHeiId.equals(institution.getInstitutionId()));
+         if (!approvingHeiIdCoverd) {
+        	 throw new EwpWebApplicationException("The approving_hei_id is not covered by the server.", Response.Status.BAD_REQUEST);
+         }
+         
+         //Checking if the approvingHeiId is covered by the client certificate before create the notification
          if (heisCoveredByCertificate.contains(approvingHeiId)) {
         	 Notification notification = new Notification();
              notification.setType(NotificationTypes.IIAAPPROVAL);
