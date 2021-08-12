@@ -107,6 +107,8 @@ public class OutgoingMobilityConverter {
             } catch (DatatypeConfigurationException ex) {
                 logger.error("Can't convert date", ex);
             }
+            
+            mobilityStudent.setGlobalId(person.getGlobalId());
 
             mobilityStudent.setCitizenship(person.getCountryCode());
             if (student.getContactDetails().getEmail() != null && student.getContactDetails().getEmail().size() > 0) {

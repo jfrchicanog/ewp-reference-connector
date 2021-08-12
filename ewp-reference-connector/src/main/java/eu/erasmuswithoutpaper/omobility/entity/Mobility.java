@@ -1,13 +1,11 @@
 
 package eu.erasmuswithoutpaper.omobility.entity;
 
-import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
-import eu.erasmuswithoutpaper.iia.entity.MobilityType;
-import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -19,10 +17,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
 import org.apache.johnzon.mapper.JohnzonConverter;
+
+import eu.erasmuswithoutpaper.iia.entity.MobilityType;
+import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 
 @Entity
 @NamedQueries({

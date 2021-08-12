@@ -44,16 +44,16 @@ public class OutgoingMobilityResource {
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response mobilityIndexGet(@QueryParam("sending_hei_id") String sendingHeiId, @QueryParam("receiving_hei_id") List<String> receivingHeiIdList, 
-    		@QueryParam("receiving_academic_year_id") String receiving_academic_year_id) {
-        return mobilityIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id);
+    		@QueryParam("receiving_academic_year_id") String receiving_academic_year_id, @QueryParam("modified_since ") String modified_since) {
+        return mobilityIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id, modified_since);
     }
     
     @POST
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response mobilityIndexPost(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("receiving_hei_id") List<String> receivingHeiIdList, 
-    		@QueryParam("receiving_academic_year_id") String receiving_academic_year_id) {
-        return mobilityIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id);
+    		@FormParam("receiving_academic_year_id") String receiving_academic_year_id, @FormParam("modified_since ") String modified_since) {
+        return mobilityIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id, modified_since);
     }
     
     @GET
@@ -84,14 +84,18 @@ public class OutgoingMobilityResource {
         return javax.ws.rs.core.Response.ok(response).build();
     }
     
-    private javax.ws.rs.core.Response mobilityIndex(String sendingHeiId, List<String> receivingHeiIdList, String receiving_academic_year_id) {
+    private javax.ws.rs.core.Response mobilityIndex(String sendingHeiId, List<String> receivingHeiIdList, String receiving_academic_year_id, String modified_since) {
         OmobilitiesIndexResponse response = new OmobilitiesIndexResponse();
         
         List<Mobility> mobilityList =  em.createNamedQuery(Mobility.findBySendingInstitutionId).setParameter("sendingInstitutionId", sendingHeiId).getResultList();
         if (!mobilityList.isEmpty()) {
         	
-        	if (receiving_academic_year_id != null) {
+        	if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
         		mobilityList = mobilityList.stream().filter(omobility -> anyMatchReceivingAcademicYear.test(omobility, receiving_academic_year_id)).collect(Collectors.toList());
+        	}
+        	
+        	if (modified_since != null && !modified_since.isEmpty()) {
+        		
         	}
         	
             response.getOmobilityId().addAll(mobilityIds(mobilityList, receivingHeiIdList));
@@ -138,11 +142,17 @@ public class OutgoingMobilityResource {
     private List<String> mobilityIds(List<Mobility> mobilityList, List<String> receivingHeiIdList) {
         List<String> mobilityIds = new ArrayList<>();
         
-        mobilityList.stream().forEachOrdered((m) -> {
-            if (receivingHeiIdList.isEmpty() || receivingHeiIdList.contains(m.getReceivingInstitutionId())) {
+        if (receivingHeiIdList != null && !receivingHeiIdList.isEmpty()) {
+        	 mobilityList.stream().forEachOrdered((m) -> {
+                 if (receivingHeiIdList.contains(m.getReceivingInstitutionId())) {
+                     mobilityIds.add(m.getId());
+                 }
+             });
+        } else {
+        	 mobilityList.stream().forEachOrdered((m) -> {
                 mobilityIds.add(m.getId());
-            }
-        });
+             });
+        }
         
         return mobilityIds;
     }

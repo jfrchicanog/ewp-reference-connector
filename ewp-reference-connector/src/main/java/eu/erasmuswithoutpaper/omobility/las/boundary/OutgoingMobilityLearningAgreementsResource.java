@@ -76,7 +76,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response indexPost(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("receiving_hei_id") List<String> receivingHeiIdList, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id) {
+    public javax.ws.rs.core.Response indexPost(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("receiving_hei_id") List<String> receivingHeiIdList, @FormParam("receiving_academic_year_id") String receiving_academic_year_id) {
         return omobilityLasIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id);
     }
     
