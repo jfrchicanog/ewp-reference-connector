@@ -95,7 +95,7 @@ public class OutgoingMobilityResource {
         	}
         	
         	if (modified_since != null && !modified_since.isEmpty()) {
-        		
+        		//TODO 
         	}
         	
             response.getOmobilityId().addAll(mobilityIds(mobilityList, receivingHeiIdList));
