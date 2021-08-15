@@ -1,6 +1,5 @@
 package eu.erasmuswithoutpaper.omobility.las.entity;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
@@ -18,45 +17,65 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = Approval.findAll, query = "SELECT m FROM Approval m")
+    @NamedQuery(name = Signature.findAll, query = "SELECT s FROM Signature s")
 })
-public class Approval implements Serializable{
-
-	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.Approval.";
+public class Signature {
+	
+	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.Signature.";
     public static final String findAll = PREFIX + "all";
     
     @Id
     @GeneratedValue(generator="system-uuid")
     String id;
     
-    private String byParty;
+    private String signerName;
+    private String signerPosition;
+    private String signerEmail;
     
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
     private Date timestamp;
     
-    public String getId() {
-		return id;
+    private String signerApp;
+    
+	public String getSignerName() {
+		return signerName;
 	}
-
-	public void setId(String id) {
-		this.id = id;
+	
+	public void setSignerName(String signerName) {
+		this.signerName = signerName;
 	}
-
-	public String getByParty() {
-		return byParty;
+	
+	public String getSignerPosition() {
+		return signerPosition;
 	}
-
-	public void setByParty(String byParty) {
-		this.byParty = byParty;
+	
+	public void setSignerPosition(String signerPosition) {
+		this.signerPosition = signerPosition;
 	}
-
+	
+	public String getSignerEmail() {
+		return signerEmail;
+	}
+	
+	public void setSignerEmail(String signerEmail) {
+		this.signerEmail = signerEmail;
+	}
+	
 	public Date getTimestamp() {
 		return timestamp;
 	}
-
+	
 	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
+	}
+	
+	public String getSignerApp() {
+		return signerApp;
+	}
+	
+	public void setSignerApp(String signerApp) {
+		this.signerApp = signerApp;
 	}
 
 	@Override
@@ -77,7 +96,7 @@ public class Approval implements Serializable{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Approval other = (Approval) obj;
+        final Signature other = (Signature) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }

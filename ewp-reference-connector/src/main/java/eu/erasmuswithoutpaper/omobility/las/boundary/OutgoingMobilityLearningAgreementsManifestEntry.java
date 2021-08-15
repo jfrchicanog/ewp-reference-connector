@@ -4,7 +4,6 @@ import java.math.BigInteger;
 
 import javax.inject.Inject;
 
-import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.httpsig.CliauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
@@ -30,13 +29,6 @@ public class OutgoingMobilityLearningAgreementsManifestEntry implements Manifest
         
         mobilitieslas.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxOmobilitylasIds()));
 
-        mobilitieslas.setSendsNotifications(new Empty());
-        
-        OmobilityLas.SupportedUpdateTypes supportedUpdateTypes = new OmobilityLas.SupportedUpdateTypes();
-        supportedUpdateTypes.setApproveComponentsStudiedDraftV1(new Empty());
-        supportedUpdateTypes.setUpdateComponentsStudiedV1(new Empty());
-        mobilitieslas.setSupportedUpdateTypes(supportedUpdateTypes);
-        
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();

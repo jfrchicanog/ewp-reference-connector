@@ -4,18 +4,19 @@ package eu.erasmuswithoutpaper.omobility.las.entity;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.apache.johnzon.mapper.JohnzonConverter;
+
+import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 
 @Entity
 @NamedQueries({
@@ -30,18 +31,16 @@ public class Student implements Serializable {
     @GeneratedValue(generator="system-uuid")
     String id;
     
-    private String givenName;
-    private String familyName;
-    private String email;
-    private String citizenship;
+    protected String givenNames;
+    protected String familyName;
+    protected String globalId;
+    protected String citizenship;
+    protected BigInteger gender;
+    protected String email;
     
+    @JohnzonConverter(StandardDateConverter.class)
+    @Temporal(TemporalType.DATE)
     private Date birthDate;
-    
-    private BigInteger gender;
-    
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "OMOBILITY_LAS_PHONE_NUMBER")
-    private List<OmobilityPhoneNumber> phoneNumber;
     
     public String getId() {
         return id;
@@ -51,12 +50,12 @@ public class Student implements Serializable {
         this.id = id;
     }
 
-	public String getGivenName() {
-		return givenName;
+	public String getGivenNames() {
+		return givenNames;
 	}
 
-	public void setGivenName(String givenName) {
-		this.givenName = givenName;
+	public void setGivenNames(String givenNames) {
+		this.givenNames = givenNames;
 	}
 
 	public String getFamilyName() {
@@ -99,12 +98,12 @@ public class Student implements Serializable {
 		this.gender = gender;
 	}
 
-	public List<OmobilityPhoneNumber> getPhoneNumber() {
-		return phoneNumber;
+	public String getGlobalId() {
+		return globalId;
 	}
 
-	public void setPhoneNumber(List<OmobilityPhoneNumber> phoneNumber) {
-		this.phoneNumber = phoneNumber;
+	public void setGlobalId(String globalId) {
+		this.globalId = globalId;
 	}
 
 	@Override

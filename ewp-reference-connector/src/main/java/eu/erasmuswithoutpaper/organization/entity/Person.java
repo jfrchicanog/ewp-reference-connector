@@ -97,7 +97,7 @@ public class Person implements Serializable {
         this.countryCode = countryCode;
     }
 
-    public String getGlobalId() {
+	public String getGlobalId() {
 		return globalId;
 	}
 

@@ -1,5 +1,7 @@
 package eu.erasmuswithoutpaper.omobility.las.control;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,26 +12,17 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.erasmuswithoutpaper.api.architecture.MultilineString;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ComponentRecognized;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Component;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ComponentList;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement.ComponentsRecognized;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement.ComponentsStudied;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement.ChangesProposal;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement.StudentLanguageSkill;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ListOfChangesToComponentsRecognized;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ListOfChangesToComponentsStudied;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ListOfChangesToComponentsStudied.InsertComponentStudied;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ListOfChangesToComponentsStudied.RemoveComponentStudied;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ListOfComponents;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.MobilityInstitution;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.SingleChangeToAList;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.SingleChangeToAList.Reason;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.SnapshotOfComponentsRecognized;
-import eu.erasmuswithoutpaper.api.types.phonenumber.PhoneNumber;
 import eu.erasmuswithoutpaper.common.control.ConverterHelper;
 import eu.erasmuswithoutpaper.omobility.las.entity.OlasLanguageSkill;
 import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
-import eu.erasmuswithoutpaper.omobility.las.entity.OmobilityComponentRecognized;
-import eu.erasmuswithoutpaper.omobility.las.entity.SingleChange;
+import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
 import eu.erasmuswithoutpaper.omobility.las.entity.Student;
 
 public class OutgoingMobilityLearningAgreementsConverter {
@@ -40,178 +33,174 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
     public LearningAgreement convertToLearningAgreements(OlearningAgreement olearningAgreement) {
     	LearningAgreement learningAgreement = new LearningAgreement();
-        
-        learningAgreement.setEqfLevelStudiedAtDeparture(olearningAgreement.getEqfLevel());
-        learningAgreement.setOmobilityId(olearningAgreement.getId());
-        
-        learningAgreement.setReceivingAcademicYearId(olearningAgreement.getReceivingAcademicTermEwpId());
-        learningAgreement.setStudentIscedFCode(olearningAgreement.getStudentIscedFCode());
-        
-        learningAgreement.setStudentLanguageSkill(convertToStudentLanguageSkill(olearningAgreement.getStudentLanguageSkill()));
-        
-        try {
-        	 learningAgreement.setPlannedMobilityStart(ConverterHelper.convertToXmlGregorianCalendar(olearningAgreement.getPlannedMobilityStart()));
-             learningAgreement.setPlannedMobilityEnd(ConverterHelper.convertToXmlGregorianCalendar(olearningAgreement.getPlannedMobilityEnd()));
-        } catch(DatatypeConfigurationException ex) {
-        	logger.error("Can't convert date", ex);
-        }
-       
-        learningAgreement.setReceivingHei(convertToMobilityInstitution(olearningAgreement.getReceivingHei()));
-        learningAgreement.setSendingHei(convertToMobilityInstitution(olearningAgreement.getSendingHei()));
-        
-        learningAgreement.setStudent(convertToStudent(olearningAgreement.getStudent()));
-        
-        LearningAgreement.ComponentsRecognized theComponentRecognized = new LearningAgreement.ComponentsRecognized();
-        ComponentsStudied theComponentStudied = new ComponentsStudied();
-        
-        fillingChanges(olearningAgreement,theComponentRecognized);
-    	fillingSnapShot(olearningAgreement, theComponentRecognized);
     	
-    	fillingStudiedChanges(olearningAgreement, theComponentStudied);
-    	fillingStudiedSnapshot(olearningAgreement, theComponentRecognized);
+    	try {
+    		ListOfComponents approvalChanges = convertToListOfComponents(olearningAgreement.getApprovedChanges());
+        	learningAgreement.setApprovedChanges(approvalChanges);
+            
+        	eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal ochangesProposal = olearningAgreement.getChangesProposal();
+        	ChangesProposal changesProposal = convertToChangesProposal(ochangesProposal);
+        	learningAgreement.setChangesProposal(changesProposal);
+        	
+        	ListOfComponents firstVersion = convertToListOfComponents(olearningAgreement.getFirstVersion());
+        	learningAgreement.setFirstVersion(firstVersion);
+        	
+        	learningAgreement.setEndDate(ConverterHelper.convertToXmlGregorianCalendar(olearningAgreement.getEndDate()));
+        	Calendar calendar = Calendar.getInstance();
+        	calendar.clear();
+        	calendar.set(Calendar.MONTH, olearningAgreement.getEndYearMonth().getMonthValue());
+        	calendar.set(Calendar.YEAR, olearningAgreement.getEndYearMonth().getYear());
+        	Date date = calendar.getTime();
+        	learningAgreement.setEndYearMonth(ConverterHelper.convertToXmlGregorianCalendar(date));
+        	
+            learningAgreement.setEqfLevelStudiedAtDeparture(olearningAgreement.getEqfLevelStudiedAtDeparture());
+            learningAgreement.setIscedClarification(olearningAgreement.getIscedClarification());
+            learningAgreement.setIscedFCode(olearningAgreement.getIscedFCode());
+            learningAgreement.setLearningOutcomesUrl(olearningAgreement.getLearningOutcomesUrl());
+            learningAgreement.setOmobilityId(olearningAgreement.getId());
+            learningAgreement.setProvisionsUrl(olearningAgreement.getProvisionsUrl());
+            learningAgreement.setReceivingAcademicYearId(olearningAgreement.getReceivingAcademicTermEwpId());
+            learningAgreement.setReceivingHei(convertToMobilityInstitution(olearningAgreement.getReceivingHei()));
+            learningAgreement.setSendingHei(convertToMobilityInstitution(olearningAgreement.getSendingHei()));
+            learningAgreement.setStartDate(ConverterHelper.convertToXmlGregorianCalendar(olearningAgreement.getStartDate()));
+            
+        	calendar.clear();
+        	calendar.set(Calendar.MONTH, olearningAgreement.getStartYearMonth().getMonthValue());
+        	calendar.set(Calendar.YEAR, olearningAgreement.getStartYearMonth().getYear());
+        	Date dateStart = calendar.getTime();
+        	learningAgreement.setStartYearMonth(ConverterHelper.convertToXmlGregorianCalendar(dateStart));
+            
+            learningAgreement.setStudent(convertToStudent(olearningAgreement.getStudent()));
+            learningAgreement.setStudentLanguageSkill(convertToStudentLanguageSkill(olearningAgreement.getStudentLanguageSkill()));
+            
+    	} catch(DatatypeConfigurationException e) {
+    		logger.error("Can't convert date", e);
+    	}
     	
-    	learningAgreement.setComponentsRecognized(theComponentRecognized);
-        learningAgreement.setComponentsStudied(theComponentStudied);
-        
         return learningAgreement;
     }
 
-	private void fillingStudiedSnapshot(OlearningAgreement olearningAgreement,
-			LearningAgreement.ComponentsRecognized theComponentRecognized) {
-		SnapshotOfComponentsRecognized beforeMobilitySnapshot = new SnapshotOfComponentsRecognized();
-    	beforeMobilitySnapshot.getComponentRecognized().addAll(convertToComponentRecognized(olearningAgreement.getStudiedBeforeMobilitySnapshot()));
-    	theComponentRecognized.setBeforeMobilitySnapshot(beforeMobilitySnapshot);
+	private ChangesProposal convertToChangesProposal(
+			eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal ochangesProposal)
+			throws DatatypeConfigurationException {
+		ListOfComponents tmpChangesProposal = convertToListOfComponents(ochangesProposal);
     	
-    	SnapshotOfComponentsRecognized latestApprovedSnapshot = new SnapshotOfComponentsRecognized();
-    	latestApprovedSnapshot.getComponentRecognized().addAll(convertToComponentRecognized(olearningAgreement.getStudiedLatestApprovedSnapshot()));
-    	theComponentRecognized.setBeforeMobilitySnapshot(latestApprovedSnapshot);
+    	ChangesProposal changesProposal = new ChangesProposal();
+    	changesProposal.setBlendedMobilityComponents(tmpChangesProposal.getBlendedMobilityComponents());
+    	changesProposal.setComponentsRecognized(tmpChangesProposal.getComponentsRecognized());
+    	changesProposal.setComponentsStudied(tmpChangesProposal.getComponentsStudied());
+    	changesProposal.setReceivingHeiSignature(tmpChangesProposal.getReceivingHeiSignature());
+    	changesProposal.setSendingHeiSignature(tmpChangesProposal.getSendingHeiSignature());
+    	changesProposal.setShortTermDoctoralComponents(tmpChangesProposal.getShortTermDoctoralComponents());
+    	changesProposal.setStudentSignature(tmpChangesProposal.getStudentSignature());
+    	changesProposal.setVirtualComponents(tmpChangesProposal.getVirtualComponents());
     	
-    	SnapshotOfComponentsRecognized latestDraftSnapshot = new SnapshotOfComponentsRecognized();
-    	latestDraftSnapshot.getComponentRecognized().addAll(convertToComponentRecognized(olearningAgreement.getStudiedLatestDraftSnapshot()));
-    	theComponentRecognized.setBeforeMobilitySnapshot(latestDraftSnapshot);
+    	Student oStudent = ochangesProposal.getStudent();
+    	eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Student student = convertToStudent(oStudent);
+    	
+    	changesProposal.setStudent(student);
+		return changesProposal;
 	}
 
-	private void fillingStudiedChanges(OlearningAgreement olearningAgreement, ComponentsStudied theComponentStudied) {
-		ListOfChangesToComponentsStudied beforeMobility = new ListOfChangesToComponentsStudied();
-        beforeMobility.getInsertComponentStudiedOrRemoveComponentStudied().addAll(convertToSingleChangeToAList(olearningAgreement.getStudiedbeforeMobilityChanges()));
-        theComponentStudied.setBeforeMobilityChanges(beforeMobility);
-        
-        ListOfChangesToComponentsStudied latestApproved = new ListOfChangesToComponentsStudied();
-        latestApproved.getInsertComponentStudiedOrRemoveComponentStudied().addAll(convertToSingleChangeToAList(olearningAgreement.getStudiedlatestApprovedChanges()));
-        theComponentStudied.setBeforeMobilityChanges(latestApproved);
-        
-        ListOfChangesToComponentsStudied latestDraft = new ListOfChangesToComponentsStudied();
-        latestDraft.getInsertComponentStudiedOrRemoveComponentStudied().addAll(convertToSingleChangeToAList(olearningAgreement.getStudiedLatestDraftChanges()));
-        theComponentStudied.setBeforeMobilityChanges(latestDraft);
+	private eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Student convertToStudent(Student oStudent) {
+		eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Student student = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Student();
+    	
+		try {
+			student.setBirthDate(ConverterHelper.convertToXmlGregorianCalendar(oStudent.getBirthDate()));
+		} catch (DatatypeConfigurationException e) {
+			logger.error("Can't convert date", e);
+		}
+    	
+    	student.setCitizenship(oStudent.getCitizenship());
+    	student.setEmail(oStudent.getEmail());
+    	student.setFamilyName(oStudent.getFamilyName());
+    	student.setGender(oStudent.getGender());
+    	student.setGivenNames(oStudent.getGivenNames());
+    	student.setGlobalId(oStudent.getGlobalId());
+		return student;
 	}
 
-	private void fillingSnapShot(OlearningAgreement olearningAgreement,
-			LearningAgreement.ComponentsRecognized theComponentRecognized) {
-		
-		SnapshotOfComponentsRecognized beforeMobilitySnapshot = new SnapshotOfComponentsRecognized();
-    	beforeMobilitySnapshot.getComponentRecognized().addAll(convertToComponentRecognized(olearningAgreement.getCmpRecognizedBeforeMobilitySnapshot()));
-    	theComponentRecognized.setBeforeMobilitySnapshot(beforeMobilitySnapshot);
+	private ListOfComponents convertToListOfComponents(eu.erasmuswithoutpaper.omobility.las.entity.ListOfComponents olistOfCmp)
+			throws DatatypeConfigurationException {
+		ListOfComponents approvalChanges = new ListOfComponents();
     	
-    	SnapshotOfComponentsRecognized latestApprovedSnapshot = new SnapshotOfComponentsRecognized();
-    	latestApprovedSnapshot.getComponentRecognized().addAll(convertToComponentRecognized(olearningAgreement.getCmpRecognizedLatestApprovedSnapshot()));
-    	theComponentRecognized.setBeforeMobilitySnapshot(latestApprovedSnapshot);
+    	List<eu.erasmuswithoutpaper.omobility.las.entity.Component> oBlendedLasComponents = olistOfCmp.getBlendedMobilityComponents();
+    	ComponentList blendedMobility = convertToComponentsList(oBlendedLasComponents);
+    	approvalChanges.setBlendedMobilityComponents(blendedMobility);
     	
-    	SnapshotOfComponentsRecognized latestDraftSnapshot = new SnapshotOfComponentsRecognized();
-    	latestDraftSnapshot.getComponentRecognized().addAll(convertToComponentRecognized(olearningAgreement.getCmpRecognizedLatestDraftSnapshot()));
-    	theComponentRecognized.setBeforeMobilitySnapshot(latestDraftSnapshot);
+    	List<eu.erasmuswithoutpaper.omobility.las.entity.Component> oComponentsLasComponents = olistOfCmp.getComponentsRecognized();
+    	ComponentList componentsRecognized = convertToComponentsList(oComponentsLasComponents);
+    	approvalChanges.setComponentsRecognized(componentsRecognized);
+    	
+    	List<eu.erasmuswithoutpaper.omobility.las.entity.Component> oComponentsStudiedLasComponents = olistOfCmp.getComponentsStudied();
+    	ComponentList componentsStudied = convertToComponentsList(oComponentsStudiedLasComponents);
+    	approvalChanges.setComponentsStudied(componentsStudied);
+    	
+    	Signature localReceivingHeiSig = olistOfCmp.getReceivingHeiSignature();
+    	eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature receivingHeiSig = convertToSignature(localReceivingHeiSig);
+    	
+    	approvalChanges.setReceivingHeiSignature(receivingHeiSig);
+    	
+    	Signature localSendingHeiSig = olistOfCmp.getReceivingHeiSignature();
+    	eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature sendingHeiSig = convertToSignature(localSendingHeiSig);
+    	
+    	approvalChanges.setSendingHeiSignature(sendingHeiSig);
+    	
+    	List<eu.erasmuswithoutpaper.omobility.las.entity.Component> oShortTermComponents = olistOfCmp.getShortTermDoctoralComponents();
+    	ComponentList shortTemDoctoral = convertToComponentsList(oShortTermComponents);
+    	
+    	approvalChanges.setShortTermDoctoralComponents(shortTemDoctoral);
+    	
+    	List<eu.erasmuswithoutpaper.omobility.las.entity.Component> oVirtualComponents = olistOfCmp.getVirtualComponents();
+    	ComponentList virtualComponents = convertToComponentsList(oVirtualComponents);
+    	
+    	approvalChanges.setVirtualComponents(virtualComponents);
+    	
+    	Signature studentSig = olistOfCmp.getStudentSignature();
+    	eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature studentSignature = convertToSignature(studentSig);
+    	
+    	approvalChanges.setStudentSignature(studentSignature);
+		return approvalChanges;
 	}
 
-	private LearningAgreement.ComponentsRecognized fillingChanges(OlearningAgreement olearningAgreement, ComponentsRecognized theComponentRecognized) {
-    	ListOfChangesToComponentsRecognized beforeChangesCmpRecognized = new ListOfChangesToComponentsRecognized();
-    	beforeChangesCmpRecognized.getInsertComponentRecognizedOrRemoveComponentRecognized().addAll(convertToSingleChangeToAList(olearningAgreement.getCmpRecognizedBeforeMobilityChanges()));
-    	theComponentRecognized.setBeforeMobilityChanges(beforeChangesCmpRecognized);
+	private eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature convertToSignature(Signature localReceivingHeiSig)
+			throws DatatypeConfigurationException {
+		eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature receivingHeiSig = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
     	
-    	ListOfChangesToComponentsRecognized latestApprovedCmpRecognized = new ListOfChangesToComponentsRecognized();
-    	latestApprovedCmpRecognized.getInsertComponentRecognizedOrRemoveComponentRecognized().addAll(convertToSingleChangeToAList(olearningAgreement.getCmpRecognizedLatestApprovedChanges()));
-    	theComponentRecognized.setBeforeMobilityChanges(latestApprovedCmpRecognized);
-    	
-    	ListOfChangesToComponentsRecognized latestDraftCmpRecognized = new ListOfChangesToComponentsRecognized();
-    	latestDraftCmpRecognized.getInsertComponentRecognizedOrRemoveComponentRecognized().addAll(convertToSingleChangeToAList(olearningAgreement.getCmpRecognizedLatestDraftChanges()));
-    	theComponentRecognized.setBeforeMobilityChanges(latestDraftCmpRecognized);
-		return theComponentRecognized;
+		receivingHeiSig.setSignerApp(localReceivingHeiSig.getSignerApp());
+    	receivingHeiSig.setSignerEmail(localReceivingHeiSig.getSignerEmail());
+    	receivingHeiSig.setSignerName(localReceivingHeiSig.getSignerName());
+    	receivingHeiSig.setSignerPosition(localReceivingHeiSig.getSignerPosition());
+    	receivingHeiSig.setTimestamp(ConverterHelper.convertToXmlGregorianCalendar(localReceivingHeiSig.getTimestamp()));
+		return receivingHeiSig;
 	}
 
-	private List<ComponentRecognized> convertToComponentRecognized(
-			List<OmobilityComponentRecognized> cmpRecognizedList) {
-		
-		List<ComponentRecognized> recognizedList = cmpRecognizedList.stream().map((c) -> {
-			ComponentRecognized cmpRec = new ComponentRecognized();
+	private ComponentList convertToComponentsList(List<eu.erasmuswithoutpaper.omobility.las.entity.Component> oLasComponents) {
+		ComponentList componentList = new ComponentList();
+    	
+    	List<Component> components = oLasComponents.stream().map((cmp) -> {
+    		Component component = new Component();
     		
-			cmpRec.setLoiId(c.getLoiId());
-			cmpRec.setLosId(c.getLosId());
-			
-            return cmpRec;
-        }).collect(Collectors.toList());
-        
-        return recognizedList;
-	}
-
-	private List<SingleChangeToAList> convertToSingleChangeToAList(
-			List<SingleChange> list) {
-		
-		List<SingleChangeToAList> sglChangeList = list.stream().map((c) -> {
-    		SingleChangeToAList sglChange;
+    		component.setLoiId(cmp.getLoiId());
+    		component.setLosCode(cmp.getLosCode());
+    		component.setLosId(cmp.getLosId());
+    		component.setReasonCode(cmp.getReasonCode());
+    		component.setReasonText(cmp.getReasonText());
+    		component.setRecognitionConditions(cmp.getRecognitionConditions());
+    		component.setShortDescription(cmp.getShortDescription());
+    		component.setStatus(cmp.getStatus());
     		
-    		if (c.isDelete()) {
-    			RemoveComponentStudied delete = new RemoveComponentStudied();
-    			
-    			delete.setIndex(c.getIndex());
-    			
-    			MultilineString multiLineStr = new MultilineString();
-    			multiLineStr.setValue(c.getDisplayText());
-    			
-    			Reason reason = new Reason();
-    			reason.setDisplayText(multiLineStr);
-    			reason.setEwpReasonCode(c.getEwpReasonCode());
-    			
-    			delete.setReason(reason);
-    			
-    			sglChange = delete;
-    		} else {
-    			InsertComponentStudied insert = new InsertComponentStudied();
-    			
-    			insert.setIndex(c.getIndex());
-    			
-    			MultilineString multiLineStr = new MultilineString();
-    			multiLineStr.setValue(c.getDisplayText());
-    			
-    			Reason reason = new Reason();
-    			reason.setDisplayText(multiLineStr);
-    			reason.setEwpReasonCode(c.getEwpReasonCode());
-    			
-    			insert.setReason(reason);
-    			
-    			eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ComponentStudied cmpStudied = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ComponentStudied();
-    			cmpStudied.setLoiId(c.getComponentStudied().getLoiId());
-    			cmpStudied.setLosId(c.getComponentStudied().getLosId());
-    			cmpStudied.setAcademicTermDisplayName(c.getComponentStudied().getAcademicTermDisplayName());
-    			cmpStudied.setTitle(c.getComponentStudied().getTitle());
-    			
-    			List<eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ComponentStudied.Credit> studiedCreditList = cmpStudied.getCredit().stream().map(credit -> {
-    				eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ComponentStudied.Credit studiedCredit = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ComponentStudied.Credit();
-    				
-    				studiedCredit.setScheme(credit.getScheme());
-    				studiedCredit.setValue(credit.getValue());
-    				
-    				return studiedCredit;
-    			}).collect(Collectors.toList());
-    			
-    			cmpStudied.getCredit().addAll(studiedCreditList);
-    			
-    			insert.setComponentStudied(cmpStudied);
-    			
-    			sglChange = insert;
-    		}
+    		https.github_com.erasmus_without_paper.ewp_specs_types_academic_term.tree.stable_v2.TermId termId = new https.github_com.erasmus_without_paper.ewp_specs_types_academic_term.tree.stable_v2.TermId();
+    		termId.setTermNumber(cmp.getTermId().getTermNumber());
+    		termId.setTotalTerms(cmp.getTermId().getTotalTerms());
     		
-            return sglChange;
-        }).collect(Collectors.toList());
-        
-        return sglChangeList;
+    		component.setTermId(termId);
+    		component.setTitle(cmp.getTitle());
+    		return component;
+    	}).collect(Collectors.toList());
+    	
+    	componentList.getComponent().addAll(components);
+    	return componentList;
 	}
 
 	private StudentLanguageSkill convertToStudentLanguageSkill(OlasLanguageSkill studentLanguageSkill) {
@@ -233,33 +222,4 @@ public class OutgoingMobilityLearningAgreementsConverter {
         return mobilityInst;
     }
 
-    private LearningAgreement.Student convertToStudent(Student student) {
-    	LearningAgreement.Student omobilityLasStudent = new LearningAgreement.Student();
-    	
-    	try {
-			omobilityLasStudent.setBirthDate(ConverterHelper.convertToXmlGregorianCalendar(student.getBirthDate()));
-		} catch (DatatypeConfigurationException e) {
-			logger.error("Can't convert date", e);
-		}
-    	
-    	omobilityLasStudent.setCitizenship(student.getCitizenship());
-    	omobilityLasStudent.setEmail(student.getEmail());
-    	omobilityLasStudent.setFamilyName(student.getFamilyName());
-    	omobilityLasStudent.setGender(student.getGender());
-    	omobilityLasStudent.setGivenNames(student.getGivenName());
-    	
-    	List<PhoneNumber> phoneNumbers = student.getPhoneNumber().stream().map(phone -> {
-    		PhoneNumber phoneNumber = new PhoneNumber();
-    		
-    		phoneNumber.setE164(phone.getE164());
-    		phoneNumber.setExt(phone.getExtensionNumber());
-    		phoneNumber.setOtherFormat(phone.getOtherFormat());
-    		
-    		return phoneNumber;
-    	}).collect(Collectors.toList());
-    	
-    	omobilityLasStudent.getPhoneNumber().addAll(phoneNumbers);
-    	
-        return omobilityLasStudent;
-    }
 }

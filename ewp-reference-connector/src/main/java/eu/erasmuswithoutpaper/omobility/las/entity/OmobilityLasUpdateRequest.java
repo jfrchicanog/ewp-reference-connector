@@ -30,11 +30,11 @@ public class OmobilityLasUpdateRequest implements Serializable{
 	    
 	    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	    @JoinColumn(name = "APPROVE_COMPONENT_STUDIE_DRAFT",referencedColumnName = "ID")
-	    private ApproveComponentsStudiedDraft approveComponentsStudiedDraft;
+	    private ApprovedProposal approveComponentsStudiedDraft;
 	    
 	    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	    @JoinColumn(name = "UPDATE_COMPONENT_STUDIED",referencedColumnName = "ID")
-	    private UpdateComponentsStudied updateComponentsStudied;
+	    private CommentProposal updateComponentsStudied;
 	    
 	    public String getId() {
 	        return id;
@@ -52,19 +52,19 @@ public class OmobilityLasUpdateRequest implements Serializable{
 	        this.sendingHeiId = sendingHeiId;
 	    }
 
-	    public ApproveComponentsStudiedDraft getApproveComponentsStudiedDraft() {
+	    public ApprovedProposal getApproveComponentsStudiedDraft() {
 			return approveComponentsStudiedDraft;
 		}
 
-		public void setApproveComponentsStudiedDraft(ApproveComponentsStudiedDraft approveComponentsStudiedDraft) {
+		public void setApproveComponentsStudiedDraft(ApprovedProposal approveComponentsStudiedDraft) {
 			this.approveComponentsStudiedDraft = approveComponentsStudiedDraft;
 		}
 
-		public UpdateComponentsStudied getUpdateComponentsStudied() {
+		public CommentProposal getUpdateComponentsStudied() {
 			return updateComponentsStudied;
 		}
 
-		public void setUpdateComponentsStudied(UpdateComponentsStudied updateComponentsStudied) {
+		public void setUpdateComponentsStudied(CommentProposal updateComponentsStudied) {
 			this.updateComponentsStudied = updateComponentsStudied;
 		}
 

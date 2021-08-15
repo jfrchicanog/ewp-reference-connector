@@ -2,21 +2,20 @@
 package eu.erasmuswithoutpaper.omobility.las.entity;
 
 import java.io.Serializable;
+import java.time.YearMonth;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -41,22 +40,7 @@ public class OlearningAgreement implements Serializable {
     @Column(updatable = false)
     String id;
     
-    private String receivingAcademicTermEwpId;
-    private String studentIscedFCode;
-    
-    private byte eqfLevel;
-    
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    @JoinColumn(name = "LANGSKILL_OMOBILITY_LAS",referencedColumnName = "ID")
-    OlasLanguageSkill studentLanguageSkill;
-    
-    @JohnzonConverter(StandardDateConverter.class)
-    @Temporal(TemporalType.DATE)
-    Date plannedMobilityStart;
-    
-    @JohnzonConverter(StandardDateConverter.class)
-    @Temporal(TemporalType.DATE)
-    Date plannedMobilityEnd;
+    private String omobilityId;
     
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinColumn(name = "OMOBILITY_LAS_RECEIVING_HEI",referencedColumnName = "ID")
@@ -66,57 +50,112 @@ public class OlearningAgreement implements Serializable {
     @JoinColumn(name = "OMOBILITY_LAS_SENDING_HEI",referencedColumnName = "ID")
     MobilityInstitution sendingHei;
     
+    private String receivingAcademicTermEwpId;
+    
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinColumn(name = "OMOBILITY_LAS_STUDENT",referencedColumnName = "ID")
-    Student student;
+    private eu.erasmuswithoutpaper.omobility.las.entity.Student student;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_BEFORE_MOBILITY")
-    List<SingleChange> cmpRecognizedBeforeMobilityChanges;
+    @JohnzonConverter(StandardDateConverter.class)
+    @Temporal(TemporalType.DATE)
+    private Date startDate;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_LATEST_APPOVED")
-    List<SingleChange> cmpRecognizedLatestApprovedChanges;
+    @Convert(converter = YearMonthConverter.class)
+    private YearMonth startYearMonth;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_LATEST_DRAFT")
-    List<SingleChange> cmpRecognizedLatestDraftChanges;
+    @JohnzonConverter(StandardDateConverter.class)
+    @Temporal(TemporalType.DATE)
+    private Date endDate;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_BEFORE_MOBILITY_SNAPSHOT")
-    List<OmobilityComponentRecognized> cmpRecognizedBeforeMobilitySnapshot;
+    @Convert(converter = YearMonthConverter.class)
+    private YearMonth endYearMonth;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_LATEST_APPROVED_SNAPSHOT")
-    List<OmobilityComponentRecognized> cmpRecognizedLatestApprovedSnapshot;
+    private byte eqfLevelStudiedAtDeparture;
+    private  String iscedFCode;
+    private String iscedClarification;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_LATEST_DRAFT_SNAPSHOT")
-    List<OmobilityComponentRecognized> cmpRecognizedLatestDraftSnapshot;
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @JoinColumn(name = "LANGSKILL_OMOBILITY_LAS",referencedColumnName = "ID")
+    private OlasLanguageSkill studentLanguageSkill;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_STUDIED_BEFORE_MOBILITY_CHANGES")
-    List<SingleChange> studiedbeforeMobilityChanges;
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @JoinColumn(name = "FIRST_VERSION",referencedColumnName = "ID")
+    private ListOfComponents firstVersion;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_STUDIED_LATEST_APPROVED_CHANGES")
-    List<SingleChange> studiedlatestApprovedChanges;
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @JoinColumn(name = "APPROVED_VERSION",referencedColumnName = "ID")
+    private ListOfComponents approvedChanges;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_STUDIED_LATEST_DRAFT_CHANGES")
-    List<SingleChange> studiedLatestDraftChanges;
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @JoinColumn(name = "CHANGES_PROPOSAL",referencedColumnName = "ID")
+    private ChangesProposal changesProposal;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_STUDIED_BEFORE_MOBILITY_SANPSHOT")
-    List<OmobilityComponentRecognized> studiedBeforeMobilitySnapshot;
+    private String learningOutcomesUrl;
+    private String provisionsUrl;
     
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_STUDIED_LATEST_APPROVED_SANPSHOT")
-    List<OmobilityComponentRecognized> studiedLatestApprovedSnapshot;
-    
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
-    @JoinTable(name = "OMOBILITY_LAS_STUDIED_LATEST_DRAFT_SANPSHOT")
-    List<OmobilityComponentRecognized> studiedLatestDraftSnapshot;
+//    private String studentIscedFCode;
+//    
+//    @JohnzonConverter(StandardDateConverter.class)
+//    @Temporal(TemporalType.DATE)
+//    Date plannedMobilityStart;
+//    
+//    @JohnzonConverter(StandardDateConverter.class)
+//    @Temporal(TemporalType.DATE)
+//    Date plannedMobilityEnd;
+//    
+//   
+//    
+//    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+//    @JoinColumn(name = "OMOBILITY_LAS_STUDENT",referencedColumnName = "ID")
+//    Student student;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_BEFORE_MOBILITY")
+//    List<SingleChange> cmpRecognizedBeforeMobilityChanges;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_LATEST_APPOVED")
+//    List<SingleChange> cmpRecognizedLatestApprovedChanges;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_LATEST_DRAFT")
+//    List<SingleChange> cmpRecognizedLatestDraftChanges;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_BEFORE_MOBILITY_SNAPSHOT")
+//    List<OmobilityComponentRecognized> cmpRecognizedBeforeMobilitySnapshot;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_LATEST_APPROVED_SNAPSHOT")
+//    List<OmobilityComponentRecognized> cmpRecognizedLatestApprovedSnapshot;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_COMPONENT_RECOGNIZED_LATEST_DRAFT_SNAPSHOT")
+//    List<OmobilityComponentRecognized> cmpRecognizedLatestDraftSnapshot;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_STUDIED_BEFORE_MOBILITY_CHANGES")
+//    List<SingleChange> studiedbeforeMobilityChanges;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_STUDIED_LATEST_APPROVED_CHANGES")
+//    List<SingleChange> studiedlatestApprovedChanges;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_STUDIED_LATEST_DRAFT_CHANGES")
+//    List<SingleChange> studiedLatestDraftChanges;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_STUDIED_BEFORE_MOBILITY_SANPSHOT")
+//    List<OmobilityComponentRecognized> studiedBeforeMobilitySnapshot;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_STUDIED_LATEST_APPROVED_SANPSHOT")
+//    List<OmobilityComponentRecognized> studiedLatestApprovedSnapshot;
+//    
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+//    @JoinTable(name = "OMOBILITY_LAS_STUDIED_LATEST_DRAFT_SANPSHOT")
+//    List<OmobilityComponentRecognized> studiedLatestDraftSnapshot;
     
     public String getId() {
         return id;
@@ -134,36 +173,12 @@ public class OlearningAgreement implements Serializable {
 		this.receivingAcademicTermEwpId = receivingAcademicTermEwpId;
 	}
 
-	public String getStudentIscedFCode() {
-		return studentIscedFCode;
-	}
-
-	public void setStudentIscedFCode(String studentIscedFCode) {
-		this.studentIscedFCode = studentIscedFCode;
-	}
-
 	public OlasLanguageSkill getStudentLanguageSkill() {
 		return studentLanguageSkill;
 	}
 
 	public void setStudentLanguageSkill(OlasLanguageSkill studentLanguageSkill) {
 		this.studentLanguageSkill = studentLanguageSkill;
-	}
-
-	public Date getPlannedMobilityEnd() {
-		return plannedMobilityEnd;
-	}
-
-	public void setPlannedMobilityEnd(Date plannedMobilityEnd) {
-		this.plannedMobilityEnd = plannedMobilityEnd;
-	}
-
-	public Date getPlannedMobilityStart() {
-		return plannedMobilityStart;
-	}
-
-	public void setPlannedMobilityStart(Date plannedMobilityStart) {
-		this.plannedMobilityStart = plannedMobilityStart;
 	}
 
     public MobilityInstitution getReceivingHei() {
@@ -182,118 +197,116 @@ public class OlearningAgreement implements Serializable {
 		this.sendingHei = sendingHei;
 	}
 
-	public byte getEqfLevel() {
-        return eqfLevel;
-    }
+	public String getOmobilityId() {
+		return omobilityId;
+	}
 
-    public void setEqfLevel(byte eqfLevel) {
-        this.eqfLevel = eqfLevel;
-    }
+	public void setOmobilityId(String omobilityId) {
+		this.omobilityId = omobilityId;
+	}
 
-	public Student getStudent() {
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public YearMonth getStartYearMonth() {
+		return startYearMonth;
+	}
+
+	public void setStartYearMonth(YearMonth startYearMonth) {
+		this.startYearMonth = startYearMonth;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
+	public YearMonth getEndYearMonth() {
+		return endYearMonth;
+	}
+
+	public void setEndYearMonth(YearMonth endYearMonth) {
+		this.endYearMonth = endYearMonth;
+	}
+
+	public byte getEqfLevelStudiedAtDeparture() {
+		return eqfLevelStudiedAtDeparture;
+	}
+
+	public void setEqfLevelStudiedAtDeparture(byte eqfLevelStudiedAtDeparture) {
+		this.eqfLevelStudiedAtDeparture = eqfLevelStudiedAtDeparture;
+	}
+
+	public String getIscedFCode() {
+		return iscedFCode;
+	}
+
+	public void setIscedFCode(String iscedFCode) {
+		this.iscedFCode = iscedFCode;
+	}
+
+	public String getIscedClarification() {
+		return iscedClarification;
+	}
+
+	public void setIscedClarification(String iscedClarification) {
+		this.iscedClarification = iscedClarification;
+	}
+
+	public ListOfComponents getFirstVersion() {
+		return firstVersion;
+	}
+
+	public void setFirstVersion(ListOfComponents firstVersion) {
+		this.firstVersion = firstVersion;
+	}
+
+	public ListOfComponents getApprovedChanges() {
+		return approvedChanges;
+	}
+
+	public void setApprovedChanges(ListOfComponents approvedChanges) {
+		this.approvedChanges = approvedChanges;
+	}
+
+	public ChangesProposal getChangesProposal() {
+		return changesProposal;
+	}
+
+	public void setChangesProposal(ChangesProposal changesProposal) {
+		this.changesProposal = changesProposal;
+	}
+
+	public String getLearningOutcomesUrl() {
+		return learningOutcomesUrl;
+	}
+
+	public void setLearningOutcomesUrl(String learningOutcomesUrl) {
+		this.learningOutcomesUrl = learningOutcomesUrl;
+	}
+
+	public String getProvisionsUrl() {
+		return provisionsUrl;
+	}
+
+	public void setProvisionsUrl(String provisionsUrl) {
+		this.provisionsUrl = provisionsUrl;
+	}
+
+	public eu.erasmuswithoutpaper.omobility.las.entity.Student getStudent() {
 		return student;
 	}
 
-	public void setStudent(Student student) {
+	public void setStudent(eu.erasmuswithoutpaper.omobility.las.entity.Student student) {
 		this.student = student;
-	}
-
-	public List<SingleChange> getCmpRecognizedBeforeMobilityChanges() {
-		return cmpRecognizedBeforeMobilityChanges;
-	}
-
-	public void setCmpRecognizedBeforeMobilityChanges(List<SingleChange> cmpRecognizedBeforeMobilityChanges) {
-		this.cmpRecognizedBeforeMobilityChanges = cmpRecognizedBeforeMobilityChanges;
-	}
-
-	public List<SingleChange> getCmpRecognizedLatestApprovedChanges() {
-		return cmpRecognizedLatestApprovedChanges;
-	}
-
-	public void setCmpRecognizedLatestApprovedChanges(List<SingleChange> cmpRecognizedLatestApprovedChanges) {
-		this.cmpRecognizedLatestApprovedChanges = cmpRecognizedLatestApprovedChanges;
-	}
-
-	public List<SingleChange> getCmpRecognizedLatestDraftChanges() {
-		return cmpRecognizedLatestDraftChanges;
-	}
-
-	public void setCmpRecognizedLatestDraftChanges(List<SingleChange> cmpRecognizedLatestDraftChanges) {
-		this.cmpRecognizedLatestDraftChanges = cmpRecognizedLatestDraftChanges;
-	}
-
-	public List<SingleChange> getStudiedbeforeMobilityChanges() {
-		return studiedbeforeMobilityChanges;
-	}
-
-	public void setStudiedbeforeMobilityChanges(List<SingleChange> studiedbeforeMobilityChanges) {
-		this.studiedbeforeMobilityChanges = studiedbeforeMobilityChanges;
-	}
-
-	public List<SingleChange> getStudiedlatestApprovedChanges() {
-		return studiedlatestApprovedChanges;
-	}
-
-	public void setStudiedlatestApprovedChanges(List<SingleChange> studiedlatestApprovedChanges) {
-		this.studiedlatestApprovedChanges = studiedlatestApprovedChanges;
-	}
-
-	public List<SingleChange> getStudiedLatestDraftChanges() {
-		return studiedLatestDraftChanges;
-	}
-
-	public void setStudiedLatestDraftChanges(List<SingleChange> studiedLatestDraftChanges) {
-		this.studiedLatestDraftChanges = studiedLatestDraftChanges;
-	}
-
-	public List<OmobilityComponentRecognized> getCmpRecognizedBeforeMobilitySnapshot() {
-		return cmpRecognizedBeforeMobilitySnapshot;
-	}
-
-	public void setCmpRecognizedBeforeMobilitySnapshot(
-			List<OmobilityComponentRecognized> cmpRecognizedBeforeMobilitySnapshot) {
-		this.cmpRecognizedBeforeMobilitySnapshot = cmpRecognizedBeforeMobilitySnapshot;
-	}
-
-	public List<OmobilityComponentRecognized> getCmpRecognizedLatestApprovedSnapshot() {
-		return cmpRecognizedLatestApprovedSnapshot;
-	}
-
-	public void setCmpRecognizedLatestApprovedSnapshot(
-			List<OmobilityComponentRecognized> cmpRecognizedLatestApprovedSnapshot) {
-		this.cmpRecognizedLatestApprovedSnapshot = cmpRecognizedLatestApprovedSnapshot;
-	}
-
-	public List<OmobilityComponentRecognized> getCmpRecognizedLatestDraftSnapshot() {
-		return cmpRecognizedLatestDraftSnapshot;
-	}
-
-	public void setCmpRecognizedLatestDraftSnapshot(List<OmobilityComponentRecognized> cmpRecognizedLatestDraftSnapshot) {
-		this.cmpRecognizedLatestDraftSnapshot = cmpRecognizedLatestDraftSnapshot;
-	}
-
-	public List<OmobilityComponentRecognized> getStudiedBeforeMobilitySnapshot() {
-		return studiedBeforeMobilitySnapshot;
-	}
-
-	public void setStudiedBeforeMobilitySnapshot(List<OmobilityComponentRecognized> studiedBeforeMobilitySnapshot) {
-		this.studiedBeforeMobilitySnapshot = studiedBeforeMobilitySnapshot;
-	}
-
-	public List<OmobilityComponentRecognized> getStudiedLatestApprovedSnapshot() {
-		return studiedLatestApprovedSnapshot;
-	}
-
-	public void setStudiedLatestApprovedSnapshot(List<OmobilityComponentRecognized> studiedLatestApprovedSnapshot) {
-		this.studiedLatestApprovedSnapshot = studiedLatestApprovedSnapshot;
-	}
-
-	public List<OmobilityComponentRecognized> getStudiedLatestDraftSnapshot() {
-		return studiedLatestDraftSnapshot;
-	}
-
-	public void setStudiedLatestDraftSnapshot(List<OmobilityComponentRecognized> studiedLatestDraftSnapshot) {
-		this.studiedLatestDraftSnapshot = studiedLatestDraftSnapshot;
 	}
 
 	@Override

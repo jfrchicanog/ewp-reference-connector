@@ -17,11 +17,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.apache.johnzon.mapper.JohnzonConverter;
 
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
 import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 
@@ -84,9 +86,9 @@ public class Mobility implements Serializable {
     private String iscedCode;
     private byte eqfLevel;
     
-    //@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    //@JoinColumn(name = "LEARNING_AGREEMENT")
-    //private LearningAgreement learningAgreement;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "LEARNING_AGREEMENT")
+    private LearningAgreement learningAgreement;
     
     public String getId() {
         return id;

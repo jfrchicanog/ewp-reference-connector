@@ -7,6 +7,8 @@ import eu.erasmuswithoutpaper.api.architecture.StringWithOptionalLang;
 import eu.erasmuswithoutpaper.api.types.address.FlexibleAddress;
 import eu.erasmuswithoutpaper.api.types.phonenumber.PhoneNumber;
 import eu.erasmuswithoutpaper.organization.entity.LanguageItem;
+
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;

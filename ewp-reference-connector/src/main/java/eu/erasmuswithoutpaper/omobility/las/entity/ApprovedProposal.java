@@ -15,11 +15,11 @@ import javax.persistence.OneToOne;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = ApproveComponentsStudiedDraft.findAll, query = "SELECT m FROM ApproveComponentsStudiedDraft m")
+    @NamedQuery(name = ApprovedProposal.findAll, query = "SELECT m FROM ApprovedProposal m")
 })
-public class ApproveComponentsStudiedDraft implements Serializable{
+public class ApprovedProposal implements Serializable{
 	
-	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.ApproveComponentsStudiedDraft.";
+	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.ApprovedProposal.";
     public static final String findAll = PREFIX + "all";
     
     @Id
@@ -28,11 +28,11 @@ public class ApproveComponentsStudiedDraft implements Serializable{
     
     private String omobilityId;
     
-    private String approvingParty;
+    private String changesProposalId;
     
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    @JoinColumn(name = "CURRENT_LATEST_DRAFT_SNAPSHOT",referencedColumnName = "ID")
-    private SnapshotOfComponentsStudied currentLatestDraftSnapshot;
+    @JoinColumn(name = "APPROVED_PROPOSAL_SIGNATURE",referencedColumnName = "ID")
+    private Signature signature;
 
     public String getId() {
 		return id;
@@ -50,20 +50,20 @@ public class ApproveComponentsStudiedDraft implements Serializable{
 		this.omobilityId = omobilityId;
 	}
 
-	public String getApprovingParty() {
-		return approvingParty;
+	public String getChangesProposalId() {
+		return changesProposalId;
 	}
 
-	public void setApprovingParty(String approvingParty) {
-		this.approvingParty = approvingParty;
+	public void setChangesProposalId(String changesProposalId) {
+		this.changesProposalId = changesProposalId;
 	}
 
-	public SnapshotOfComponentsStudied getCurrentLatestDraftSnapshot() {
-		return currentLatestDraftSnapshot;
+	public Signature getSignature() {
+		return signature;
 	}
 
-	public void setCurrentLatestDraftSnapshot(SnapshotOfComponentsStudied currentLatestDraftSnapshot) {
-		this.currentLatestDraftSnapshot = currentLatestDraftSnapshot;
+	public void setSignature(Signature signature) {
+		this.signature = signature;
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class ApproveComponentsStudiedDraft implements Serializable{
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ApproveComponentsStudiedDraft other = (ApproveComponentsStudiedDraft) obj;
+        final ApprovedProposal other = (ApprovedProposal) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }
