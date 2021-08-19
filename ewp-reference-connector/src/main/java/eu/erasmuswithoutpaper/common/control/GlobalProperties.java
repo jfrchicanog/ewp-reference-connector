@@ -162,6 +162,10 @@ public class GlobalProperties {
     	return getProperty("algoria.tokens.authorization", defaultAlgoriaAuthorizationToken);
     }
             
+    public int getAlgoriaTaskDelay() {
+    	return getIntProperty("algoria.task.delay", 2);
+    }
+    
     private int getIntProperty(String key, int defaultValue) {
         String value = getProperty(key);
         if (value != null) {

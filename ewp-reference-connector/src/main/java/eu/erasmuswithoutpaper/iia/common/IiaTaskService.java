@@ -176,7 +176,7 @@ public class IiaTaskService {
 								addTask(callableTask);
 				            }
 				            
-			            }, 2, TimeUnit.HOURS);
+			            }, globalProperties.getAlgoriaTaskDelay(), TimeUnit.HOURS);
 						
 						scheduler.shutdown();
 					}
