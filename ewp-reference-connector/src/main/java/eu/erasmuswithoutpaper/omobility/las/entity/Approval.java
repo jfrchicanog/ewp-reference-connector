@@ -22,7 +22,7 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 })
 public class Approval implements Serializable{
 
-	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.Approval.";
+	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.Approval.";
     public static final String findAll = PREFIX + "all";
     
     @Id

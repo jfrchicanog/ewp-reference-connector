@@ -19,7 +19,7 @@ import javax.persistence.OneToOne;
 })
 public class ApprovedProposal implements Serializable{
 	
-	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.ApprovedProposal.";
+	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.ApprovedProposal.";
     public static final String findAll = PREFIX + "all";
     
     @Id

@@ -11,7 +11,7 @@ import javax.persistence.NamedQuery;
 @NamedQuery(name = OlasLanguageSkill.findAll, query = "SELECT ls FROM OlasLanguageSkill ls")
 public class OlasLanguageSkill implements Serializable {
 	
-	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.OlasLanguageSkill.";
+	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.OlasLanguageSkill.";
     public static final String findAll = PREFIX + "all";
     
     @Id

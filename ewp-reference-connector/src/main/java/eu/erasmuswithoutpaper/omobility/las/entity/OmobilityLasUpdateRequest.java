@@ -19,7 +19,7 @@ import javax.persistence.OneToOne;
 })
 public class OmobilityLasUpdateRequest implements Serializable{
 	
-	    private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.OmobilityLasUpdateRequest.";
+	    private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.OmobilityLasUpdateRequest.";
 	    public static final String findAll = PREFIX + "all";
 	    
 	    @Id

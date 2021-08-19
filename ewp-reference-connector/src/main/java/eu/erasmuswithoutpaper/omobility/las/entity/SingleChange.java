@@ -19,7 +19,7 @@ import javax.persistence.OneToOne;
     @NamedQuery(name = SingleChange.findAll, query = "SELECT la FROM SingleChange la"),
 })
 public class SingleChange implements Serializable{
-	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.SingleChange.";
+	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.SingleChange.";
     public static final String findAll = PREFIX + "all";
     
     @Id

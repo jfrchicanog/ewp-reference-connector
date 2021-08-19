@@ -21,7 +21,7 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 })
 public class Signature {
 	
-	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.Signature.";
+	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.Signature.";
     public static final String findAll = PREFIX + "all";
     
     @Id
