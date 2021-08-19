@@ -58,6 +58,12 @@ public class IiaTaskService {
 		checkNextResult();
 	}
 	
+	/**
+	 * Create a task for sending a notification to Algoria in other moment
+	 * @param iiaId
+	 * @param mode Evaluate the sort of notification is needed, for approval o for modification
+	 * @return
+	 */
 	public static Callable<String> createTask(String iiaId, String mode) {
 		
 		//Create the task
