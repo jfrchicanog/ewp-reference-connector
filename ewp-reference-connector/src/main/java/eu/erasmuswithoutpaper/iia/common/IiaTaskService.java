@@ -77,7 +77,7 @@ public class IiaTaskService {
 			String token = globalProperties.getAlgoriaAuthotizationToken();
 			
 			String url = null;
-			if (MODIFIED.equals(mode)) {
+			if (APPROVED.equals(mode)) {
 				url =  globalProperties.getAlgoriaApprovalURL();
 			} else {
 				url =  globalProperties.getAlgoriaModifyURL();
