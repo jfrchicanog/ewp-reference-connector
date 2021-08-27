@@ -25,7 +25,6 @@ public class IncomingMobilityManifestEntry implements ManifestEntryStrategy {
         mobilities.setGetUrl(baseUri + "imobilities/get");
         mobilities.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxMobilityIds()));
         
-        
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
