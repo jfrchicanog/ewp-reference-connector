@@ -39,8 +39,8 @@ public class MobilityLoader extends AbstractStartupLoader {
     
     private void persistMobility(String mobilityJson, MobilityType mobilityType, String coopConditionId) throws IOException {
         Mobility mobility = JsonHelper.mapToObject(Mobility.class, mobilityJson);
-        mobility.setMobilityType(mobilityType);
-        mobility.setCooperationConditionId(coopConditionId);
+       // mobility.setMobilityType(mobilityType);
+       // mobility.setCooperationConditionId(coopConditionId);
         em.persist(mobility);
     }
     

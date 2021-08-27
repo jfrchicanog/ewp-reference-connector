@@ -11,20 +11,15 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.apache.johnzon.mapper.JohnzonConverter;
 
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
-import eu.erasmuswithoutpaper.iia.entity.MobilityType;
 import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 
 @Entity
@@ -44,9 +39,7 @@ public class Mobility implements Serializable {
     @GeneratedValue(generator="system-uuid")
     String id;
     
-    private int mobilityRevision;
     private String iiaId;
-    private String cooperationConditionId;
     private String sendingInstitutionId;
     private String sendingOrganizationUnitId;
     private String receivingInstitutionId;
@@ -60,10 +53,6 @@ public class Mobility implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "LANGSKILL_MOBILITY")
     List<LanguageSkill> nomineeLanguageSkill;
-    
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    @JoinColumn(name = "MOBILITY_TYPE_ID", referencedColumnName = "ID")
-    private MobilityType mobilityType;
     
     private MobilityStatus status;
     
@@ -83,12 +72,8 @@ public class Mobility implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date actualDepartureDate;
     
-    private String iscedCode;
-    private byte eqfLevel;
-    
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "LEARNING_AGREEMENT")
-    private LearningAgreement learningAgreement;
+    private byte eqfLevelDeparture;
+    private byte eqfLevelNomination;
     
     public String getId() {
         return id;
@@ -96,14 +81,6 @@ public class Mobility implements Serializable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public int getMobilityRevision() {
-        return mobilityRevision;
-    }
-
-    public void setMobilityRevision(int mobilityRevision) {
-        this.mobilityRevision = mobilityRevision;
     }
 
     public String getIiaId() {
@@ -114,14 +91,6 @@ public class Mobility implements Serializable {
         this.iiaId = iiaId;
     }
 
-    public String getCooperationConditionId() {
-        return cooperationConditionId;
-    }
-
-    public void setCooperationConditionId(String cooperationConditionId) {
-        this.cooperationConditionId = cooperationConditionId;
-    }
-    
     public String getSendingInstitutionId() {
         return sendingInstitutionId;
     }
@@ -160,14 +129,6 @@ public class Mobility implements Serializable {
 
     public void setMobilityParticipantId(String mobilityParticipantId) {
         this.mobilityParticipantId = mobilityParticipantId;
-    }
-
-    public MobilityType getMobilityType() {
-        return mobilityType;
-    }
-
-    public void setMobilityType(MobilityType mobilityType) {
-        this.mobilityType = mobilityType;
     }
 
     public MobilityStatus getStatus() {
@@ -210,23 +171,23 @@ public class Mobility implements Serializable {
         this.actualDepartureDate = actualDepartureDate;
     }
 
-    public String getIscedCode() {
-        return iscedCode;
-    }
+    public byte getEqfLevelDeparture() {
+		return eqfLevelDeparture;
+	}
 
-    public void setIscedCode(String iscedCode) {
-        this.iscedCode = iscedCode;
-    }
+	public void setEqfLevelDeparture(byte eqfLevelDeparture) {
+		this.eqfLevelDeparture = eqfLevelDeparture;
+	}
 
-    public byte getEqfLevel() {
-        return eqfLevel;
-    }
+	public byte getEqfLevelNomination() {
+		return eqfLevelNomination;
+	}
 
-    public void setEqfLevel(byte eqfLevel) {
-        this.eqfLevel = eqfLevel;
-    }
+	public void setEqfLevelNomination(byte eqfLevelNomination) {
+		this.eqfLevelNomination = eqfLevelNomination;
+	}
 
-    public String getSendingAcademicTermEwpId() {
+	public String getSendingAcademicTermEwpId() {
 		return sendingAcademicTermEwpId;
 	}
 

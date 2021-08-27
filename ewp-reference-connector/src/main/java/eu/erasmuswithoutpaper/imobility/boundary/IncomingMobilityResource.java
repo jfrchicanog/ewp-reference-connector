@@ -1,20 +1,9 @@
 package eu.erasmuswithoutpaper.imobility.boundary;
 
-import eu.erasmuswithoutpaper.api.architecture.Empty;
-import eu.erasmuswithoutpaper.api.imobilities.cnr.ObjectFactory;
-import eu.erasmuswithoutpaper.api.imobilities.endpoints.ImobilitiesGetResponse;
-import eu.erasmuswithoutpaper.api.imobilities.endpoints.StudentMobilityForStudies;
-import eu.erasmuswithoutpaper.api.imobilities.tors.endpoints.ImobilityTorsGetResponse;
-import eu.erasmuswithoutpaper.api.imobilities.tors.endpoints.ImobilityTorsIndexResponse;
-import eu.erasmuswithoutpaper.common.control.GlobalProperties;
-import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
-import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
-import eu.erasmuswithoutpaper.notification.entity.Notification;
-import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
-import eu.erasmuswithoutpaper.omobility.entity.Mobility;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -27,6 +16,20 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import eu.erasmuswithoutpaper.api.architecture.Empty;
+import eu.erasmuswithoutpaper.api.imobilities.cnr.ObjectFactory;
+import eu.erasmuswithoutpaper.api.imobilities.endpoints.ImobilitiesGetResponse;
+import eu.erasmuswithoutpaper.api.imobilities.endpoints.StudentMobilityForStudies;
+import eu.erasmuswithoutpaper.api.imobilities.tors.endpoints.ImobilityTorsGetResponse;
+import eu.erasmuswithoutpaper.api.imobilities.tors.endpoints.ImobilityTorsIndexResponse;
+import eu.erasmuswithoutpaper.common.control.GlobalProperties;
+import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
+import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
+import eu.erasmuswithoutpaper.imobility.entity.IMobility;
+import eu.erasmuswithoutpaper.notification.entity.Notification;
+import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
+import eu.erasmuswithoutpaper.omobility.entity.Mobility;
 
 @Stateless
 @Path("imobilities")
@@ -151,7 +154,7 @@ public class IncomingMobilityResource {
         }
         
         ImobilitiesGetResponse response = new ImobilitiesGetResponse();
-        List<Mobility> mobilityList =  em.createNamedQuery(Mobility.findByReceivingInstitutionId).setParameter("receivingInstitutionId", receivingHeiId).getResultList();
+        List<IMobility> mobilityList =  em.createNamedQuery(IMobility.findByReceivingInstitutionId).setParameter("receivingInstitutionId", receivingHeiId).getResultList();
         if (!mobilityList.isEmpty()) {
             response.getSingleIncomingMobilityObject().addAll(mobilities(mobilityList, mobilityIdList));
         }
@@ -159,7 +162,7 @@ public class IncomingMobilityResource {
         return javax.ws.rs.core.Response.ok(response).build();
     }
     
-    private List<StudentMobilityForStudies> mobilities(List<Mobility> mobilityList, List<String> mobilityIdList) {
+    private List<StudentMobilityForStudies> mobilities(List<IMobility> mobilityList, List<String> mobilityIdList) {
         List<StudentMobilityForStudies> mobilities = new ArrayList<>();
         mobilityList.stream().forEachOrdered((m) -> {
             if (mobilityIdList.contains(m.getId())) {

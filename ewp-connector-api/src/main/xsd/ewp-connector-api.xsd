@@ -160,11 +160,11 @@
     />
 
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-imobilities/v0.1.1/endpoints/get-response.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-imobilities/v1.0.0/endpoints/get-response.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-imobilities/blob/stable-v1/endpoints/get-response.xsd"
     />
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-imobilities/v0.1.1/manifest-entry.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-imobilities/v1.0.0/manifest-entry.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-imobilities/blob/stable-v1/manifest-entry.xsd"
     />
 
