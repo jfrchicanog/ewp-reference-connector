@@ -169,11 +169,11 @@
     />
 
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-imobility-cnr/v0.1.0/response.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-imobility-cnr/v1.0.0/response.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-imobility-cnr/tree/stable-v1"
     />
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-imobility-cnr/v0.1.0/manifest-entry.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-imobility-cnr/v1.0.0/manifest-entry.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-imobility-cnr/blob/stable-v1/manifest-entry.xsd"
     />
 
