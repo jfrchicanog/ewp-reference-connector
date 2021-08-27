@@ -32,8 +32,8 @@ public class OutgoingMobilityConverter {
     public StudentMobilityForStudies convertToStudentMobilityForStudies(Mobility mobility) {
         StudentMobilityForStudies studentMobilityForStudies = new StudentMobilityForStudies();
         
-        studentMobilityForStudies.setEqfLevelStudiedAtDeparture(mobility.getEqfLevel());
-        studentMobilityForStudies.setEqfLevelStudiedAtNomination(mobility.getEqfLevel());
+        studentMobilityForStudies.setEqfLevelStudiedAtDeparture(mobility.getEqfLevelDeparture());
+        studentMobilityForStudies.setEqfLevelStudiedAtNomination(mobility.getEqfLevelNomination());
         studentMobilityForStudies.setOmobilityId(mobility.getId());
         
         studentMobilityForStudies.setSendingAcademicTermEwpId(mobility.getSendingAcademicTermEwpId());
