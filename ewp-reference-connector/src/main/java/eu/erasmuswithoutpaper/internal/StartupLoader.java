@@ -1,10 +1,6 @@
 package eu.erasmuswithoutpaper.internal;
 
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
-import eu.erasmuswithoutpaper.course.preload.AcademicTermLoader;
-import eu.erasmuswithoutpaper.course.preload.AcademicYearLoader;
-import eu.erasmuswithoutpaper.course.preload.LoiLoader;
-import eu.erasmuswithoutpaper.course.preload.LosLoader;
 import eu.erasmuswithoutpaper.iia.preload.IiaLoader;
 import eu.erasmuswithoutpaper.iia.preload.MobilityTypeLoader;
 import eu.erasmuswithoutpaper.omobility.preload.MobilityLoader;
@@ -41,11 +37,11 @@ public class StartupLoader {
     @Inject
     MobilityParticipantLoader mobilityParticipantLoader;
 
-    @Inject
-    AcademicTermLoader academicTermLoader;
-    
-    @Inject
-    AcademicYearLoader academicYearLoader;
+//    @Inject
+//    AcademicTermLoader academicTermLoader;
+//    
+//    @Inject
+//    AcademicYearLoader academicYearLoader;
     
     @Inject
     MobilityTypeLoader mobilityTypeLoader;
@@ -53,11 +49,11 @@ public class StartupLoader {
     @Inject
     MobilityLoader mobilityLoader;
     
-    @Inject
-    LosLoader learningOppSpecLoader;
+//    @Inject
+//    LosLoader learningOppSpecLoader;
 
-    @Inject
-    LoiLoader learningOppInstLoader;
+//    @Inject
+//    LoiLoader learningOppInstLoader;
 
     @Inject
     IiaLoader iiaLoader;
@@ -78,11 +74,11 @@ public class StartupLoader {
                     personLoader.createDemoDataIkea();
                     contactLoader.createDemoDataIkea();
                     mobilityParticipantLoader.createDemoDataIkea();
-                    academicYearLoader.createDemoDataIkea();
-                    academicTermLoader.createDemoDataIkea();
+                   // academicYearLoader.createDemoDataIkea();
+                   // academicTermLoader.createDemoDataIkea();
                     mobilityTypeLoader.createDemoDataIkea();
-                    learningOppSpecLoader.createDemoDataIkea();
-                    learningOppInstLoader.createDemoDataIkea();
+                   // learningOppSpecLoader.createDemoDataIkea();
+                   // learningOppInstLoader.createDemoDataIkea();
                     iiaLoader.createDemoDataIkea();
                     mobilityLoader.createDemoDataIkea();
                     break;
@@ -91,11 +87,11 @@ public class StartupLoader {
                     personLoader.createDemoDataPomodoro();
                     contactLoader.createDemoDataPomodoro();
                     mobilityParticipantLoader.createDemoDataPomodoro();
-                    academicYearLoader.createDemoDataPomodoro();
-                    academicTermLoader.createDemoDataPomodoro();
+                  //  academicYearLoader.createDemoDataPomodoro();
+                  //  academicTermLoader.createDemoDataPomodoro();
                     mobilityTypeLoader.createDemoDataPomodoro();
-                    learningOppSpecLoader.createDemoDataPomodoro();
-                    learningOppInstLoader.createDemoDataPomodoro();
+                   // learningOppSpecLoader.createDemoDataPomodoro();
+                   // learningOppInstLoader.createDemoDataPomodoro();
                     iiaLoader.createDemoDataPomodoro();
                     mobilityLoader.createDemoDataPomodoro();
                     break;
@@ -116,12 +112,12 @@ public class StartupLoader {
         personLoader.setEntityManger(em);
         contactLoader.setEntityManger(em);
         mobilityParticipantLoader.setEntityManger(em);
-        academicTermLoader.setEntityManger(em);
-        academicYearLoader.setEntityManger(em);
+        //academicTermLoader.setEntityManger(em);
+       // academicYearLoader.setEntityManger(em);
         mobilityTypeLoader.setEntityManger(em);
         mobilityLoader.setEntityManger(em);
-        learningOppSpecLoader.setEntityManger(em);
-        learningOppInstLoader.setEntityManger(em);
+       // learningOppSpecLoader.setEntityManger(em);
+        //learningOppInstLoader.setEntityManger(em);
         iiaLoader.setEntityManger(em);
     }
 }
