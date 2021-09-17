@@ -45,7 +45,12 @@ public class OutgoingMobilityResource {
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response mobilityIndexGet(@QueryParam("sending_hei_id") String sendingHeiId, @QueryParam("receiving_hei_id") List<String> receivingHeiIdList, 
     		@QueryParam("receiving_academic_year_id") String receiving_academic_year_id, @QueryParam("modified_since ") String modified_since) {
-        return mobilityIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id, modified_since);
+    	 
+    	if (sendingHeiId == null || sendingHeiId.isEmpty()) {
+             throw new EwpWebApplicationException("sending_hei_id is a required parameter", Response.Status.BAD_REQUEST);
+         }
+    	
+    	return mobilityIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id, modified_since);
     }
     
     @POST
@@ -53,7 +58,12 @@ public class OutgoingMobilityResource {
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response mobilityIndexPost(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("receiving_hei_id") List<String> receivingHeiIdList, 
     		@FormParam("receiving_academic_year_id") String receiving_academic_year_id, @FormParam("modified_since ") String modified_since) {
-        return mobilityIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id, modified_since);
+        
+    	 if (sendingHeiId == null || sendingHeiId.isEmpty()) {
+             throw new EwpWebApplicationException("sending_hei_id is a required parameter", Response.Status.BAD_REQUEST);
+         }
+    	
+    	return mobilityIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id, modified_since);
     }
     
     @GET
@@ -75,8 +85,15 @@ public class OutgoingMobilityResource {
             throw new EwpWebApplicationException("Max number of mobility id's has exceeded.", Response.Status.BAD_REQUEST);
         }
         
+        
         OmobilitiesGetResponse response = new OmobilitiesGetResponse();
-        List<Mobility> mobilityList =  em.createNamedQuery(Mobility.findBySendingInstitutionId).setParameter("sendingInstitutionId", sendingHeiId).getResultList();
+        List<Mobility> mobilityListBySendingHei =  em.createNamedQuery(Mobility.findBySendingInstitutionId).setParameter("sendingInstitutionId", sendingHeiId).getResultList();
+        List<Mobility> mobilityListByReceivingHei =  em.createNamedQuery(Mobility.findByReceivingInstitutionId).setParameter("sendingInstitutionId", sendingHeiId).getResultList();
+        
+        List<Mobility> mobilityList = new ArrayList<>();
+        mobilityList.addAll(mobilityListBySendingHei);
+        mobilityList.addAll(mobilityListByReceivingHei);
+        
         if (!mobilityList.isEmpty()) {
             response.getSingleMobilityObject().addAll(mobilities(mobilityList, mobilityIdList));
         }
