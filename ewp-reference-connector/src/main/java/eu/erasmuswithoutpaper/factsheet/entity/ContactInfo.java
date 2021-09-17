@@ -35,8 +35,8 @@ public class ContactInfo implements Serializable {
     private List<LanguageItem> url;
     
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "PHONE_NUMBER")
-    private PhoneNumber phoneNumber;
+    @JoinColumn(name = "PHONE_NUMBER_FACTSHEET_CONTACT")
+    private eu.erasmuswithoutpaper.organization.entity.PhoneNumber phoneNumber;
     
     public String getId() {
         return id;
@@ -62,15 +62,15 @@ public class ContactInfo implements Serializable {
         this.url = url;
     }
 
-    public PhoneNumber getPhoneNumber() {
-        return phoneNumber;
-    }
+    public eu.erasmuswithoutpaper.organization.entity.PhoneNumber getPhoneNumber() {
+		return phoneNumber;
+	}
 
-    public void setPhoneNumber(PhoneNumber phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
+	public void setPhoneNumber(eu.erasmuswithoutpaper.organization.entity.PhoneNumber phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
 
-    @Override
+	@Override
     public int hashCode() {
         int hash = 7;
         hash = 97 * hash + Objects.hashCode(this.id);

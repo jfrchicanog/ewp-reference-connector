@@ -100,7 +100,7 @@ public class OutgoingMobilityConverter {
         StudentMobilityForStudies.Student mobilityStudent = new StudentMobilityForStudies.Student();
         if (student != null) {
             Person person = student.getPerson();
-            mobilityStudent.getPhoneNumber().addAll(ConverterHelper.convertToPhoneNumber(student.getContactDetails().getPhoneNumber()));
+            mobilityStudent.getPhoneNumber().addAll(ConverterHelper.convertToPhoneNumbers(student.getContactDetails().getPhoneNumber()));
             
             try {
                 mobilityStudent.setBirthDate(ConverterHelper.convertToXmlGregorianCalendar(person.getBirthDate()));
