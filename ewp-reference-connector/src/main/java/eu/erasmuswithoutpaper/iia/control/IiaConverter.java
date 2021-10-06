@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -19,7 +18,6 @@ import javax.persistence.PersistenceContext;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -48,7 +46,6 @@ import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
 import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
-import eu.erasmuswithoutpaper.internal.JsonHelper;
 
 public class IiaConverter {
 	private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
@@ -101,7 +98,13 @@ public class IiaConverter {
             	jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             	
             	StringWriter sw = new StringWriter();
-            	CooperationConditions cc = converted.getCooperationConditions();
+            	
+            	//Create a copy off CooperationConditions to be used in calculateSha256 function
+            	CooperationConditions cc = new CooperationConditions();
+            	cc.getStaffTeacherMobilitySpec().addAll(converted.getCooperationConditions().getStaffTeacherMobilitySpec());
+            	cc.getStaffTrainingMobilitySpec().addAll(converted.getCooperationConditions().getStaffTrainingMobilitySpec());
+            	cc.getStudentStudiesMobilitySpec().addAll(converted.getCooperationConditions().getStudentStudiesMobilitySpec());
+            	cc.getStudentTraineeshipMobilitySpec().addAll(converted.getCooperationConditions().getStudentTraineeshipMobilitySpec());
             	
             	cc = removeContactInfo(cc);
             	
