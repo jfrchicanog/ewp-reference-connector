@@ -1,7 +1,10 @@
 package eu.erasmuswithoutpaper.omobility.boundary;
 
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -11,12 +14,14 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -24,6 +29,7 @@ import eu.erasmuswithoutpaper.api.omobilities.endpoints.OmobilitiesGetResponse;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.OmobilitiesIndexResponse;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobilityForStudies;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
+import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.omobility.control.OutgoingMobilityConverter;
 import eu.erasmuswithoutpaper.omobility.entity.Mobility;
@@ -39,6 +45,12 @@ public class OutgoingMobilityResource {
     
     @Inject
     OutgoingMobilityConverter mobilityConverter;
+    
+    @Context
+    HttpServletRequest httpRequest;
+    
+    @Inject
+    RegistryClient registryClient;
     
     @GET
     @Path("index")
@@ -85,7 +97,6 @@ public class OutgoingMobilityResource {
             throw new EwpWebApplicationException("Max number of mobility id's has exceeded.", Response.Status.BAD_REQUEST);
         }
         
-        
         OmobilitiesGetResponse response = new OmobilitiesGetResponse();
         List<Mobility> mobilityListBySendingHei =  em.createNamedQuery(Mobility.findBySendingInstitutionId).setParameter("sendingInstitutionId", sendingHeiId).getResultList();
         List<Mobility> mobilityListByReceivingHei =  em.createNamedQuery(Mobility.findByReceivingInstitutionId).setParameter("sendingInstitutionId", sendingHeiId).getResultList();
@@ -95,6 +106,17 @@ public class OutgoingMobilityResource {
         mobilityList.addAll(mobilityListByReceivingHei);
         
         if (!mobilityList.isEmpty()) {
+        	
+        	 Collection<String> heisCoveredByCertificate;
+             if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+                 heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+             } else {
+                 heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+             }
+             
+           //checking if caller covers the receiving HEI of this mobility,
+         	mobilityList = mobilityList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingInstitutionId())).collect(Collectors.toList());
+             
             response.getSingleMobilityObject().addAll(mobilities(mobilityList, mobilityIdList));
         }
         
@@ -104,6 +126,7 @@ public class OutgoingMobilityResource {
     private javax.ws.rs.core.Response mobilityIndex(String sendingHeiId, List<String> receivingHeiIdList, String receiving_academic_year_id, String modified_since) {
         OmobilitiesIndexResponse response = new OmobilitiesIndexResponse();
         
+       
         List<Mobility> mobilityList =  em.createNamedQuery(Mobility.findBySendingInstitutionId).setParameter("sendingInstitutionId", sendingHeiId).getResultList();
         if (!mobilityList.isEmpty()) {
         	
