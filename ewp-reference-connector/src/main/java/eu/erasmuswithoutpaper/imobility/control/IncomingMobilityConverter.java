@@ -34,7 +34,8 @@ public class IncomingMobilityConverter {
         } catch (DatatypeConfigurationException ex) {
             logger.error("Can't convert date", ex);
         }
-        studentMobilityForStudies.setOmobilityId(imobility.getId());
+        
+        studentMobilityForStudies.setOmobilityId(imobility.getOmobilityId());
         
         studentMobilityForStudies.setStatus(convertToIMobilityStatus(imobility.getIstatus()));
         studentMobilityForStudies.setComment(imobility.getComment());
