@@ -2,8 +2,12 @@ package eu.erasmuswithoutpaper.omobility.las.boundary;
 
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
@@ -219,7 +223,19 @@ public class OutgoingMobilityLearningAgreementsResource {
         
         OmobilityLasGetResponse response = new OmobilityLasGetResponse();
         List<OlearningAgreement> omobilityLasList =  em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHeiId", sendingHeiId).getResultList();
+        
         if (!omobilityLasList.isEmpty()) {
+        	
+        	 Collection<String> heisCoveredByCertificate;
+             if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+                 heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+             } else {
+                 heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+             }
+             
+             //checking if caller covers the receiving HEI of this mobility,
+             omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId())).collect(Collectors.toList());
+              
             response.getLa().addAll(omobilitiesLas(omobilityLasList, mobilityIdList));
         }
         
@@ -243,6 +259,49 @@ public class OutgoingMobilityLearningAgreementsResource {
         	
         	if (mobilityType != null && !mobilityList.isEmpty()) {
         		mobilityList = mobilityList.stream().filter(omobility -> anyMatchSpecifiedType.test(omobility, mobilityType)).collect(Collectors.toList());
+        	}
+        	
+        	if (modifiedSince != null && !modifiedSince.isEmpty()) {
+        		
+        		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
+                Calendar calendarModifySince = Calendar.getInstance();
+                
+                try {
+        			calendarModifySince.setTime(sdf.parse(modifiedSince));
+        		} catch (ParseException e) {
+        			throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
+        		}
+                
+                Date modified_since = calendarModifySince.getTime();
+                
+                List<OlearningAgreement> mobilities = new ArrayList<>();
+                mobilityList.stream().forEachOrdered((m) -> {
+                	
+                	Date studentSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
+                	Date receivingSignatureDate = m.getFirstVersion().getReceivingHeiSignature() != null ? m.getFirstVersion().getReceivingHeiSignature().getTimestamp() : null;
+                	Date sendingSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
+                	
+                	if (studentSignatureDate != null) {
+                		if (studentSignatureDate.after(modified_since)) {
+                			mobilities.add(m);
+                		}
+                	}
+                	
+                	if (receivingSignatureDate != null) {
+                		if (receivingSignatureDate.after(modified_since)) {
+                			mobilities.add(m);
+                		}
+                	}
+                	
+                	if (sendingSignatureDate != null) {
+                		if (sendingSignatureDate.after(modified_since)) {
+                			mobilities.add(m);
+                    	}
+                	}
+                });
+                
+                mobilityList.clear(); 
+                mobilityList.addAll(mobilities);
         	}
         	
             response.getOmobilityId().addAll(omobilityLasIds(mobilityList, receivingHeiIdList));
