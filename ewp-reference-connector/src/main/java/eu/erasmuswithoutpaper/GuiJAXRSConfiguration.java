@@ -1,6 +1,7 @@
 package eu.erasmuswithoutpaper;
 
 import eu.erasmuswithoutpaper.echo.boundary.GuiEchoResource;
+import eu.erasmuswithoutpaper.factsheet.boundary.GuiFactsheetResource;
 import eu.erasmuswithoutpaper.home.boundary.GuiHomeResource;
 import eu.erasmuswithoutpaper.iia.boundary.GuiIiaPartnerResource;
 import eu.erasmuswithoutpaper.iia.boundary.GuiIiaResource;
@@ -30,6 +31,7 @@ public class GuiJAXRSConfiguration extends Application {
         resources.add(GuiOutgoingMobilityResource.class);
         resources.add(GuiMobilityParticipantResource.class);
         resources.add(GuiNotificationResource.class);
+        resources.add(GuiFactsheetResource.class);
         return resources;
     }
 }
