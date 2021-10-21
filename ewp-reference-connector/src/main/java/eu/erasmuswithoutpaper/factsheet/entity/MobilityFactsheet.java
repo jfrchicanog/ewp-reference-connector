@@ -155,14 +155,6 @@ public class MobilityFactsheet implements Serializable {
 		this.decisionWeeksLimit = decisionWeeksLimit;
 	}
 
-	public List<AdditionalRequirement> getAditionalRequirements() {
-		return additionalRequirements;
-	}
-
-	public void setAditionalRequirements(List<AdditionalRequirement> aditionalRequirements) {
-		this.additionalRequirements = aditionalRequirements;
-	}
-
 	public List<Accessibility> getAccessibility() {
 		return accessibility;
 	}

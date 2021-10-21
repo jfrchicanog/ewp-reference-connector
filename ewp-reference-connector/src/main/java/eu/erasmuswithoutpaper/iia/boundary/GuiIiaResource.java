@@ -194,7 +194,7 @@ public class GuiIiaResource {
 			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
 		}
 		
-		em.persist(iia);
+		em.persist(iia);//TODO here the new instance is inserted but remains de old one
 
 		//Notify the partner about the modification using the API GUI IIA CNR 
 		ClientRequest clientRequest = notifyPartner(iia);

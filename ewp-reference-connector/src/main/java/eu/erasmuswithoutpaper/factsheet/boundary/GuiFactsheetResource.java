@@ -23,11 +23,47 @@ public class GuiFactsheetResource {
     EntityManager em;
 	
 	@POST
-    @Path("save")
+    @Path("add")
     @Consumes(MediaType.APPLICATION_JSON)
     public void add(MobilityFactsheet factsheet) {
         em.persist(factsheet);
     }
+	
+	@POST
+    @Path("update")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(MobilityFactsheet factsheet) {
+		String heid = factsheet.getHeiId();
+		MobilityFactsheet foundFactsheet = (MobilityFactsheet) em.createNamedQuery(MobilityFactsheet.findByHeid).setParameter("heiId", heid).getSingleResult();
+		
+		if (foundFactsheet != null) {
+			foundFactsheet.setAccessibility(factsheet.getAccessibility());
+			
+			foundFactsheet.setAdditionalInfo(factsheet.getAdditionalInfo());
+			foundFactsheet.setAdditionalRequirements(factsheet.getAdditionalRequirements());
+			
+			foundFactsheet.setApplicationInfo(factsheet.getApplicationInfo());
+			foundFactsheet.setHousingInfo(factsheet.getHousingInfo());
+			foundFactsheet.setInsuranceInfo(factsheet.getInsuranceInfo());
+			foundFactsheet.setVisaInfo(factsheet.getVisaInfo());
+			
+			foundFactsheet.setDecisionWeeksLimit(factsheet.getDecisionWeeksLimit());
+			
+			foundFactsheet.setHeiId(factsheet.getHeiId());
+			
+			foundFactsheet.setStudentApplicationTerm(factsheet.getStudentApplicationTerm());
+			foundFactsheet.setStudentNominationTerm(factsheet.getStudentNominationTerm());
+			
+			foundFactsheet.setTorWeeksLimit(factsheet.getTorWeeksLimit());
+			
+			em.merge(foundFactsheet);
+		} else {
+			return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+		}
+        
+		return javax.ws.rs.core.Response.ok().build();
+    }
+	
 	
 	@GET
     @Path("get_heiid")
