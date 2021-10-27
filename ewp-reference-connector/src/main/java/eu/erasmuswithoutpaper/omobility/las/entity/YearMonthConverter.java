@@ -6,7 +6,9 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 
 import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
+@Converter
 public class YearMonthConverter implements AttributeConverter<YearMonth, java.sql.Date>{
 
 	@Override

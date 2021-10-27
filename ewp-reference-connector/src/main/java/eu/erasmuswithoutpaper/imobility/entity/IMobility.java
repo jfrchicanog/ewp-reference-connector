@@ -20,13 +20,11 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 @Entity
 @NamedQueries({
     @NamedQuery(name = IMobility.findAll, query = "SELECT m FROM IMobility m"),
-    @NamedQuery(name = IMobility.findByReceivingInstitutionId, query = "SELECT m FROM IMobility m WHERE m.receivingInstitutionId=:receivingInstitutionId"),
 })
 public class IMobility implements Serializable{
 
 	private static final String PREFIX = "eu.erasmuswithoutpaper.mobility.entity.IMobility.";
     public static final String findAll = PREFIX + "all";
-    public static final String findByReceivingInstitutionId = PREFIX + "findByReceivingInstitutionId";
     
     @Id
     @GeneratedValue(generator="system-uuid")
