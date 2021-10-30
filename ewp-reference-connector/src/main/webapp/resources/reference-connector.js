@@ -867,28 +867,6 @@ angular.module('echo').service('EchoService', function ($http) {
         }
     };
 });
-angular.module('home', []);
-angular.module('home').controller('HomeController', function ($scope, HomeService) {
-    HomeService.name(
-        function(result) {
-            $scope.universityName = result;
-        });
-
-    HomeService.hostname(
-        function(result) {
-            $scope.hostname = result;
-        });
-});
-angular.module('home').service('HomeService', function ($http) {
-    return {
-        name: function (callback) {
-            $http.get('gui/home/name').success(callback);
-        },
-        hostname: function (callback) {
-            $http.get('gui/home/hostname').success(callback);
-        }
-    };
-});
 angular.module('iia', []);
 angular.module('iia').controller('IiaClientController', function ($scope, IiaService, ClientCacheService) {
     IiaService.getIiaHeis(function(result) {
@@ -2301,6 +2279,29 @@ angular.module('mobilityParticipant').service('MobilityParticipantService', func
         },
         addNew: function (contact, callback) {
             $http.post('gui/participant/add', contact).success(callback);
+        }
+    };
+});
+
+angular.module('home', []);
+angular.module('home').controller('HomeController', function ($scope, HomeService) {
+    HomeService.name(
+        function(result) {
+            $scope.universityName = result;
+        });
+
+    HomeService.hostname(
+        function(result) {
+            $scope.hostname = result;
+        });
+});
+angular.module('home').service('HomeService', function ($http) {
+    return {
+        name: function (callback) {
+            $http.get('gui/home/name').success(callback);
+        },
+        hostname: function (callback) {
+            $http.get('gui/home/hostname').success(callback);
         }
     };
 });
