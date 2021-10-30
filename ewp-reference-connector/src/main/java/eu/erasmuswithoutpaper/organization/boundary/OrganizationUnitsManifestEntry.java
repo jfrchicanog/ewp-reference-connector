@@ -23,7 +23,7 @@ public class OrganizationUnitsManifestEntry implements ManifestEntryStrategy {
         organizationalUnits.setVersion(EwpConstants.ORGANIZATION_UNIT_VERSION);
         organizationalUnits.setUrl(baseUri + "ounits");
         organizationalUnits.setMaxOunitIds(BigInteger.valueOf(globalProperties.getMaxOunitsIds()));
-        organizationalUnits.setMaxOunitCodes(BigInteger.valueOf(globalProperties.getMaxOunitsIds()));
+        organizationalUnits.setMaxOunitCodes(BigInteger.valueOf(globalProperties.getMaxOunitsCodes()));
         
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         

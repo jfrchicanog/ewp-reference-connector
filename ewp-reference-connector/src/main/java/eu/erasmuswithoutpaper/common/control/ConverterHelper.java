@@ -7,6 +7,8 @@ import eu.erasmuswithoutpaper.api.architecture.StringWithOptionalLang;
 import eu.erasmuswithoutpaper.api.types.address.FlexibleAddress;
 import eu.erasmuswithoutpaper.api.types.phonenumber.PhoneNumber;
 import eu.erasmuswithoutpaper.organization.entity.LanguageItem;
+
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -41,10 +43,10 @@ public class ConverterHelper {
         return address;
     }
     
-    public static List<PhoneNumber> convertToPhoneNumber(eu.erasmuswithoutpaper.organization.entity.PhoneNumber phoneNumber) {
+    public static List<PhoneNumber> convertToPhoneNumbers(eu.erasmuswithoutpaper.organization.entity.PhoneNumber phoneNumber) {
         List<PhoneNumber> phoneNumbers = new ArrayList<>();
         if (phoneNumber != null) {
-            PhoneNumber pn = new PhoneNumber();
+        	PhoneNumber pn = new PhoneNumber();
             pn.setE164(phoneNumber.getE164());
             pn.setExt(phoneNumber.getExtensionNumber());
             pn.setOtherFormat(phoneNumber.getOtherFormat());
@@ -90,7 +92,7 @@ public class ConverterHelper {
         return date2;
     }
     
-    public static PhoneNumber convertToPhoneNumber(eu.erasmuswithoutpaper.factsheet.entity.PhoneNumber phoneNumber) {
+    public static PhoneNumber convertToPhoneNumber(eu.erasmuswithoutpaper.organization.entity.PhoneNumber phoneNumber) {
         PhoneNumber factsheetPhoneNumber = new PhoneNumber();
         if (phoneNumber != null) {
         	factsheetPhoneNumber.setE164(phoneNumber.getE164());

@@ -39,6 +39,7 @@ public class Person implements Serializable {
     
     private Gender gender;
     private String countryCode;
+    private String globalId;
 
     public String getId() {
         return id;
@@ -96,7 +97,15 @@ public class Person implements Serializable {
         this.countryCode = countryCode;
     }
 
-    @Override
+	public String getGlobalId() {
+		return globalId;
+	}
+
+	public void setGlobalId(String globalId) {
+		this.globalId = globalId;
+	}
+
+	@Override
     public int hashCode() {
         int hash = 5;
         hash = 17 * hash + Objects.hashCode(this.id);

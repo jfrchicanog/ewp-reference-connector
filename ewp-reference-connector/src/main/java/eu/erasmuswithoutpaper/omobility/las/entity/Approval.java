@@ -9,6 +9,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.apache.johnzon.mapper.JohnzonConverter;
+
+import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 
 @Entity
 @NamedQueries({
@@ -16,7 +22,7 @@ import javax.persistence.NamedQuery;
 })
 public class Approval implements Serializable{
 
-	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.Approval.";
+	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.Approval.";
     public static final String findAll = PREFIX + "all";
     
     @Id
@@ -25,6 +31,8 @@ public class Approval implements Serializable{
     
     private String byParty;
     
+    @JohnzonConverter(StandardDateConverter.class)
+    @Temporal(TemporalType.DATE)
     private Date timestamp;
     
     public String getId() {

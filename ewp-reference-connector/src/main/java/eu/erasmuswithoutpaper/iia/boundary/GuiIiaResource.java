@@ -17,6 +17,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -57,6 +58,35 @@ public class GuiIiaResource {
         GenericEntity<List<Iia>> entity = new GenericEntity<List<Iia>>(iiaList) {};
         
         return Response.ok(entity).build();
+    }
+    
+    @GET
+    @Path("get_heiid")
+    @InternalAuthenticate
+    public Response getHei(@QueryParam("hei_id") String heiId) {
+        List<Iia> iiaList = em.createNamedQuery(Iia.findAll).getResultList();
+        
+        Predicate<Iia> condition = new Predicate<Iia>()
+        {
+            @Override
+            public boolean test(Iia iia) {
+            	List<CooperationCondition> cooperationConditions = iia.getCooperationConditions();
+            	
+            	List<CooperationCondition> filtered = cooperationConditions.stream().filter(c -> heiId.equals(c.getSendingPartner().getInstitutionId())).collect(Collectors.toList());
+                return !filtered.isEmpty() ;
+            }
+        };
+        
+        if (!iiaList.isEmpty()) {
+        	 List<Iia> filteredList = iiaList.stream().filter(condition).collect(Collectors.toList());
+        	
+        	if (!filteredList.isEmpty()) {
+        		GenericEntity<List<Iia>> entity = new GenericEntity<List<Iia>>(iiaList) {};
+        		 return Response.ok(entity).build();
+        	}
+        } 
+        
+        return javax.ws.rs.core.Response.ok().build();
     }
 
     @GET
@@ -128,9 +158,10 @@ public class GuiIiaResource {
     
     @POST
     @Path("update")
+    @InternalAuthenticate
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response update(@FormParam("iia") Iia iia) {
+    public javax.ws.rs.core.Response update(Iia iia) {
     	//Find the iia by code
     	List<Iia> foundIias = em.createNamedQuery(Iia.findByIiaCode).setParameter("iiaCode", iia.getIiaCode()).getResultList();
     	
@@ -163,7 +194,7 @@ public class GuiIiaResource {
 			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
 		}
 		
-		em.persist(iia);
+		em.persist(iia);//TODO here the new instance is inserted but remains de old one
 
 		//Notify the partner about the modification using the API GUI IIA CNR 
 		ClientRequest clientRequest = notifyPartner(iia);
@@ -234,7 +265,7 @@ public class GuiIiaResource {
 			partnerReceiving = cooCondition.getReceivingPartner();
         }
     			
-    	//Verify if tha agreement is approved by the oter institution. 
+    	//Verify if the agreement is approved by the other institution. 
     	Map<String, String> urlsGet = registryClient.getIiaApprovalHeiUrls(heiId);
     	List<String> urlGetValues = new ArrayList<String>(urlsGet.values());
     	

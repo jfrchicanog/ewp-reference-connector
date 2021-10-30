@@ -11,7 +11,7 @@ import javax.persistence.NamedQuery;
 @NamedQuery(name = OmobilityComponentRecognized.findAll, query = "SELECT o FROM OmibilityComponentRecognized o")
 public class OmobilityComponentRecognized implements Serializable {
 	
-	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.OmibilityComponentRecognized.";
+	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.OmibilityComponentRecognized.";
     public static final String findAll = PREFIX + "all";
     
     @Id

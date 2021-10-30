@@ -30,6 +30,7 @@ import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
 import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
 
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.CooperationConditions;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification.RecommendedLanguageSkill;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
@@ -92,12 +93,22 @@ public class IiaConverter {
             converted.setInEffect(iia.isInEfect());
             
             try {
-            	JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.class);
+            	JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
             	Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
             	jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             	
             	StringWriter sw = new StringWriter();
-            	jaxbMarshaller.marshal(converted, sw);
+            	
+            	//Create a copy off CooperationConditions to be used in calculateSha256 function
+            	CooperationConditions cc = new CooperationConditions();
+            	cc.getStaffTeacherMobilitySpec().addAll(converted.getCooperationConditions().getStaffTeacherMobilitySpec());
+            	cc.getStaffTrainingMobilitySpec().addAll(converted.getCooperationConditions().getStaffTrainingMobilitySpec());
+            	cc.getStudentStudiesMobilitySpec().addAll(converted.getCooperationConditions().getStudentStudiesMobilitySpec());
+            	cc.getStudentTraineeshipMobilitySpec().addAll(converted.getCooperationConditions().getStudentTraineeshipMobilitySpec());
+            	
+            	cc = removeContactInfo(cc);
+            	
+            	jaxbMarshaller.marshal(cc, sw);
             	String xmlString = sw.toString();
             	
 				converted.setConditionsHash(HashCalculationUtility.calculateSha256(xmlString));
@@ -109,6 +120,31 @@ public class IiaConverter {
             return converted;
         }).collect(Collectors.toList());
     }
+    
+	private CooperationConditions removeContactInfo(CooperationConditions cc) {
+		cc.getStaffTeacherMobilitySpec().forEach(t -> {
+			t.getReceivingContact().clear();
+			t.getSendingContact().clear();
+		});
+		
+		cc.getStaffTrainingMobilitySpec().forEach(t -> {
+			t.getReceivingContact().clear();
+			t.getSendingContact().clear();
+			
+		});
+		
+		cc.getStudentStudiesMobilitySpec().forEach(t -> {
+			t.getReceivingContact().clear();
+			t.getSendingContact().clear();
+		});
+		
+		cc.getStudentTraineeshipMobilitySpec().forEach(t -> {
+			t.getReceivingContact().clear();
+			t.getSendingContact().clear();
+		});
+		
+		return cc;
+	}
 
 	private IiasGetResponse.Iia.CooperationConditions convertToCooperationConditions(List<CooperationCondition> cooperationConditions) {
         // TODO: Add this
@@ -160,7 +196,7 @@ public class IiaConverter {
         converted.setIiaId(iia.getId());//TODO Let me know if it is ok
         
         try {
-			converted.setSigningDate(ConverterHelper.convertToXmlGregorianCalendar(iia.getModifyDate()));
+			converted.setSigningDate(ConverterHelper.convertToXmlGregorianCalendar(iia.getSigningDate()));
 		} catch (DatatypeConfigurationException e) {
 			 logger.error("Can't convert date", e);
 		}//TODO Iia has two other properties startDate, endDate
@@ -204,11 +240,14 @@ public class IiaConverter {
     		recommendedLangSkill.setCefrLevel(langskill.getCefrLevel());
     		recommendedLangSkill.setLanguage(langskill.getLanguage());
     		
-    		SubjectArea subjectArea= new SubjectArea();
-    		subjectArea.setIscedClarification(langskill.getSubjectArea().getIscedClarification());
-    		subjectArea.setIscedFCode(langskill.getSubjectArea().getIscedFCode());
+    		if (langskill.getSubjectArea() != null) {
+    			SubjectArea subjectArea= new SubjectArea();
+        		subjectArea.setIscedClarification(langskill.getSubjectArea().getIscedClarification());
+        		subjectArea.setIscedFCode(langskill.getSubjectArea().getIscedFCode());
+        		
+        		recommendedLangSkill.setSubjectArea(subjectArea);
+    		}
     		
-    		recommendedLangSkill.setSubjectArea(subjectArea);
     		return recommendedLangSkill;
     	}).collect(Collectors.toList());
     	
@@ -220,18 +259,19 @@ public class IiaConverter {
         
         conv.getRecommendedLanguageSkill().addAll(recommendedSkills);
         
-        
-        List<SubjectArea> subjectAreas = cc.getSubjectAreas().stream().map(subject -> {
-        	SubjectArea subjectArea= new SubjectArea();
-        	
-     		subjectArea.setIscedClarification(subject.getIscedClarification());
-     		subjectArea.setIscedFCode(subject.getIscedFCode());
-     		
-        	return subjectArea;
-        }).collect(Collectors.toList());
+        if (cc.getSubjectAreas() != null && !cc.getSubjectAreas().isEmpty()) {
+        	 List<SubjectArea> subjectAreas = cc.getSubjectAreas().stream().map(subject -> {
+             	SubjectArea subjectArea= new SubjectArea();
+             	
+          		subjectArea.setIscedClarification(subject.getIscedClarification());
+          		subjectArea.setIscedFCode(subject.getIscedFCode());
+          		
+             	return subjectArea;
+             }).collect(Collectors.toList());
+            
+             conv.getSubjectArea().addAll(subjectAreas);
+        }
        
-        conv.getSubjectArea().addAll(subjectAreas);
-        
         List<Contact> contactReceivings = cc.getReceivingPartner().getContacts().stream().map(recContact -> {
         	Contact contact = new Contact();
         	

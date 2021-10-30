@@ -24,6 +24,26 @@ public class IncomingMobilityManifestEntry implements ManifestEntryStrategy {
         mobilities.setVersion(EwpConstants.INCOMING_MOBILITIES_VERSION);
         mobilities.setGetUrl(baseUri + "imobilities/get");
         mobilities.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxMobilityIds()));
+        
+        HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
+        
+        HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
+        
+        CliauthTlscert cliauthtlscert = new CliauthTlscert();
+        cliauthtlscert.setAllowsSelfSigned(true);
+        clientAuthMethods.getAny().add(cliauthtlscert);
+        
+        clientAuthMethods.getAny().add(new CliauthHttpsig());
+        
+        httpSecurityOptions.setClientAuthMethods(clientAuthMethods);
+        
+        HttpSecurityOptions.ServerAuthMethods serverAuthMethods = new HttpSecurityOptions.ServerAuthMethods();
+        
+        serverAuthMethods.getAny().add(new SrvauthTlscert());
+        serverAuthMethods.getAny().add(new SrvauthHttpsig());
+        
+        httpSecurityOptions.setServerAuthMethods(serverAuthMethods);
+        mobilities.setHttpSecurity(httpSecurityOptions);
 
         mobilities.setSendsNotifications(new Empty());
         

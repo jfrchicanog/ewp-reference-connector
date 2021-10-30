@@ -57,6 +57,10 @@ public class Iia implements Serializable{
     @Temporal(TemporalType.DATE)
     private Date modifyDate;
     
+    @JohnzonConverter(StandardDateConverter.class)
+    @Temporal(TemporalType.DATE)
+    private Date signingDate;
+    
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
     @JoinTable(name = "IIA_COOPERATION_CONDITION")
     List<CooperationCondition> cooperationConditions;
@@ -146,6 +150,14 @@ public class Iia implements Serializable{
 
 	public void setInEfect(boolean inEfect) {
 		this.inEfect = inEfect;
+	}
+
+	public Date getSigningDate() {
+		return signingDate;
+	}
+
+	public void setSigningDate(Date signingDate) {
+		this.signingDate = signingDate;
 	}
 
 	@Override

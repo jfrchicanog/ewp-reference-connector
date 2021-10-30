@@ -32,8 +32,8 @@ public class OutgoingMobilityConverter {
     public StudentMobilityForStudies convertToStudentMobilityForStudies(Mobility mobility) {
         StudentMobilityForStudies studentMobilityForStudies = new StudentMobilityForStudies();
         
-        studentMobilityForStudies.setEqfLevelStudiedAtDeparture(mobility.getEqfLevel());
-        studentMobilityForStudies.setEqfLevelStudiedAtNomination(mobility.getEqfLevel());
+        studentMobilityForStudies.setEqfLevelStudiedAtDeparture(mobility.getEqfLevelDeparture());
+        studentMobilityForStudies.setEqfLevelStudiedAtNomination(mobility.getEqfLevelNomination());
         studentMobilityForStudies.setOmobilityId(mobility.getId());
         
         studentMobilityForStudies.setSendingAcademicTermEwpId(mobility.getSendingAcademicTermEwpId());
@@ -100,13 +100,15 @@ public class OutgoingMobilityConverter {
         StudentMobilityForStudies.Student mobilityStudent = new StudentMobilityForStudies.Student();
         if (student != null) {
             Person person = student.getPerson();
-            mobilityStudent.getPhoneNumber().addAll(ConverterHelper.convertToPhoneNumber(student.getContactDetails().getPhoneNumber()));
+            mobilityStudent.getPhoneNumber().addAll(ConverterHelper.convertToPhoneNumbers(student.getContactDetails().getPhoneNumber()));
             
             try {
                 mobilityStudent.setBirthDate(ConverterHelper.convertToXmlGregorianCalendar(person.getBirthDate()));
             } catch (DatatypeConfigurationException ex) {
                 logger.error("Can't convert date", ex);
             }
+            
+            mobilityStudent.setGlobalId(person.getGlobalId());
 
             mobilityStudent.setCitizenship(person.getCountryCode());
             if (student.getContactDetails().getEmail() != null && student.getContactDetails().getEmail().size() > 0) {

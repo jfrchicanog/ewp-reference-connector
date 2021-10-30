@@ -63,7 +63,7 @@ public class FactsheetResource {
             throw new EwpWebApplicationException("Max number of FACTSHEET id's has exceeded.", Response.Status.BAD_REQUEST);
         }
         
-        if (factsheetHeiIdList.isEmpty()) {
+        if (factsheetHeiIdList == null || factsheetHeiIdList.isEmpty()) {
         	throw new EwpWebApplicationException("hei_id required.", Response.Status.BAD_REQUEST);
         }
         
