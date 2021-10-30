@@ -621,6 +621,87 @@ angular.module('connector').service('ClientCacheService', function ($http) {
             return Object.keys(cache[client]);
         }
     };
+    
+    $scope.cancelAddAcademicTerm = function(){
+        $scope.newAcademicTerm = {};
+        $scope.newAcademicTerm_selectedTerm = 0;
+        $scope.showAddAcademicTermForm = false;
+    };
+    
+    $scope.saveAcademicTerm = function(academicterm) {
+        AcademicTermService.addNew(academicterm, function(result) {
+            $scope.getAllAcademicTerms();
+        });
+    };
+    
+    $scope.addOrganizationUnitsToList = function(obj) {
+        angular.forEach(obj.organizationUnits, function(item) {
+            $scope.organizations.push(item);
+        });
+    };
+    
+    $scope.viewAddAcademicTermForm = function() {
+        InstitutionService.getLocal(
+            function(result) {
+            $scope.institutions = result;
+        });
+        
+        AcademicTermService.getAcademicYears(
+            function(result) {
+            $scope.academicYears = result;
+        });
+
+        $scope.organizations = [];
+        $scope.showAddAcademicTermForm = true;
+    };
+    
+    $scope.institutionChanged = function() {
+        var currentInst;
+        angular.forEach($scope.institutions, function(item) {
+            if (item.institutionId === $scope.newAcademicTerm.institutionId) {
+                currentInst = item;
+            }
+        });
+        
+        $scope.organizations = [];
+        $scope.addOrganizationUnitsToList(currentInst);
+    };
+    
+    $scope.terms = [{label:'Fall', en:'Fall semester', se:'Hösttermin'}, {label:'Spring', en:'Spring semester', se:'Vårtermin'}];
+    $scope.cancelAddAcademicTerm();
+    $scope.getAllAcademicTerms();
+});
+
+angular.module('academicterm').service('AcademicTermService', function ($http) {
+    return {
+        getAll: function (callback) {
+            $http.get('gui/academic_term/get_all').success(callback);
+        },
+        addNew: function (academicterm, callback) {
+            $http.post('gui/academic_term/add', academicterm).success(callback);
+        },
+        getAcademicYears: function (callback) {
+            $http.get('gui/academic_term/list_academic_years').success(callback);
+        }
+    };
+});
+
+angular.module('connector').service('ClientCacheService', function ($http) {
+    var cache = {};
+    return {
+        add: function (client, key, value) {
+            if (!cache[client]) {
+                cache[client] = {};
+            }
+            cache[client][key] = value;
+        },
+        get: function (client, key) {
+            return cache[client] ? cache[client][key] : undefined;
+        },
+        keys: function (client) {
+            return Object.keys(cache[client]);
+        }
+    };
 });
 
 angular.module('connector').directive('clientResult', function() {
@@ -831,6 +912,92 @@ angular.module('connector').directive('instOrgUnitForm', function() {
         };
     });
 
+angular.module('contact', []);
+angular.module('contact').controller('ContactController', function ($scope, ContactService, PersonService, InstitutionService) {
+
+    $scope.getAllContacts = function() {
+       ContactService.getAll(
+            function(result) {
+            $scope.contacts = result;
+        });
+    };
+    
+    $scope.viewAddContactForm = function() {
+        InstitutionService.getLocal(
+            function(result) {
+            $scope.institutions = result;
+        });
+
+        PersonService.getAll(
+            function(result) {
+            $scope.persons = result;
+        });
+        
+        ContactService.getContactRoles(function(result) {
+            $scope.roles = result;
+        });
+        $scope.organizations = [];
+        $scope.showAddContactForm = true;
+    };
+
+    $scope.addOrganizationUnitsToList = function(obj) {
+        angular.forEach(obj.organizationUnits, function(item) {
+            $scope.organizations.push(item);
+            $scope.addOrganizationUnitsToList(item);
+        });
+    };
+    
+    $scope.institutionChanged = function() {
+        var currentInst;
+        angular.forEach($scope.institutions, function(item) {
+            if (item.institutionId === $scope.newContact.institutionId) {
+                currentInst = item;
+            }
+        });
+        
+        $scope.organizations = [];
+        $scope.addOrganizationUnitsToList(currentInst);
+    };
+    
+    $scope.addContact  = function(){
+        var currentPerson;
+        angular.forEach($scope.persons, function(item) {
+            if (item.personId === $scope.newContact.personId) {
+                currentPerson = item;
+            }
+        });
+        $scope.newContact.person = currentPerson;
+        ContactService.addNew($scope.newContact,
+            function(result) {
+                $scope.newContact = {};
+                $scope.showAddContactForm = false;
+                $scope.getAllContacts();
+        });
+    };
+    
+    $scope.cancelAddContact = function(){
+        $scope.newContact = {};
+        $scope.showAddContactForm = false;
+    };
+    
+    $scope.getAllContacts();
+});
+angular.module('contact').service('ContactService', function ($http) {
+    return {
+        getAll: function (callback) {
+            $http.get('gui/contact/get_all',
+                { method: 'GET'
+                }).success(callback);
+        },
+        addNew: function (contact, callback) {
+            $http.post('gui/contact/add', contact).success(callback);
+        },
+        getContactRoles: function (callback) {
+            $http.get('gui/contact/contact_roles').success(callback);
+        }
+    };
+});
+
 angular.module('echo', []);
 angular.module('echo').controller('EchoController', function ($scope, EchoService) {
     $scope.echoRequest = {};
@@ -868,6 +1035,7 @@ angular.module('echo').service('EchoService', function ($http) {
         }
     };
 });
+
 angular.module('home', []);
 angular.module('home').controller('HomeController', function ($scope, HomeService) {
     HomeService.name(
@@ -890,6 +1058,7 @@ angular.module('home').service('HomeService', function ($http) {
         }
     };
 });
+
 angular.module('iia', []);
 angular.module('iia').controller('IiaClientController', function ($scope, IiaService, ClientCacheService) {
     IiaService.getIiaHeis(function(result) {
@@ -1622,6 +1791,8 @@ angular.module('los').service('LosService', function ($http) {
             $http.post('algoria/los/courses', courseRequest).success(callback);
         }
     };
+    
+    $scope.organizationUnitRequest = {method: "GET"};
 });
 
 angular.module('menu', []);

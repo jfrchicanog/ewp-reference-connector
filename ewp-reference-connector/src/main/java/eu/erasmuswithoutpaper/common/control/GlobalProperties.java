@@ -24,6 +24,11 @@ public class GlobalProperties {
     String defaultUniversityName;
     String defaultAlgoriaToken = "675701176db0293a8cac23814481f8e50b320fbd";
     
+    String defaultAlgoriaApprovalURL = "https://relacionesi.uma.es/algoria/ewp_approved_agreement_notifications/";
+    String defaultAlgoriaModifyURL = "https://relacionesi.uma.es/algoria/ewp_modified_agreement_notifications/";
+    String defaultAlgoriaAuthorizationToken = "Token 83796a548ff904efcc2811ba2cf6d4049009d149";
+
+    
     @PostConstruct
     private void loadProperties() {
         properties = new Properties();
@@ -121,6 +126,10 @@ public class GlobalProperties {
         return getIntProperty("ewp.api.ounits.max.ids", 1);
     }
     
+    public int getMaxOunitsCodes() {
+        return getIntProperty("ewp.api.ounits.max.codes", 1);
+    }
+    
     public int getMaxLosIds() {
         return getIntProperty("ewp.api.los.max.ids", 1);
     }
@@ -133,14 +142,45 @@ public class GlobalProperties {
         return getIntProperty("ewp.api.iias.max.ids", 1);
     }
     
+    public int getMaxIiaCodes() {
+        return getIntProperty("ewp.api.iias.max.codes", 1);
+    }
+    
     public int getMaxFactsheetIds() {
         return getIntProperty("ewp.api.factsheet.max.ids", 1);
     }
     
+<<<<<<< HEAD
     public String getAlgoriaToken() {
     	return getProperty("ewp.algoria.token", defaultAlgoriaToken);
     }
+=======
+
+    public int getMaxOmobilitylasIds() {
+        return getIntProperty("ewp.api.omobility.las.max.ids", 1);
+    }
+
+    public String getAlgoriaToken() {
+    	return getProperty("ewp.algoria.token", defaultAlgoriaToken);
+    }
+    
+    public String getAlgoriaApprovalURL() {
+    	return getProperty("algoria.approval.url", defaultAlgoriaApprovalURL);
+    }
+    
+    public String getAlgoriaModifyURL() {
+    	return getProperty("algoria.modify.url", defaultAlgoriaModifyURL);
+    }
+    
+    public String getAlgoriaAuthotizationToken() {
+    	return getProperty("algoria.tokens.authorization", defaultAlgoriaAuthorizationToken);
+    }
+>>>>>>> stable
             
+    public int getAlgoriaTaskDelay() {
+    	return getIntProperty("algoria.task.delay", 2);
+    }
+    
     private int getIntProperty(String key, int defaultValue) {
         String value = getProperty(key);
         if (value != null) {

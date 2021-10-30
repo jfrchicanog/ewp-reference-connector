@@ -28,7 +28,7 @@ public class IiaManifestEntry implements ManifestEntryStrategy {
         iias.setIndexUrl(baseUri + "iias/index");
         iias.setGetUrl(baseUri + "iias/get");
         iias.setMaxIiaIds(BigInteger.valueOf(globalProperties.getMaxIiaIds()));
-        iias.setMaxIiaCodes(BigInteger.valueOf(globalProperties.getMaxIiaIds()));
+        iias.setMaxIiaCodes(BigInteger.valueOf(globalProperties.getMaxIiaCodes()));
 
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         

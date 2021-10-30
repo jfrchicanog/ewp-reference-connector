@@ -22,13 +22,13 @@ public class MobilityLoader extends AbstractStartupLoader {
         String ouIdPomodoro = InstitutionLoader.POMODORO_OU1_ID;
         //String losId = LosLoader.IKEA_LOS1_ID;
        // String loiId = LoiLoader.IKEA_LOI1_ID;
-        persistMobility("{'mobilityRevision':'1','iiaId':'" + getIiaId("IK-POM-01") + "','sendingInstitutionId':'ikea.university.se','sendingOrganizationUnitId':'" + ouIdIkea + 
+        persistMobility("{'iiaId':'" + getIiaId("IK-POM-01") + "','sendingInstitutionId':'ikea.university.se','sendingOrganizationUnitId':'" + ouIdIkea + 
                 "','receivingInstitutionId':'pomodoro.university.it','receivingOrganizationUnitId':'" + ouIdPomodoro + 
-                "','mobilityParticipantId':'" + MobilityParticipantLoader.IKEA_MOBILITY_PARTICIPANT1_ID + "','status':'NOMINATION','plannedArrivalDate':'2017-03-14','plannedDepartureDate':'2017-05-15','iscedCode':'ISC123','eqfLevel':'3'}", 
+                "','mobilityParticipantId':'" + MobilityParticipantLoader.IKEA_MOBILITY_PARTICIPANT1_ID + "','plannedArrivalDate':'2017-03-14','plannedDepartureDate':'2017-05-15','eqfLevelDeparture':'3'}", 
                 getMobilityType("Student", "Studies"), getCoopConditionId("IK-POM-01"));
-        persistMobility("{'mobilityRevision':'1','iiaId':'" + getIiaId("IK-POM-01") + "','sendingInstitutionId':'pomodoro.university.it','sendingOrganizationUnitId':'" + ouIdIkea + 
+        persistMobility("{'iiaId':'" + getIiaId("IK-POM-01") + "','sendingInstitutionId':'pomodoro.university.it','sendingOrganizationUnitId':'" + ouIdIkea + 
                 "','receivingInstitutionId':'ikea.university.se','receivingOrganizationUnitId':'" + ouIdPomodoro + 
-                "','mobilityParticipantId':'" + MobilityParticipantLoader.IKEA_MOBILITY_PARTICIPANT1_ID + "','status':'NOMINATION','actualArrivalDate':'2017-03-14','actualDepartureDate':'2017-05-15','plannedArrivalDate':'2017-03-14','plannedDepartureDate':'2017-05-15','iscedCode':'ISC123','eqfLevel':'3'}", 
+                "','mobilityParticipantId':'" + MobilityParticipantLoader.IKEA_MOBILITY_PARTICIPANT1_ID + "','actualArrivalDate':'2017-03-14','actualDepartureDate':'2017-05-15','plannedArrivalDate':'2017-03-14','plannedDepartureDate':'2017-05-15','eqfLevelDeparture':'3'}", 
                 getMobilityType("Student", "Studies"), getCoopConditionId("IK-POM-01"));
     }
     
@@ -39,8 +39,8 @@ public class MobilityLoader extends AbstractStartupLoader {
     
     private void persistMobility(String mobilityJson, MobilityType mobilityType, String coopConditionId) throws IOException {
         Mobility mobility = JsonHelper.mapToObject(Mobility.class, mobilityJson);
-        mobility.setMobilityType(mobilityType);
-        mobility.setCooperationConditionId(coopConditionId);
+       // mobility.setMobilityType(mobilityType);
+       // mobility.setCooperationConditionId(coopConditionId);
         em.persist(mobility);
     }
     

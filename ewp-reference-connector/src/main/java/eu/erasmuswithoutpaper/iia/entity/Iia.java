@@ -29,7 +29,7 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 @NamedQueries({
     @NamedQuery(name = Iia.findAll, query = "SELECT i FROM Iia i"),
     @NamedQuery(name = Iia.findById, query = "SELECT i FROM Iia i WHERE i.id = :id"),
-    @NamedQuery(name = Iia.findByIiaCode, query = "SELECT i FROM Iia i WHERE i.iiaCode = :iiaCode")
+    @NamedQuery(name = Iia.findByIiaCode, query = "SELECT i FROM Iia i WHERE i.iiaCode = :iiaCode"),
 })
 public class Iia implements Serializable{
     
@@ -43,6 +43,7 @@ public class Iia implements Serializable{
     String id;
     
     private String iiaCode;
+    private boolean inEfect;
     
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
@@ -55,6 +56,10 @@ public class Iia implements Serializable{
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
     private Date modifyDate;
+    
+    @JohnzonConverter(StandardDateConverter.class)
+    @Temporal(TemporalType.DATE)
+    private Date signingDate;
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
     @JoinTable(name = "IIA_COOPERATION_CONDITION")
@@ -137,6 +142,22 @@ public class Iia implements Serializable{
 
 	public void setPdf(byte[] pdf) {
 		this.pdf = pdf;
+	}
+
+	public boolean isInEfect() {
+		return inEfect;
+	}
+
+	public void setInEfect(boolean inEfect) {
+		this.inEfect = inEfect;
+	}
+
+	public Date getSigningDate() {
+		return signingDate;
+	}
+
+	public void setSigningDate(Date signingDate) {
+		this.signingDate = signingDate;
 	}
 
 	@Override
