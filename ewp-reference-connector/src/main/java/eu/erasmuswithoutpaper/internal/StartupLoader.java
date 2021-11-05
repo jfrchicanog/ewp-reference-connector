@@ -100,11 +100,9 @@ public class StartupLoader {
                     personLoader.createDemoDataUma();
                     contactLoader.createDemoDataUma();;
                     mobilityParticipantLoader.createDemoDataUma();
-                    academicYearLoader.createDemoDataUma();
-                    academicTermLoader.createDemoDataUma();
+                    
                     mobilityTypeLoader.createDemoDataUma();
-                    learningOppSpecLoader.createDemoDataUma();
-                    learningOppInstLoader.createDemoDataUma();
+                    
                     iiaLoader.createDemoDataUma();
                     mobilityLoader.createDemoDataUma();
                     break;

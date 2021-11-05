@@ -149,12 +149,6 @@ public class GlobalProperties {
     public int getMaxFactsheetIds() {
         return getIntProperty("ewp.api.factsheet.max.ids", 1);
     }
-    
-<<<<<<< HEAD
-    public String getAlgoriaToken() {
-    	return getProperty("ewp.algoria.token", defaultAlgoriaToken);
-    }
-=======
 
     public int getMaxOmobilitylasIds() {
         return getIntProperty("ewp.api.omobility.las.max.ids", 1);
@@ -175,7 +169,6 @@ public class GlobalProperties {
     public String getAlgoriaAuthotizationToken() {
     	return getProperty("algoria.tokens.authorization", defaultAlgoriaAuthorizationToken);
     }
->>>>>>> stable
             
     public int getAlgoriaTaskDelay() {
     	return getIntProperty("algoria.task.delay", 2);
