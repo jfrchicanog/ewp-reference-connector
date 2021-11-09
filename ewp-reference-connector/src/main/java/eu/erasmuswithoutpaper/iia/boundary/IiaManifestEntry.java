@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import javax.inject.Inject;
 
+import eu.erasmuswithoutpaper.PublicAPI;
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.httpsig.CliauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
@@ -15,6 +16,7 @@ import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 import eu.erasmuswithoutpaper.common.control.EwpConstants;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 
+@PublicAPI
 public class IiaManifestEntry implements ManifestEntryStrategy {
     @Inject
     GlobalProperties globalProperties;
@@ -33,7 +35,7 @@ public class IiaManifestEntry implements ManifestEntryStrategy {
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
         
         CliauthTlscert cliauthtlscert = new CliauthTlscert();
-        cliauthtlscert.setAllowsSelfSigned(true);
+        cliauthtlscert.setAllowsSelfSigned(false);
         clientAuthMethods.getAny().add(cliauthtlscert);
         
 //        clientAuthMethods.getAny().add(new Anonymous());

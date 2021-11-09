@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.echo.boundary;
 
+import eu.erasmuswithoutpaper.PublicAPI;
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.httpsig.CliauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
@@ -10,6 +11,7 @@ import eu.erasmuswithoutpaper.api.specs.sec.intro.HttpSecurityOptions;
 import eu.erasmuswithoutpaper.common.control.EwpConstants;
 import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 
+@PublicAPI
 public class EchoManifestEntry implements ManifestEntryStrategy {
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
@@ -22,7 +24,7 @@ public class EchoManifestEntry implements ManifestEntryStrategy {
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
         
         CliauthTlscert cliauthtlscert = new CliauthTlscert();
-        cliauthtlscert.setAllowsSelfSigned(true);
+        cliauthtlscert.setAllowsSelfSigned(false);
         clientAuthMethods.getAny().add(cliauthtlscert);
         
 //        clientAuthMethods.getAny().add(new Anonymous());

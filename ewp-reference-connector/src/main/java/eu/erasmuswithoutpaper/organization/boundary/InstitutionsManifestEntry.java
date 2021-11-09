@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.organization.boundary;
 
+import eu.erasmuswithoutpaper.PublicAPI;
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.httpsig.CliauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
@@ -15,6 +16,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 
+@PublicAPI
 public class InstitutionsManifestEntry implements ManifestEntryStrategy {
 	
 	private final Logger LOGGER = Logger.getLogger(this.getClass().getCanonicalName());
@@ -36,7 +38,7 @@ public class InstitutionsManifestEntry implements ManifestEntryStrategy {
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
         
         CliauthTlscert cliauthtlscert = new CliauthTlscert();
-        cliauthtlscert.setAllowsSelfSigned(true);
+        cliauthtlscert.setAllowsSelfSigned(false);
         clientAuthMethods.getAny().add(cliauthtlscert);
         
 //        clientAuthMethods.getAny().add(new Anonymous());

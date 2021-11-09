@@ -1,6 +1,7 @@
 angular
     .module('connector', ['menu', 'home', 'echo', 'iia', 'institution', 'ngResource', 'ngRoute', 'person', 'contact', 'mobilityParticipant', 'academicterm', 'los', 'loi', 'mobility', 'notifications', 'angular-json-tree'])
-    .config(function ($routeProvider) {
+    .config(function ($routeProvider, $httpProvider) {
+    	$httpProvider.defaults.headers.common['Algoria-Token'] = prompt("Algoria Token:", "algoria token");
         $routeProvider.when('/iia', {
                 templateUrl: 'partials/iia.html',
                 controller: 'IiaController'
@@ -507,6 +508,173 @@ angular.module('academicterm').controller('AcademicTermController', function ($s
 angular.module('academicterm').service('AcademicTermService', function ($http) {
     return {
         getAll: function (callback) {
+            $http.get('algoria/academic_term/get_all').success(callback);
+        },
+        addNew: function (academicterm, callback) {
+            $http.post('algoria/academic_term/add', academicterm).success(callback);
+        },
+        getAcademicYears: function (callback) {
+            $http.get('algoria/academic_term/list_academic_years').success(callback);
+        }
+    };
+});
+
+angular.module('contact', []);
+angular.module('contact').controller('ContactController', function ($scope, ContactService, PersonService, InstitutionService) {
+
+    $scope.getAllContacts = function() {
+       ContactService.getAll(
+            function(result) {
+            $scope.contacts = result;
+        });
+    };
+    
+    $scope.viewAddContactForm = function() {
+        InstitutionService.getLocal(
+            function(result) {
+            $scope.institutions = result;
+        });
+
+        PersonService.getAll(
+            function(result) {
+            $scope.persons = result;
+        });
+        
+        ContactService.getContactRoles(function(result) {
+            $scope.roles = result;
+        });
+        $scope.organizations = [];
+        $scope.showAddContactForm = true;
+    };
+
+    $scope.addOrganizationUnitsToList = function(obj) {
+        angular.forEach(obj.organizationUnits, function(item) {
+            $scope.organizations.push(item);
+            $scope.addOrganizationUnitsToList(item);
+        });
+    };
+    
+    $scope.institutionChanged = function() {
+        var currentInst;
+        angular.forEach($scope.institutions, function(item) {
+            if (item.institutionId === $scope.newContact.institutionId) {
+                currentInst = item;
+            }
+        });
+        
+        $scope.organizations = [];
+        $scope.addOrganizationUnitsToList(currentInst);
+    };
+    
+    $scope.addContact  = function(){
+        var currentPerson;
+        angular.forEach($scope.persons, function(item) {
+            if (item.personId === $scope.newContact.personId) {
+                currentPerson = item;
+            }
+        });
+        $scope.newContact.person = currentPerson;
+        ContactService.addNew($scope.newContact,
+            function(result) {
+                $scope.newContact = {};
+                $scope.showAddContactForm = false;
+                $scope.getAllContacts();
+        });
+    };
+    
+    $scope.cancelAddContact = function(){
+        $scope.newContact = {};
+        $scope.showAddContactForm = false;
+    };
+    
+    $scope.getAllContacts();
+});
+angular.module('contact').service('ContactService', function ($http) {
+    return {
+        getAll: function (callback) {
+            $http.get('algoria/contact/get_all',
+                { method: 'GET'
+                }).success(callback);
+        },
+        addNew: function (contact, callback) {
+            $http.post('algoria/contact/add', contact).success(callback);
+        },
+        getContactRoles: function (callback) {
+            $http.get('algoria/contact/contact_roles').success(callback);
+        }
+    };
+});
+
+angular.module('connector').service('ClientCacheService', function ($http) {
+    var cache = {};
+    return {
+        add: function (client, key, value) {
+            if (!cache[client]) {
+                cache[client] = {};
+            }
+            cache[client][key] = value;
+        },
+        get: function (client, key) {
+            return cache[client] ? cache[client][key] : undefined;
+        },
+        keys: function (client) {
+            return Object.keys(cache[client]);
+        }
+    };
+    
+    $scope.cancelAddAcademicTerm = function(){
+        $scope.newAcademicTerm = {};
+        $scope.newAcademicTerm_selectedTerm = 0;
+        $scope.showAddAcademicTermForm = false;
+    };
+    
+    $scope.saveAcademicTerm = function(academicterm) {
+        AcademicTermService.addNew(academicterm, function(result) {
+            $scope.getAllAcademicTerms();
+        });
+    };
+    
+    $scope.addOrganizationUnitsToList = function(obj) {
+        angular.forEach(obj.organizationUnits, function(item) {
+            $scope.organizations.push(item);
+        });
+    };
+    
+    $scope.viewAddAcademicTermForm = function() {
+        InstitutionService.getLocal(
+            function(result) {
+            $scope.institutions = result;
+        });
+        
+        AcademicTermService.getAcademicYears(
+            function(result) {
+            $scope.academicYears = result;
+        });
+
+        $scope.organizations = [];
+        $scope.showAddAcademicTermForm = true;
+    };
+    
+    $scope.institutionChanged = function() {
+        var currentInst;
+        angular.forEach($scope.institutions, function(item) {
+            if (item.institutionId === $scope.newAcademicTerm.institutionId) {
+                currentInst = item;
+            }
+        });
+        
+        $scope.organizations = [];
+        $scope.addOrganizationUnitsToList(currentInst);
+    };
+    
+    $scope.terms = [{label:'Fall', en:'Fall semester', se:'Hösttermin'}, {label:'Spring', en:'Spring semester', se:'Vårtermin'}];
+    $scope.cancelAddAcademicTerm();
+    $scope.getAllAcademicTerms();
+});
+
+angular.module('academicterm').service('AcademicTermService', function ($http) {
+    return {
+        getAll: function (callback) {
             $http.get('gui/academic_term/get_all').success(callback);
         },
         addNew: function (academicterm, callback) {
@@ -858,12 +1026,34 @@ angular.module('echo').controller('EchoController', function ($scope, EchoServic
 angular.module('echo').service('EchoService', function ($http) {
     return {
         echo: function (echoRequest, callback) {
-            $http.post('gui/echo',
+            $http.post('algoria/echo',
                 echoRequest
                 ).success(callback);
         },
         echoHeis: function (callback) {
-            $http.get('gui/echo').success(callback);
+            $http.get('algoria/echo').success(callback);
+        }
+    };
+});
+angular.module('home', []);
+angular.module('home').controller('HomeController', function ($scope, HomeService) {
+    HomeService.name(
+        function(result) {
+            $scope.universityName = result;
+        });
+
+    HomeService.hostname(
+        function(result) {
+            $scope.hostname = result;
+        });
+});
+angular.module('home').service('HomeService', function ($http) {
+    return {
+        name: function (callback) {
+            $http.get('algoria/home/name').success(callback);
+        },
+        hostname: function (callback) {
+            $http.get('algoria/home/hostname').success(callback);
         }
     };
 });
@@ -1046,28 +1236,28 @@ angular.module('iia').controller('IiaController', function ($scope, IiaService) 
 angular.module('iia').service('IiaService', function ($http) {
     return {
         getAll: function (callback) {
-            $http.get('gui/iia/get_all').success(callback);
+            $http.get('algoria/iia/get_all').success(callback);
         },
         addNewIia: function ($iia, callback) {
-            $http.post('gui/iia/add', $iia).success(callback);
+            $http.post('algoria/iia/add', $iia).success(callback);
         },
         getMobilityTypes: function (callback) {
-            $http.get('gui/iia/mobility_types').success(callback);
+            $http.get('algoria/iia/mobility_types').success(callback);
         },
         getMobilityNumberVariants: function (callback) {
-            $http.get('gui/iia/mobility_unit_variants').success(callback);
+            $http.get('algoria/iia/mobility_unit_variants').success(callback);
         },
         getDurationUnitVariants: function (callback) {
-            $http.get('gui/iia/duration_unit_variants').success(callback);
+            $http.get('algoria/iia/duration_unit_variants').success(callback);
         },
         getIiaHeis: function (callback) {
-            $http.get('gui/iia/heis').success(callback);
+            $http.get('algoria/iia/heis').success(callback);
         },
         getIiaIndex: function (courseRequest, callback) {
-            $http.post('gui/iia/iias-index', courseRequest).success(callback);
+            $http.post('algoria/iia/iias-index', courseRequest).success(callback);
         },
         getIia: function (courseRequest, callback) {
-            $http.post('gui/iia/iias', courseRequest).success(callback);
+            $http.post('algoria/iia/iias', courseRequest).success(callback);
         }
     };
 });
@@ -1210,22 +1400,22 @@ angular.module('institution').controller('InstitutionController', function ($sco
 angular.module('institution').service('InstitutionService', function ($http) {
     return {
         getLocal: function (callback) {
-            $http.get('gui/institution/get_all').success(callback);
+            $http.get('algoria/institution/get_all').success(callback);
         },
         save: function (institution, callback) {
-            $http.post('gui/institution/save', institution).success(callback);
+            $http.post('algoria/institution/save', institution).success(callback);
         },
         getInstitutions: function (institutionRequest, callback) {
-            $http.post('gui/institution/heis', institutionRequest).success(callback);
+            $http.post('algoria/institution/heis', institutionRequest).success(callback);
         },
         getHeis: function (callback) {
-            $http.get('gui/institution/heis').success(callback);
+            $http.get('algoria/institution/heis').success(callback);
         },
         getOrganizationUnits: function (institutionRequest, callback) {
-            $http.post('gui/institution/ounits-heis', institutionRequest).success(callback);
+            $http.post('algoria/institution/ounits-heis', institutionRequest).success(callback);
         },
         getOrganizationUnitHeis: function (callback) {
-            $http.get('gui/institution/ounits-heis').success(callback);
+            $http.get('algoria/institution/ounits-heis').success(callback);
         }
     };
 });
@@ -1378,7 +1568,7 @@ angular.module('loi').controller('LoiController', function ($scope, LoiService, 
 angular.module('loi').service('LoiService', function ($http) {
     return {
         getGradingSchemes: function (callback) {
-            $http.get('gui/loi/grading_schemes').success(callback);
+            $http.get('algoria/loi/grading_schemes').success(callback);
         }
     };
 });
@@ -1575,28 +1765,28 @@ angular.module('los').controller('LosController', function ($scope, LosService, 
 angular.module('los').service('LosService', function ($http) {
     return {
         getAll: function (callback) {
-            $http.get('gui/los/get_all').success(callback);
+            $http.get('algoria/los/get_all').success(callback);
         },
         getAllTopLevelParents: function (callback) {
-            $http.get('gui/los/get_top_level_parents').success(callback);
+            $http.get('algoria/los/get_top_level_parents').success(callback);
         },
         save: function (learningOppSpec, callback) {
-            $http.post('gui/los/save', learningOppSpec).success(callback);
+            $http.post('algoria/los/save', learningOppSpec).success(callback);
         },
         getByInstitutionId: function (institutionId, callback) {
-            $http.get('gui/los/get_by_institution_id', {params: {institutionId: institutionId}}).success(callback);
+            $http.get('algoria/los/get_by_institution_id', {params: {institutionId: institutionId}}).success(callback);
         },
         getCourseReplicationHeis: function (callback) {
-            $http.get('gui/los/course-replication').success(callback);
+            $http.get('algoria/los/course-replication').success(callback);
         },
         getCourseReplication: function (courseReplicationRequest, callback) {
-            $http.post('gui/los/course-replication', courseReplicationRequest).success(callback);
+            $http.post('algoria/los/course-replication', courseReplicationRequest).success(callback);
         },
         getCourseHeis: function (callback) {
-            $http.get('gui/los/courses').success(callback);
+            $http.get('algoria/los/courses').success(callback);
         },
         getCourse: function (courseRequest, callback) {
-            $http.post('gui/los/courses', courseRequest).success(callback);
+            $http.post('algoria/los/courses', courseRequest).success(callback);
         }
     };
 });
@@ -1946,37 +2136,37 @@ angular.module('mobility').controller('MobilityController', function ($scope, $f
 angular.module('mobility').service('MobilityService', function ($http) {
     return {
         getAll: function (callback) {
-            $http.get('gui/omobility/get_all').success(callback);
+            $http.get('algoria/omobility/get_all').success(callback);
         },
         getMobilityStatuses: function (callback) {
-            $http.get('gui/omobility/mobility_statuses').success(callback);
+            $http.get('algoria/omobility/mobility_statuses').success(callback);
         },
         getLaComponentStatuses: function (callback) {
-            $http.get('gui/omobility/lacomponent_statuses').success(callback);
+            $http.get('algoria/omobility/lacomponent_statuses').success(callback);
         },
         addNew: function ($person, callback) {
-            $http.post('gui/omobility/add', $person).success(callback);
+            $http.post('algoria/omobility/add', $person).success(callback);
         },
         getOmobilityHeis: function (callback) {
-            $http.get('gui/omobility/omobilities-heis').success(callback);
+            $http.get('algoria/omobility/omobilities-heis').success(callback);
         },
         getOmobilityIndex: function (courseRequest, callback) {
-            $http.post('gui/omobility/omobilities-index', courseRequest).success(callback);
+            $http.post('algoria/omobility/omobilities-index', courseRequest).success(callback);
         },
         getOmobility: function (courseRequest, callback) {
-            $http.post('gui/omobility/omobilities-get', courseRequest).success(callback);
+            $http.post('algoria/omobility/omobilities-get', courseRequest).success(callback);
         },
         getAllMobilityUpdateRequests: function (callback) {
-           // $http.get('gui/omobility/update/get_all').success(callback);
+           // $http.get('algoria/omobility/update/get_all').success(callback);
         },
         getCountMobilityUpdateRequests: function (callback) {
-           // $http.get('gui/omobility/update/count').success(callback);
+           // $http.get('algoria/omobility/update/count').success(callback);
         },
         getImobilityHeis: function (callback) {
-            $http.get('gui/omobility/imobilities-heis').success(callback);
+            $http.get('algoria/omobility/imobilities-heis').success(callback);
         },
         getImobility: function (courseRequest, callback) {
-            $http.post('gui/omobility/imobilities-get', courseRequest).success(callback);
+            $http.post('algoria/omobility/imobilities-get', courseRequest).success(callback);
         }
     };
 });
@@ -2153,25 +2343,25 @@ angular.module('notifications').controller('NotificationController', function ($
 angular.module('notifications').service('NotificationService', function ($http) {
     return {
         getAll: function (callback) {
-            $http.get('gui/notification/get_all').success(callback);
+            $http.get('algoria/notification/get_all').success(callback);
         },
         getCount: function (callback) {
-            $http.get('gui/notification/count').success(callback);
+            $http.get('algoria/notification/count').success(callback);
         },
         getIiaCnrHeis: function (callback) {
-            $http.get('gui/notification/iia-cnr-heis').success(callback);
+            $http.get('algoria/notification/iia-cnr-heis').success(callback);
         },
         getOmobilityCnrHeis: function (callback) {
-            $http.get('gui/notification/omobility-cnr-heis').success(callback);
+            $http.get('algoria/notification/omobility-cnr-heis').success(callback);
         },
         getImobilityCnrHeis: function (callback) {
-            $http.get('gui/notification/imobility-cnr-heis').success(callback);
+            $http.get('algoria/notification/imobility-cnr-heis').success(callback);
         },
         getTorsCnrHeis: function (callback) {
-            $http.get('gui/notification/tors-cnr-heis').success(callback);
+            $http.get('algoria/notification/tors-cnr-heis').success(callback);
         },
         sendNotification: function (notifyRequest, callback) {
-            $http.post('gui/notification/notify', notifyRequest).success(callback);
+            $http.post('algoria/notification/notify', notifyRequest).success(callback);
         }
     };
 });
@@ -2217,13 +2407,13 @@ angular.module('person').controller('PersonController', function ($scope, Person
 angular.module('person').service('PersonService', function ($http) {
     return {
         getAll: function (callback) {
-            $http.get('gui/person/get_all').success(callback);
+            $http.get('algoria/person/get_all').success(callback);
         },
         addNew: function ($person, callback) {
-            $http.post('gui/person/add', $person).success(callback);
+            $http.post('algoria/person/add', $person).success(callback);
         },
         getGenderNames: function (callback) {
-            $http.get('gui/person/get_gender_names').success(callback);
+            $http.get('algoria/person/get_gender_names').success(callback);
         }
     };
 });
@@ -2273,35 +2463,12 @@ angular.module('mobilityParticipant').controller('MobilityParticipantController'
 angular.module('mobilityParticipant').service('MobilityParticipantService', function ($http) {
     return {
         getAll: function (callback) {
-            $http.get('gui/participant/get_all',
+            $http.get('algoria/participant/get_all',
                 { method: 'GET'
                 }).success(callback);
         },
         addNew: function (contact, callback) {
-            $http.post('gui/participant/add', contact).success(callback);
-        }
-    };
-});
-
-angular.module('home', []);
-angular.module('home').controller('HomeController', function ($scope, HomeService) {
-    HomeService.name(
-        function(result) {
-            $scope.universityName = result;
-        });
-
-    HomeService.hostname(
-        function(result) {
-            $scope.hostname = result;
-        });
-});
-angular.module('home').service('HomeService', function ($http) {
-    return {
-        name: function (callback) {
-            $http.get('gui/home/name').success(callback);
-        },
-        hostname: function (callback) {
-            $http.get('gui/home/hostname').success(callback);
+            $http.post('algoria/participant/add', contact).success(callback);
         }
     };
 });

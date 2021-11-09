@@ -95,6 +95,17 @@ public class StartupLoader {
                     iiaLoader.createDemoDataPomodoro();
                     mobilityLoader.createDemoDataPomodoro();
                     break;
+                case UMA_U:
+                	institutionLoader.createDemoDataUma();
+                    personLoader.createDemoDataUma();
+                    contactLoader.createDemoDataUma();;
+                    mobilityParticipantLoader.createDemoDataUma();
+                    
+                    mobilityTypeLoader.createDemoDataUma();
+                    
+                    iiaLoader.createDemoDataUma();
+                    mobilityLoader.createDemoDataUma();
+                    break;
             }
         } catch (IOException ex) {
             logger.error("Can't load initial data", ex);

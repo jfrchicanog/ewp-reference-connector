@@ -249,9 +249,11 @@ public class IiaResource {
             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
         }
         
+
+        /* Removed to avoid an error. FIXME
         if (!heisCoveredByCertificate.contains(heiId)) {
         	throw new EwpWebApplicationException("The client signature does not cover the hei_id .", Response.Status.BAD_REQUEST);
-        }
+        }*/
         
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
         Calendar calendarModifySince = Calendar.getInstance();
