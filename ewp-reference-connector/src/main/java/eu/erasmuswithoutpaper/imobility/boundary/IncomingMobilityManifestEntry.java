@@ -46,6 +46,7 @@ public class IncomingMobilityManifestEntry implements ManifestEntryStrategy {
         mobilities.setHttpSecurity(httpSecurityOptions);
 
         mobilities.setSendsNotifications(new Empty());
+        
         return mobilities;
     }
 }

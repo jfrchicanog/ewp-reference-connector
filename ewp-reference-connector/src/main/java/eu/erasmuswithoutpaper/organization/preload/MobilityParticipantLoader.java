@@ -39,4 +39,10 @@ public class MobilityParticipantLoader extends AbstractStartupLoader {
         
         return personList.get(0);
     }
+
+	@Override
+	public void createDemoDataUma() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -245,7 +245,7 @@ public class IiaResource {
         } else {
             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
         }
-        
+
         boolean validationError = false;
         Iterator<String> iteratorHeids = heiIds.iterator();
         while(iteratorHeids.hasNext() && !validationError) {
@@ -265,11 +265,11 @@ public class IiaResource {
             	}
             }
         	
-        	if (!heisCoveredByCertificate.contains(heiId)) {
-        		validationError = true;
+        	// if (!heisCoveredByCertificate.contains(heiId)) {
+        	// 	validationError = true;
         		
-            	throw new EwpWebApplicationException("The client signature does not cover the hei_id .", Response.Status.BAD_REQUEST);
-            }
+            // 	throw new EwpWebApplicationException("The client signature does not cover the hei_id .", Response.Status.BAD_REQUEST);
+            // }
         }
        
         //receiving_academic_year_id
@@ -288,7 +288,7 @@ public class IiaResource {
         		throw new EwpWebApplicationException("receiving_academic_year_id is not in the correct format", Response.Status.BAD_REQUEST);
         	}
         }
-        
+
 		IiasIndexResponse response = new IiasIndexResponse();
         List<Iia> filteredIiaList = em.createNamedQuery(Iia.findAll).getResultList();
         		

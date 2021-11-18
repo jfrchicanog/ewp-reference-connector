@@ -1,15 +1,5 @@
 package eu.erasmuswithoutpaper.discovery.boundary;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import eu.erasmuswithoutpaper.api.architecture.MultilineString;
-import eu.erasmuswithoutpaper.api.architecture.StringWithOptionalLang;
-import eu.erasmuswithoutpaper.api.discovery.Manifest;
-import eu.erasmuswithoutpaper.api.registry.ApisImplemented;
-import eu.erasmuswithoutpaper.api.registry.Hei;
-import eu.erasmuswithoutpaper.api.registry.OtherHeiId;
-import eu.erasmuswithoutpaper.common.control.EwpKeyStore;
-import eu.erasmuswithoutpaper.common.control.GlobalProperties;
-import eu.erasmuswithoutpaper.organization.entity.Institution;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -18,7 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -28,9 +20,20 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import eu.erasmuswithoutpaper.PublicAPI;
+import eu.erasmuswithoutpaper.api.architecture.MultilineString;
+import eu.erasmuswithoutpaper.api.architecture.StringWithOptionalLang;
+import eu.erasmuswithoutpaper.api.discovery.Manifest;
+import eu.erasmuswithoutpaper.api.registry.ApisImplemented;
+import eu.erasmuswithoutpaper.api.registry.Hei;
+import eu.erasmuswithoutpaper.api.registry.OtherHeiId;
 import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
+import eu.erasmuswithoutpaper.common.control.EwpKeyStore;
+import eu.erasmuswithoutpaper.common.control.GlobalProperties;
+import eu.erasmuswithoutpaper.organization.entity.Institution;
 
 @Stateless
 @Path("")
@@ -48,7 +51,7 @@ public class ManifestResource {
     EwpKeyStore keystoreController;
 
     @Inject
-    @Any
+    @PublicAPI
     Instance<ManifestEntryStrategy> manifestEntries;
 
     @Context

@@ -33,4 +33,14 @@ public class PersonLoader extends AbstractStartupLoader {
         Person person = JsonHelper.mapToObject(Person.class, personJson);
         em.persist(person);
     }
+
+	@Override
+	public void createDemoDataUma() throws IOException {
+		//UMA
+        persistPerson("{'personId':'9001013344','firstNames':'Lilian','lastName':'Barranco','birthDate':'1988-10-12','gender':'FEMALE','countryCode':'ES'}");
+        persistPerson("{'personId':'9011046365','firstNames':'Virginia','lastName':'Escriche','birthDate':'1987-12-14','gender':'MALE'}");
+        persistPerson("{'personId':'8704122398','firstNames':'Teresa','lastName':'Rojas','birthDate':'1990-03-22','gender':'MALE','countryCode':'ES'}");
+        persistPerson("{'personId':'8906093845','firstNames':'Ricardo','lastName':'del Milagro','birthDate':'1986-02-18','gender':'FEMALE'}");
+        persistPerson("{'personId':'9107146991','firstNames':'Margarita','lastName':'Delgado','birthDate':'1991-04-12','gender':'FEMALE','countryCode':'ES'}");
+	}
 }

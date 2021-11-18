@@ -44,6 +44,17 @@ public class IiaLoader extends AbstractStartupLoader {
         return conditions;
     }
     
+    private List<CooperationCondition> getCooperationConditionsUma() throws IOException {
+        String durationIkeaToUma = "{'unit':'Weeks','number':'20'}";
+        String durationUmaToIkea = "{'unit':'Days','number':'11'}";
+        String mobilityNumber_average_3 = "{'variant':'Average','number':'3'}";
+        String mobilityNumber_total_8 = "{'variant':'Total','number':'8'}";
+        List<CooperationCondition> conditions = new ArrayList<>();
+        conditions.add(getCooperationCondition("{'startDate':'2016-01-01','endDate':'2016-06-29','mobilityNumber':" + mobilityNumber_average_3 + ",'duration':" + durationIkeaToUma + ",'eqfLevel':'8'}", getMobilityType("Student", "Studies"), getIkeaIiaPartner(), getUmaIiaPartner()));
+        conditions.add(getCooperationCondition("{'startDate':'2016-03-15','endDate':'2016-04-02','mobilityNumber':" + mobilityNumber_total_8 + ",'duration':" + durationUmaToIkea + ",'eqfLevel':'5'}", getMobilityType("Staff", "Training"), getUmaIiaPartner(), getIkeaIiaPartner()));
+        return conditions;
+    }
+    
     private CooperationCondition getCooperationCondition(String cooperationConditionJson, MobilityType mobilityType, IiaPartner sendingPartner, IiaPartner receivingPartner) throws IOException {
         CooperationCondition cooperationCondition = JsonHelper.mapToObject(CooperationCondition.class, cooperationConditionJson);
         cooperationCondition.setSendingPartner(sendingPartner);
@@ -69,7 +80,12 @@ public class IiaLoader extends AbstractStartupLoader {
     
     private IiaPartner getPomodoroIiaPartner() throws IOException {
         String ouId = InstitutionLoader.POMODORO_OU1_ID;
-        return getIiaPartner("{'institutionId':'pomodoro.university.it','organizationUnitId':'" + ouId + "'}", getContacts("'pomodoro.university.it", ouId));
+        return getIiaPartner("{'institutionId':'pomodoro.university.it','organizationUnitId':'" + ouId + "'}", getContacts("pomodoro.university.it", ouId));
+    }
+    
+    private IiaPartner getUmaIiaPartner() throws IOException {
+        String ouId = InstitutionLoader.UMA_OU1_ID;
+        return getIiaPartner("{'institutionId':'uma.es','organizationUnitId':'" + ouId + "'}", getContacts("uma.es", ouId));
     }
 
     private IiaPartner getIiaPartner(String iiaPartnerJson, List<Contact> contacts) throws IOException {
@@ -94,4 +110,9 @@ public class IiaLoader extends AbstractStartupLoader {
         
         return organizationUnitList.get(0).getId();
     }
+
+	@Override
+	public void createDemoDataUma() throws IOException {
+		persistIia("{'iiaCode':'IK-UMA-01','startDate':'2016-01-01','endDate':'2017-01-01'}", getCooperationConditionsUma());
+	}
 }

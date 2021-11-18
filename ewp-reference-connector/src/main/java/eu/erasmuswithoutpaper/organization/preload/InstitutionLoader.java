@@ -10,6 +10,8 @@ public class InstitutionLoader extends AbstractStartupLoader {
     public static final String IKEA_OU1_ID = "8965F285-E763-IKEA-8163-C52C8B654035";
     public static final String IKEA_OU2_ID = "8965F285-E763-IKEA-8163-C52C8B654036";
     public static final String POMODORO_OU1_ID = "8965F285-E763-POMO-8163-C52C8B654030";
+    public static final String UMA_OU1_ID = "8965F285-E763-IKEA-8163-C52C8B654037";
+    public static final String UMA_OU2_ID = "8965F285-E763-IKEA-8163-C52C8B654038";
     
     @Override
     public void createDemoDataIkea() throws IOException {
@@ -58,4 +60,25 @@ public class InstitutionLoader extends AbstractStartupLoader {
         Institution institution = JsonHelper.mapToObject(Institution.class, institutionJson);
         em.persist(institution);
     }
+
+	@Override
+	public void createDemoDataUma() throws IOException {
+		String otherIds = "[{'idType':'erasmus','idValue':'E MALAGA01'},{'idType':'local','idValue':'uma.es'}]";
+        String names = "[{'text':'Universidad de Málaga','lang':'es'},{'text':'University of Malaga','lang':'en'}]";
+        String streetAddressForUma = "{'addressLine':['Avenida Cervantes, 2'],'postalCode':'29071','locality':'Málaga','country':'ES'}";
+        String websiteUrlForUma = "[{'text':'https://www.uma.es','lang':'es'}]";
+        String organizationUnit1Names = "[{'text':'Facultad de Psicología','lang':'es'},{'text':'School of Psichology','lang':'en'}]";
+        String streetAddressOrgUnit1 = "{'addressLine':['Bulevar Louis Pasteur, 25'],'buildingNumber':'4','floor':'1','postalCode':'29071','locality':'Málaga','country':'ES'}";
+        String websiteUrlForOrgUnit1 = "[{'text':'https://www.uma.es/facultad-de-psicologia/','lang':'es'}]";
+        String organizationUnit2Names = "[{'text':'Escuela Técnica Superior de Ingeniería Informática','lang':'es'},{'text':'School of Computer Science','lang':'en'}]";
+        String streetAddressOrgUnit2 = "{'addressLine':['Bulevar Louis Pasteur, 35'],'floor':'2','postalCode':'29071','locality':'Málaga','country':'ES'}";
+        String otherIdsOrgUnit1 = "[{'idType':'local','idValue':'psicologia'}]";
+        String otherIdsOrgUnit2 = "[{'idType':'local','idValue':'informatica'}]";
+        String factSheetOrgUnit1 = "{'url':[{'text':'https://www.uma.es/facultad-de-psicologia/info/28260/programas-de-movilidad/','lang':'es'}],'contactDetails':{'streetAddress':" + streetAddressOrgUnit1 + ",'url':" + websiteUrlForOrgUnit1 + ",'phoneNumber':{'e164':'+34 952131495'}}}";
+        String factSheetOrgUnit2 = "{'url':[{'text':'https://www.uma.es/etsi-informatica/info/5491/movilidad-estudiantil/','lang':'es'}],'contactDetails':{'streetAddress':" + streetAddressOrgUnit2 + ",'phoneNumber':{'e164':'+34 952131495'}}}";
+        String organizationUnits="[{'id':'" + UMA_OU1_ID + "','organizationUnitCode':'psicologia.uma.es','otherId':" + otherIdsOrgUnit1 + ",'name':" + organizationUnit1Names + ",'factSheet':" + factSheetOrgUnit1 + "},{'id':'" + UMA_OU2_ID + "','organizationUnitCode':'informatica.uma.es','otherId':" + otherIdsOrgUnit2 + ",'name':" + organizationUnit2Names + ",'factSheet':" + factSheetOrgUnit2 + "}]";
+        String factSheetInstitution = "{'url':[{'text':'https://www.uma.es/relaciones-internacionales/cms/menu/erasmus/incoming-students/student-guides/?set_language=en','lang':'en'}],'contactDetails':{'streetAddress':" + streetAddressForUma + ",'url':" + websiteUrlForUma + ",'email':['info@uma.es'],'mailingAddress':{'postOfficeBox':'Avenida Cervantes, 2'},'phoneNumber':{'e164':'+34 952131000'},'faxNumber':{'e164':'+34 952131000'}}}";
+        String courseCatalog = "[{'text':'https://www.uma.es/relaciones-internacionales/cms/menu/erasmus/incoming-students/at-the-faculty/courses-schedules-and-calendars/?set_language=en','lang':'en'}]";
+        persistInstitution("{'institutionId':'uma.es','otherId':" + otherIds + ",'name':" + names + ",'organizationUnits':" + organizationUnits + ",'factSheet':" + factSheetInstitution + ",'courseCatalog':" + courseCatalog + "}");	
+	}
 }

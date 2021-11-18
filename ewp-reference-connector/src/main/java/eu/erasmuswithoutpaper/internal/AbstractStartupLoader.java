@@ -1,6 +1,7 @@
 package eu.erasmuswithoutpaper.internal;
 
 import java.io.IOException;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -10,6 +11,7 @@ public abstract class AbstractStartupLoader {
 
     public abstract void createDemoDataIkea() throws IOException;
     public abstract void createDemoDataPomodoro() throws IOException;
+    public abstract void createDemoDataUma() throws IOException;
    
     /**
      * Override injected Entity Manager.
