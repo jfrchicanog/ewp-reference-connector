@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.BiPredicate;
@@ -71,7 +72,7 @@ public class IiaResource {
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response indexGet(@QueryParam("hei_id") String heiId, @QueryParam("partner_hei_id") String partner_hei_id, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id, @QueryParam("modified_since") String modified_since) {
+    public javax.ws.rs.core.Response indexGet(@QueryParam("hei_id")  List<String> heiId, @QueryParam("partner_hei_id") String partner_hei_id, @QueryParam("receiving_academic_year_id") List<String> receiving_academic_year_id, @QueryParam("modified_since") List<String> modified_since) {
         return iiaIndex(heiId, partner_hei_id, receiving_academic_year_id, modified_since);
     }
     
@@ -79,7 +80,7 @@ public class IiaResource {
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response indexPost(@FormParam("hei_id") String heiId,@FormParam("partner_hei_id") String partner_hei_id, @FormParam("receiving_academic_year_id") String receiving_academic_year_id,  @QueryParam("modified_since") String modified_since) {
+    public javax.ws.rs.core.Response indexPost(@FormParam("hei_id") List<String> heiId,@FormParam("partner_hei_id") String partner_hei_id, @FormParam("receiving_academic_year_id") List<String> receiving_academic_year_id,  @QueryParam("modified_since") List<String> modified_since) {
         return iiaIndex(heiId, partner_hei_id, receiving_academic_year_id, modified_since);
     }
     
@@ -231,17 +232,13 @@ public class IiaResource {
         return !institutionList.isEmpty();
     }
 
-    private javax.ws.rs.core.Response iiaIndex(String heiId, String partner_hei_id, String receiving_academic_year_id, String modified_since) {
-        if (!isInstitutionInEwp(heiId)) {
-            throw new EwpWebApplicationException("Not a valid hei_id.", Response.Status.BAD_REQUEST);
-        }
-        
-        if (partner_hei_id != null) {
-        	if (partner_hei_id.equals(heiId)) {
-        		throw new EwpWebApplicationException("Not a valid partner_hei_id, it must be different from hei_id.", Response.Status.BAD_REQUEST);
-        	}
-        }
-        
+    private javax.ws.rs.core.Response iiaIndex( List<String> heiIds, String partner_hei_id, List<String> receiving_academic_year_id, List<String> modified_since) {
+       
+    	if(modified_since != null && modified_since.size() > 1) {
+    		throw new EwpWebApplicationException("Not allow more than one value of modified_since", Response.Status.BAD_REQUEST);
+    	}
+    	
+    	
         Collection<String> heisCoveredByCertificate;
         if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
             heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
@@ -249,36 +246,99 @@ public class IiaResource {
             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
         }
         
-        if (!heisCoveredByCertificate.contains(heiId)) {
-        	throw new EwpWebApplicationException("The client signature does not cover the hei_id .", Response.Status.BAD_REQUEST);
+        boolean validationError = false;
+        Iterator<String> iteratorHeids = heiIds.iterator();
+        while(iteratorHeids.hasNext() && !validationError) {
+        	String heiId = iteratorHeids.next();
+        	
+        	if (!isInstitutionInEwp(heiId)) {
+        		validationError = true;
+        		
+                throw new EwpWebApplicationException("Not a valid hei_id.", Response.Status.BAD_REQUEST);
+            }
+        	
+        	if (partner_hei_id != null) {
+            	if (partner_hei_id.equals(heiId)) {
+            		validationError = true;
+            		
+            		throw new EwpWebApplicationException("Not a valid partner_hei_id, it must be different from hei_id.", Response.Status.BAD_REQUEST);
+            	}
+            }
+        	
+        	if (!heisCoveredByCertificate.contains(heiId)) {
+        		validationError = true;
+        		
+            	throw new EwpWebApplicationException("The client signature does not cover the hei_id .", Response.Status.BAD_REQUEST);
+            }
         }
-        
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
-        Calendar calendarModifySince = Calendar.getInstance();
-        if (modified_since != null) {
-            try {
-    			calendarModifySince.setTime(sdf.parse(modified_since));
-    		} catch (ParseException e) {
-    			throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
-    		}
+       
+        //receiving_academic_year_id
+        if (receiving_academic_year_id != null) {
+        	boolean match =  true;
+        	Iterator<String> iterator = receiving_academic_year_id.iterator();
+        	while (iterator.hasNext() && match) {
+				String yearId = (String) iterator.next();
+				
+				if (!yearId.matches("\\d{4}\\\\d{4}")) {
+            		match = false;
+            	}
+			}
+        	
+        	if (!match) {
+        		throw new EwpWebApplicationException("receiving_academic_year_id is not in the correct format", Response.Status.BAD_REQUEST);
+        	}
         }
         
 		IiasIndexResponse response = new IiasIndexResponse();
         List<Iia> filteredIiaList = em.createNamedQuery(Iia.findAll).getResultList();
         		
         if (!filteredIiaList.isEmpty()) {
-        	filteredIiaList = filteredIiaList.stream().filter(iia -> equalHeiId.test(iia, heiId)).collect(Collectors.toList());
+        	
+        	List<Iia> tempIiaList = new ArrayList<>();
+        	for (String heiId : heiIds) {
+        		tempIiaList.addAll(filteredIiaList.stream().filter(iia -> equalHeiId.test(iia, heiId)).collect(Collectors.toList()));
+			}
+        	
+        	filteredIiaList = new ArrayList<Iia>(tempIiaList);
         	
         	if (partner_hei_id != null) {
     			filteredIiaList = filteredIiaList.stream().filter(iia -> equalPartnerHeiId.test(iia, partner_hei_id)).collect(Collectors.toList());
     		}
     		
+        	List<Iia> filteredIiaByReceivingAcademic = new ArrayList<>();
     		if (receiving_academic_year_id != null) {
-    			filteredIiaList = filteredIiaList.stream().filter(iia -> anyMatchReceivingAcademicYear.test(iia, receiving_academic_year_id)).collect(Collectors.toList());
+    			
+    			for(String year_id : receiving_academic_year_id) {
+    				List<Iia> filterefList = filteredIiaList.stream().filter(iia -> anyMatchReceivingAcademicYear.test(iia, year_id)).collect(Collectors.toList());
+    				
+    				filteredIiaByReceivingAcademic.addAll(filterefList);
+    			}
+    			
+    			filteredIiaList = new ArrayList<Iia>(filteredIiaByReceivingAcademic);
     		}
     		
     		if (modified_since != null) {
-    			filteredIiaList = filteredIiaList.stream().filter(iia -> compareModifiedSince.test(iia, calendarModifySince)).collect(Collectors.toList());
+    			
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
+	   			Calendar calendarModifySince = Calendar.getInstance();
+		        if (modified_since != null) { 
+		        	
+		        	List<Iia> tempFilteredModifiedSince = new ArrayList<>();
+		        	Iterator<String> modifiedSinceIter = modified_since.iterator();
+		        	boolean match = true;
+		        	while (modifiedSinceIter.hasNext() && match) {
+						String modifiedValue = modifiedSinceIter.next();
+						
+						try {
+				    			calendarModifySince.setTime(sdf.parse(modifiedValue));
+				    			
+				    			tempFilteredModifiedSince.addAll(filteredIiaList.stream().filter(iia -> compareModifiedSince.test(iia, calendarModifySince)).collect(Collectors.toList()));
+				    		} catch (ParseException e) {
+				    			throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
+				    		}
+					}
+		        	filteredIiaList = new ArrayList<>(tempFilteredModifiedSince);
+		        }
     		}
         }
         
@@ -321,7 +381,7 @@ public class IiaResource {
         	
         	List<CooperationCondition> cConditions = iia.getCooperationConditions();
         	
-        	Stream<CooperationCondition> stream = cConditions.stream().filter(c -> c.getReceivingAcademicYearId().stream().anyMatch(yearId -> yearId.equals(receiving_academic_year_id)));
+    		Stream<CooperationCondition> stream = cConditions.stream().filter(c -> c.getReceivingAcademicYearId().stream().anyMatch(yearId -> yearId.equals(receiving_academic_year_id)));
         	 
             return !stream.collect(Collectors.toList()).isEmpty();
         }
