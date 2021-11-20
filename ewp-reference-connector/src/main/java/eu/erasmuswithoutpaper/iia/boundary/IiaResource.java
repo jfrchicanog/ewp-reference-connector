@@ -234,10 +234,11 @@ public class IiaResource {
 
     private javax.ws.rs.core.Response iiaIndex( List<String> heiIds, String partner_hei_id, List<String> receiving_academic_year_id, List<String> modified_since) {
        
+    	System.out.println("Modified since tiene cantidad de elementos " + modified_since.size());
     	if(modified_since != null && modified_since.size() > 1) {
+    		System.out.println("entro");
     		throw new EwpWebApplicationException("Not allow more than one value of modified_since", Response.Status.BAD_REQUEST);
     	}
-    	
     	
         Collection<String> heisCoveredByCertificate;
         if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
@@ -276,10 +277,12 @@ public class IiaResource {
         if (receiving_academic_year_id != null) {
         	boolean match =  true;
         	Iterator<String> iterator = receiving_academic_year_id.iterator();
+        	System.out.println("coleccion de annos " + receiving_academic_year_id);
         	while (iterator.hasNext() && match) {
 				String yearId = (String) iterator.next();
+				System.out.println("formato del anno " + yearId);
 				
-				if (!yearId.matches("\\d{4}\\\\d{4}")) {
+				if (!yearId.matches("\\d{4}\\/\\d{4}")) {
             		match = false;
             	}
 			}
