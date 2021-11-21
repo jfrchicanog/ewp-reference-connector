@@ -80,7 +80,7 @@ public class IiaResource {
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response indexPost(@FormParam("hei_id") List<String> heiId,@FormParam("partner_hei_id") String partner_hei_id, @FormParam("receiving_academic_year_id") List<String> receiving_academic_year_id,  @QueryParam("modified_since") List<String> modified_since) {
+    public javax.ws.rs.core.Response indexPost(@FormParam("hei_id") List<String> heiId,@FormParam("partner_hei_id") String partner_hei_id, @FormParam("receiving_academic_year_id") List<String> receiving_academic_year_id,  @FormParam("modified_since") List<String> modified_since) {
         return iiaIndex(heiId, partner_hei_id, receiving_academic_year_id, modified_since);
     }
     
