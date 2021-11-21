@@ -282,10 +282,11 @@ public class HttpSignature {
             final Verifier verifier = new Verifier(publicKey, signature);
 
             logger.info("Verifying signature, fingerprint: {}", fingerprint);
-
-            String queryParams = requestContext.getUriInfo().getRequestUri().getQuery();
+            
+            String queryParams = requestContext.getUriInfo().getRequestUri().getRawQuery();
             String requestString = requestContext.getUriInfo().getRequestUri().getRawPath() + 
                     (queryParams == null ? "" : "?" + queryParams);
+            logger.info("Signing string: "+verifier.createSigningString(requestContext.getMethod().toLowerCase(), requestString, headers));
             boolean verifies = verifier.verify(requestContext.getMethod().toLowerCase(), requestString, headers);
 
             if (!verifies) {
