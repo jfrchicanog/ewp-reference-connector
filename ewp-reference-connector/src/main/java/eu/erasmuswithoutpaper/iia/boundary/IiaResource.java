@@ -190,8 +190,7 @@ public class IiaResource {
 	}
     
     private javax.ws.rs.core.Response iiaGet(String heiId, List<String> iiaIdList, boolean byLocalCodes) {
-        
-        IiasGetResponse response = new IiasGetResponse();
+    	IiasGetResponse response = new IiasGetResponse();
         
         // TODO: Should IIA hold hei/institution id (if not hei_id will not be used, only use iia id)
         Predicate<Iia> condition = new Predicate<Iia>()

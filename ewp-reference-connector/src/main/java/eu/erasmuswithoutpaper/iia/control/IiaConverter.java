@@ -116,7 +116,6 @@ public class IiaConverter {
 					| IOException | ParserConfigurationException | TransformerException | JAXBException e) {
 				logger.error("Can't calculate sha256", e);
 			}
-            
             return converted;
         }).collect(Collectors.toList());
     }
@@ -196,7 +195,9 @@ public class IiaConverter {
         converted.setIiaId(iia.getId());//TODO Let me know if it is ok
         
         try {
-			converted.setSigningDate(ConverterHelper.convertToXmlGregorianCalendar(iia.getSigningDate()));
+        	if (iia.getSigningDate() != null) {
+        		converted.setSigningDate(ConverterHelper.convertToXmlGregorianCalendar(iia.getSigningDate()));
+        	}
 		} catch (DatatypeConfigurationException e) {
 			 logger.error("Can't convert date", e);
 		}//TODO Iia has two other properties startDate, endDate
