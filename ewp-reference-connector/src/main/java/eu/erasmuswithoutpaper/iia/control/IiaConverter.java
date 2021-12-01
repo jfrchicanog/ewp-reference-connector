@@ -49,7 +49,7 @@ import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
 
 public class IiaConverter {
 	private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
-	
+		 
     @PersistenceContext(unitName = "connector")
     EntityManager em;
 
@@ -196,6 +196,7 @@ public class IiaConverter {
         
         try {
         	if (iia.getSigningDate() != null) {
+        		System.out.println(iia.getSigningDate());
         		converted.setSigningDate(ConverterHelper.convertToXmlGregorianCalendar(iia.getSigningDate()));
         	}
 		} catch (DatatypeConfigurationException e) {
@@ -210,7 +211,7 @@ public class IiaConverter {
         
         converted.setSigningContact(contact);
         return converted;
-    }
+    }      
 
     private StaffTeacherMobilitySpec convertToStaffTeacherMobilitySpec(CooperationCondition cc) {
         StaffTeacherMobilitySpec conv = new StaffTeacherMobilitySpec();
