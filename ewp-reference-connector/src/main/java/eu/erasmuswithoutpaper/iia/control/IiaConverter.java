@@ -16,9 +16,11 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -108,7 +110,10 @@ public class IiaConverter {
             	
             	cc = removeContactInfo(cc);
             	
-            	jaxbMarshaller.marshal(cc, sw);
+            	QName qName = new QName("http//www.erasmuswithoupaper.com", "cooperation_conditions");
+            	JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
+            	
+            	jaxbMarshaller.marshal(root, sw);
             	String xmlString = sw.toString();
             	
 				converted.setConditionsHash(HashCalculationUtility.calculateSha256(xmlString));
@@ -203,13 +208,16 @@ public class IiaConverter {
 			 logger.error("Can't convert date", e);
 		}//TODO Iia has two other properties startDate, endDate
         
-        Contact contact = new Contact();
+        if (partner.getSigningContact() != null) {
+        	Contact contact = new Contact();
+        	
+        	contact.setPersonGender(partner.getSigningContact().getPerson().getGender().value());
+        	contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(partner.getSigningContact().getContactDetails().getMailingAddress()));
+        	contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(partner.getSigningContact().getContactDetails().getStreetAddress()));
+            
+            converted.setSigningContact(contact);
+        }
     	
-    	contact.setPersonGender(partner.getSigningContact().getPerson().getGender().value());
-    	contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(partner.getSigningContact().getContactDetails().getMailingAddress()));
-    	contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(partner.getSigningContact().getContactDetails().getStreetAddress()));
-        
-        converted.setSigningContact(contact);
         return converted;
     }      
 
@@ -278,8 +286,12 @@ public class IiaConverter {
         	Contact contact = new Contact();
         	
         	contact.setPersonGender(recContact.getPerson().getGender().value());
-        	contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getMailingAddress()));
-        	contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getStreetAddress()));
+        	
+        	if (recContact.getContactDetails() != null) {
+        		contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getMailingAddress()));
+            	contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getStreetAddress()));
+        	}
+        	
         	return contact;
         }).collect(Collectors.toList());
         
@@ -289,8 +301,12 @@ public class IiaConverter {
         	Contact contact = new Contact();
         	
         	contact.setPersonGender(sendContact.getPerson().getGender().value());
-        	contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getMailingAddress()));
-        	contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getStreetAddress()));
+        	
+        	if (sendContact.getContactDetails() != null) {
+        		contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getMailingAddress()));
+            	contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getStreetAddress()));
+        	}
+        	
         	return contact;
         }).collect(Collectors.toList());
         
@@ -299,6 +315,7 @@ public class IiaConverter {
         if (cc.getSendingPartner().getOrganizationUnitId() != null) {
             conv.setSendingOunitId(cc.getSendingPartner().getOrganizationUnitId());
         }
+        
         conv.setMobilitiesPerYear(BigInteger.valueOf(cc.getMobilityNumber().getNumber()));
         conv.setReceivingHeiId(cc.getReceivingPartner().getInstitutionId());
         conv.setSendingHeiId(cc.getSendingPartner().getInstitutionId());
