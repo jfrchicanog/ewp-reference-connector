@@ -110,7 +110,7 @@ public class IiaConverter {
             	
             	cc = removeContactInfo(cc);
             	
-            	QName qName = new QName("http//www.erasmuswithoupaper.com", "cooperation_conditions");
+            	QName qName = new QName("cooperation_conditions");
             	JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
             	
             	jaxbMarshaller.marshal(root, sw);
