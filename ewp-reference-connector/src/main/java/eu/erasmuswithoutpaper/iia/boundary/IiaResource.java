@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -333,14 +334,11 @@ public class IiaResource {
         	filteredIiaList = new ArrayList<Iia>(tempIiaList);
         	
         	if (partner_hei_id != null) {
-        		System.out.println("listado antes: " + filteredIiaList.size());
     			filteredIiaList = filteredIiaList.stream().filter(iia -> equalPartnerHeiId.test(iia, partner_hei_id)).collect(Collectors.toList());
-    			System.out.println("listado luego: " + filteredIiaList.size());
         	}
     		
         	List<Iia> filteredIiaByReceivingAcademic = new ArrayList<>();
     		if (receiving_academic_year_id != null) {
-    			System.out.println("valor del academic year id " + receiving_academic_year_id);
     			
     			for(String year_id : receiving_academic_year_id) {
     				List<Iia> filterefList = filteredIiaList.stream().filter(iia -> anyMatchReceivingAcademicYear.test(iia, year_id)).collect(Collectors.toList());
@@ -349,29 +347,24 @@ public class IiaResource {
     			}
     			
     			filteredIiaList = new ArrayList<Iia>(filteredIiaByReceivingAcademic);
-    			System.out.println("listado luego de filtrado el academic year: " + filteredIiaList.size());
     		}
     		
     		if (modified_since != null) {
     			
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
 	   			Calendar calendarModifySince = Calendar.getInstance();
 		        if (modified_since != null) { 
 		        	
 		        	List<Iia> tempFilteredModifiedSince = new ArrayList<>();
 		        	Iterator<String> modifiedSinceIter = modified_since.iterator();
+		        	
 		        	boolean match = true;
 		        	while (modifiedSinceIter.hasNext() && match) {
 						String modifiedValue = modifiedSinceIter.next();
-						System.out.println("Un valor de fecha: " + modifiedValue);
 						
-						try {
-				    			calendarModifySince.setTime(sdf.parse(modifiedValue));
-				    			
-				    			tempFilteredModifiedSince.addAll(filteredIiaList.stream().filter(iia -> compareModifiedSince.test(iia, calendarModifySince)).collect(Collectors.toList()));
-				    		} catch (ParseException e) {
-				    			throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
-				    		}
+						Date date = javax.xml.bind.DatatypeConverter.parseDateTime(modifiedValue).getTime();
+						calendarModifySince.setTime(date);
+						
+						tempFilteredModifiedSince.addAll(filteredIiaList.stream().filter(iia -> compareModifiedSince.test(iia, calendarModifySince)).collect(Collectors.toList()));
 					}
 		        	filteredIiaList = new ArrayList<>(tempFilteredModifiedSince);
 		        }
@@ -379,7 +372,6 @@ public class IiaResource {
         }
         
         if (!filteredIiaList.isEmpty()) {
-        	System.out.println("No esta vacia");
     		response.getIiaId().addAll(iiaIds(filteredIiaList, heisCoveredByCertificate));
     	}
         
