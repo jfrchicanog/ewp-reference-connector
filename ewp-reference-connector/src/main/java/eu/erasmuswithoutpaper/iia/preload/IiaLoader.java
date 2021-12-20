@@ -60,6 +60,9 @@ public class IiaLoader extends AbstractStartupLoader {
         cooperationCondition.setSendingPartner(sendingPartner);
         cooperationCondition.setReceivingPartner(receivingPartner);
         cooperationCondition.setMobilityType(mobilityType);
+        
+        cooperationCondition.setReceivingAcademicYearId(new ArrayList<String>());
+        cooperationCondition.getReceivingAcademicYearId().add("2016/2017");
         return cooperationCondition;
     }
     

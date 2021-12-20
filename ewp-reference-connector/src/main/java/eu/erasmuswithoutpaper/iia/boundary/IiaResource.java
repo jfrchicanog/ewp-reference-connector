@@ -88,7 +88,7 @@ public class IiaResource {
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response getGet(@QueryParam("hei_id") String heiId, @QueryParam("iia_id") List<String> iiaIdList, @QueryParam("iia_code") List<String> iiaCodeList) {
+    public javax.ws.rs.core.Response getGet(@QueryParam("hei_id") List<String> heiId, @QueryParam("iia_id") List<String> iiaIdList, @QueryParam("iia_code") List<String> iiaCodeList) {
         if ( (iiaCodeList != null && !iiaCodeList.isEmpty()) && (iiaIdList != null && !iiaIdList.isEmpty()) ) {
         	throw new EwpWebApplicationException("Providing both iia_code and iia_id is not correct", Response.Status.BAD_REQUEST);
         }
@@ -105,6 +105,14 @@ public class IiaResource {
             throw new EwpWebApplicationException("Max number of IIA codes has exceeded.", Response.Status.BAD_REQUEST);
         }
         
+        if(heiId == null || heiId.isEmpty()) {
+    		throw new EwpWebApplicationException("Missing argumanets, hei_id is required", Response.Status.BAD_REQUEST);
+    	}
+        
+        if(heiId.size() > 1) {
+      		throw new EwpWebApplicationException("Not allow more than one value of hei_id", Response.Status.BAD_REQUEST);
+      	}
+        
         List<String> iiaIdentifiers = new ArrayList<>();
         
         //Flag to define the search criteria. It is two possible way for identifying an IIA, by identifiers OR local IIA codes.
@@ -116,7 +124,9 @@ public class IiaResource {
         	iiaIdentifiers.addAll(iiaCodeList);
         	byLocalCodes = true;
         }
-		return iiaGet(heiId, iiaIdentifiers, byLocalCodes);
+        
+        String hei_Id = heiId.get(0);
+		return iiaGet(hei_Id, iiaIdentifiers, byLocalCodes);
         	
     }
     
@@ -124,13 +134,29 @@ public class IiaResource {
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response getPost(@FormParam("hei_id") String heiId, @FormParam("iia_id") List<String> iiaIdList, @FormParam("iia_code") List<String> iiaCodeList) {
+    public javax.ws.rs.core.Response getPost(@FormParam("hei_id") List<String> heiId, @FormParam("iia_id") List<String> iiaIdList, @FormParam("iia_code") List<String> iiaCodeList) {
     	 if ( (iiaCodeList != null && !iiaCodeList.isEmpty()) && (iiaIdList != null && !iiaIdList.isEmpty()) ) {
          	throw new EwpWebApplicationException("Providing both iia_code and iia_id is not correct", Response.Status.BAD_REQUEST);
          }
          
          if ( (iiaCodeList == null || iiaCodeList.isEmpty()) && (iiaIdList == null || iiaIdList.isEmpty()) ) {
          	throw new EwpWebApplicationException("Missing argumanets, iia_code or iia_id is required", Response.Status.BAD_REQUEST);
+         }
+         
+         if(heiId == null || heiId.isEmpty()) {
+     		throw new EwpWebApplicationException("Missing argumanets, hei_id is required", Response.Status.BAD_REQUEST);
+     	}
+         
+        if(heiId.size() > 1) {
+      		throw new EwpWebApplicationException("Not allow more than one value of hei_id", Response.Status.BAD_REQUEST);
+      	}
+         
+         if (iiaIdList.size() > properties.getMaxIiaIds()) {
+             throw new EwpWebApplicationException("Max number of IIA ids has exceeded.", Response.Status.BAD_REQUEST);
+         }
+         
+         if (iiaCodeList.size() > properties.getMaxIiaCodes()) {
+             throw new EwpWebApplicationException("Max number of IIA codes has exceeded.", Response.Status.BAD_REQUEST);
          }
          
          List<String> iiaIdentifiers = new ArrayList<>();
@@ -144,7 +170,9 @@ public class IiaResource {
          	iiaIdentifiers = iiaCodeList;
          	byLocalCodes = true;
          }
- 		return iiaGet(heiId, iiaIdentifiers, byLocalCodes);
+         
+         String hei_Id = heiId.get(0);
+ 		 return iiaGet(hei_Id, iiaIdentifiers, byLocalCodes);
     }
 
     @POST
@@ -190,8 +218,13 @@ public class IiaResource {
 	}
     
     private javax.ws.rs.core.Response iiaGet(String heiId, List<String> iiaIdList, boolean byLocalCodes) {
+    	
+		if (!isInstitutionInEwp(heiId)) {
+            throw new EwpWebApplicationException("Not a valid hei_id.", Response.Status.BAD_REQUEST);
+        }
+    	
     	IiasGetResponse response = new IiasGetResponse();
-        
+    	
         // TODO: Should IIA hold hei/institution id (if not hei_id will not be used, only use iia id)
         Predicate<Iia> condition = new Predicate<Iia>()
         {
@@ -216,7 +249,7 @@ public class IiaResource {
         if (byLocalCodes) {
         	iiaList = iiaIdList.stream().map(iiaCode -> em.createNamedQuery(Iia.findByIiaCode,Iia.class).setParameter("iiaCode", iiaCode).getSingleResult()).filter(iia -> iia != null).filter(condition).collect(Collectors.toList());
         } else {
-        	iiaList = iiaIdList.stream().map(id -> em.find(Iia.class, id)).filter(iia -> iia != null).filter(condition).collect(Collectors.toList());
+    		iiaList = iiaIdList.stream().map(id -> em.find(Iia.class, id)).filter(iia -> iia != null).filter(iia -> condition.test(iia)).collect(Collectors.toList());
         }
         
         if (!iiaList.isEmpty()) {
@@ -233,9 +266,7 @@ public class IiaResource {
 
     private javax.ws.rs.core.Response iiaIndex( List<String> heiIds, String partner_hei_id, List<String> receiving_academic_year_id, List<String> modified_since) {
        
-    	System.out.println("Modified since tiene cantidad de elementos " + modified_since.size());
     	if(modified_since != null && modified_since.size() > 1) {
-    		System.out.println("entro");
     		throw new EwpWebApplicationException("Not allow more than one value of modified_since", Response.Status.BAD_REQUEST);
     	}
     	
@@ -276,10 +307,8 @@ public class IiaResource {
         if (receiving_academic_year_id != null) {
         	boolean match =  true;
         	Iterator<String> iterator = receiving_academic_year_id.iterator();
-        	System.out.println("coleccion de annos " + receiving_academic_year_id);
         	while (iterator.hasNext() && match) {
 				String yearId = (String) iterator.next();
-				System.out.println("formato del anno " + yearId);
 				
 				if (!yearId.matches("\\d{4}\\/\\d{4}")) {
             		match = false;
@@ -304,11 +333,14 @@ public class IiaResource {
         	filteredIiaList = new ArrayList<Iia>(tempIiaList);
         	
         	if (partner_hei_id != null) {
+        		System.out.println("listado antes: " + filteredIiaList.size());
     			filteredIiaList = filteredIiaList.stream().filter(iia -> equalPartnerHeiId.test(iia, partner_hei_id)).collect(Collectors.toList());
-    		}
+    			System.out.println("listado luego: " + filteredIiaList.size());
+        	}
     		
         	List<Iia> filteredIiaByReceivingAcademic = new ArrayList<>();
     		if (receiving_academic_year_id != null) {
+    			System.out.println("valor del academic year id " + receiving_academic_year_id);
     			
     			for(String year_id : receiving_academic_year_id) {
     				List<Iia> filterefList = filteredIiaList.stream().filter(iia -> anyMatchReceivingAcademicYear.test(iia, year_id)).collect(Collectors.toList());
@@ -317,6 +349,7 @@ public class IiaResource {
     			}
     			
     			filteredIiaList = new ArrayList<Iia>(filteredIiaByReceivingAcademic);
+    			System.out.println("listado luego de filtrado el academic year: " + filteredIiaList.size());
     		}
     		
     		if (modified_since != null) {
@@ -330,6 +363,7 @@ public class IiaResource {
 		        	boolean match = true;
 		        	while (modifiedSinceIter.hasNext() && match) {
 						String modifiedValue = modifiedSinceIter.next();
+						System.out.println("Un valor de fecha: " + modifiedValue);
 						
 						try {
 				    			calendarModifySince.setTime(sdf.parse(modifiedValue));
@@ -345,6 +379,7 @@ public class IiaResource {
         }
         
         if (!filteredIiaList.isEmpty()) {
+        	System.out.println("No esta vacia");
     		response.getIiaId().addAll(iiaIds(filteredIiaList, heisCoveredByCertificate));
     	}
         
