@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,6 +52,9 @@ import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 @Stateless
 @Path("iias")
 public class IiaResource {
+	
+	private static final Logger LOG = Logger.getLogger(IiaResource.class.getCanonicalName()); 
+	
     @PersistenceContext(unitName = "connector")
     EntityManager em;
     
@@ -288,6 +292,8 @@ public class IiaResource {
         } else {
             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
         }
+        
+        LOG.fine("Heis covered:"+heisCoveredByCertificate);
 
         boolean validationError = false;
         Iterator<String> iteratorHeids = heiIds.iterator();
@@ -335,6 +341,8 @@ public class IiaResource {
 		IiasIndexResponse response = new IiasIndexResponse();
         List<Iia> filteredIiaList = em.createNamedQuery(Iia.findAll).getResultList();
         		
+        LOG.fine("Filtered:"+filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
+        
         if (!filteredIiaList.isEmpty()) {
         	
         	List<Iia> tempIiaList = new ArrayList<>();
@@ -342,14 +350,18 @@ public class IiaResource {
         		tempIiaList.addAll(filteredIiaList.stream().filter(iia -> sendingHeiId.test(iia, heiId) || receivingHeiId.test(iia, heiId)).collect(Collectors.toList()));
 			}
         	
+        	LOG.fine("Filtered 2:"+tempIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
+        	
         	filteredIiaList = new ArrayList<Iia>(tempIiaList);
         	
         	if (partner_hei_id != null) {
     			filteredIiaList = filteredIiaList.stream().filter(iia -> receivingHeiId.test(iia, partner_hei_id) || sendingHeiId.test(iia, partner_hei_id)).collect(Collectors.toList());
         	}
+        	
+        	LOG.fine("Filtered 3:"+filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
     		
         	List<Iia> filteredIiaByReceivingAcademic = new ArrayList<>();
-    		if (receiving_academic_year_id != null) {
+    		if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
     			
     			for(String year_id : receiving_academic_year_id) {
     				List<Iia> filterefList = filteredIiaList.stream().filter(iia -> anyMatchReceivingAcademicYear.test(iia, year_id)).collect(Collectors.toList());
@@ -360,7 +372,9 @@ public class IiaResource {
     			filteredIiaList = new ArrayList<Iia>(filteredIiaByReceivingAcademic);
     		}
     		
-    		if (modified_since != null) {
+    		LOG.fine("Filtered 4:"+filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
+    		
+    		if (modified_since != null && !modified_since.isEmpty()) {
     			
 	   			Calendar calendarModifySince = Calendar.getInstance();
 		        if (modified_since != null) { 
@@ -380,10 +394,16 @@ public class IiaResource {
 		        	filteredIiaList = new ArrayList<>(tempFilteredModifiedSince);
 		        }
     		}
+    		
+    		LOG.fine("Filtered 5:"+filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
         }
         
+        LOG.fine("Filtered 6:"+filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
+        
         if (!filteredIiaList.isEmpty()) {
-    		response.getIiaId().addAll(iiaIds(filteredIiaList, heisCoveredByCertificate));
+    		List<String> iiaIds = iiaIds(filteredIiaList, heisCoveredByCertificate);
+    		LOG.fine("IIA IDs:"+iiaIds);
+			response.getIiaId().addAll(iiaIds);
     	}
         
         return javax.ws.rs.core.Response.ok(response).build();
