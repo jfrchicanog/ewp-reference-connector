@@ -248,9 +248,20 @@ public class IiaResource {
         
         List<Iia> iiaList = null;
         if (byLocalCodes) {
-        	iiaList = iiaIdList.stream().map(iiaCode -> em.createNamedQuery(Iia.findByIiaCode,Iia.class).setParameter("iiaCode", iiaCode).getSingleResult()).filter(iia -> iia != null).filter(condition).collect(Collectors.toList());
+        	iiaList = iiaIdList.stream()
+        			.flatMap(iiaCode -> em.createNamedQuery(Iia.findByIiaCode,Iia.class)
+        					.setParameter("iiaCode", iiaCode)
+        					.getResultList()
+        					.stream())
+        			.filter(iia -> iia != null)
+        			.filter(condition)
+        			.collect(Collectors.toList());
         } else {
-    		iiaList = iiaIdList.stream().map(id -> em.find(Iia.class, id)).filter(iia -> iia != null).filter(iia -> condition.test(iia)).collect(Collectors.toList());
+    		iiaList = iiaIdList.stream()
+    				.map(id -> em.find(Iia.class, id))
+    				.filter(iia -> iia != null)
+    				.filter(iia -> condition.test(iia))
+    				.collect(Collectors.toList());
         }
         
         if (!iiaList.isEmpty()) {
