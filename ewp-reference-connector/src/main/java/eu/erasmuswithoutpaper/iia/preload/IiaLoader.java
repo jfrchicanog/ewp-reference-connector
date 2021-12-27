@@ -19,7 +19,7 @@ public class IiaLoader extends AbstractStartupLoader {
 
     @Override
     public void createDemoDataIkea() throws IOException {
-        persistIia("{'iiaCode':'IK-POM-01','startDate':'2016-01-01','endDate':'2017-01-01'}", getCooperationConditions());
+        persistIia("{'iiaCode':'IK-POM-01','startDate':'2016-01-01','endDate':'2024-01-01'}", getCooperationConditions());
     }
     
     @Override
@@ -78,7 +78,7 @@ public class IiaLoader extends AbstractStartupLoader {
 
     private IiaPartner getIkeaIiaPartner() throws IOException {
         String ouId = InstitutionLoader.IKEA_OU1_ID;
-        return getIiaPartner("{'institutionId':'ikea.university.se','organizationUnitId':'" + ouId + "'}", getContacts("ikea.university.se", ouId));
+        return getIiaPartner("{'institutionId':'test_hei_id_1','organizationUnitId':'" + ouId + "'}", getContacts("ikea.university.se", ouId));
     }
     
     private IiaPartner getPomodoroIiaPartner() throws IOException {

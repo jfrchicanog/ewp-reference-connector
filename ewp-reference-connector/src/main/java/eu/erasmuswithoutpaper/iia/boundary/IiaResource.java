@@ -339,13 +339,13 @@ public class IiaResource {
         	
         	List<Iia> tempIiaList = new ArrayList<>();
         	for (String heiId : heiIds) {
-        		tempIiaList.addAll(filteredIiaList.stream().filter(iia -> equalHeiId.test(iia, heiId)).collect(Collectors.toList()));
+        		tempIiaList.addAll(filteredIiaList.stream().filter(iia -> sendingHeiId.test(iia, heiId) || receivingHeiId.test(iia, heiId)).collect(Collectors.toList()));
 			}
         	
         	filteredIiaList = new ArrayList<Iia>(tempIiaList);
         	
         	if (partner_hei_id != null) {
-    			filteredIiaList = filteredIiaList.stream().filter(iia -> equalPartnerHeiId.test(iia, partner_hei_id)).collect(Collectors.toList());
+    			filteredIiaList = filteredIiaList.stream().filter(iia -> receivingHeiId.test(iia, partner_hei_id) || sendingHeiId.test(iia, partner_hei_id)).collect(Collectors.toList());
         	}
     		
         	List<Iia> filteredIiaByReceivingAcademic = new ArrayList<>();
@@ -389,7 +389,7 @@ public class IiaResource {
         return javax.ws.rs.core.Response.ok(response).build();
     }
     
-    BiPredicate<Iia,String> equalHeiId = new BiPredicate<Iia,String>()
+    BiPredicate<Iia,String> sendingHeiId = new BiPredicate<Iia,String>()
     {
         @Override
         public boolean test(Iia iia, String heiId) {
@@ -402,7 +402,7 @@ public class IiaResource {
         }
     };
     
-    BiPredicate<Iia,String> equalPartnerHeiId = new BiPredicate<Iia,String>()
+    BiPredicate<Iia,String> receivingHeiId = new BiPredicate<Iia,String>()
 	{
 		@Override
 		public boolean test(Iia iia, String partner_hei_id) {
