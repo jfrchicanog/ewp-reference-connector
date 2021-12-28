@@ -78,7 +78,7 @@ public class IiaLoader extends AbstractStartupLoader {
 
     private IiaPartner getIkeaIiaPartner() throws IOException {
         String ouId = InstitutionLoader.IKEA_OU1_ID;
-        return getIiaPartner("{'institutionId':'test_hei_id_1','organizationUnitId':'" + ouId + "'}", getContacts("ikea.university.se", ouId));
+        return getIiaPartner("{'institutionId':'validator-hei01.developers.erasmuswithoutpaper.eu','organizationUnitId':'" + ouId + "'}", getContacts("ikea.university.se", ouId));
     }
     
     private IiaPartner getPomodoroIiaPartner() throws IOException {
