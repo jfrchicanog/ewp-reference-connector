@@ -19,7 +19,7 @@ public class IiaLoader extends AbstractStartupLoader {
 
     @Override
     public void createDemoDataIkea() throws IOException {
-        persistIia("{'iiaCode':'IK-POM-01','startDate':'2016-01-01','endDate':'2024-01-01'}", getCooperationConditions());
+        persistIia("{'iiaCode':'IK-POM-01','startDate':'2016-01-01','endDate':'2024-01-01','modifyDate':'2020-02-01'}", getCooperationConditions());
     }
     
     @Override
@@ -116,6 +116,6 @@ public class IiaLoader extends AbstractStartupLoader {
 
 	@Override
 	public void createDemoDataUma() throws IOException {
-		persistIia("{'iiaCode':'IK-UMA-01','startDate':'2016-01-01','endDate':'2017-01-01'}", getCooperationConditionsUma());
+		persistIia("{'iiaCode':'IK-UMA-01','startDate':'2016-01-01','endDate':'2024-01-01','modifyDate':'2020-02-01'}", getCooperationConditionsUma());
 	}
 }
