@@ -253,8 +253,16 @@ public class IiaResource {
     		iiaList = iiaIdList.stream().map(id -> em.find(Iia.class, id)).filter(iia -> iia != null).filter(iia -> condition.test(iia)).collect(Collectors.toList());
         }
         
+        Collection<String> heisCoveredByCertificate;
+        if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+        } else {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+        }
+        
         if (!iiaList.isEmpty()) {
-            response.getIia().addAll(iiaConverter.convertToIias(heiId, iiaList));
+        	List<Iia> iiaCertified = iiaCoveredByCertificate(iiaList, heisCoveredByCertificate);
+            response.getIia().addAll(iiaConverter.convertToIias(heiId, iiaCertified));
         }
         
         return javax.ws.rs.core.Response.ok(response).build();
@@ -372,7 +380,7 @@ public class IiaResource {
         }
         
         if (!filteredIiaList.isEmpty()) {
-    		response.getIiaId().addAll(iiaIds(filteredIiaList, heisCoveredByCertificate));
+    		response.getIiaId().addAll(iiaIdsCoveredByCertificate(filteredIiaList, heisCoveredByCertificate));
     	}
         
         return javax.ws.rs.core.Response.ok(response).build();
@@ -429,11 +437,19 @@ public class IiaResource {
 
     };
     
-    private List<String> iiaIds(List<Iia> iiaList, Collection<String> heisCoveredByCertificate) {
+    private List<String> iiaIdsCoveredByCertificate(List<Iia> iiaList, Collection<String> heisCoveredByCertificate) {
         return iiaList.stream().filter((iia) -> {
             return iia.getCooperationConditions().stream().anyMatch(
                     cond -> heisCoveredByCertificate.contains(cond.getReceivingPartner().getInstitutionId()) || 
                             heisCoveredByCertificate.contains(cond.getSendingPartner().getInstitutionId()));
         }).map(iia -> iia.getId()).collect(Collectors.toList());
+    }
+    
+    private List<Iia> iiaCoveredByCertificate(List<Iia> iiaList, Collection<String> heisCoveredByCertificate) {
+        return iiaList.stream().filter((iia) -> {
+            return iia.getCooperationConditions().stream().anyMatch(
+                    cond -> heisCoveredByCertificate.contains(cond.getReceivingPartner().getInstitutionId()) || 
+                            heisCoveredByCertificate.contains(cond.getSendingPartner().getInstitutionId()));
+        }).map(iia -> iia).collect(Collectors.toList());
     }
 }
