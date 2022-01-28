@@ -229,6 +229,7 @@ public class GuiIiaResource {
 
 	@POST
     @Path("iias-approve")
+	@InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response iiasApprove(@FormParam("hei_id") String heiId, @FormParam("iia_code") String iiaCode) {
     	if (heiId == null || heiId.isEmpty() || iiaCode == null || iiaCode.isEmpty()) {
