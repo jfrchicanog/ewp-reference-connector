@@ -51,9 +51,6 @@ import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
 
 public class IiaConverter {
 	private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
-		 
-    @PersistenceContext(unitName = "connector")
-    EntityManager em;
 
     public List<IiasGetResponse.Iia> convertToIias(String hei_id, List<Iia> iiaList) {
         return iiaList.stream().map((Iia iia) -> {
