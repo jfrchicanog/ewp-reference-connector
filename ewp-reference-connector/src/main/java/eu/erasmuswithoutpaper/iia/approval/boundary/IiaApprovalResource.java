@@ -47,6 +47,7 @@ import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
 import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
+import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 
 @Stateless
 @Path("iiasApproval")
@@ -76,6 +77,7 @@ public class IiaApprovalResource {
           
     @GET
     @Path("get")
+    @EwpAuthenticate
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response iiasApprovalGet(@QueryParam("approving_hei_id") String heiId, @QueryParam("owner_hei_id") String owner_hei_id, @QueryParam("iia_id") List<String> iiaIdList, @QueryParam("send_pdf") Boolean pdf) {
         return iiaApprovalGet(heiId, owner_hei_id, iiaIdList, pdf);
@@ -83,6 +85,7 @@ public class IiaApprovalResource {
     
     @POST
     @Path("get")
+    @EwpAuthenticate
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response iiasApprovalPost(@FormParam("approving_hei_id") String heiId, @FormParam("owner_hei_id") String owner_hei_id, @FormParam("iia_id") List<String> iiaIdList, @FormParam("send_pdf") Boolean pdf) {
         return iiaApprovalGet(heiId, owner_hei_id, iiaIdList, pdf);
@@ -90,6 +93,7 @@ public class IiaApprovalResource {
     
     @POST
     @Path("cnr")
+    @EwpAuthenticate
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response cnrPost(@FormParam("approving_hei_id") String approvingHeiId, @FormParam("owner_hei_id") String owner_hei_id, @FormParam("iia_id") String iiaApprovalId) {
     	 if (approvingHeiId == null || approvingHeiId.isEmpty()) {
