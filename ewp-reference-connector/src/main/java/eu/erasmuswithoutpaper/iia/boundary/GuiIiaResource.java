@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,12 +25,15 @@ import javax.ws.rs.core.Response;
 
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.Approval;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
+import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.DurationUnitVariants;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
@@ -49,14 +53,23 @@ public class GuiIiaResource {
     
     @Inject
     RestClient restClient;
+    
+    @Inject
+    IiaConverter iiaConverter;
+    
+    @Inject
+    GlobalProperties properties;
 
     @GET
     @Path("get_all")
     @InternalAuthenticate
-    public Response getAll() {
+    // TODO: fix the default value
+    public Response getAll(@QueryParam("hei_id") @DefaultValue("uma.es") String hei_id) {
         List<Iia> iiaList = em.createNamedQuery(Iia.findAll).getResultList();
-        GenericEntity<List<Iia>> entity = new GenericEntity<List<Iia>>(iiaList) {};
+        List<IiasGetResponse.Iia> result = iiaConverter.convertToIias(hei_id, iiaList);
         
+        GenericEntity<List<IiasGetResponse.Iia>> entity = new GenericEntity<List<IiasGetResponse.Iia>>(result) {};
+
         return Response.ok(entity).build();
     }
     
