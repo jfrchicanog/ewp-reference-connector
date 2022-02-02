@@ -468,19 +468,21 @@ public class IiaResource {
 
     };
     
+    private boolean filterByInstitutionId(Collection<String> heisCoveredByCertificate, Iia iia) {
+		return iia.getCooperationConditions().stream().anyMatch(
+		        cond -> heisCoveredByCertificate.contains(cond.getReceivingPartner().getInstitutionId()) || 
+		                heisCoveredByCertificate.contains(cond.getSendingPartner().getInstitutionId()));
+	}
+    
     private List<String> iiaIdsCoveredByCertificate(List<Iia> iiaList, Collection<String> heisCoveredByCertificate) {
         return iiaList.stream().filter((iia) -> {
-            return iia.getCooperationConditions().stream().anyMatch(
-                    cond -> heisCoveredByCertificate.contains(cond.getReceivingPartner().getInstitutionId()) || 
-                            heisCoveredByCertificate.contains(cond.getSendingPartner().getInstitutionId()));
+            return filterByInstitutionId(heisCoveredByCertificate, iia);
         }).map(iia -> iia.getId()).collect(Collectors.toList());
     }
-    
+
     private List<Iia> iiaCoveredByCertificate(List<Iia> iiaList, Collection<String> heisCoveredByCertificate) {
         return iiaList.stream().filter((iia) -> {
-            return iia.getCooperationConditions().stream().anyMatch(
-                    cond -> heisCoveredByCertificate.contains(cond.getReceivingPartner().getInstitutionId()) || 
-                            heisCoveredByCertificate.contains(cond.getSendingPartner().getInstitutionId()));
+            return filterByInstitutionId(heisCoveredByCertificate, iia);
         }).map(iia -> iia).collect(Collectors.toList());
     }
 }
