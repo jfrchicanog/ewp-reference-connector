@@ -1,7 +1,7 @@
 package eu.erasmuswithoutpaper.factsheet.boundary;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -69,15 +69,20 @@ public class FactsheetResource {
         
         FactsheetResponse response = new FactsheetResponse();
         
-        List<MobilityFactsheet> factsheetList = factsheetHeiIdList.stream().map(heiid -> {
-        	MobilityFactsheet factSheet = em.createNamedQuery(MobilityFactsheet.findByHeid, MobilityFactsheet.class).setParameter("heiId", heiid).getSingleResult();
-        	return factSheet;
-        }).collect(Collectors.toList());
+        List<MobilityFactsheet> factsheetList = new ArrayList<>();
+        for (String heiid : factsheetHeiIdList) {
+			List<MobilityFactsheet> foundFactSheet = em.createNamedQuery(MobilityFactsheet.findByHeid, MobilityFactsheet.class).setParameter("heiId", heiid).getResultList();
+        	
+			if (!foundFactSheet.isEmpty()) {
+				MobilityFactsheet factSheet = foundFactSheet.get(0);
+				factsheetList.add(factSheet);
+			}
+		}
         
         if (!factsheetList.isEmpty()) {
             response.getFactsheet().addAll(factsheetConverter.convertToFactsheet(factsheetList));
         }
-        
+        	
         return javax.ws.rs.core.Response.ok(response).build();
     }         
     
