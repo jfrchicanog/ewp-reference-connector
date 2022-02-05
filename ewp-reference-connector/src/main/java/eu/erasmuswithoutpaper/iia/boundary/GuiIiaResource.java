@@ -94,7 +94,9 @@ public class GuiIiaResource {
         	 List<Iia> filteredList = iiaList.stream().filter(condition).collect(Collectors.toList());
         	
         	if (!filteredList.isEmpty()) {
-        		GenericEntity<List<Iia>> entity = new GenericEntity<List<Iia>>(iiaList) {};
+        		List<IiasGetResponse.Iia> iiasGetResponseList = iiaConverter.convertToIias(heiId, iiaList);
+        		
+        		GenericEntity<List<IiasGetResponse.Iia>> entity = new GenericEntity<List<IiasGetResponse.Iia>>(iiasGetResponseList) {};
         		 return Response.ok(entity).build();
         	}
         } 
