@@ -15,11 +15,13 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.Approval;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.iia.approval.control.IiaApprovalConverter;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 
 @Stateless
@@ -33,12 +35,17 @@ public class GuiIiaApprovalResource {
     
     @Inject
     RestClient restClient;
+    
+    @Inject
+    IiaApprovalConverter converter;
 
     @GET
     @Path("get_all")
     public Response getAll() {
         List<IiaApproval> iiaApprovalList = em.createNamedQuery(IiaApproval.findAll).getResultList();
-        GenericEntity<List<IiaApproval>> entity = new GenericEntity<List<IiaApproval>>(iiaApprovalList) {};
+        
+        List<Approval> approvals = converter.convertToIiasApproval(null, iiaApprovalList);
+        GenericEntity<List<Approval>> entity = new GenericEntity<List<Approval>>(approvals) {};
         
         return Response.ok(entity).build();
     }
