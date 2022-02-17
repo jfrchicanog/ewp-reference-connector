@@ -1,6 +1,7 @@
 package eu.erasmuswithoutpaper.internal;
 
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
+import eu.erasmuswithoutpaper.factsheet.preload.FactsheetLoader;
 import eu.erasmuswithoutpaper.iia.preload.IiaLoader;
 import eu.erasmuswithoutpaper.iia.preload.MobilityTypeLoader;
 import eu.erasmuswithoutpaper.omobility.preload.MobilityLoader;
@@ -58,6 +59,9 @@ public class StartupLoader {
     @Inject
     IiaLoader iiaLoader;
     
+    @Inject
+    FactsheetLoader factsheetLoader;
+    
     @PostConstruct
     public void loadDemoData() {
         try {
@@ -81,6 +85,7 @@ public class StartupLoader {
                    // learningOppInstLoader.createDemoDataIkea();
                     iiaLoader.createDemoDataIkea();
                     mobilityLoader.createDemoDataIkea();
+                    factsheetLoader.createDemoDataIkea();
                     break;
                 case POMODORO_U:
                     institutionLoader.createDemoDataPomodoro();
@@ -94,6 +99,7 @@ public class StartupLoader {
                    // learningOppInstLoader.createDemoDataPomodoro();
                     iiaLoader.createDemoDataPomodoro();
                     mobilityLoader.createDemoDataPomodoro();
+                    factsheetLoader.createDemoDataPomodoro();
                     break;
                 case UMA_U:
                 	institutionLoader.createDemoDataUma();
@@ -105,6 +111,7 @@ public class StartupLoader {
                     
                     iiaLoader.createDemoDataUma();
                     mobilityLoader.createDemoDataUma();
+                    factsheetLoader.createDemoDataUma();
                     break;
             }
         } catch (IOException ex) {

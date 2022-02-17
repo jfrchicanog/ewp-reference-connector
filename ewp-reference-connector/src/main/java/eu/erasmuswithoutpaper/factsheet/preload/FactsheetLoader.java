@@ -57,6 +57,64 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		addInfoList.add(getAdditionalInfo());
 		factSheet.setAdditionalInfo(addInfoList);
 	}
+	
+	private void completeInformationPOM(MobilityFactsheet factSheet) throws IOException {
+		CalendarEntry calendar = getStudentNominationCalendarPOM();
+		factSheet.setStudentNominationTerm(calendar);
+		factSheet.setStudentApplicationTerm(calendar);
+		
+		ContactInfo ctcInfo = getContactInfoPOM();
+		factSheet.setApplicationInfo(ctcInfo);
+		factSheet.setHousingInfo(ctcInfo);
+		factSheet.setVisaInfo(ctcInfo);
+		factSheet.setInsuranceInfo(ctcInfo);
+		factSheet.setVisaInfo(ctcInfo);
+		
+		List<AdditionalRequirement> addReqs = new ArrayList<>();
+		addReqs.add(getAdditionalReqPOM());
+		factSheet.setAdditionalRequirements(addReqs);
+		
+		factSheet.setDecisionWeeksLimit(new BigInteger("4"));
+		
+		factSheet.setTorWeeksLimit(new BigInteger("3"));
+		
+		List<Accessibility> accessibilities = new ArrayList<>();
+		accessibilities.add(getAccessibilityPOM());
+		factSheet.setAccessibility(accessibilities);
+		
+		List<FactsheetAdditionalInfo> addInfoList = new ArrayList<>();
+		addInfoList.add(getAdditionalInfoPOM());
+		factSheet.setAdditionalInfo(addInfoList);
+	}
+	
+	private void completeInformationUMA(MobilityFactsheet factSheet) throws IOException {
+		CalendarEntry calendar = getStudentNominationCalendarUMA();
+		factSheet.setStudentNominationTerm(calendar);
+		factSheet.setStudentApplicationTerm(calendar);
+		
+		ContactInfo ctcInfo = getContactInfoUMA();
+		factSheet.setApplicationInfo(ctcInfo);
+		factSheet.setHousingInfo(ctcInfo);
+		factSheet.setVisaInfo(ctcInfo);
+		factSheet.setInsuranceInfo(ctcInfo);
+		factSheet.setVisaInfo(ctcInfo);
+		
+		List<AdditionalRequirement> addReqs = new ArrayList<>();
+		addReqs.add(getAdditionalReqUMA());
+		factSheet.setAdditionalRequirements(addReqs);
+		
+		factSheet.setDecisionWeeksLimit(new BigInteger("4"));
+		
+		factSheet.setTorWeeksLimit(new BigInteger("3"));
+		
+		List<Accessibility> accessibilities = new ArrayList<>();
+		accessibilities.add(getAccessibilityUMA());
+		factSheet.setAccessibility(accessibilities);
+		
+		List<FactsheetAdditionalInfo> addInfoList = new ArrayList<>();
+		addInfoList.add(getAdditionalInfoUMA());
+		factSheet.setAdditionalInfo(addInfoList);
+	}
 
 	private FactsheetAdditionalInfo getAdditionalInfo() throws IOException {
 		String json = "{'id':'001','type':'info'}";
@@ -64,9 +122,39 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		FactsheetAdditionalInfo addInfo = JsonHelper.mapToObject(FactsheetAdditionalInfo.class, json);
 		return addInfo;
 	}
+	
+	private FactsheetAdditionalInfo getAdditionalInfoPOM() throws IOException {
+		String json = "{'id':'002','type':'info'}";
+		
+		FactsheetAdditionalInfo addInfo = JsonHelper.mapToObject(FactsheetAdditionalInfo.class, json);
+		return addInfo;
+	}
+	
+	private FactsheetAdditionalInfo getAdditionalInfoUMA() throws IOException {
+		String json = "{'id':'003','type':'info'}";
+		
+		FactsheetAdditionalInfo addInfo = JsonHelper.mapToObject(FactsheetAdditionalInfo.class, json);
+		return addInfo;
+	}
 
 	private ContactInfo getContactInfo() throws IOException {
 		String json = "{'id':'01','email':'test@uma.es'}";
+		
+		ContactInfo info = JsonHelper.mapToObject(ContactInfo.class, json);
+		info.setPhoneNumber(getPhoneNumber());
+		return null;
+	}
+	
+	private ContactInfo getContactInfoUMA() throws IOException {
+		String json = "{'id':'03','email':'test@uma.es'}";
+		
+		ContactInfo info = JsonHelper.mapToObject(ContactInfo.class, json);
+		info.setPhoneNumber(getPhoneNumber());
+		return null;
+	}
+	
+	private ContactInfo getContactInfoPOM() throws IOException {
+		String json = "{'id':'02','email':'test@uma.es'}";
 		
 		ContactInfo info = JsonHelper.mapToObject(ContactInfo.class, json);
 		info.setPhoneNumber(getPhoneNumber());
@@ -82,6 +170,26 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		
 		return calendarEntry;
 	}
+	
+	private CalendarEntry getStudentNominationCalendarUMA() throws IOException {
+		String json = "{'id':'01','factsheetId':'F03'}";
+		CalendarEntry calendarEntry = JsonHelper.mapToObject(CalendarEntry.class, json);
+		
+		calendarEntry.setAutumnTerm(new Date());
+		calendarEntry.setSpringTerm(new Date());
+		
+		return calendarEntry;
+	}
+	
+	private CalendarEntry getStudentNominationCalendarPOM() throws IOException {
+		String json = "{'id':'01','factsheetId':'F02'}";
+		CalendarEntry calendarEntry = JsonHelper.mapToObject(CalendarEntry.class, json);
+		
+		calendarEntry.setAutumnTerm(new Date());
+		calendarEntry.setSpringTerm(new Date());
+		
+		return calendarEntry;
+	}
 
 	private AdditionalRequirement getAdditionalReq() throws IOException {
 		String json = "{'id':'Add01','name':'Requirement01'}";
@@ -89,9 +197,37 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
 		return addReq;
 	}
+	
+	private AdditionalRequirement getAdditionalReqPOM() throws IOException {
+		String json = "{'id':'Add02','name':'Requirement02'}";
+		
+		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
+		return addReq;
+	}
+	
+	private AdditionalRequirement getAdditionalReqUMA() throws IOException {
+		String json = "{'id':'Add03','name':'Requirement03'}";
+		
+		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
+		return addReq;
+	}
 
 	private Accessibility getAccessibility() throws IOException {
 		String json = "{'id':'01', 'name': 'ACC01'}";
+		
+		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
+		return accessibility;
+	}
+	
+	private Accessibility getAccessibilityPOM() throws IOException {
+		String json = "{'id':'02', 'name': 'ACC02'}";
+		
+		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
+		return accessibility;
+	}
+	
+	private Accessibility getAccessibilityUMA() throws IOException {
+		String json = "{'id':'03', 'name': 'ACC03'}";
 		
 		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
 		return accessibility;
@@ -109,7 +245,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		String factsheetJSON = "{'id':'F02', 'heiId': 'IK-POM-01'}";
 		MobilityFactsheet factSheet = JsonHelper.mapToObject(MobilityFactsheet.class, factsheetJSON);
 		
-		completeInformation(factSheet);
+		completeInformationPOM(factSheet);
 		
 		em.persist(factSheet);
 		
@@ -117,10 +253,10 @@ public class FactsheetLoader extends AbstractStartupLoader{
 
 	@Override
 	public void createDemoDataUma() throws IOException {
-		String factsheetJSON = "{'id':'F01', 'heiId': 'IK-UMA-01'}";
+		String factsheetJSON = "{'id':'F03', 'heiId': 'IK-UMA-01'}";
 		MobilityFactsheet factSheet = JsonHelper.mapToObject(MobilityFactsheet.class, factsheetJSON);
 		
-		completeInformation(factSheet);
+		completeInformationUMA(factSheet);
 		
 		em.persist(factSheet);
 		
