@@ -97,7 +97,6 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		factSheet.setHousingInfo(ctcInfo);
 		factSheet.setVisaInfo(ctcInfo);
 		factSheet.setInsuranceInfo(ctcInfo);
-		factSheet.setVisaInfo(ctcInfo);
 		
 		List<AdditionalRequirement> addReqs = new ArrayList<>();
 		addReqs.add(getAdditionalReqUMA());
