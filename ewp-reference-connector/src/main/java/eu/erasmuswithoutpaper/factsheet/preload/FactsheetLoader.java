@@ -253,7 +253,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 
 	@Override
 	public void createDemoDataUma() throws IOException {
-		String factsheetJSON = "{'id':'F03', 'heiId': 'IK-UMA-01'}";
+		String factsheetJSON = "{'heiId': 'uma.es'}";
 		MobilityFactsheet factSheet = JsonHelper.mapToObject(MobilityFactsheet.class, factsheetJSON);
 		
 		completeInformationUMA(factSheet);
