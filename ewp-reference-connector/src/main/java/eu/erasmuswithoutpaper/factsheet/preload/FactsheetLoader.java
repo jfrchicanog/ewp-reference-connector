@@ -2,6 +2,8 @@ package eu.erasmuswithoutpaper.factsheet.preload;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -130,7 +132,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 	
 	private FactsheetAdditionalInfo getAdditionalInfoUMA() throws IOException {
-		String json = "{'id':'003','type':'info'}";
+		String json = "{'type':'info'}";
 		
 		FactsheetAdditionalInfo addInfo = JsonHelper.mapToObject(FactsheetAdditionalInfo.class, json);
 		return addInfo;
@@ -145,11 +147,11 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 	
 	private ContactInfo getContactInfoUMA() throws IOException {
-		String json = "{'id':'03','email':'test@uma.es'}";
+		String json = "{'email':'test@uma.es'}";
 		
 		ContactInfo info = JsonHelper.mapToObject(ContactInfo.class, json);
 		info.setPhoneNumber(getPhoneNumber());
-		return null;
+		return info;
 	}
 	
 	private ContactInfo getContactInfoPOM() throws IOException {
@@ -161,27 +163,38 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 
 	private CalendarEntry getStudentNominationCalendar() throws IOException {
-		String json = "{'id':'01','factsheetId':'F01'}";
+		String json = "{'factsheetId':'F01'}";
 		CalendarEntry calendarEntry = JsonHelper.mapToObject(CalendarEntry.class, json);
 		
-		calendarEntry.setAutumnTerm(new Date());
-		calendarEntry.setSpringTerm(new Date());
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		
+		try {
+			calendarEntry.setAutumnTerm(simpleDateFormat.parse("01/03/2022"));
+			calendarEntry.setSpringTerm(simpleDateFormat.parse("31/05/2022"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		return calendarEntry;
 	}
 	
 	private CalendarEntry getStudentNominationCalendarUMA() throws IOException {
-		String json = "{'id':'01','factsheetId':'F03'}";
+		String json = "{'factsheetId':'F03'}";
 		CalendarEntry calendarEntry = JsonHelper.mapToObject(CalendarEntry.class, json);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		
-		calendarEntry.setAutumnTerm(new Date());
-		calendarEntry.setSpringTerm(new Date());
+		try {
+			calendarEntry.setAutumnTerm(simpleDateFormat.parse("01/03/2022"));
+			calendarEntry.setSpringTerm(simpleDateFormat.parse("31/05/2022"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		return calendarEntry;
 	}
 	
 	private CalendarEntry getStudentNominationCalendarPOM() throws IOException {
-		String json = "{'id':'01','factsheetId':'F02'}";
+		String json = "{'factsheetId':'F02'}";
 		CalendarEntry calendarEntry = JsonHelper.mapToObject(CalendarEntry.class, json);
 		
 		calendarEntry.setAutumnTerm(new Date());
@@ -205,7 +218,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 	
 	private AdditionalRequirement getAdditionalReqUMA() throws IOException {
-		String json = "{'id':'Add03','name':'Requirement03'}";
+		String json = "{'name':'Requirement03'}";
 		
 		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
 		return addReq;
@@ -226,7 +239,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 	
 	private Accessibility getAccessibilityUMA() throws IOException {
-		String json = "{'id':'03', 'name': 'ACC03'}";
+		String json = "{'name': 'ACC03'}";
 		
 		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
 		return accessibility;
