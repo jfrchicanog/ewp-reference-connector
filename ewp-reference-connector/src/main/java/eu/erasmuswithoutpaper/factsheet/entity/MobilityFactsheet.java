@@ -44,19 +44,19 @@ public class MobilityFactsheet implements Serializable {
     @JoinColumn(name = "SPRING_TERM_ID", referencedColumnName = "ID")
     private CalendarEntry studentNominationTerm;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "APPLICATION_INFO", referencedColumnName = "ID")
     private ContactInfo applicationInfo;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "HOUSING_INFO", referencedColumnName = "ID")
     private ContactInfo housingInfo;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "VISA_INFO", referencedColumnName = "ID")
     private ContactInfo visaInfo;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "INSURANCE_INFO", referencedColumnName = "ID")
     private ContactInfo insuranceInfo;
     

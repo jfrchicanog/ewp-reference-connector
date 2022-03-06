@@ -23,7 +23,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	@Override
 	public void createDemoDataIkea() throws IOException {
 		
-		String factsheetJSON = "{'id':'F01', 'heiId': 'IK-IKEA-01'}";
+		String factsheetJSON = "{'id':'F01', 'heiId': 'IK-IKEA-02'}";
 		MobilityFactsheet factSheet = JsonHelper.mapToObject(MobilityFactsheet.class, factsheetJSON);
 		
 		completeInformation(factSheet);
@@ -118,14 +118,14 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 
 	private FactsheetAdditionalInfo getAdditionalInfo() throws IOException {
-		String json = "{'id':'001','type':'info'}";
+		String json = "{'type':'info'}";
 		
 		FactsheetAdditionalInfo addInfo = JsonHelper.mapToObject(FactsheetAdditionalInfo.class, json);
 		return addInfo;
 	}
 	
 	private FactsheetAdditionalInfo getAdditionalInfoPOM() throws IOException {
-		String json = "{'id':'002','type':'info'}";
+		String json = "{'type':'info'}";
 		
 		FactsheetAdditionalInfo addInfo = JsonHelper.mapToObject(FactsheetAdditionalInfo.class, json);
 		return addInfo;
@@ -139,11 +139,11 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 
 	private ContactInfo getContactInfo() throws IOException {
-		String json = "{'id':'01','email':'test@uma.es'}";
+		String json = "{'email':'test@uma.es'}";
 		
 		ContactInfo info = JsonHelper.mapToObject(ContactInfo.class, json);
 		info.setPhoneNumber(getPhoneNumber());
-		return null;
+		return info;
 	}
 	
 	private ContactInfo getContactInfoUMA() throws IOException {
@@ -155,11 +155,11 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 	
 	private ContactInfo getContactInfoPOM() throws IOException {
-		String json = "{'id':'02','email':'test@uma.es'}";
+		String json = "{'email':'test@uma.es'}";
 		
 		ContactInfo info = JsonHelper.mapToObject(ContactInfo.class, json);
 		info.setPhoneNumber(getPhoneNumber());
-		return null;
+		return info;
 	}
 
 	private CalendarEntry getStudentNominationCalendar() throws IOException {
@@ -204,14 +204,14 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 
 	private AdditionalRequirement getAdditionalReq() throws IOException {
-		String json = "{'id':'Add01','name':'Requirement01'}";
+		String json = "{'name':'Requirement01'}";
 		
 		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
 		return addReq;
 	}
 	
 	private AdditionalRequirement getAdditionalReqPOM() throws IOException {
-		String json = "{'id':'Add02','name':'Requirement02'}";
+		String json = "{'name':'Requirement02'}";
 		
 		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
 		return addReq;
@@ -225,14 +225,14 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 
 	private Accessibility getAccessibility() throws IOException {
-		String json = "{'id':'01', 'name': 'ACC01'}";
+		String json = "{'name': 'ACC01'}";
 		
 		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
 		return accessibility;
 	}
 	
 	private Accessibility getAccessibilityPOM() throws IOException {
-		String json = "{'id':'02', 'name': 'ACC02'}";
+		String json = "{'name': 'ACC02'}";
 		
 		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
 		return accessibility;
@@ -246,7 +246,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 
 	private PhoneNumber getPhoneNumber() throws IOException {
-		String jsonPhoneNumber = "{'id':'PHONE01','e164':'222-222-222','extensionNumber':'788', 'otherFormat':'88888'}";
+		String jsonPhoneNumber = "{'e164':'222-222-222','extensionNumber':'788', 'otherFormat':'88888'}";
 		PhoneNumber phoneNumber = JsonHelper.mapToObject(PhoneNumber.class, jsonPhoneNumber);
 		return phoneNumber;
 	}
@@ -254,7 +254,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	@Override
 	public void createDemoDataPomodoro() throws IOException {
 
-		String factsheetJSON = "{'id':'F02', 'heiId': 'IK-POM-01'}";
+		String factsheetJSON = "{'heiId': 'IK-POM-01'}";
 		MobilityFactsheet factSheet = JsonHelper.mapToObject(MobilityFactsheet.class, factsheetJSON);
 		
 		completeInformationPOM(factSheet);
