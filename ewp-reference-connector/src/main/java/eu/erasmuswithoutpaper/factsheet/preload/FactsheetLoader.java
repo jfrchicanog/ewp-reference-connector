@@ -13,6 +13,7 @@ import eu.erasmuswithoutpaper.factsheet.entity.AdditionalRequirement;
 import eu.erasmuswithoutpaper.factsheet.entity.CalendarEntry;
 import eu.erasmuswithoutpaper.factsheet.entity.ContactInfo;
 import eu.erasmuswithoutpaper.factsheet.entity.FactsheetAdditionalInfo;
+import eu.erasmuswithoutpaper.factsheet.entity.LanguageItem;
 import eu.erasmuswithoutpaper.factsheet.entity.MobilityFactsheet;
 import eu.erasmuswithoutpaper.internal.AbstractStartupLoader;
 import eu.erasmuswithoutpaper.internal.JsonHelper;
@@ -121,6 +122,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		String json = "{'type':'info'}";
 		
 		FactsheetAdditionalInfo addInfo = JsonHelper.mapToObject(FactsheetAdditionalInfo.class, json);
+		addInfo.setInfo(getContactInfo());
 		return addInfo;
 	}
 	
@@ -128,6 +130,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		String json = "{'type':'info'}";
 		
 		FactsheetAdditionalInfo addInfo = JsonHelper.mapToObject(FactsheetAdditionalInfo.class, json);
+		addInfo.setInfo(getContactInfo());
 		return addInfo;
 	}
 	
@@ -135,6 +138,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		String json = "{'type':'info'}";
 		
 		FactsheetAdditionalInfo addInfo = JsonHelper.mapToObject(FactsheetAdditionalInfo.class, json);
+		addInfo.setInfo(getContactInfo());
 		return addInfo;
 	}
 
@@ -143,6 +147,8 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		
 		ContactInfo info = JsonHelper.mapToObject(ContactInfo.class, json);
 		info.setPhoneNumber(getPhoneNumber());
+		
+		info.setUrl(getURLInfo());
 		return info;
 	}
 	
@@ -151,6 +157,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		
 		ContactInfo info = JsonHelper.mapToObject(ContactInfo.class, json);
 		info.setPhoneNumber(getPhoneNumber());
+		info.setUrl(getURLInfo());
 		return info;
 	}
 	
@@ -159,6 +166,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		
 		ContactInfo info = JsonHelper.mapToObject(ContactInfo.class, json);
 		info.setPhoneNumber(getPhoneNumber());
+		info.setUrl(getURLInfo());
 		return info;
 	}
 
@@ -196,9 +204,14 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	private CalendarEntry getStudentNominationCalendarPOM() throws IOException {
 		String json = "{'factsheetId':'F02'}";
 		CalendarEntry calendarEntry = JsonHelper.mapToObject(CalendarEntry.class, json);
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		
-		calendarEntry.setAutumnTerm(new Date());
-		calendarEntry.setSpringTerm(new Date());
+		try {
+			calendarEntry.setAutumnTerm(simpleDateFormat.parse("01/03/2022"));
+			calendarEntry.setSpringTerm(simpleDateFormat.parse("31/05/2022"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		return calendarEntry;
 	}
@@ -207,13 +220,27 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		String json = "{'name':'Requirement01'}";
 		
 		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
+		
+		addReq.setInformationWebsite(getURLInfo()); 		
+		
 		return addReq;
+	}
+
+	private List<LanguageItem> getURLInfo() {
+		List<LanguageItem> langItems = new ArrayList<>();
+		LanguageItem item = new LanguageItem();
+		item.setLang("es");
+		item.setText("");
+		langItems.add(item);
+		
+		return langItems;
 	}
 	
 	private AdditionalRequirement getAdditionalReqPOM() throws IOException {
 		String json = "{'name':'Requirement02'}";
 		
 		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
+		addReq.setInformationWebsite(getURLInfo()); 	
 		return addReq;
 	}
 	
@@ -221,6 +248,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		String json = "{'name':'Requirement03'}";
 		
 		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
+		addReq.setInformationWebsite(getURLInfo()); 	
 		return addReq;
 	}
 
@@ -228,6 +256,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		String json = "{'name': 'ACC01'}";
 		
 		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
+		accessibility.setInformation(getContactInfo());
 		return accessibility;
 	}
 	
@@ -235,6 +264,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		String json = "{'name': 'ACC02'}";
 		
 		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
+		accessibility.setInformation(getContactInfo());
 		return accessibility;
 	}
 	
@@ -242,6 +272,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		String json = "{'name': 'ACC03'}";
 		
 		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
+		accessibility.setInformation(getContactInfo());
 		return accessibility;
 	}
 
