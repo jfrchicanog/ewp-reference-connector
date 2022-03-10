@@ -27,7 +27,7 @@ public class FactsheetAdditionalInfo implements Serializable {
     
     private String type;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "INFO", referencedColumnName = "ID")
     private ContactInfo info;
     
