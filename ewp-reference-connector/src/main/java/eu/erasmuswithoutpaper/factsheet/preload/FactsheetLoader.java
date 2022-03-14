@@ -230,7 +230,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		List<LanguageItem> langItems = new ArrayList<>();
 		LanguageItem item = new LanguageItem();
 		item.setLang("es");
-		item.setText("");
+		item.setText("https://example-hei.edu/application");
 		langItems.add(item);
 		
 		return langItems;
@@ -277,7 +277,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 
 	private PhoneNumber getPhoneNumber() throws IOException {
-		String jsonPhoneNumber = "{'e164':'222-222-222','extensionNumber':'788', 'otherFormat':'88888'}";
+		String jsonPhoneNumber = "{'e164':'+4723456789','extensionNumber':'788', 'otherFormat':'88888'}";
 		PhoneNumber phoneNumber = JsonHelper.mapToObject(PhoneNumber.class, jsonPhoneNumber);
 		return phoneNumber;
 	}
