@@ -102,11 +102,11 @@
     
     
      <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-factsheet/v1.0.0/response.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-factsheet/v1.1.0/response.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-factsheet/tree/stable-v1"
     />
      <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-factsheet/v1.0.0/manifest-entry.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-factsheet/v1.1.0/manifest-entry.xsd"
         namespace="https://github.com/erasmus-without-paper/ewp-specs-api-factsheet/blob/stable-v1/manifest-entry.xsd"
     />
     
