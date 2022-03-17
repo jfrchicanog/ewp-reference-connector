@@ -221,6 +221,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		
 		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
 		
+		addReq.setDetails("In English or Spanish");
 		addReq.setInformationWebsite(getURLInfo()); 		
 		
 		return addReq;
@@ -253,9 +254,10 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 
 	private Accessibility getAccessibility() throws IOException {
-		String json = "{'name': 'ACC01'}";
+		String json = "{'name': 'ACC01','type':'service'}";
 		
 		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
+		
 		accessibility.setInformation(getContactInfo());
 		return accessibility;
 	}
