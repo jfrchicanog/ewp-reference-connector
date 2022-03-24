@@ -249,6 +249,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 		String json = "{'name':'Requirement03'}";
 		
 		AdditionalRequirement addReq = JsonHelper.mapToObject(AdditionalRequirement.class, json);
+		addReq.setDetails("In English or Spanish");
 		addReq.setInformationWebsite(getURLInfo()); 	
 		return addReq;
 	}
