@@ -272,7 +272,7 @@ public class FactsheetLoader extends AbstractStartupLoader{
 	}
 	
 	private Accessibility getAccessibilityUMA() throws IOException {
-		String json = "{'name': 'ACC03'}";
+		String json = "{'name': 'ACC03','type':'service'}";
 		
 		Accessibility accessibility = JsonHelper.mapToObject(Accessibility.class, json);
 		accessibility.setInformation(getContactInfo());
