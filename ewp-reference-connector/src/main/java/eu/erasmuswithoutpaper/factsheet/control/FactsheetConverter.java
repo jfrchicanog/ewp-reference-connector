@@ -35,7 +35,7 @@ public class FactsheetConverter {
     	return factsheetList.stream().map(factsheet -> {
     		FactsheetResponse.Factsheet converted = new FactsheetResponse.Factsheet();
     		
-    		converted.setHeiId(factsheet.getId());
+    		converted.setHeiId(factsheet.getHeiId());
     		converted.setTorWeeksLimit(factsheet.getTorWeeksLimit());
     		converted.setDecisionWeeksLimit(factsheet.getDecisionWeeksLimit());
     		
@@ -171,6 +171,7 @@ public class FactsheetConverter {
         	Accessibility accessibility = new Accessibility();
             accessibility.setDescription(accessibilityItem.getDescription());
             accessibility.setName(accessibilityItem.getName());
+            accessibility.setType(accessibilityItem.getType().name().toLowerCase());
             
             InformationEntry info = new InformationEntry();
             info.setEmail(accessibilityItem.getInformation().getEmail());
