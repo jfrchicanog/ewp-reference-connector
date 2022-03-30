@@ -178,7 +178,7 @@ public class IiaConverter {
         }
         if (ccMap.containsKey("Student-Training")) {
             converted.getStudentTraineeshipMobilitySpec().addAll(
-                    ccMap.get("Student-Studies")
+                    ccMap.get("Student-Training")
                             .stream()
                             .map(this::convertToStudentTraineeshipMobilitySpec)
                             .collect(Collectors.toList()));
