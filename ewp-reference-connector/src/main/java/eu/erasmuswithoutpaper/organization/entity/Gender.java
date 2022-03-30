@@ -22,4 +22,11 @@ public enum Gender {
         Gender[] genders = values();
         return Arrays.stream(genders).map(s -> s.name()).collect(Collectors.toList()).toArray(new String[genders.length]);
     }
+    
+    public static Gender getById(BigInteger value) {
+        for(Gender e : values()) {
+            if(e.value.equals(value)) return e;
+        }
+        return NOT_KNOWN;
+    }
 }
