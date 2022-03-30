@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,17 @@ import javax.ws.rs.core.Response;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.Approval;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.CooperationConditions;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.Partner;
+import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
+import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification.RecommendedLanguageSkill;
+import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
+import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTeacherMobilitySpec;
+import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTrainingMobilitySpec;
+import eu.erasmuswithoutpaper.api.iias.endpoints.StudentMobilitySpecification;
+import eu.erasmuswithoutpaper.api.iias.endpoints.StudentStudiesMobilitySpec;
+import eu.erasmuswithoutpaper.api.iias.endpoints.StudentTraineeshipMobilitySpec;
+import eu.erasmuswithoutpaper.api.types.contact.Contact;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
@@ -35,11 +47,18 @@ import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
+import eu.erasmuswithoutpaper.iia.entity.Duration;
 import eu.erasmuswithoutpaper.iia.entity.DurationUnitVariants;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
+import eu.erasmuswithoutpaper.iia.entity.MobilityNumber;
 import eu.erasmuswithoutpaper.iia.entity.MobilityNumberVariants;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
+import eu.erasmuswithoutpaper.iia.entity.SubjectArea;
+import eu.erasmuswithoutpaper.organization.entity.ContactDetails;
+import eu.erasmuswithoutpaper.organization.entity.FlexibleAddress;
+import eu.erasmuswithoutpaper.organization.entity.Gender;
+import eu.erasmuswithoutpaper.organization.entity.Person;
 import eu.erasmuswithoutpaper.security.InternalAuthenticate;
 
 @Stateless
@@ -66,7 +85,7 @@ public class GuiIiaResource {
     // TODO: fix the default value
     public Response getAll(@QueryParam("hei_id") @DefaultValue("uma.es") String hei_id) {
         List<Iia> iiaList = em.createNamedQuery(Iia.findAll).getResultList();
-        List<IiasGetResponse.Iia> result = iiaConverter.convertToIias(hei_id, iiaList);
+        List<IiasGetResponse.Iia> result = iiaConverter.convertToIias(hei_id, iiaList);//It was required to use IiaConverter to avoid a recursive problem when the iia object was converted to json
         
         GenericEntity<List<IiasGetResponse.Iia>> entity = new GenericEntity<List<IiasGetResponse.Iia>>(result) {};
 
@@ -138,11 +157,265 @@ public class GuiIiaResource {
     @Path("add")
     @InternalAuthenticate
     @Consumes(MediaType.APPLICATION_JSON)
-    public void add(Iia iia) {
-        em.persist(iia);
+    public void add(IiasGetResponse.Iia iia) {
+    	Iia iiaInternal = new Iia();
+    	
+    	iiaInternal.setConditionsHash(iia.getConditionsHash());
+    	iiaInternal.setInEfect(iia.isInEffect());
+    	
+    	List<CooperationCondition> cooperationConditionList = iia.getPartner().stream().map((Partner partner) -> {
+    		CooperationCondition cooperationConditionInternal = new CooperationCondition();
+    		
+    		iiaInternal.setIiaCode(partner.getIiaCode());
+        	iiaInternal.setId(partner.getIiaId());
+        	iiaInternal.setSigningDate(partner.getSigningDate().toGregorianCalendar().getTime());
+        	//iiaInternal.setEndDate(null);
+        	//iiaInternal.setStartDate(null);
+        	
+    		IiaPartner partnerInternal = new IiaPartner();
+    		partnerInternal.setInstitutionId(partner.getHeiId());
+    		partnerInternal.setOrganizationUnitId(partner.getOunitId());
+    		
+    		eu.erasmuswithoutpaper.organization.entity.Contact signingContactInternal = new eu.erasmuswithoutpaper.organization.entity.Contact();
+    		
+    		Contact signingContact = partner.getSigningContact();
+    		Person personInternal = new Person();
+    		personInternal.setGender(Gender.getById(signingContact.getPersonGender()));
+    		signingContactInternal.setPerson(personInternal);
+    		
+    		ContactDetails contactDetails = new ContactDetails();
+    		
+    		FlexibleAddress flexibleAddressInternal = convertFlexibleAddress(signingContact.getMailingAddress());
+    		FlexibleAddress streetAddressInternal = convertFlexibleAddress(signingContact.getStreetAddress());
+    		
+    		contactDetails.setMailingAddress(flexibleAddressInternal);
+    		contactDetails.setStreetAddress(streetAddressInternal);
+    		
+    		signingContactInternal.setContactDetails(contactDetails);
+    		partnerInternal.setSigningContact(signingContactInternal);
+        	
+    		cooperationConditionInternal.setReceivingPartner(partnerInternal);
+    		return cooperationConditionInternal;
+    	}).collect(Collectors.toList());
+    	
+    	List<CooperationCondition> iiaIternalCooperationConditions = getCooperationConditions(iia.getCooperationConditions());
+    	iiaIternalCooperationConditions.addAll(cooperationConditionList);
+    	
+    	iiaInternal.setCooperationConditions(iiaIternalCooperationConditions);
+    	
+        em.persist(iiaInternal);
     }
 
-    @GET
+	private FlexibleAddress convertFlexibleAddress(eu.erasmuswithoutpaper.api.types.address.FlexibleAddress flexible) {
+		FlexibleAddress flexibleAddressInternal = new FlexibleAddress();
+		
+		flexibleAddressInternal.setBuildingName(flexible.getBuildingName());
+		flexibleAddressInternal.setBuildingNumber(flexible.getBuildingNumber());
+		flexibleAddressInternal.setCountry(flexible.getCountry());
+		flexibleAddressInternal.setFloor(flexible.getFloor());
+		flexibleAddressInternal.setLocality(flexible.getLocality());
+		flexibleAddressInternal.setPostalCode(flexible.getPostalCode());
+		flexibleAddressInternal.setPostOfficeBox(flexible.getPostOfficeBox());
+		flexibleAddressInternal.setRegion(flexible.getRegion());
+		flexibleAddressInternal.setStreetName(flexible.getStreetName());
+		flexibleAddressInternal.setUnit(flexible.getUnit());
+		Optional.ofNullable(flexible.getAddressLine()).ifPresent(flexibleAddressInternal.getAddressLine()::addAll);	        
+		Optional.ofNullable(flexible.getRecipientName()).ifPresent(flexibleAddressInternal.getRecipientName()::addAll);
+		
+		List<String> codes = flexible.getDeliveryPointCode().stream().map(obj -> {
+			String deliveryCode = String.valueOf(obj);
+			return deliveryCode;
+		}).collect(Collectors.toList());
+		flexibleAddressInternal.setDeliveryPointCode(new ArrayList<>());
+		flexibleAddressInternal.getDeliveryPointCode().addAll(codes);
+		
+		return flexibleAddressInternal;
+	}
+
+    private List<CooperationCondition> getCooperationConditions(CooperationConditions cooperationConditions) {
+    	List<CooperationCondition> cooperationConditionsInternals = new  ArrayList<>();
+    	
+    	List<StaffTeacherMobilitySpec> staffTeacherMobs = cooperationConditions.getStaffTeacherMobilitySpec();
+    	if (staffTeacherMobs != null) {
+    		MobilityType mobType = new MobilityType();
+    		mobType.setMobilityGroup("Staff");
+    		mobType.setMobilityCategory("Teaching");
+    		
+    		List<CooperationCondition> ccList = staffTeacherMobs.stream().map(staffTeacher -> {
+    			CooperationCondition cc = convertFromStaffToCooperationCondition(mobType, staffTeacher);
+    			
+    			return cc;
+    		}).collect(Collectors.toList());
+    		
+    		cooperationConditionsInternals.addAll(ccList);
+    	}
+    	
+    	List<StaffTrainingMobilitySpec> stafftrainingMobs = cooperationConditions.getStaffTrainingMobilitySpec();
+    	if (stafftrainingMobs != null) {
+    		MobilityType mobType = new MobilityType();
+    		mobType.setMobilityGroup("Staff");
+    		mobType.setMobilityCategory("Training");
+    		
+    		List<CooperationCondition> ccList = stafftrainingMobs.stream().map(stafftraining -> {
+    			CooperationCondition cc = convertFromStaffToCooperationCondition(mobType, stafftraining);
+    			
+    			return cc;
+    		}).collect(Collectors.toList());
+    		
+    		cooperationConditionsInternals.addAll(ccList);
+    	}
+    	
+    	List<StudentStudiesMobilitySpec> studentStudiesMobs = cooperationConditions.getStudentStudiesMobilitySpec();
+    	if (studentStudiesMobs != null) {
+    		MobilityType mobType = new MobilityType();
+    		mobType.setMobilityGroup("Student");
+    		mobType.setMobilityCategory("Studies");
+    		
+    		List<CooperationCondition> ccList = studentStudiesMobs.stream().map(studentStudies -> {
+    			CooperationCondition cc = convertFromStudentToCooperationCondition(mobType, studentStudies);
+    			
+    			convertFromMobilitySpecification(studentStudies, cc);
+    			
+    			return cc;
+    		}).collect(Collectors.toList());
+    		
+    		cooperationConditionsInternals.addAll(ccList);
+    	}
+    	
+    	List<StudentTraineeshipMobilitySpec> studentTraineeshipMobs = cooperationConditions.getStudentTraineeshipMobilitySpec();
+    	if (studentTraineeshipMobs != null) {
+    		MobilityType mobType = new MobilityType();
+    		mobType.setMobilityGroup("Student");
+    		mobType.setMobilityCategory("Training");
+    		
+    		List<CooperationCondition> ccList = studentTraineeshipMobs.stream().map(studentTraineeship -> {
+    			CooperationCondition cc = convertFromStudentToCooperationCondition(mobType, studentTraineeship);
+    			
+    			convertFromMobilitySpecification(studentTraineeship, cc);
+    			
+    			return cc;
+    		}).collect(Collectors.toList());
+    		
+    		cooperationConditionsInternals.addAll(ccList);
+    	}
+    	
+		return cooperationConditionsInternals;
+	}
+
+	private CooperationCondition convertFromStudentToCooperationCondition(MobilityType mobType,
+			StudentMobilitySpecification studentStudies) {
+		CooperationCondition cc = new CooperationCondition();
+		
+		cc.setMobilityType(mobType);
+		
+		Duration duration = new Duration();
+		duration.setNumber(studentStudies.getTotalMonthsPerYear());
+		cc.setDuration(duration);
+		
+		List<Byte> eqfLevels = studentStudies.getEqfLevel();
+		byte[] arrEqfLevel = new byte[eqfLevels.size()];
+		for (int i = 0; i < eqfLevels.size(); i++) {
+			arrEqfLevel[i] = eqfLevels.get(i).byteValue();
+		}
+		cc.setEqfLevel(arrEqfLevel);
+		cc.setBlended(studentStudies.isBlended());
+		return cc;
+	}
+
+	private CooperationCondition convertFromStaffToCooperationCondition(MobilityType mobType,
+			StaffMobilitySpecification staffTeacher) {
+		CooperationCondition cc = new CooperationCondition();
+		
+		cc.setMobilityType(mobType);
+		
+		Duration duration = new Duration();
+		duration.setNumber(staffTeacher.getTotalDaysPerYear());
+		cc.setDuration(duration);
+		
+		convertFromMobilitySpecification(staffTeacher, cc);
+		return cc;
+	}
+	
+	private void convertFromMobilitySpecification(MobilitySpecification mobilitySpec, CooperationCondition cc) {
+		List<eu.erasmuswithoutpaper.iia.entity.LanguageSkill> langskills = new ArrayList<>();
+				List<RecommendedLanguageSkill> recommendedSkills = mobilitySpec.getRecommendedLanguageSkill();
+				for (RecommendedLanguageSkill recommendedSkill : recommendedSkills) {
+					eu.erasmuswithoutpaper.iia.entity.LanguageSkill langskill = new eu.erasmuswithoutpaper.iia.entity.LanguageSkill();
+					
+					langskill.setCefrLevel(recommendedSkill.getCefrLevel());
+					langskill.setLanguage(recommendedSkill.getLanguage());
+					
+					SubjectArea subjectArea = new SubjectArea();
+					subjectArea.setIscedClarification(recommendedSkill.getSubjectArea().getIscedClarification());
+					subjectArea.setIscedFCode(recommendedSkill.getSubjectArea().getIscedFCode());
+					langskill.setSubjectArea(subjectArea);
+					
+					langskills.add(langskill);
+				} 
+				cc.getRecommendedLanguageSkill().addAll(langskills);
+				
+				cc.getReceivingAcademicYearId().addAll(mobilitySpec.getReceivingAcademicYearId());
+				cc.getReceivingPartner().setInstitutionId(mobilitySpec.getReceivingHeiId());
+				cc.getSendingPartner().setInstitutionId(mobilitySpec.getSendingHeiId());
+				cc.setOtherInfoTerms(mobilitySpec.getOtherInfoTerms());
+				
+				if(mobilitySpec.getReceivingOunitId() != null) {
+					cc.getReceivingPartner().setOrganizationUnitId(mobilitySpec.getReceivingOunitId());
+				}
+				
+				MobilityNumber mobNumber = new MobilityNumber();
+				mobNumber.setNumber(mobilitySpec.getMobilitiesPerYear().intValue());
+				cc.setMobilityNumber(mobNumber);
+				
+				List<SubjectArea> subjectAreasInt = new ArrayList<>();
+				List<eu.erasmuswithoutpaper.api.iias.endpoints.SubjectArea> subjectAreas = mobilitySpec.getSubjectArea();
+				for (eu.erasmuswithoutpaper.api.iias.endpoints.SubjectArea subjectArea : subjectAreas) {
+					SubjectArea subjectAreaInt = new SubjectArea();
+					
+					subjectAreaInt.setIscedClarification(subjectArea.getIscedClarification());
+					subjectAreaInt.setIscedFCode(subjectArea.getIscedFCode());
+					
+					subjectAreasInt.add(subjectAreaInt);
+				}
+				cc.setSubjectAreas(subjectAreasInt);
+				
+				List<Contact> receivingContacts = mobilitySpec.getReceivingContact();
+				List<eu.erasmuswithoutpaper.organization.entity.Contact> contactsReceivigInternal = new ArrayList<>();
+				for (Contact contact : receivingContacts) {
+					eu.erasmuswithoutpaper.organization.entity.Contact contactRec = convertToContactDetails(contact);
+					
+					contactsReceivigInternal.add(contactRec);
+				}
+				cc.getReceivingPartner().getContacts().addAll(contactsReceivigInternal);
+				
+				List<Contact> sendingContacts = mobilitySpec.getSendingContact();
+				List<eu.erasmuswithoutpaper.organization.entity.Contact> contactsSendinginInternal = new ArrayList<>();
+				for (Contact contact : sendingContacts) {
+					eu.erasmuswithoutpaper.organization.entity.Contact contactRec = convertToContactDetails(contact);
+					
+					contactsSendinginInternal.add(contactRec);
+				}
+				cc.getSendingPartner().getContacts().addAll(contactsSendinginInternal);
+	}
+
+	private eu.erasmuswithoutpaper.organization.entity.Contact convertToContactDetails(Contact contact) {
+		eu.erasmuswithoutpaper.organization.entity.Contact contactRec = new eu.erasmuswithoutpaper.organization.entity.Contact();
+		
+		FlexibleAddress address = convertFlexibleAddress(contact.getMailingAddress());
+		FlexibleAddress streetAdd = convertFlexibleAddress(contact.getMailingAddress());
+		
+		ContactDetails contactDetails = new ContactDetails();
+		contactDetails.setMailingAddress(address);
+		contactDetails.setStreetAddress(streetAdd);
+		
+		contactRec.setContactDetails(contactDetails);
+		
+		Person person = new Person();
+		person.setGender(Gender.getById(contact.getPersonGender()));
+		return contactRec;
+	}
+
+	@GET
     @Path("heis")
     @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
@@ -159,7 +432,11 @@ public class GuiIiaResource {
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response iiasIndex(ClientRequest clientRequest) {
         ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse.class);
-        return javax.ws.rs.core.Response.ok(iiaResponse).build();
+        
+        eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse index = (eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse)iiaResponse.getResult();
+        GenericEntity<eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse> entity = new GenericEntity<eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse>(index) {};
+        
+        return javax.ws.rs.core.Response.ok(entity).build();
     }
     
     @POST
