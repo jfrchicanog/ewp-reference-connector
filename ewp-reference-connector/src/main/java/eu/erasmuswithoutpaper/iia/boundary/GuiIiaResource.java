@@ -192,23 +192,23 @@ public class GuiIiaResource {
     		}
     		
     		if (partner.getSigningContact() != null) {
-    			eu.erasmuswithoutpaper.organization.entity.Contact signingContactInternal = new eu.erasmuswithoutpaper.organization.entity.Contact();
-        		
         		Contact signingContact = partner.getSigningContact();
-        		Person personInternal = new Person();
-        		personInternal.setGender(Gender.getById(signingContact.getPersonGender()));
-        		signingContactInternal.setPerson(personInternal);
         		
-        		ContactDetails contactDetails = new ContactDetails();
-        		
-        		FlexibleAddress flexibleAddressInternal = convertFlexibleAddress(signingContact.getMailingAddress());
-        		FlexibleAddress streetAddressInternal = convertFlexibleAddress(signingContact.getStreetAddress());
-        		
-        		contactDetails.setMailingAddress(flexibleAddressInternal);
-        		contactDetails.setStreetAddress(streetAddressInternal);
-        		
-        		signingContactInternal.setContactDetails(contactDetails);
+        		eu.erasmuswithoutpaper.organization.entity.Contact signingContactInternal = convertToContact(signingContact);
         		partnerInternal.setSigningContact(signingContactInternal);
+    		}
+    		
+    		if (partner.getContact() != null) {
+    			List<Contact> contacts = partner.getContact();
+    			
+    			List<eu.erasmuswithoutpaper.organization.entity.Contact> internalContacts = new ArrayList<>();
+        		for (Contact contact : contacts) {
+        			eu.erasmuswithoutpaper.organization.entity.Contact internalContact = convertToContact(contact);
+        			
+        			internalContacts.add(internalContact);
+    			}
+        		
+        		partnerInternal.setContacts(internalContacts);
     		}
         	
     		cooperationConditionInternal.setReceivingPartner(partnerInternal);
@@ -222,6 +222,25 @@ public class GuiIiaResource {
     	
         em.persist(iiaInternal);
     }
+
+	private eu.erasmuswithoutpaper.organization.entity.Contact convertToContact(Contact signingContact) {
+		eu.erasmuswithoutpaper.organization.entity.Contact signingContactInternal = new eu.erasmuswithoutpaper.organization.entity.Contact();
+		
+		Person personInternal = new Person();
+		personInternal.setGender(Gender.getById(signingContact.getPersonGender()));
+		signingContactInternal.setPerson(personInternal);
+		
+		ContactDetails contactDetails = new ContactDetails();
+		
+		FlexibleAddress flexibleAddressInternal = convertFlexibleAddress(signingContact.getMailingAddress());
+		FlexibleAddress streetAddressInternal = convertFlexibleAddress(signingContact.getStreetAddress());
+		
+		contactDetails.setMailingAddress(flexibleAddressInternal);
+		contactDetails.setStreetAddress(streetAddressInternal);
+		
+		signingContactInternal.setContactDetails(contactDetails);
+		return signingContactInternal;
+	}
 
 	private FlexibleAddress convertFlexibleAddress(eu.erasmuswithoutpaper.api.types.address.FlexibleAddress flexible) {
 		FlexibleAddress flexibleAddressInternal = new FlexibleAddress();
