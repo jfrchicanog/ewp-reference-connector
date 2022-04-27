@@ -406,9 +406,16 @@ public class GuiIiaResource {
 				
 				langskills.add(langskill);
 			} 
+			if (cc.getRecommendedLanguageSkill() == null) {
+				cc.setRecommendedLanguageSkill(new ArrayList<>());
+			}
+			
 			cc.getRecommendedLanguageSkill().addAll(langskills);
 		}
 		
+		if (cc.getReceivingAcademicYearId() == null) {
+			cc.setReceivingAcademicYearId(new ArrayList<>());
+		}
 		cc.getReceivingAcademicYearId().addAll(mobilitySpec.getReceivingAcademicYearId());
 		
 		if (mobilitySpec.getOtherInfoTerms() != null) {
@@ -453,6 +460,11 @@ public class GuiIiaResource {
 				
 				contactsReceivigInternal.add(contactRec);
 			}
+			
+			if(cc.getReceivingPartner().getContacts() == null) {
+				cc.getReceivingPartner().setContacts(new ArrayList<>());
+			}
+			
 			cc.getReceivingPartner().getContacts().addAll(contactsReceivigInternal);
 		}
 		
@@ -463,6 +475,10 @@ public class GuiIiaResource {
 				eu.erasmuswithoutpaper.organization.entity.Contact contactRec = convertToContactDetails(contact);
 				
 				contactsSendinginInternal.add(contactRec);
+			}
+			
+			if(cc.getSendingPartner().getContacts() == null) {
+				cc.getSendingPartner().setContacts(new ArrayList<>());
 			}
 			cc.getSendingPartner().getContacts().addAll(contactsSendinginInternal);
 		}
