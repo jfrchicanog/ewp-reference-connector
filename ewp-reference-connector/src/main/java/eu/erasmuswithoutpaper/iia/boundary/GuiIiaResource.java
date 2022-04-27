@@ -24,6 +24,7 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import eu.erasmuswithoutpaper.api.architecture.StringWithOptionalLang;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.Approval;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
@@ -223,23 +224,30 @@ public class GuiIiaResource {
         em.persist(iiaInternal);
     }
 
-	private eu.erasmuswithoutpaper.organization.entity.Contact convertToContact(Contact signingContact) {
-		eu.erasmuswithoutpaper.organization.entity.Contact signingContactInternal = new eu.erasmuswithoutpaper.organization.entity.Contact();
+	private eu.erasmuswithoutpaper.organization.entity.Contact convertToContact(Contact pContact) {
+		eu.erasmuswithoutpaper.organization.entity.Contact internalContact = new eu.erasmuswithoutpaper.organization.entity.Contact();
+		
+//		List<StringWithOptionalLang> contactNames = pContact.getContactName();
+//		for (StringWithOptionalLang stringWithOptionalLang : contactNames) {
+//			
+//		}
+		//internalContact.set
 		
 		Person personInternal = new Person();
-		personInternal.setGender(Gender.getById(signingContact.getPersonGender()));
-		signingContactInternal.setPerson(personInternal);
+		personInternal.setGender(Gender.getById(pContact.getPersonGender()));
+		internalContact.setPerson(personInternal);
 		
 		ContactDetails contactDetails = new ContactDetails();
 		
-		FlexibleAddress flexibleAddressInternal = convertFlexibleAddress(signingContact.getMailingAddress());
-		FlexibleAddress streetAddressInternal = convertFlexibleAddress(signingContact.getStreetAddress());
+		FlexibleAddress flexibleAddressInternal = convertFlexibleAddress(pContact.getMailingAddress());
+		FlexibleAddress streetAddressInternal = convertFlexibleAddress(pContact.getStreetAddress());
 		
 		contactDetails.setMailingAddress(flexibleAddressInternal);
 		contactDetails.setStreetAddress(streetAddressInternal);
 		
-		signingContactInternal.setContactDetails(contactDetails);
-		return signingContactInternal;
+		internalContact.setContactDetails(contactDetails);
+		
+		return internalContact;
 	}
 
 	private FlexibleAddress convertFlexibleAddress(eu.erasmuswithoutpaper.api.types.address.FlexibleAddress flexible) {
