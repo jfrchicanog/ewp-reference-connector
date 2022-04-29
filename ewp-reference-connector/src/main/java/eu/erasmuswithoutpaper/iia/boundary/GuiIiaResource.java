@@ -24,7 +24,6 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import eu.erasmuswithoutpaper.api.architecture.StringWithOptionalLang;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.Approval;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
@@ -167,8 +166,11 @@ public class GuiIiaResource {
     	
     	iiaInternal.setInEfect(iia.isInEffect());
     	
-    	List<CooperationCondition> cooperationConditionList = iia.getPartner().stream().map((Partner partner) -> {
-    		CooperationCondition cooperationConditionInternal = new CooperationCondition();
+    	List<CooperationCondition> iiaIternalCooperationConditions = getCooperationConditions(iia.getCooperationConditions());
+    	
+    	iia.getPartner().stream().forEach((Partner partner) -> {
+    		
+    		IiaPartner partnerInternal = new IiaPartner();
     		
     		if (partner.getIiaCode() != null) {
     			iiaInternal.setIiaCode(partner.getIiaCode());
@@ -184,8 +186,7 @@ public class GuiIiaResource {
         	
         	//iiaInternal.setEndDate(null);
         	//iiaInternal.setStartDate(null);
-        	
-    		IiaPartner partnerInternal = new IiaPartner();
+    		
     		partnerInternal.setInstitutionId(partner.getHeiId());
     		
     		if (partner.getOunitId() != null) {
@@ -211,13 +212,20 @@ public class GuiIiaResource {
         		
         		partnerInternal.setContacts(internalContacts);
     		}
-        	
-    		cooperationConditionInternal.setReceivingPartner(partnerInternal);
-    		return cooperationConditionInternal;
-    	}).collect(Collectors.toList());
-    	
-    	List<CooperationCondition> iiaIternalCooperationConditions = getCooperationConditions(iia.getCooperationConditions());
-    	iiaIternalCooperationConditions.addAll(cooperationConditionList);
+    		
+    		for (CooperationCondition cooperationConditionInternal : iiaIternalCooperationConditions) {
+    			
+    			if (cooperationConditionInternal.getReceivingPartner().getInstitutionId().equals(partner.getHeiId())) {
+    				
+    				cooperationConditionInternal.setReceivingPartner(partnerInternal);
+    				
+    			} else if (cooperationConditionInternal.getSendingPartner().getInstitutionId().equals(partner.getHeiId())) {
+    				
+    				cooperationConditionInternal.setSendingPartner(partnerInternal);
+    				
+    			}
+			}
+    	});
     	
     	iiaInternal.setCooperationConditions(iiaIternalCooperationConditions);
     	
@@ -422,15 +430,25 @@ public class GuiIiaResource {
 			cc.setOtherInfoTerms(mobilitySpec.getOtherInfoTerms());
 		}
 		
-		cc.getReceivingPartner().setInstitutionId(mobilitySpec.getReceivingHeiId());
-		if(mobilitySpec.getReceivingOunitId() != null) {
-			cc.getReceivingPartner().setOrganizationUnitId(mobilitySpec.getReceivingOunitId());
+		IiaPartner receivingPartnerInternal = new IiaPartner();
+		if (mobilitySpec.getReceivingHeiId() != null) {
+			receivingPartnerInternal.setInstitutionId(mobilitySpec.getReceivingHeiId());
 		}
 		
-		cc.getSendingPartner().setInstitutionId(mobilitySpec.getSendingHeiId());
-		if(mobilitySpec.getSendingOunitId() != null) {
-			cc.getSendingPartner().setOrganizationUnitId(mobilitySpec.getSendingOunitId());
+		if(mobilitySpec.getReceivingOunitId() != null) {
+			receivingPartnerInternal.setOrganizationUnitId(mobilitySpec.getReceivingOunitId());
 		}
+		cc.setReceivingPartner(receivingPartnerInternal);
+		
+		IiaPartner sendingPartnerInternal = new IiaPartner();
+		if(mobilitySpec.getSendingOunitId() != null) {
+			sendingPartnerInternal.setOrganizationUnitId(mobilitySpec.getSendingOunitId());
+		}
+		
+		if(mobilitySpec.getSendingHeiId() != null) {
+			sendingPartnerInternal.setInstitutionId(mobilitySpec.getSendingHeiId());
+		}
+		cc.setSendingPartner(sendingPartnerInternal);
 		
 		if (mobilitySpec.getMobilitiesPerYear() != null) {
 			MobilityNumber mobNumber = new MobilityNumber();
