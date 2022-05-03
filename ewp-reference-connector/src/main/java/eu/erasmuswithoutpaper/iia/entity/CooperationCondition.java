@@ -51,7 +51,7 @@ public class CooperationCondition implements Serializable{
     @JoinColumn(name = "RECEIVING_PARTNER_ID")
     private IiaPartner receivingPartner;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "MOBILITY_TYPE_ID", referencedColumnName = "ID")
     private MobilityType mobilityType;
     
