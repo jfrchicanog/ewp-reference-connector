@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import javax.inject.Inject;
 
+import eu.erasmuswithoutpaper.PublicAPI;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.httpsig.CliauthHttpsig;
@@ -16,6 +17,7 @@ import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 import eu.erasmuswithoutpaper.common.control.EwpConstants;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 
+@PublicAPI
 public class OutgoingMobilityManifestEntry implements ManifestEntryStrategy {
     @Inject
     GlobalProperties globalProperties;

@@ -1,5 +1,10 @@
 package eu.erasmuswithoutpaper.organization.boundary;
 
+import java.math.BigInteger;
+
+import javax.inject.Inject;
+
+import eu.erasmuswithoutpaper.PublicAPI;
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.httpsig.CliauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
@@ -7,12 +12,11 @@ import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.httpsig.SrvauthHtt
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.tlscert.SrvauthTlscert;
 import eu.erasmuswithoutpaper.api.ounits.OrganizationalUnits;
 import eu.erasmuswithoutpaper.api.specs.sec.intro.HttpSecurityOptions;
+import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 import eu.erasmuswithoutpaper.common.control.EwpConstants;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
-import java.math.BigInteger;
-import javax.inject.Inject;
-import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 
+@PublicAPI
 public class OrganizationUnitsManifestEntry implements ManifestEntryStrategy {
     @Inject
     GlobalProperties globalProperties;
