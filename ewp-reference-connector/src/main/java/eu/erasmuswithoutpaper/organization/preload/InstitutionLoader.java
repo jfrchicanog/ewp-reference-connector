@@ -68,10 +68,10 @@ public class InstitutionLoader extends AbstractStartupLoader {
         String streetAddressForUma = "{'addressLine':['Avenida Cervantes, 2'],'postalCode':'29071','locality':'Málaga','country':'ES'}";
         String websiteUrlForUma = "[{'text':'https://www.uma.es','lang':'es'}]";
         String organizationUnit1Names = "[{'text':'Facultad de Psicología','lang':'es'},{'text':'School of Psichology','lang':'en'}]";
-        String streetAddressOrgUnit1 = "{'addressLine':['Bulevar Louis Pasteur, 25'],'buildingNumber':'4','floor':'1','postalCode':'29071','locality':'Málaga','country':'ES'}";
+        String streetAddressOrgUnit1 = "{'buildingNumber':'4','floor':'1','postalCode':'29071','locality':'Málaga','country':'ES'}";
         String websiteUrlForOrgUnit1 = "[{'text':'https://www.uma.es/facultad-de-psicologia/','lang':'es'}]";
         String organizationUnit2Names = "[{'text':'Escuela Técnica Superior de Ingeniería Informática','lang':'es'},{'text':'School of Computer Science','lang':'en'}]";
-        String streetAddressOrgUnit2 = "{'addressLine':['Bulevar Louis Pasteur, 35'],'floor':'2','postalCode':'29071','locality':'Málaga','country':'ES'}";
+        String streetAddressOrgUnit2 = "{'addressLine':['Bulevar Louis Pasteur 35'],'postalCode':'29071','locality':'Málaga','country':'ES'}";
         String otherIdsOrgUnit1 = "[{'idType':'local','idValue':'psicologia'}]";
         String otherIdsOrgUnit2 = "[{'idType':'local','idValue':'informatica'}]";
         String factSheetOrgUnit1 = "{'url':[{'text':'https://www.uma.es/facultad-de-psicologia/info/28260/programas-de-movilidad/','lang':'es'}],'contactDetails':{'streetAddress':" + streetAddressOrgUnit1 + ",'url':" + websiteUrlForOrgUnit1 + ",'phoneNumber':{'e164':'+34 952131495'}}}";
