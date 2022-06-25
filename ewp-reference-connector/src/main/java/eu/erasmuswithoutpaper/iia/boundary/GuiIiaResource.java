@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
@@ -78,6 +79,8 @@ public class GuiIiaResource {
     
     @Inject
     GlobalProperties properties;
+    
+    private static final Logger LOG = Logger.getLogger(GuiIiaResource.class.getCanonicalName()); 
 
     @GET
     @Path("get_all")
@@ -157,7 +160,8 @@ public class GuiIiaResource {
     @Path("add")
     @InternalAuthenticate
     @Consumes(MediaType.APPLICATION_JSON)
-    public void add(IiasGetResponse.Iia iia) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response add(IiasGetResponse.Iia iia) {
     	Iia iiaInternal = new Iia();
     	
     	if (iia.getConditionsHash() != null) {
@@ -230,6 +234,9 @@ public class GuiIiaResource {
     	iiaInternal.setCooperationConditions(iiaIternalCooperationConditions);
     	
         em.persist(iiaInternal);
+        em.flush();       
+        System.out.println("Created Iia Id:"+ iiaInternal.getId());
+		return Response.ok(iiaInternal.getId()).build();
     }
 
 	private eu.erasmuswithoutpaper.organization.entity.Contact convertToContact(Contact pContact) {
