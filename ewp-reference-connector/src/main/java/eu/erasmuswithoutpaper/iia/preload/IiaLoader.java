@@ -1,6 +1,8 @@
 
 package eu.erasmuswithoutpaper.iia.preload;
 
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
+import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
@@ -12,6 +14,7 @@ import eu.erasmuswithoutpaper.organization.entity.OrganizationUnit;
 import eu.erasmuswithoutpaper.organization.preload.InstitutionLoader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.persistence.Query;
 
@@ -78,7 +81,7 @@ public class IiaLoader extends AbstractStartupLoader {
 
     private IiaPartner getIkeaIiaPartner() throws IOException {
         String ouId = InstitutionLoader.IKEA_OU1_ID;
-        return getIiaPartner("{'institutionId':'validator-hei01.developers.erasmuswithoutpaper.eu','organizationUnitId':'" + ouId + "'}", getContacts("ikea.university.se", ouId));
+        return getIiaPartner("{'institutionId':'ikea.university.se','organizationUnitId':'" + ouId + "'}", getContacts("ikea.university.se", ouId));
     }
     
     private IiaPartner getPomodoroIiaPartner() throws IOException {

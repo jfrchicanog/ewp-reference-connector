@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -240,31 +241,34 @@ public class IiaConverter {
     }
     
     private void addToMobilitySpecification(MobilitySpecification conv , CooperationCondition cc) {
-    	List<RecommendedLanguageSkill> recommendedSkills = cc.getRecommendedLanguageSkill().stream().map((langskill) ->{
-    		
-    		RecommendedLanguageSkill recommendedLangSkill = new RecommendedLanguageSkill();
-    		
-    		recommendedLangSkill.setCefrLevel(langskill.getCefrLevel());
-    		recommendedLangSkill.setLanguage(langskill.getLanguage());
-    		
-    		if (langskill.getSubjectArea() != null) {
-    			SubjectArea subjectArea= new SubjectArea();
-        		subjectArea.setIscedClarification(langskill.getSubjectArea().getIscedClarification());
-        		subjectArea.setIscedFCode(langskill.getSubjectArea().getIscedFCode());
+    	
+    	if (cc.getRecommendedLanguageSkill() != null) {
+    		List<RecommendedLanguageSkill> recommendedSkills = cc.getRecommendedLanguageSkill().stream().map((langskill) ->{
         		
-        		recommendedLangSkill.setSubjectArea(subjectArea);
-    		}
+        		RecommendedLanguageSkill recommendedLangSkill = new RecommendedLanguageSkill();
+        		
+        		recommendedLangSkill.setCefrLevel(langskill.getCefrLevel());
+        		recommendedLangSkill.setLanguage(langskill.getLanguage());
+        		
+        		if (langskill.getSubjectArea() != null) {
+        			SubjectArea subjectArea= new SubjectArea();
+            		subjectArea.setIscedClarification(langskill.getSubjectArea().getIscedClarification());
+            		subjectArea.setIscedFCode(langskill.getSubjectArea().getIscedFCode());
+            		
+            		recommendedLangSkill.setSubjectArea(subjectArea);
+        		}
+        		
+        		return recommendedLangSkill;
+        	}).collect(Collectors.toList());
     		
-    		return recommendedLangSkill;
-    	}).collect(Collectors.toList());
+    		conv.getRecommendedLanguageSkill().addAll(recommendedSkills);
+    	}
     	
     	conv.getReceivingAcademicYearId().addAll(cc.getReceivingAcademicYearId());
         
     	if (cc.getReceivingPartner().getOrganizationUnitId() != null) {
             conv.setReceivingOunitId(cc.getReceivingPartner().getOrganizationUnitId());
         }
-        
-        conv.getRecommendedLanguageSkill().addAll(recommendedSkills);
         
         if (cc.getSubjectAreas() != null && !cc.getSubjectAreas().isEmpty()) {
         	 List<SubjectArea> subjectAreas = cc.getSubjectAreas().stream().map(subject -> {
@@ -321,7 +325,7 @@ public class IiaConverter {
     
     private void addToStudentMobilitySpecification(StudentMobilitySpecification conv, CooperationCondition cc) {
         //conv.setAvgMonths(BigInteger.ONE);
-        conv.setTotalMonthsPerYear(new BigDecimal(cc.getDuration().getNumber().toBigInteger(),2));
+        conv.setTotalMonthsPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
         
         List<Byte> eqfLevels = new ArrayList<Byte>();
         byte[] arrEqfLevel = cc.getEqfLevel();
@@ -338,7 +342,7 @@ public class IiaConverter {
 
     private void addToStaffMobilitySpecification(StaffMobilitySpecification conv, CooperationCondition cc) {
         //conv.setAvgDays(BigInteger.ONE);
-        conv.setTotalDaysPerYear(new BigDecimal(cc.getDuration().getNumber().toBigInteger(), 2));
+        conv.setTotalDaysPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
         
         addToMobilitySpecification(conv , cc);
     }
