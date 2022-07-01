@@ -177,16 +177,13 @@ public class GuiIiaResource {
     		IiaPartner partnerInternal = new IiaPartner();
     		
     		if (partner.getIiaCode() != null) {
-    			iiaInternal.setIiaCode(partner.getIiaCode());
+    			partnerInternal.setIiaCode(partner.getIiaCode());
     		}
     		
     		if (partner.getIiaId() != null) {
-    			iiaInternal.setId(partner.getIiaId());
-    		}
-        	
-    		if (partner.getSigningDate() != null) {
-    			iiaInternal.setSigningDate(partner.getSigningDate().toGregorianCalendar().getTime());
-    		}
+    			partnerInternal.setIiaId(partner.getIiaId());
+    		}    	
+    		
         	
         	//iiaInternal.setEndDate(null);
         	//iiaInternal.setStartDate(null);
@@ -227,6 +224,12 @@ public class GuiIiaResource {
     				
     				cooperationConditionInternal.setSendingPartner(partnerInternal);
     				
+    				iiaInternal.setIiaCode(partner.getIiaCode());
+    				iiaInternal.setId(partner.getIiaId());
+    				
+    				if (partner.getSigningDate() != null) {
+    	    			iiaInternal.setSigningDate(partner.getSigningDate().toGregorianCalendar().getTime());
+    	    		}
     			}
 			}
     	});

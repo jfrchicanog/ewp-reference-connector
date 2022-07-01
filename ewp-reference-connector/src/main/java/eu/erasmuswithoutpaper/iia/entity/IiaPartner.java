@@ -33,6 +33,9 @@ public class IiaPartner implements Serializable{
     private String institutionId;
     private String organizationUnitId;
     
+    private String iiaId;
+    private String iiaCode;
+    
     @ManyToMany(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinTable(name = "IIA_PARTNER_CONTACTS")
     private List<Contact> contacts;
@@ -79,6 +82,22 @@ public class IiaPartner implements Serializable{
 
 	public void setSigningContact(Contact signingContact) {
 		this.signingContact = signingContact;
+	}
+
+	public String getIiaId() {
+		return iiaId;
+	}
+
+	public void setIiaId(String iiaId) {
+		this.iiaId = iiaId;
+	}
+
+	public String getIiaCode() {
+		return iiaCode;
+	}
+
+	public void setIiaCode(String iiaCode) {
+		this.iiaCode = iiaCode;
 	}
 
 	@Override
