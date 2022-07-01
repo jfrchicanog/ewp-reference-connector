@@ -164,7 +164,16 @@ public class GuiIiaResource {
     public Response add(IiasGetResponse.Iia iia) {
     	Iia iiaInternal = new Iia();
     	
-    	if (iia.getConditionsHash() != null) {
+    	convertToIia(iia, iiaInternal);
+    	
+        em.persist(iiaInternal);
+        em.flush();       
+        System.out.println("Created Iia Id:"+ iiaInternal.getId());
+		return Response.ok(iiaInternal.getId()).build();
+    }
+
+	private void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal) {
+		if (iia.getConditionsHash() != null) {
     		iiaInternal.setConditionsHash(iia.getConditionsHash());
     	}
     	
@@ -235,12 +244,7 @@ public class GuiIiaResource {
     	});
     	
     	iiaInternal.setCooperationConditions(iiaIternalCooperationConditions);
-    	
-        em.persist(iiaInternal);
-        em.flush();       
-        System.out.println("Created Iia Id:"+ iiaInternal.getId());
-		return Response.ok(iiaInternal.getId()).build();
-    }
+	}
 
 	private eu.erasmuswithoutpaper.organization.entity.Contact convertToContact(Contact pContact) {
 		eu.erasmuswithoutpaper.organization.entity.Contact internalContact = new eu.erasmuswithoutpaper.organization.entity.Contact();
@@ -568,9 +572,13 @@ public class GuiIiaResource {
     @InternalAuthenticate
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response update(Iia iia) {
+    public javax.ws.rs.core.Response update(IiasGetResponse.Iia iia) {
+    	Iia iiaInternal = new Iia();
+        	
+        convertToIia(iia, iiaInternal);
+    	
     	//Find the iia by code
-    	List<Iia> foundIias = em.createNamedQuery(Iia.findByIiaCode).setParameter("iiaCode", iia.getIiaCode()).getResultList();
+    	List<Iia> foundIias = em.createNamedQuery(Iia.findByIiaCode).setParameter("iiaCode", iiaInternal.getIiaCode()).getResultList();
     	
     	Iia foundIia = ( foundIias != null && !foundIias.isEmpty() ) ? foundIias.get(0) : null;
     	
@@ -584,27 +592,28 @@ public class GuiIiaResource {
 			return javax.ws.rs.core.Response.status(Response.Status.NOT_MODIFIED).build();
 		}
 		
-		if (iia.getIiaCode() == null || iia.getIiaCode().isEmpty()) {
+		if (iiaInternal.getIiaCode() == null || iiaInternal.getIiaCode().isEmpty()) {
 			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
 		}
 		
-		if (iia.getStartDate() == null) {
+		if (iiaInternal.getStartDate() == null) {
 			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
 		}
 		
-		if (iia.getCooperationConditions().size() == 0) {
+		if (iiaInternal.getCooperationConditions().size() == 0) {
 			
 			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
 			
-		} else if (!validateConditions(iia.getCooperationConditions())) {
+		} else if (!validateConditions(iiaInternal.getCooperationConditions())) {
 			
 			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
 		}
 		
-		em.persist(iia);//TODO here the new instance is inserted but remains de old one
+		em.persist(iiaInternal);//TODO here the new instance is inserted but remains de old one
 
 		//Notify the partner about the modification using the API GUI IIA CNR 
-		ClientRequest clientRequest = notifyPartner(iia);
+		ClientRequest clientRequest = notifyPartner(iiaInternal);
+		
 		ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
 		
 		return javax.ws.rs.core.Response.ok(iiaResponse).build();
