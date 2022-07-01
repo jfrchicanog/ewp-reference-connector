@@ -191,11 +191,12 @@ public class IiaConverter {
 
     private IiasGetResponse.Iia.Partner convertToPartner(Iia iia, IiaPartner partner) {
         IiasGetResponse.Iia.Partner converted = new IiasGetResponse.Iia.Partner();
+        
         converted.setHeiId(partner.getInstitutionId());
         converted.setOunitId(partner.getOrganizationUnitId());
-        converted.setIiaCode(iia.getIiaCode());
         
-        converted.setIiaId(iia.getId());//TODO Let me know if it is ok
+        converted.setIiaCode(partner.getIiaCode());
+        converted.setIiaId(partner.getIiaId());
         
         try {
         	if (iia.getSigningDate() != null) {
