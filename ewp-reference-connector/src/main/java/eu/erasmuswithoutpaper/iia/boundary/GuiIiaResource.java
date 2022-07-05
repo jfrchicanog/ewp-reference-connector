@@ -13,6 +13,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
@@ -59,6 +60,7 @@ import eu.erasmuswithoutpaper.iia.entity.SubjectArea;
 import eu.erasmuswithoutpaper.organization.entity.ContactDetails;
 import eu.erasmuswithoutpaper.organization.entity.FlexibleAddress;
 import eu.erasmuswithoutpaper.organization.entity.Gender;
+import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.organization.entity.Person;
 import eu.erasmuswithoutpaper.security.InternalAuthenticate;
 
@@ -167,12 +169,29 @@ public class GuiIiaResource {
     	convertToIia(iia, iiaInternal);
     	
         em.persist(iiaInternal);
-        em.flush();       
+        em.flush();   
+        
+        //Update generated iiaId for the partner owner of the iia
+//        String iiaIdGenerated = iiaInternal.getId();
+//        for (CooperationCondition condition : iiaInternal.getCooperationConditions()) {
+//        	
+//        	for (Partner p : iia.getPartner()) {
+//        		if (p.getHeiId().equals(condition.getSendingPartner().getInstitutionId())) {
+//        			p.setIiaId(iiaIdGenerated);
+//        		}
+//        	}
+//        }
+//        
+//        em.persist(iiaInternal);
+        
         System.out.println("Created Iia Id:"+ iiaInternal.getId());
 		return Response.ok(iiaInternal.getId()).build();
     }
 
 	private void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal) {
+		
+		List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+		
 		if (iia.getConditionsHash() != null) {
     		iiaInternal.setConditionsHash(iia.getConditionsHash());
     	}
@@ -185,15 +204,32 @@ public class GuiIiaResource {
     		
     		IiaPartner partnerInternal = new IiaPartner();
     		
+    		for (Institution institution : institutions) {
+				if (institution.getInstitutionId().equals(partner.getHeiId())) {
+					System.out.println("Found Parter:" + partner.getHeiId());
+					
+					iiaInternal.setIiaCode(partner.getIiaCode());
+					iiaInternal.setId(partner.getIiaId());
+
+					if (partner.getSigningDate() != null) {
+		    			iiaInternal.setSigningDate(partner.getSigningDate().toGregorianCalendar().getTime());
+		    		}
+					
+					break;		    		
+				}
+			}
+    		
     		if (partner.getIiaCode() != null) {
     			partnerInternal.setIiaCode(partner.getIiaCode());
     		}
     		
     		if (partner.getIiaId() != null) {
     			partnerInternal.setIiaId(partner.getIiaId());
-    		}    	
+    		}   
     		
-        	
+    		System.out.println("IiaCode:" + iiaInternal.getIiaCode());
+    		System.out.println("IiaCode Parter:" + partner.getIiaCode());
+    		
         	//iiaInternal.setEndDate(null);
         	//iiaInternal.setStartDate(null);
     		
@@ -233,19 +269,14 @@ public class GuiIiaResource {
     				
     				cooperationConditionInternal.setSendingPartner(partnerInternal);
     				
-    				iiaInternal.setIiaCode(partner.getIiaCode());
-    				iiaInternal.setId(partner.getIiaId());
-    				
-    				if (partner.getSigningDate() != null) {
-    	    			iiaInternal.setSigningDate(partner.getSigningDate().toGregorianCalendar().getTime());
-    	    		}
     			}
 			}
+    		
     	});
     	
     	iiaInternal.setCooperationConditions(iiaIternalCooperationConditions);
 	}
-
+	
 	private eu.erasmuswithoutpaper.organization.entity.Contact convertToContact(Contact pContact) {
 		eu.erasmuswithoutpaper.organization.entity.Contact internalContact = new eu.erasmuswithoutpaper.organization.entity.Contact();
 		
@@ -584,7 +615,14 @@ public class GuiIiaResource {
     	
     	//Check if the iia exists
     	if (foundIia == null) {
-    		return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+    		//Find the iia by id
+        	foundIias = em.createNamedQuery(Iia.findById).setParameter("id", iiaInternal.getId()).getResultList();
+        	
+        	foundIia = ( foundIias != null && !foundIias.isEmpty() ) ? foundIias.get(0) : null;
+        	
+        	if (foundIia == null) {
+        		return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        	}
     	}
 		
     	//check if the iia is a draft or proposal
@@ -593,24 +631,66 @@ public class GuiIiaResource {
 		}
 		
 		if (iiaInternal.getIiaCode() == null || iiaInternal.getIiaCode().isEmpty()) {
-			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
-		}
-		
-		if (iiaInternal.getStartDate() == null) {
+			System.err.println("Update Algoria: Mising iiaCode");
 			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
 		}
 		
 		if (iiaInternal.getCooperationConditions().size() == 0) {
-			
+			System.err.println("Update Algoria: Mising Cooperation Conditions");
 			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
 			
 		} else if (!validateConditions(iiaInternal.getCooperationConditions())) {
-			
+			System.err.println("Update Algoria: Invalids Cooperation Conditions");
 			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
 		}
 		
-		em.persist(iiaInternal);//TODO here the new instance is inserted but remains de old one
-
+		foundIia.setConditionsHash(iiaInternal.getConditionsHash());
+		foundIia.setInEfect(iiaInternal.isInEfect());
+		//foundIia.setIiaCode(iiaInternal.getIiaCode());
+		
+		List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
+		List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
+		for (CooperationCondition cc : cooperationConditions) {
+			for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
+				if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId()))
+					if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId()) ) {
+						ccCurrent.setBlended(cc.isBlended());
+						ccCurrent.setDuration(cc.getDuration());
+						ccCurrent.setEndDate(cc.getEndDate());
+						ccCurrent.setEqfLevel(cc.getEqfLevel());
+						ccCurrent.setMobilityNumber(cc.getMobilityNumber());
+						ccCurrent.setMobilityType(cc.getMobilityType());
+						ccCurrent.setOtherInfoTerms(cc.getOtherInfoTerms());
+						ccCurrent.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
+						ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill());
+						ccCurrent.setStartDate(cc.getStartDate());
+						ccCurrent.setSubjectAreas(cc.getSubjectAreas());
+						
+						IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
+						IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
+						
+						sendingPartnerC.setContacts(sendingPartner.getContacts());
+						sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
+						//sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
+												
+						IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
+						IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
+						
+						receivingPartnerC.setContacts(receivingPartner.getContacts());
+						receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
+						
+						ccCurrent.setSendingPartner(sendingPartnerC);
+						ccCurrent.setReceivingPartner(receivingPartnerC);
+					}
+			}
+		}
+		
+		foundIia.setCooperationConditions(cooperationConditionsCurrent);
+		System.err.println("Iia to be updated: " + foundIia.getId() + "; " + foundIia.getConditionsHash());
+		
+		em.merge(foundIia);
+		em.flush();
+		
 		//Notify the partner about the modification using the API GUI IIA CNR 
 		ClientRequest clientRequest = notifyPartner(iiaInternal);
 		
