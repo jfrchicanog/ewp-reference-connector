@@ -18,12 +18,14 @@ import javax.persistence.OneToOne;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = OrganizationUnit.findByOrganizationUnitCode, query = "SELECT o FROM OrganizationUnit o WHERE o.organizationUnitCode = :organizationUnitCode")
+    @NamedQuery(name = OrganizationUnit.findByOrganizationUnitCode, query = "SELECT o FROM OrganizationUnit o WHERE o.organizationUnitCode = :organizationUnitCode"),
+    @NamedQuery(name = OrganizationUnit.findaAll, query = "SELECT o FROM OrganizationUnit o")
 })
 public class OrganizationUnit implements Serializable{
     
     private static final String PREFIX = "eu.erasmuswithoutpaper.organization.entity.OrganizationUnit.";
     public static final String findByOrganizationUnitCode = PREFIX + "byOrganizationUnitCode";
+    public static final String findaAll = PREFIX + "All";
 
     @Id
     @GeneratedValue(generator="system-uuid")
