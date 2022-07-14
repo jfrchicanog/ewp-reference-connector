@@ -10,6 +10,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -34,13 +35,18 @@ public class GuiOUnitResource {
     @POST
     @Path("save")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @InternalAuthenticate
-    public void save(OrganizationUnit ounit) {
+    public Response save(OrganizationUnit ounit) {
         if (ounit.getId() == null || ounit.getId().isEmpty()) {
             em.persist(ounit);
+            em.flush();         
+            
         } else {
             em.merge(ounit);
         }
+        
+        return Response.ok(ounit.getId()).build();
     }
     
     @GET
