@@ -207,6 +207,11 @@ public class GuiIiaResource {
     		for (Institution institution : institutions) {
 				if (institution.getInstitutionId().equals(partner.getHeiId())) {
 					System.out.println("Found Parter:" + partner.getHeiId());
+					System.out.println("IiaCode:" + iiaInternal.getIiaCode());
+		    		System.out.println("IiaCode Parter:" + partner.getIiaCode());
+		    		
+		    		//iiaInternal.setEndDate(null);
+		        	//iiaInternal.setStartDate(null);
 					
 					iiaInternal.setIiaCode(partner.getIiaCode());
 					iiaInternal.setId(partner.getIiaId());
@@ -226,12 +231,6 @@ public class GuiIiaResource {
     		if (partner.getIiaId() != null) {
     			partnerInternal.setIiaId(partner.getIiaId());
     		}   
-    		
-    		System.out.println("IiaCode:" + iiaInternal.getIiaCode());
-    		System.out.println("IiaCode Parter:" + partner.getIiaCode());
-    		
-        	//iiaInternal.setEndDate(null);
-        	//iiaInternal.setStartDate(null);
     		
     		partnerInternal.setInstitutionId(partner.getHeiId());
     		
@@ -627,6 +626,7 @@ public class GuiIiaResource {
 		
     	//check if the iia is a draft or proposal
 		if (foundIia.isInEfect()) {
+			System.out.println("Is draft");
 			return javax.ws.rs.core.Response.status(Response.Status.NOT_MODIFIED).build();
 		}
 		
