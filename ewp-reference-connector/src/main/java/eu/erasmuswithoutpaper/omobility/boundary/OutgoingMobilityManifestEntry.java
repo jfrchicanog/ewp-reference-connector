@@ -17,7 +17,6 @@ import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 import eu.erasmuswithoutpaper.common.control.EwpConstants;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 
-@PublicAPI
 public class OutgoingMobilityManifestEntry implements ManifestEntryStrategy {
     @Inject
     GlobalProperties globalProperties;

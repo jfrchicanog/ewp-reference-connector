@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Instance;
@@ -26,6 +26,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import eu.erasmuswithoutpaper.PublicAPI;
 import eu.erasmuswithoutpaper.api.architecture.MultilineString;
 import eu.erasmuswithoutpaper.api.architecture.StringWithOptionalLang;
+import eu.erasmuswithoutpaper.api.discovery.Host;
+import eu.erasmuswithoutpaper.api.discovery.Host.InstitutionsCovered;
 import eu.erasmuswithoutpaper.api.discovery.Manifest;
 import eu.erasmuswithoutpaper.api.registry.ApisImplemented;
 import eu.erasmuswithoutpaper.api.registry.Hei;
@@ -72,37 +74,54 @@ public class ManifestResource {
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response manifest() throws JsonProcessingException {
         Manifest manifest = new Manifest();
+        Host host = new Host();
         
         ApisImplemented apisImplemented = new ApisImplemented();
         manifestEntries.forEach(me -> apisImplemented.getAny().add(me.getManifestEntry(getBaseUri())));
         
-        manifest.setApisImplemented(apisImplemented);
+        host.setApisImplemented(apisImplemented);
         
         manifestEntries.forEach(me -> LOGGER.info(""+me));
         
-        manifest.setInstitutionsCovered(getInstitutionsCovered());
-        manifest.setClientCredentialsInUse(getClientCredentialsInUse());
-        manifest.setServerCredentialsInUse(getServerCredentialsInUse());
-        manifest.setAdminNotes(getAdminNotes());
+        
+        host.setInstitutionsCovered(getInstitutionsCovered());
+        host.setAdminProvider(getAdminProvider());
+        host.setClientCredentialsInUse(getClientCredentialsInUse());
+        host.setServerCredentialsInUse(getServerCredentialsInUse());
+        host.setAdminNotes(getAdminNotes());
+        host.getAdminEmail().addAll(getAdminEmail());
+        
+        manifest.setHost(host);
 
         return javax.ws.rs.core.Response.ok(manifest).build();
     }
     
-    private Manifest.InstitutionsCovered getInstitutionsCovered() {
-        Manifest.InstitutionsCovered institutionsCovered = new Manifest.InstitutionsCovered();
+    private List<String> getAdminEmail() {
+    	return Arrays.asList("ewp@uma.es"); // TODO this needs to be fixed so that we can change it in the BBD
+    }
+    
+    private String getAdminProvider() {
+    	return "University of Malaga";
+    }
+    
+    private InstitutionsCovered getInstitutionsCovered() {
+        InstitutionsCovered institutionsCovered = new InstitutionsCovered();
         List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
-        List<Hei> heis = institutionList.stream().map((institution) -> createHei(institution)).collect(Collectors.toList());
-        institutionsCovered.getHei().addAll(heis);
+        if (institutionList.size() != 1) {
+        	throw new IllegalStateException("Internal error: more than one insitution covered");
+        }
+        Hei hei = createHei(institutionList.get(0));
+        institutionsCovered.setHei(hei);
         
         return institutionsCovered;
     }
 
-    private Manifest.ClientCredentialsInUse getClientCredentialsInUse() {
-        Manifest.ClientCredentialsInUse clientCredentialsInUse = null;
+    private Host.ClientCredentialsInUse getClientCredentialsInUse() {
+        Host.ClientCredentialsInUse clientCredentialsInUse = null;
         
         String certificate = keystoreController.getCertificate();
         if (certificate != null) {
-            clientCredentialsInUse = new Manifest.ClientCredentialsInUse();
+            clientCredentialsInUse = new Host.ClientCredentialsInUse();
             clientCredentialsInUse.getCertificate().add(certificate);
 
             String rsaPublicKey = keystoreController.getRsaPublicKey();
@@ -112,12 +131,12 @@ public class ManifestResource {
         return clientCredentialsInUse;
     }
 
-    private Manifest.ServerCredentialsInUse getServerCredentialsInUse() {
-        Manifest.ServerCredentialsInUse serverCredentialsInUse = null;
+    private Host.ServerCredentialsInUse getServerCredentialsInUse() {
+        Host.ServerCredentialsInUse serverCredentialsInUse = null;
         
         String rsaPublicKey = keystoreController.getRsaPublicKey();
         if (rsaPublicKey != null) {
-            serverCredentialsInUse = new Manifest.ServerCredentialsInUse();
+            serverCredentialsInUse = new Host.ServerCredentialsInUse();
             serverCredentialsInUse.getRsaPublicKey().add(rsaPublicKey);
         }
         

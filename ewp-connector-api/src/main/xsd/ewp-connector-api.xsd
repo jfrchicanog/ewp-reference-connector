@@ -8,12 +8,12 @@
     xmlns="https://github.com/erasmus-without-paper/ewp-reference-connector/tree/master"
 >
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-discovery/v4.1.0/manifest.xsd"
-        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-discovery/tree/stable-v4"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-discovery/v6.0.0/manifest.xsd"
+        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-discovery/tree/stable-v6"
     />
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-discovery/v4.1.0/manifest-entry.xsd"
-        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-discovery/blob/stable-v4/manifest-entry.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-discovery/v6.0.0/manifest-entry.xsd"
+        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-discovery/blob/stable-v6/manifest-entry.xsd"
     />
     
 
