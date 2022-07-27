@@ -34,7 +34,7 @@ public class OrganizationUnitsManifestEntry implements ManifestEntryStrategy {
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
         
         CliauthTlscert cliauthtlscert = new CliauthTlscert();
-        cliauthtlscert.setAllowsSelfSigned(true);
+        cliauthtlscert.setAllowsSelfSigned(false);
         clientAuthMethods.getAny().add(cliauthtlscert);
         
 //        clientAuthMethods.getAny().add(new Anonymous());
