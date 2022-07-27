@@ -38,46 +38,34 @@ public class OrganizationUnitResource {
     
     @GET
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response ounitsGet(@QueryParam("hei_id") String heiId, @QueryParam("ounit_id") List<String> organizationUnitIdList, @QueryParam("ounit_code") List<String> organizationUnitCodeList) {
-    	if ( (organizationUnitCodeList != null && !organizationUnitCodeList.isEmpty()) && (organizationUnitIdList != null && !organizationUnitIdList.isEmpty()) ) {
-        	throw new EwpWebApplicationException("Providing both ounit_code and ounit_id is not correct", Response.Status.BAD_REQUEST);
-        }
-        
-        if ( (organizationUnitCodeList == null || organizationUnitCodeList.isEmpty()) && (organizationUnitIdList == null || organizationUnitIdList.isEmpty()) ) {
-        	throw new EwpWebApplicationException("Missing argumanets, ounit_code or ounit_id is required", Response.Status.BAD_REQUEST);
-        }
-    	
-        List<String> ounitIdentifiers = new ArrayList<>();
-        
-        //Flag to define the search criteria. 
-        boolean byLocalCodes = false;
-        
-        if (organizationUnitIdList != null && !organizationUnitIdList.isEmpty()) {
-        	ounitIdentifiers.addAll(organizationUnitIdList);
-        } else {
-        	ounitIdentifiers.addAll(organizationUnitCodeList);
-        	byLocalCodes = true;
-        }
-        
-    	return organizationUnits(heiId, ounitIdentifiers, byLocalCodes);
+    public javax.ws.rs.core.Response ounitsGet(@QueryParam("hei_id") List<String> heiId, @QueryParam("ounit_id") List<String> organizationUnitIdList, @QueryParam("ounit_code") List<String> organizationUnitCodeList) {
+    	return processRequest(heiId, organizationUnitIdList, organizationUnitCodeList);
     }
-    
-    @POST
-    @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response ounitsPost(@FormParam("hei_id") String heiId, @FormParam("ounit_id") List<String> organizationUnitIdList, @QueryParam("ounit_code") List<String> organizationUnitCodeList) {
-    	if ( (organizationUnitCodeList != null && !organizationUnitCodeList.isEmpty()) && (organizationUnitIdList != null && !organizationUnitIdList.isEmpty()) ) {
+
+	private javax.ws.rs.core.Response processRequest(List<String> heiId, List<String> organizationUnitIdList,
+			List<String> organizationUnitCodeList) {
+		
+		if (heiId==null || heiId.isEmpty()) {
+			throw new EwpWebApplicationException("Missing arguments: one hei_id should be provided", Response.Status.BAD_REQUEST);
+		}
+		
+		if (heiId.size() > 1) {
+			throw new EwpWebApplicationException("Too many heiIds", Response.Status.BAD_REQUEST);
+		}
+		
+		if ( (organizationUnitCodeList != null && !organizationUnitCodeList.isEmpty()) && (organizationUnitIdList != null && !organizationUnitIdList.isEmpty()) ) {
         	throw new EwpWebApplicationException("Providing both ounit_code and ounit_id is not correct", Response.Status.BAD_REQUEST);
         }
         
         if ( (organizationUnitCodeList == null || organizationUnitCodeList.isEmpty()) && (organizationUnitIdList == null || organizationUnitIdList.isEmpty()) ) {
-        	throw new EwpWebApplicationException("Missing argumanets, ounit_code or ounit_id is required", Response.Status.BAD_REQUEST);
+        	throw new EwpWebApplicationException("Missing arguments, ounit_code or ounit_id is required", Response.Status.BAD_REQUEST);
         }
         
         if (organizationUnitIdList.size() > properties.getMaxOunitsIds()) {
             throw new EwpWebApplicationException("Max number of organization unit ids has exceeded.", Response.Status.BAD_REQUEST);
         }
         
-        if (organizationUnitIdList.size() > properties.getMaxOunitsCodes()) {
+        if (organizationUnitCodeList.size() > properties.getMaxOunitsCodes()) {
             throw new EwpWebApplicationException("Max number of organization codes has exceeded.", Response.Status.BAD_REQUEST);
         }
     	
@@ -93,7 +81,13 @@ public class OrganizationUnitResource {
         	byLocalCodes = true;
         }
     	
-    	return organizationUnits(heiId, organizationUnitIdList, byLocalCodes);
+    	return organizationUnits(heiId.get(0), ounitIdentifiers, byLocalCodes);
+	}
+    
+    @POST
+    @Produces(MediaType.APPLICATION_XML)
+    public javax.ws.rs.core.Response ounitsPost(@FormParam("hei_id") List<String> heiId, @FormParam("ounit_id") List<String> organizationUnitIdList, @FormParam("ounit_code") List<String> organizationUnitCodeList) {
+    	return processRequest(heiId, organizationUnitIdList, organizationUnitCodeList);
     }
     
     private javax.ws.rs.core.Response organizationUnits(String heiId, List<String> organizationUnitIdList, boolean byLocalCodes) {
