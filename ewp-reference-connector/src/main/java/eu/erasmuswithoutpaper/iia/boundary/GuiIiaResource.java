@@ -13,7 +13,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
@@ -190,16 +189,15 @@ public class GuiIiaResource {
 
 	private void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal) {
 		
-		List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-		
 		if (iia.getConditionsHash() != null) {
     		iiaInternal.setConditionsHash(iia.getConditionsHash());
     	}
     	
     	iiaInternal.setInEfect(iia.isInEffect());
-    	
+
     	List<CooperationCondition> iiaIternalCooperationConditions = getCooperationConditions(iia.getCooperationConditions());
     	
+    	List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
     	iia.getPartner().stream().forEach((Partner partner) -> {
     		
     		IiaPartner partnerInternal = new IiaPartner();
@@ -692,35 +690,60 @@ public class GuiIiaResource {
 		em.flush();
 		
 		//Notify the partner about the modification using the API GUI IIA CNR 
-		ClientRequest clientRequest = notifyPartner(iiaInternal);
+		List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
 		
-		ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
+		//ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
 		
-		return javax.ws.rs.core.Response.ok(iiaResponse).build();
+		return javax.ws.rs.core.Response.ok(iiasResponse).build();
 	} 
     
-    private ClientRequest notifyPartner(Iia iia) {
+    private List<ClientResponse> notifyPartner(Iia iia) {
+    	List<ClientResponse> partnersResponseList = new ArrayList<>();
+    	
     	//Getting agreement partners
 		IiaPartner partnerSending = null;
 		IiaPartner partnerReceiving = null;
 		
+		List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
 		for (CooperationCondition condition : iia.getCooperationConditions()) {
 			partnerSending = condition.getSendingPartner();
 			partnerReceiving = condition.getReceivingPartner();
+			
+			Map<String, String> urls = null;
+			for (Institution institution : institutions){
+				
+				if (!institution.getInstitutionId().equals(partnerSending.getInstitutionId())) {
+					
+					//Get the url for notify the institute not supported by our EWP
+			    	urls = registryClient.getIiaCnrHeiUrls(partnerSending.getInstitutionId());
+			    	
+				} else if (!institution.getInstitutionId().equals(partnerReceiving.getInstitutionId())) {
+					
+					//Get the url for notify the institute not supported by our EWP
+			    	urls = registryClient.getIiaCnrHeiUrls(partnerReceiving.getInstitutionId());
+			    	
+				}
+			}
+			
+			if (urls != null) {
+				List<String> urlValues = new ArrayList<String>(urls.values());
+		    	
+		    	//Notify the other institution about the modification 
+		    	ClientRequest clientRequest = new ClientRequest();
+		    	clientRequest.setUrl(urls.get(urlValues.get(0)));//get the first and only one url
+		    	clientRequest.setHeiId(partnerReceiving.getInstitutionId());
+		    	clientRequest.setMethod(HttpMethodEnum.POST);
+		    	clientRequest.setHttpsec(true);
+				
+		    	ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
+		    	
+		    	partnersResponseList.add(iiaResponse);
+			}
+			
         }
 		
-    	//Get the url for notify the institute
-    	Map<String, String> urls = registryClient.getIiaCnrHeiUrls(partnerSending.getInstitutionId());
-    	List<String> urlValues = new ArrayList<String>(urls.values());
+		return partnersResponseList;
     	
-    	//Notify the other institution about the modification 
-    	ClientRequest clientRequest = new ClientRequest();
-    	clientRequest.setUrl(urls.get(urlValues.get(0)));//get the first and only one url
-    	clientRequest.setHeiId(partnerReceiving.getInstitutionId());
-    	clientRequest.setMethod(HttpMethodEnum.POST);
-    	clientRequest.setHttpsec(true);
-    	
-    	return clientRequest;
 	}
 
 	@POST

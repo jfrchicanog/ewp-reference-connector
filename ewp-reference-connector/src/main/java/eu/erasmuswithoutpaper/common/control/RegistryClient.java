@@ -210,7 +210,9 @@ public class RegistryClient {
         myConditions.setRequiredHei(heiId);
         Element manifest = client.findApi(myConditions);
 
-        return getUrlsFromManifestElement(manifest);
+        if (manifest != null) {
+        	return getUrlsFromManifestElement(manifest);
+        } else return null;
     }
     
     private List<HeiEntry> getHeis(String namespace, String name, String version) {
