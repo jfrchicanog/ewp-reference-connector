@@ -36,6 +36,21 @@
 		<url>https://github.com/erasmus-without-paper/ewp-reference-connector</url>
 	</scm>
 
+<dependencies>
+<dependency>
+ 			<groupId>jakarta.xml.bind</groupId>
+ 			<artifactId>jakarta.xml.bind-api</artifactId>
+ 			<version>2.3.3</version>
+ 		</dependency>
+
+<dependency>
+ 		<groupId>com.sun.xml.bind</groupId>
+ 			<artifactId>jaxb-impl</artifactId>
+ 			<version>2.3.3</version>
+ 			<scope>runtime</scope>
+ 		</dependency>
+</dependencies>
+
 	<build>
 		
 			<plugins>
@@ -113,7 +128,7 @@
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<jaxb2.version>2.3</jaxb2.version>
+		<jaxb2.version>2.5.0</jaxb2.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<javax.xml.accessExternalDTD>all</javax.xml.accessExternalDTD>
 		<javax.xml.accessExternalSchema>all</javax.xml.accessExternalSchema>
