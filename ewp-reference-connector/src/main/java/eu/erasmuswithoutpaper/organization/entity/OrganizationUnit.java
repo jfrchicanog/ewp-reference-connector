@@ -117,7 +117,7 @@ public class OrganizationUnit implements Serializable{
         this.logoUrl = logoUrl;
     }
 
-    @Override
+	@Override
     public int hashCode() {
         int hash = 7;
         hash = 13 * hash + Objects.hashCode(this.id);
