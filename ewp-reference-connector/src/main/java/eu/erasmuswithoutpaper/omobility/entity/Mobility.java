@@ -30,7 +30,7 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 })
 public class Mobility implements Serializable {
 
-    private static final String PREFIX = "eu.erasmuswithoutpaper.mobility.entity.Mobility.";
+    private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.entity.Mobility.";
     public static final String findAll = PREFIX + "all";
     public static final String findBySendingInstitutionId = PREFIX + "findBySendingInstitutionId";
     public static final String findByReceivingInstitutionId = PREFIX + "findByReceivingInstitutionId";
@@ -54,7 +54,13 @@ public class Mobility implements Serializable {
     @JoinTable(name = "LANGSKILL_MOBILITY")
     List<LanguageSkill> nomineeLanguageSkill;
     
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "ADDITIONAL_REQUIREMENTS_MOBILITY")
+    List<AdditionalRequirements> additionalRequirements;
+    
     private MobilityStatus status;
+    private MobilityActivityType activityType;
+    private MobilityActivityAttributes activityAttribute;
     
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
@@ -217,6 +223,30 @@ public class Mobility implements Serializable {
 
 	public void setNomineeLanguageSkill(List<LanguageSkill> nomineeLanguageSkill) {
 		this.nomineeLanguageSkill = nomineeLanguageSkill;
+	}
+
+	public MobilityActivityType getActivityType() {
+		return activityType;
+	}
+
+	public void setActivityType(MobilityActivityType activityType) {
+		this.activityType = activityType;
+	}
+
+	public MobilityActivityAttributes getActivityAttribute() {
+		return activityAttribute;
+	}
+
+	public void setActivityAttribute(MobilityActivityAttributes activityAttribute) {
+		this.activityAttribute = activityAttribute;
+	}
+
+	public List<AdditionalRequirements> getAdditionalRequirements() {
+		return additionalRequirements;
+	}
+
+	public void setAdditionalRequirements(List<AdditionalRequirements> additionalRequirements) {
+		this.additionalRequirements = additionalRequirements;
 	}
 
 	@Override

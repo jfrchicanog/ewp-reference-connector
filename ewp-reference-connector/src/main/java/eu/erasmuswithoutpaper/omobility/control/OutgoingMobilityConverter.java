@@ -13,12 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
+import eu.erasmuswithoutpaper.api.omobilities.endpoints.MobilityActivityType;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.MobilityStatus;
-import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobilityForStudies;
-import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobilityForStudies.NomineeLanguageSkill;
+import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobility;
+import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobility.AdditionalRequirement;
+import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobility.NomineeLanguageSkill;
 import eu.erasmuswithoutpaper.common.control.ConverterHelper;
+import eu.erasmuswithoutpaper.omobility.entity.AdditionalRequirements;
 import eu.erasmuswithoutpaper.omobility.entity.LanguageSkill;
 import eu.erasmuswithoutpaper.omobility.entity.Mobility;
+import eu.erasmuswithoutpaper.omobility.entity.MobilityActivityAttributes;
 import eu.erasmuswithoutpaper.organization.entity.LanguageItem;
 import eu.erasmuswithoutpaper.organization.entity.MobilityParticipant;
 import eu.erasmuswithoutpaper.organization.entity.Person;
@@ -29,8 +33,8 @@ public class OutgoingMobilityConverter {
     @PersistenceContext(unitName = "connector")
     EntityManager em;
 
-    public StudentMobilityForStudies convertToStudentMobilityForStudies(Mobility mobility) {
-        StudentMobilityForStudies studentMobilityForStudies = new StudentMobilityForStudies();
+    public StudentMobility convertToStudentMobilityForStudies(Mobility mobility) {
+    	StudentMobility studentMobilityForStudies = new StudentMobility();
         
         studentMobilityForStudies.setEqfLevelStudiedAtDeparture(mobility.getEqfLevelDeparture());
         studentMobilityForStudies.setEqfLevelStudiedAtNomination(mobility.getEqfLevelNomination());
@@ -42,6 +46,7 @@ public class OutgoingMobilityConverter {
         studentMobilityForStudies.setNomineeIscedFCode(mobility.getNomineeIscedFCode());
         
         studentMobilityForStudies.getNomineeLanguageSkill().addAll(convertToNomineeLanguageSkill(mobility.getNomineeLanguageSkill()));
+        studentMobilityForStudies.getAdditionalRequirement().addAll(convertToAdditionalRequirements(mobility.getAdditionalRequirements()));
         
         try {
             studentMobilityForStudies.setPlannedArrivalDate(ConverterHelper.convertToXmlGregorianCalendar(mobility.getPlannedArrivalDate()));
@@ -58,10 +63,35 @@ public class OutgoingMobilityConverter {
         studentMobilityForStudies.setStatus(convertToMobilityStatus(mobility.getStatus()));
         studentMobilityForStudies.setStudent(convertToStudent(mobility.getMobilityParticipantId()));
         
+        MobilityActivityType activityType = convertToMobilityActivityType(mobility.getActivityType());
+        studentMobilityForStudies.setActivityType(activityType);
+        
+        eu.erasmuswithoutpaper.api.omobilities.endpoints.MobilityActivityAttributes activityAttribute = convertToMobilityAttribute(mobility.getActivityAttribute());
+        studentMobilityForStudies.setActivityAttributes(activityAttribute);
+        
         return studentMobilityForStudies;
     }
 
-    private Collection<NomineeLanguageSkill> convertToNomineeLanguageSkill(
+    private Collection<? extends AdditionalRequirement> convertToAdditionalRequirements(
+			List<AdditionalRequirements> additionalRequirements) {
+    	return additionalRequirements.stream().map((addreq) ->{
+    		
+    		AdditionalRequirement addRequirements = new AdditionalRequirement();
+    		
+    		addRequirements.setName(addreq.getName());
+    		addRequirements.setFile(addreq.getFile());
+    		addRequirements.setUrl(addreq.getUrl());
+    		
+    		return addRequirements;
+    	}).collect(Collectors.toList());
+	}
+
+	private eu.erasmuswithoutpaper.api.omobilities.endpoints.MobilityActivityAttributes convertToMobilityAttribute(MobilityActivityAttributes activityAttribute) {
+    	eu.erasmuswithoutpaper.api.omobilities.endpoints.MobilityActivityAttributes mobilityActAtt = eu.erasmuswithoutpaper.api.omobilities.endpoints.MobilityActivityAttributes.fromValue(activityAttribute.value());
+        return mobilityActAtt;
+	}
+
+	private Collection<NomineeLanguageSkill> convertToNomineeLanguageSkill(
 			List<LanguageSkill> nomineeLanguageSkill) {
 		
     	return nomineeLanguageSkill.stream().map((langskill) ->{
@@ -74,16 +104,16 @@ public class OutgoingMobilityConverter {
     	}).collect(Collectors.toList());
 	}
 
-    private StudentMobilityForStudies.ReceivingHei convertToReceivingHei(String iiaId, String institutionId, String organizationUnitId) {
-        StudentMobilityForStudies.ReceivingHei receivingHei = new StudentMobilityForStudies.ReceivingHei();
+    private StudentMobility.ReceivingHei convertToReceivingHei(String iiaId, String institutionId, String organizationUnitId) {
+        StudentMobility.ReceivingHei receivingHei = new StudentMobility.ReceivingHei();
         receivingHei.setIiaId(iiaId);
         receivingHei.setHeiId(institutionId);
         receivingHei.setOunitId(organizationUnitId);
         return receivingHei;
     }
 
-    private StudentMobilityForStudies.SendingHei convertToSendingHei(String iiaId, String institutionId, String organizationUnitId) {
-        StudentMobilityForStudies.SendingHei sendingHei = new StudentMobilityForStudies.SendingHei();
+    private StudentMobility.SendingHei convertToSendingHei(String iiaId, String institutionId, String organizationUnitId) {
+        StudentMobility.SendingHei sendingHei = new StudentMobility.SendingHei();
         sendingHei.setIiaId(iiaId);
         sendingHei.setHeiId(institutionId);
         sendingHei.setOunitId(organizationUnitId);
@@ -94,10 +124,15 @@ public class OutgoingMobilityConverter {
         MobilityStatus mobilityStatus = MobilityStatus.fromValue(status.value());
         return mobilityStatus;
     }
+    
+    private MobilityActivityType convertToMobilityActivityType(eu.erasmuswithoutpaper.omobility.entity.MobilityActivityType activityType) {
+    	MobilityActivityType mobilityStatus = MobilityActivityType.fromValue(activityType.value());
+        return mobilityStatus;
+    }
 
-    private StudentMobilityForStudies.Student convertToStudent(String studentId) {
+    private StudentMobility.Student convertToStudent(String studentId) {
         MobilityParticipant student =  em.find(MobilityParticipant.class, studentId);
-        StudentMobilityForStudies.Student mobilityStudent = new StudentMobilityForStudies.Student();
+        StudentMobility.Student mobilityStudent = new StudentMobility.Student();
         if (student != null) {
             Person person = student.getPerson();
             mobilityStudent.getPhoneNumber().addAll(ConverterHelper.convertToPhoneNumbers(student.getContactDetails().getPhoneNumber()));

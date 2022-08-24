@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
 
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.OmobilitiesGetResponse;
 import eu.erasmuswithoutpaper.api.omobilities.endpoints.OmobilitiesIndexResponse;
-import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobilityForStudies;
+import eu.erasmuswithoutpaper.api.omobilities.endpoints.StudentMobility;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
@@ -168,8 +168,8 @@ public class OutgoingMobilityResource {
         }
     };
     
-    private List<StudentMobilityForStudies> mobilities(List<Mobility> mobilityList, List<String> mobilityIdList) {
-        List<StudentMobilityForStudies> mobilities = new ArrayList<>();
+    private List<StudentMobility> mobilities(List<Mobility> mobilityList, List<String> mobilityIdList) {
+        List<StudentMobility> mobilities = new ArrayList<>();
         mobilityList.stream().forEachOrdered((m) -> {
             if (mobilityIdList.contains(m.getId())) {
                 mobilities.add(mobilityConverter.convertToStudentMobilityForStudies(m));
