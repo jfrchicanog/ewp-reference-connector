@@ -10,7 +10,7 @@ import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = Mobility.findAll, query = "SELECT a FROM AdditionalRequirements a"),
+    @NamedQuery(name = AdditionalRequirements.findAll, query = "SELECT a FROM AdditionalRequirements a"),
 })
 public class AdditionalRequirements {
 	
