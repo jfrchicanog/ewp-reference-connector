@@ -123,7 +123,7 @@ public class IiaConverter {
         }).collect(Collectors.toList());
     }
     
-	private CooperationConditions removeContactInfo(CooperationConditions cc) {
+	public CooperationConditions removeContactInfo(CooperationConditions cc) {
 		cc.getStaffTeacherMobilitySpec().forEach(t -> {
 			t.getReceivingContact().clear();
 			t.getSendingContact().clear();
@@ -148,7 +148,7 @@ public class IiaConverter {
 		return cc;
 	}
 
-	private IiasGetResponse.Iia.CooperationConditions convertToCooperationConditions(List<CooperationCondition> cooperationConditions) {
+	public IiasGetResponse.Iia.CooperationConditions convertToCooperationConditions(List<CooperationCondition> cooperationConditions) {
         // TODO: Add this
         Map<String, List<CooperationCondition>> ccMap = cooperationConditions
                 .stream()
