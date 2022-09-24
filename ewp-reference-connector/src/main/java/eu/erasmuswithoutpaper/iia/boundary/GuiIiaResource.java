@@ -1,12 +1,14 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
@@ -24,7 +26,22 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
+import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
+
+import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.Approval;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
@@ -46,12 +63,14 @@ import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Duration;
 import eu.erasmuswithoutpaper.iia.entity.DurationUnitVariants;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
+import eu.erasmuswithoutpaper.iia.entity.IiaResponse;
 import eu.erasmuswithoutpaper.iia.entity.MobilityNumber;
 import eu.erasmuswithoutpaper.iia.entity.MobilityNumberVariants;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
@@ -81,7 +100,7 @@ public class GuiIiaResource {
     @Inject
     GlobalProperties properties;
     
-    private static final Logger LOG = Logger.getLogger(GuiIiaResource.class.getCanonicalName()); 
+    private static final Logger logger = LoggerFactory.getLogger(GuiIiaResource.class);
 
     @GET
     @Path("get_all")
@@ -167,6 +186,38 @@ public class GuiIiaResource {
     	
     	convertToIia(iia, iiaInternal);
     	
+    	try {
+    		
+        	JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
+        	Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        	jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        	
+        	StringWriter sw = new StringWriter();
+        	
+        	//Create a copy off CooperationConditions to be used in calculateSha256 function
+        	CooperationConditions cc = new CooperationConditions();
+        	cc.getStaffTeacherMobilitySpec().addAll(iia.getCooperationConditions().getStaffTeacherMobilitySpec());
+        	cc.getStaffTrainingMobilitySpec().addAll(iia.getCooperationConditions().getStaffTrainingMobilitySpec());
+        	cc.getStudentStudiesMobilitySpec().addAll(iia.getCooperationConditions().getStudentStudiesMobilitySpec());
+        	cc.getStudentTraineeshipMobilitySpec().addAll(iia.getCooperationConditions().getStudentTraineeshipMobilitySpec());
+        	
+        	cc = iiaConverter.removeContactInfo(cc);
+        	
+        	QName qName = new QName("cooperation_conditions");
+        	JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
+    	
+    	
+        	jaxbMarshaller.marshal(root, sw);
+        	String xmlString = sw.toString();
+        	
+			String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
+			
+			iiaInternal.setConditionsHash(calculatedHash);
+    	} catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
+				| IOException | ParserConfigurationException | TransformerException | JAXBException e) {
+    		logger.error("Can't calculate sha256 adding new iia", e);
+		}
+    	
         em.persist(iiaInternal);
         em.flush();   
         
@@ -184,7 +235,9 @@ public class GuiIiaResource {
 //        em.persist(iiaInternal);
         
         System.out.println("Created Iia Id:"+ iiaInternal.getId());
-		return Response.ok(iiaInternal.getId()).build();
+        
+        IiaResponse response = new IiaResponse(iiaInternal.getId(),iiaInternal.getConditionsHash());
+		return Response.ok(response).build();
     }
 
 	private void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal) {
@@ -642,7 +695,40 @@ public class GuiIiaResource {
 			return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
 		}
 		
-		foundIia.setConditionsHash(iiaInternal.getConditionsHash());
+		
+		try {
+    		
+        	JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
+        	Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        	jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        	
+        	StringWriter sw = new StringWriter();
+        	
+        	//Create a copy off CooperationConditions to be used in calculateSha256 function
+        	CooperationConditions cc = new CooperationConditions();
+        	cc.getStaffTeacherMobilitySpec().addAll(iia.getCooperationConditions().getStaffTeacherMobilitySpec());
+        	cc.getStaffTrainingMobilitySpec().addAll(iia.getCooperationConditions().getStaffTrainingMobilitySpec());
+        	cc.getStudentStudiesMobilitySpec().addAll(iia.getCooperationConditions().getStudentStudiesMobilitySpec());
+        	cc.getStudentTraineeshipMobilitySpec().addAll(iia.getCooperationConditions().getStudentTraineeshipMobilitySpec());
+        	
+        	cc = iiaConverter.removeContactInfo(cc);
+        	
+        	QName qName = new QName("cooperation_conditions");
+        	JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
+    	
+    	
+        	jaxbMarshaller.marshal(root, sw);
+        	String xmlString = sw.toString();
+        	
+			String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
+			
+			foundIia.setConditionsHash(calculatedHash);
+    	} catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
+				| IOException | ParserConfigurationException | TransformerException | JAXBException e) {
+    		logger.error("Can't calculate sha256 adding new iia", e);
+		}
+		
+		//foundIia.setConditionsHash(iiaInternal.getConditionsHash());
 		foundIia.setInEfect(iiaInternal.isInEfect());
 		//foundIia.setIiaCode(iiaInternal.getIiaCode());
 		
@@ -735,7 +821,7 @@ public class GuiIiaResource {
 		    	clientRequest.setMethod(HttpMethodEnum.POST);
 		    	clientRequest.setHttpsec(true);
 				
-		    	ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
+		    	ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
 		    	
 		    	partnersResponseList.add(iiaResponse);
 			}
@@ -832,7 +918,7 @@ public class GuiIiaResource {
     	
     	clientRequestGetIia.setParams(paramsCnr);
     	
-        ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
+        ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, Empty.class);
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
     }
     
