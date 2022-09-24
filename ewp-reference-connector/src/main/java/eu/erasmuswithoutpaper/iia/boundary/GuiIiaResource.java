@@ -780,7 +780,8 @@ public class GuiIiaResource {
 		
 		//ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
 		
-		return javax.ws.rs.core.Response.ok(iiasResponse).build();
+		 IiaResponse response = new IiaResponse(foundIia.getId(),foundIia.getConditionsHash());
+		return javax.ws.rs.core.Response.ok(response).build();
 	} 
     
     private List<ClientResponse> notifyPartner(Iia iia) {
