@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.omobility.las.boundary;
 
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
@@ -8,7 +9,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
@@ -28,6 +32,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
+import eu.erasmuswithoutpaper.api.imobilities.Imobilities;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LasOutgoingStatsResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasIndexResponse;
@@ -37,7 +43,10 @@ import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
+import eu.erasmuswithoutpaper.imobility.entity.IMobility;
+import eu.erasmuswithoutpaper.imobility.entity.IMobilityStatus;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
+import eu.erasmuswithoutpaper.omobility.las.entity.AcademicYearLaStats;
 import eu.erasmuswithoutpaper.omobility.las.entity.ApprovedProposal;
 import eu.erasmuswithoutpaper.omobility.las.entity.CommentProposal;
 import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
@@ -177,6 +186,120 @@ public class OutgoingMobilityLearningAgreementsResource {
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
+    @GET
+    @Path("stats")
+    @Produces(MediaType.APPLICATION_XML)
+    public javax.ws.rs.core.Response omobilityGetStats(@QueryParam("receiving_hei_id") String receivingHeiId) {
+        return omobilityStatsGet(receivingHeiId);
+    }
+    
+    private javax.ws.rs.core.Response omobilityStatsGet(String receivingHeiId) {
+        LasOutgoingStatsResponse response = new LasOutgoingStatsResponse();
+        
+        //Filter learning agreement 
+        List<OlearningAgreement> omobilityLasList =  em.createNamedQuery(OlearningAgreement.findByReceivingHeiId).setParameter("receivingHei", receivingHeiId).getResultList();
+        
+        if (!omobilityLasList.isEmpty()) {
+        	
+        	 Collection<String> heisCoveredByCertificate;
+             if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+                 heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+             } else {
+                 heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+             }
+             
+             //checking if caller covers the receiving HEI of this mobility,
+             omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId())).collect(Collectors.toList());
+              
+             //Grouping learning agreement by year             
+             Map<String,List<OlearningAgreement>> olearningAgreementGroupByYear = new HashMap<String, List<OlearningAgreement>>();
+             omobilityLasList.forEach(olas -> {
+            	Set<String> keys = olearningAgreementGroupByYear.keySet();
+            	 
+            	if (keys.contains(olas.getReceivingAcademicTermEwpId())) {
+            		List<OlearningAgreement> group = olearningAgreementGroupByYear.get(olas.getReceivingAcademicTermEwpId());
+            		
+            		group.add(olas);
+            		olearningAgreementGroupByYear.put(olas.getReceivingAcademicTermEwpId(), group);
+            	} else {
+            		List<OlearningAgreement> group = new ArrayList<>();
+            		group.add(olas);
+            		olearningAgreementGroupByYear.put(olas.getReceivingAcademicTermEwpId(), group);
+            	}
+             });
+             
+             //Calculate stats
+             List<AcademicYearLaStats> stats = new ArrayList<>();
+             Set<String> keys = olearningAgreementGroupByYear.keySet();
+             
+             
+             keys.forEach(key -> {
+            	 List<OlearningAgreement> group = olearningAgreementGroupByYear.get(key);
+            	 
+            	 AcademicYearLaStats currentGroupStat = new AcademicYearLaStats();
+            	 currentGroupStat.setReceivingAcademicYearId(key);
+            	 currentGroupStat.setLaOutgoingTotal(BigInteger.valueOf(group.size()));
+            	 
+            	 int countNotModifiedAfterApproval = 0;            	 
+            	 int countModifiedAfterApproval = 0;
+            	 int countLatestVersionApproved = 0;
+            	 int countLatestVersionRejected = 0;
+            	 int countLatestVersionawaiting = 0;
+            	 
+            	 for (OlearningAgreement g : group) {
+            		 if (g.getApprovedChanges() == null) {//Does not have other versions
+            			 countNotModifiedAfterApproval++;
+            		 }
+            		 
+            		 if (g.getApprovedChanges() != null) {//Does have other versions
+            			 countModifiedAfterApproval++;
+            		 }
+            		 
+            		 if (g.getApprovedChanges().getReceivingHeiSignature() != null) {
+            			 countLatestVersionApproved++;
+            		 }
+            		 
+            		 //Find pending and rejected mobilities
+            		 List<IMobility> imobilities = em.createNamedQuery(IMobility.findByOmobilityId).setParameter("omobilityId",g.getOmobilityId()).getResultList();
+            		 if (imobilities != null & !imobilities.isEmpty()) {
+            			 for(IMobility imobility : imobilities) {
+            				 if (imobility.getIstatus().equals(IMobilityStatus.REJECTED)) {
+            					 countLatestVersionRejected++;
+            				 }
+            				 
+            				 if (imobility.getIstatus().equals(IMobilityStatus.PENDING)) {
+            					 countLatestVersionawaiting++;
+            				 }
+            			 }
+            			 
+            			 
+            		 }
+				}
+            	 
+            	 currentGroupStat.setLaOutgoingLatestVersionApproved(BigInteger.valueOf(countLatestVersionApproved));
+            	 currentGroupStat.setLaOutgoingLatestVersionAwaiting(BigInteger.valueOf(countLatestVersionawaiting));
+            	 currentGroupStat.setLaOutgoingLatestVersionRejected(BigInteger.valueOf(countLatestVersionRejected));
+            	 currentGroupStat.setLaOutgoingModifiedAfterApproval(BigInteger.valueOf(countModifiedAfterApproval));
+            	 currentGroupStat.setLaOutgoingNotModifiedAfterApproval(BigInteger.valueOf(countNotModifiedAfterApproval));
+            	 
+            	 stats.add(currentGroupStat);
+             });
+             
+            response.getAcademicYearLaStats().addAll(omobilitiesLasStats(stats));
+        }
+        
+        return javax.ws.rs.core.Response.ok(response).build();
+    }
+    
+    private List<LasOutgoingStatsResponse.AcademicYearLaStats> omobilitiesLasStats(List<AcademicYearLaStats> academicYearStats) {
+        List<LasOutgoingStatsResponse.AcademicYearLaStats> omobilitiesLasStats = new ArrayList<>();
+        academicYearStats.stream().forEachOrdered((m) -> {
+        	omobilitiesLasStats.add(converter.convertToLearningAgreementsStats(m));
+        });
+        
+        return omobilitiesLasStats;
+    }
+    
 	private CommentProposal updateComponentsStudied(OmobilityLasUpdateRequest request) {
 		CommentProposal commentProposal = new CommentProposal();
 		

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Component;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ComponentList;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LasOutgoingStatsResponse.AcademicYearLaStats;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement.ChangesProposal;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement.StudentLanguageSkill;
@@ -221,5 +222,20 @@ public class OutgoingMobilityLearningAgreementsConverter {
         
         return mobilityInst;
     }
+
+	public AcademicYearLaStats convertToLearningAgreementsStats(
+			eu.erasmuswithoutpaper.omobility.las.entity.AcademicYearLaStats m) {
+		AcademicYearLaStats apiAcademicYearLaStats = new AcademicYearLaStats();
+		
+		apiAcademicYearLaStats.setLaOutgoingLatestVersionApproved(m.getLaOutgoingLatestVersionApproved());
+		apiAcademicYearLaStats.setLaOutgoingLatestVersionAwaiting(m.getLaOutgoingLatestVersionAwaiting());
+		apiAcademicYearLaStats.setLaOutgoingLatestVersionRejected(m.getLaOutgoingLatestVersionRejected());
+		apiAcademicYearLaStats.setLaOutgoingModifiedAfterApproval(m.getLaOutgoingModifiedAfterApproval());
+		apiAcademicYearLaStats.setLaOutgoingTotal(m.getLaOutgoingTotal());
+		apiAcademicYearLaStats.setLaOutgoingNotModifiedAfterApproval(m.getLaOutgoingNotModifiedAfterApproval());
+		apiAcademicYearLaStats.setReceivingAcademicYearId(m.getReceivingAcademicYearId());
+		
+		return apiAcademicYearLaStats;
+	}
 
 }

@@ -27,7 +27,8 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 @Entity
 @NamedQueries({
     @NamedQuery(name = OlearningAgreement.findAll, query = "SELECT la FROM OlearningAgreement la"),
-    @NamedQuery(name = OlearningAgreement.findBySendingHeiId, query = "SELECT o FROM OlearningAgreement o WHERE o.sendingHei=:sendingHei")
+    @NamedQuery(name = OlearningAgreement.findBySendingHeiId, query = "SELECT o FROM OlearningAgreement o WHERE o.sendingHei.heiId=:sendingHei"),
+    @NamedQuery(name = OlearningAgreement.findByReceivingHeiId, query = "SELECT o FROM OlearningAgreement o WHERE o.receivingHei.heiId=:receivingHei")
 })
 
 public class OlearningAgreement implements Serializable {
@@ -35,6 +36,7 @@ public class OlearningAgreement implements Serializable {
     private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement.";
     public static final String findAll = PREFIX + "all";
     public static final String findBySendingHeiId = PREFIX + "findBySendingHeiId";
+    public static final String findByReceivingHeiId = PREFIX + "findByReceivingHeiId";
     
     @Id
     @Column(updatable = false)
