@@ -39,6 +39,7 @@ import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetRespo
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasIndexResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateRequest;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateResponse;
+import eu.erasmuswithoutpaper.api.registry.Hei;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
@@ -52,6 +53,7 @@ import eu.erasmuswithoutpaper.omobility.las.entity.CommentProposal;
 import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
 import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
 import eu.erasmuswithoutpaper.omobility.las.entity.Student;
+import eu.erasmuswithoutpaper.organization.entity.Institution;
 
 @Stateless
 @Path("omobilitieslas")
@@ -189,15 +191,21 @@ public class OutgoingMobilityLearningAgreementsResource {
     @GET
     @Path("stats")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response omobilityGetStats(@QueryParam("receiving_hei_id") String receivingHeiId) {
-        return omobilityStatsGet(receivingHeiId);
+    public javax.ws.rs.core.Response omobilityGetStats() {
+    	 List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
+         if (institutionList.size() != 1) {
+         	throw new IllegalStateException("Internal error: more than one insitution covered");
+         }
+    	String heiId = institutionList.get(0).getId();
+    	
+        return omobilityStatsGet(heiId);
     }
     
-    private javax.ws.rs.core.Response omobilityStatsGet(String receivingHeiId) {
+    private javax.ws.rs.core.Response omobilityStatsGet(String heiId) {
         LasOutgoingStatsResponse response = new LasOutgoingStatsResponse();
         
         //Filter learning agreement 
-        List<OlearningAgreement> omobilityLasList =  em.createNamedQuery(OlearningAgreement.findByReceivingHeiId).setParameter("receivingHei", receivingHeiId).getResultList();
+        List<OlearningAgreement> omobilityLasList =  em.createNamedQuery(OlearningAgreement.findByReceivingHeiId).setParameter("receivingHei", heiId).getResultList();
         
         if (!omobilityLasList.isEmpty()) {
         	
@@ -215,17 +223,25 @@ public class OutgoingMobilityLearningAgreementsResource {
              Map<String,List<OlearningAgreement>> olearningAgreementGroupByYear = new HashMap<String, List<OlearningAgreement>>();
              omobilityLasList.forEach(olas -> {
             	Set<String> keys = olearningAgreementGroupByYear.keySet();
-            	 
-            	if (keys.contains(olas.getReceivingAcademicTermEwpId())) {
-            		List<OlearningAgreement> group = olearningAgreementGroupByYear.get(olas.getReceivingAcademicTermEwpId());
-            		
-            		group.add(olas);
-            		olearningAgreementGroupByYear.put(olas.getReceivingAcademicTermEwpId(), group);
-            	} else {
-            		List<OlearningAgreement> group = new ArrayList<>();
-            		group.add(olas);
-            		olearningAgreementGroupByYear.put(olas.getReceivingAcademicTermEwpId(), group);
+            	
+            	/*For LAs the smallest reported academic year should be 2021/2022. All earlier academic years, if present in data, will be skipped.*/
+            	String[] years = olas.getReceivingAcademicTermEwpId().split("/");
+            	if ((Integer.parseInt(years[0]) >= Integer.parseInt("2021")) && (Integer.parseInt(years[1]) >= Integer.parseInt("2022"))) {
+            		/*ReceivingAcademicTermEwpId: Academic year during which this mobility takes place.HEIs MAY use different academic year
+                    identifiers (e.g. "2010/2011" vs. "2010/2010" or "2011/2011")*/
+		        	if (keys.contains(olas.getReceivingAcademicTermEwpId())) {
+		        		List<OlearningAgreement> group = olearningAgreementGroupByYear.get(olas.getReceivingAcademicTermEwpId());
+		        		
+		        		group.add(olas);
+		        		olearningAgreementGroupByYear.put(olas.getReceivingAcademicTermEwpId(), group);
+		        	} else {
+		        		List<OlearningAgreement> group = new ArrayList<>();
+		        		group.add(olas);
+		        		olearningAgreementGroupByYear.put(olas.getReceivingAcademicTermEwpId(), group);
+		        	}
             	}
+            	
+            	
              });
              
              //Calculate stats
