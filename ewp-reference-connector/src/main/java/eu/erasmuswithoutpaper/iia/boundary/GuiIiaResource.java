@@ -521,6 +521,11 @@ public class GuiIiaResource {
 		}
 		cc.getReceivingAcademicYearId().addAll(mobilitySpec.getReceivingAcademicYearId());
 		
+		//Require academic years to be ordered and without gaps
+		cc.getReceivingAcademicYearId().sort((c1,c2) -> {
+			return c1.compareTo(c2);
+		});
+		
 		if (mobilitySpec.getOtherInfoTerms() != null) {
 			cc.setOtherInfoTerms(mobilitySpec.getOtherInfoTerms());
 		}
