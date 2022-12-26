@@ -27,6 +27,7 @@ public class OutgoingMobilityLearningAgreementsManifestEntry implements Manifest
         mobilitieslas.setIndexUrl(baseUri + "omobilities/las/index");
         mobilitieslas.setGetUrl(baseUri + "omobilities/las/get");
         mobilitieslas.setUpdateUrl(baseUri + "omobilities/las/update");
+        mobilitieslas.setStatsUrl(baseUri + "omobilities/las/stats");
         
         mobilitieslas.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxOmobilitylasIds()));
 
