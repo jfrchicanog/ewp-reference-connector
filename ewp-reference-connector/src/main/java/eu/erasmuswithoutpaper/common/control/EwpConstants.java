@@ -12,7 +12,7 @@ public class EwpConstants {
     public static final String IIAS_APPROVAL_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/blob/stable-v1/manifest-entry.xsd";
     public static final String FACTSHEET_NAMESPACE = "https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-factsheet/v1.1.0/manifest-entry.xsd";
     public static final String OUTGOING_MOBILITIES_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/blob/v2.0.0/manifest-entry.xsd";
-    public static final String OUTGOING_MOBILITIES_LAS_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobilities-las/blob/v1.1.0/manifest-entry.xsd";
+    public static final String OUTGOING_MOBILITIES_LAS_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobilities-las/blob/v1.2.0/manifest-entry.xsd";
     public static final String OUTGOING_MOBILITIES_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobility-cnr/blob/stable-v1/manifest-entry.xsd";
     public static final String INCOMING_MOBILITIES_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-imobilities/blob/stable-v1/manifest-entry.xsd";
     public static final String INCOMING_MOBILITIES_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-imobility-cnr/blob/stable-v1/manifest-entry.xsd";
@@ -27,12 +27,12 @@ public class EwpConstants {
     public static final String COURSE_REPLICATION_VERSION = "1.0.0";
     public static final String OUTGOING_MOBILITIES_VERSION = "2.0.0";
     public static final String OUTGOING_MOBILITY_CNR_VERSION = "0.4.0";
-    public static final String OUTGOING_MOBILITIES_LAS_VERSION = "1.1.0";
+    public static final String OUTGOING_MOBILITIES_LAS_VERSION = "1.2.0";
     public static final String INCOMING_MOBILITIES_VERSION = "0.3.0";
     public static final String INCOMING_MOBILITY_CNR_VERSION = "0.1.0";
     public static final String INCOMING_MOBILITIES_TORS_VERSION = "0.7.0";
     public static final String INCOMING_MOBILITY_TORS_CNR_VERSION = "0.1.0";
-    public static final String IIAS_VERSION = "6.0.1";
+    public static final String IIAS_VERSION = "6.2.0";
     public static final String IIA_CNR_VERSION = "2.0.3";
     public static final String IIAS_APPROVAL_VERSION = "1.0.0";
     public static final String IIA_APPROVAL_CNR_VERSION = "1.0.0";
