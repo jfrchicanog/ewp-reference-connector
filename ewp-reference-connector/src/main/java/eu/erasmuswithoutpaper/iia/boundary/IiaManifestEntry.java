@@ -27,6 +27,7 @@ public class IiaManifestEntry implements ManifestEntryStrategy {
         iias.setVersion(EwpConstants.IIAS_VERSION);
         iias.setIndexUrl(baseUri + "iias/index");
         iias.setGetUrl(baseUri + "iias/get");
+        iias.setStatsUrl(baseUri + "iias/stats");
         iias.setMaxIiaIds(BigInteger.valueOf(globalProperties.getMaxIiaIds()));
         iias.setMaxIiaCodes(BigInteger.valueOf(globalProperties.getMaxIiaCodes()));
 
