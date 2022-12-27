@@ -239,8 +239,8 @@ public class GuiIiaResource {
         IiaResponse response = new IiaResponse(iiaInternal.getId(),iiaInternal.getConditionsHash());
 		return Response.ok(response).build();
     }
-
-	private void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal) {
+    
+   	private void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal) {
 		
 		if (iia.getConditionsHash() != null) {
     		iiaInternal.setConditionsHash(iia.getConditionsHash());

@@ -13,6 +13,11 @@
             <jaxb:package name="eu.erasmuswithoutpaper.api.iias.endpoints"/>
         </jaxb:schemaBindings>
     </jaxb:bindings>
+    <jaxb:bindings schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-iias/v6.2.0/endpoints/stats-response.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name="eu.erasmuswithoutpaper.api.iias.endpoints"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
     <jaxb:bindings schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-iias/v6.2.0/manifest-entry.xsd">
         <jaxb:schemaBindings>
             <jaxb:package name="eu.erasmuswithoutpaper.api.iias"/>

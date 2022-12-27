@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
@@ -37,9 +38,11 @@ import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.iias.cnr.ObjectFactory;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasStatsResponse;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
+import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
@@ -212,6 +215,141 @@ public class IiaResource {
         }
         
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build(); 
+    }
+    
+    @GET
+    @Path("stats")
+    @Produces(MediaType.APPLICATION_XML)
+    public javax.ws.rs.core.Response iiaGetStats(@QueryParam(value = "hei_id") String hei_id) {
+    	
+    	 if (hei_id == null || hei_id.isEmpty() || hei_id == null || hei_id.isEmpty()) {
+             throw new EwpWebApplicationException("Missing argumanets for statistics.", Response.Status.BAD_REQUEST);
+         }
+         
+         Collection<String> heisCoveredByCertificate;
+         if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+             heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+         } else {
+             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+         }
+         
+         if (heisCoveredByCertificate.contains(hei_id)) {
+        	 return iiaStats(hei_id);
+         } else {
+         	throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
+         }         
+    }
+    
+    @POST
+    @Path("stats")
+    @Produces(MediaType.APPLICATION_XML)
+    public javax.ws.rs.core.Response iiaPostStats(@FormParam("hei_id") String hei_id) {
+
+   	 if (hei_id == null || hei_id.isEmpty() || hei_id == null || hei_id.isEmpty()) {
+            throw new EwpWebApplicationException("Missing argumanets for statistics.", Response.Status.BAD_REQUEST);
+        }
+        
+        Collection<String> heisCoveredByCertificate;
+        if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+        } else {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+        }
+        
+        if (heisCoveredByCertificate.contains(hei_id)) {
+       	 return iiaStats(hei_id);
+        } else {
+        	throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
+        }         
+    }
+    
+    private javax.ws.rs.core.Response iiaStats(String heid) {
+    	
+    	IiasStatsResponse response = new IiasStatsResponse();
+    	
+    	 Predicate<Iia> condition = new Predicate<Iia>()
+         {
+         	boolean match = false;
+         	
+             @Override
+             public boolean test(Iia iia) {
+             	List<CooperationCondition> cConditions = iia.getCooperationConditions();
+             	
+             	cConditions.forEach(c -> {
+             		if (heid.equals(c.getReceivingPartner().getInstitutionId())) {
+             			match = true;
+                     } 
+             	});
+                 
+                 return match;
+             }
+
+         };
+         
+         BiPredicate<Iia, List<Notification>> conditionNotApproved = new BiPredicate<Iia, List<Notification>>()
+         {
+         	boolean notNotified = true;
+         	
+             @Override
+             public boolean test(Iia iia, List<Notification> iiaApprovalNotifications) {
+            	 
+            	for (Notification iiaApprovalNotified : iiaApprovalNotifications) {
+     				if (iia.getId().equals(iiaApprovalNotified.getChangedElementIds())) {
+     					notNotified = false;
+     				}
+     			} 
+            	
+            	return notNotified;
+             }
+
+         };
+    	
+         
+         BiPredicate<Iia, List<IiaApproval>> notApproved = new BiPredicate<Iia, List<IiaApproval>>()
+         {
+         	boolean notApproved = true;
+         	
+             @Override
+             public boolean test(Iia iia, List<IiaApproval> iiaApprovals) {
+            	 
+            	for (IiaApproval iiaApproval : iiaApprovals) {
+     				if (iia.getId().equals(iiaApproval.getId())) {
+     					notApproved = false;
+     				}
+     			} 
+            	
+            	return notApproved;
+             }
+
+         };
+         
+         //filtrar las iia de la institucion enviada por parametro
+    	List<Iia> localIias = em.createNamedQuery(Iia.findAll,Iia.class).getResultList().stream().filter(condition).collect(Collectors.toList());
+    	int iiaFetchable = localIias.size();
+    	
+    	List<Notification> iiaApprovalNotifications = em.createNamedQuery(Notification.findAll,Notification.class).getResultList().stream().filter(n -> (n.getType().equals(NotificationTypes.IIAAPPROVAL) && n.getHeiId().equals(heid))).collect(Collectors.toList());
+    	List<Iia> localNotApprovedByPartner = localIias.stream().filter(iia -> conditionNotApproved.test(iia,iiaApprovalNotifications)).collect(Collectors.toList());
+    	int iiaPartnerUnapproved = localNotApprovedByPartner.size();
+    	
+    	List<IiaApproval> localIiasApproval = em.createNamedQuery(IiaApproval.findAll, IiaApproval.class).getResultList().stream().filter(iiaapproval -> {
+    		for(Iia iia : localIias) {
+    			if (iia.getId().equals(iiaapproval.getId())) {//De todas las aprobadas solo obtener las que sean de la insitucion enviada por parametro
+    				return true;
+    			}
+    		}
+			return false;
+    	}).collect(Collectors.toList());
+    	int iiaApproved = localIiasApproval.size();
+    	
+    	List<Iia> localNotApproved = localIias.stream().filter(iia -> notApproved.test(iia,localIiasApproval)).collect(Collectors.toList());
+    	int iiaLocallyUnapproved = localNotApproved.size();
+    	
+    	response.setIiaFetchable(BigInteger.valueOf(iiaFetchable));
+    	response.setIiaLocalApprovedPartnerUnapproved(BigInteger.valueOf(iiaPartnerUnapproved));
+    	response.setIiaLocalUnapprovedPartnerApproved(BigInteger.valueOf(iiaLocallyUnapproved));
+    	response.setIiaBothApproved(BigInteger.valueOf(iiaApproved));
+    	
+    	return Response.ok(response).build();
     }
     
     private void execNotificationToAlgoria(String iiaId) {
