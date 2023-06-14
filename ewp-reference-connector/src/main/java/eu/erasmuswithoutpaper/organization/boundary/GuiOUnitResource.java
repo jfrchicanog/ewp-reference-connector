@@ -51,7 +51,11 @@ public class GuiOUnitResource {
     	}
     	
     	//First persist the new ounit
-        em.persist(ounit);
+        if (ounit.getId() != null && em.find(OrganizationUnit.class, ounit.getId()) != null) {
+            em.merge(ounit);
+        } else {
+            em.persist(ounit);
+        }  
         em.flush();         
         
         //Second the relation between the ounit and the institution it belongs to
