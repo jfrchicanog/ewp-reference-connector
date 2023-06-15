@@ -11,9 +11,12 @@ import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = Student.findAll, query = "SELECT e FROM AcademicYearLaStats e"),
+    @NamedQuery(name = AcademicYearLaStats.findAll, query = "SELECT e FROM AcademicYearLaStats e"),
 })
 public class AcademicYearLaStats {
+	
+     private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.AcademicYearLaStats.";
+     public static final String findAll = PREFIX + "all";
 	
 	@Id
     @GeneratedValue(generator="system-uuid")
