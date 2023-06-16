@@ -27,9 +27,10 @@ import eu.erasmuswithoutpaper.security.InternalAuthenticate;
 @Stateless
 @Path("ounit")
 public class GuiOUnitResource {
+
     @PersistenceContext(unitName = "connector")
     EntityManager em;
-    
+
     @Inject
     RegistryClient registryClient;
 
@@ -42,30 +43,33 @@ public class GuiOUnitResource {
     @Produces(MediaType.APPLICATION_JSON)
     @InternalAuthenticate
     public Response save(OrganizationUnit ounit, @QueryParam("heiId") String heiId) {
-    	
-    	@SuppressWarnings("unchecked")
-		List<Institution> institutions = em.createNamedQuery(Institution.findByInstitutionId).setParameter("institutionId", heiId).getResultList();
-    	
-    	if (institutions == null || institutions.isEmpty()) {
-    		return Response.status(Status.NOT_FOUND).build();
-    	}
-    	
-    	//First persist the new ounit
+
+        @SuppressWarnings("unchecked")
+        List<Institution> institutions = em.createNamedQuery(Institution.findByInstitutionId).setParameter("institutionId", heiId).getResultList();
+
+        if (institutions == null || institutions.isEmpty()) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        //First persist the new ounit
         if (ounit.getId() != null && em.find(OrganizationUnit.class, ounit.getId()) != null) {
             em.merge(ounit);
         } else {
             em.persist(ounit);
-        }  
-        em.flush();         
-        
+        }
+        em.flush();
+
         //Second the relation between the ounit and the institution it belongs to
         Institution institution = institutions.get(0);
+        if (institution.getOrganizationUnits().contains(ounit)) {
+            institution.getOrganizationUnits().remove(ounit);
+        }
         institution.getOrganizationUnits().add(ounit);
         em.merge(institution);
-            
+
         return Response.ok(ounit.getId()).build();
     }
-    
+
     @POST
     @Path("update")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -73,17 +77,18 @@ public class GuiOUnitResource {
     @InternalAuthenticate
     public Response save(OrganizationUnit ounit) {
         em.merge(ounit);
-        
+
         return Response.ok(ounit.getId()).build();
     }
-    
+
     @GET
     @Path("get_all")
     @InternalAuthenticate
     public Response getAll() {
         List<OrganizationUnit> ounitList = em.createNamedQuery(OrganizationUnit.findaAll).getResultList();
 
-        GenericEntity<List<OrganizationUnit>> entity = new GenericEntity<List<OrganizationUnit>>(ounitList) {};
+        GenericEntity<List<OrganizationUnit>> entity = new GenericEntity<List<OrganizationUnit>>(ounitList) {
+        };
         return Response.ok(entity).build();
     }
 }
