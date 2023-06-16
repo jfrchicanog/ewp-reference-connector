@@ -1,0 +1,113 @@
+<div class="container">
+    <h1 class="page-header">Institution/Organization Unit</h1>
+    <ol class="breadcrumb" ng-if="browseInstOrgObjectList.length > 0">
+        <li class="breadcrumb-item" ng-repeat="item in browseInstOrgObjectList" ng-class="$last ? 'active' : ''">{{(item.name| languageItem : 'en').text}}</li>
+    </ol>
+    <div class="panel panel-default" ng-show="showAddInstitutionForm">
+        <div class="panel-heading"><h2>Add Institution</h2></div>
+        <div class="panel-body">
+            <div data-inst-org-unit-form="newInstitution" data-add-fkn="addInstitution()" data-cancel-fkn="cancelAddForm()"></div>
+        </div>
+    </div>
+
+    <div class="panel panel-default" ng-show="showAddOrganizationUnitForm">
+        <div class="panel-heading"><h2>Add Organization Unit</h2></div>
+        <div class="panel-body">
+            <div data-inst-org-unit-form="newOrganizationUnit" data-object-type="'ou'" data-add-fkn="addOrganizationUnit()" data-cancel-fkn="cancelAddForm()"></div>
+        </div>
+    </div>
+
+    <div ng-show="!currentInstOrgObject">
+        <div class="clearfix">
+            <h2 class="pull-left">Institutions</h2>
+            <div class="btn-group pull-right" ng-show="!showAddInstitutionForm">
+                <button type="submit" class="btn btn-default" ng-click="viewAddForm()">
+                    <i class="glyphicon glyphicon-plus-sign"></i>
+                </button>
+            </div>
+        </div>
+        <div id="institutionList">
+            <div class="input-group">
+                <input class="form-control" id="search" name="search" placeholder="Search for" ng-model="query"
+                       required="required"/>
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-default">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </button>
+                </span>
+            </div>
+            <div class="list-group">
+                <div ng-repeat="institution in institutions| filter:query" ng-click="setCurrentInstOrgObject(institution)">
+                    <a class="list-group-item clearfix">
+                        <b>{{(institution.name| languageItem : 'en').text}}</b>
+                        <i class="pull-right glyphicon glyphicon-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="currentInstOrgObject">
+        <h2>{{browseInstOrgObjectList.length === 1 ? 'Institution' : 'Organization Unit'}}</h2>
+        <div ng-class="currentInstOrgObject.organizationUnits.length > 0 ? '' : 'margin-bottom-1em'">
+            <div class="clearfix">
+                <div class="col-sm-2 hide-overflow-ellipsis">Id:</div><div class="col-md-10">{{currentInstOrgObject.id}}</div>
+            </div>
+            <div class="clearfix" ng-if="currentInstOrgObject.institutionId">
+                <div class="col-sm-2 hide-overflow-ellipsis">Institution id:</div><div class="col-md-10">{{currentInstOrgObject.institutionId}}</div>
+            </div>
+            <div class="clearfix" ng-if="currentInstOrgObject.organizationUnitCode">
+                <div class="col-sm-2 hide-overflow-ellipsis">Org. unit code:</div><div class="col-md-10">{{currentInstOrgObject.organizationUnitCode}}</div>
+            </div>
+            <div class="clearfix" ng-repeat="name in currentInstOrgObject.name">
+                <div class="col-sm-2 hide-overflow-ellipsis">Name ({{name.lang}}):</div><div class="col-md-10">{{name.text}}</div>
+            </div>
+            <div class="clearfix" ng-if="currentInstOrgObject.abbreviation">
+                <div class="col-md-2">Abbreviation:</div><div class="col-md-10 hide-overflow-ellipsis">{{currentInstOrgObject.abbreviation}}</div>
+            </div>
+            <div class="clearfix" ng-if="currentInstOrgObject.logoUrl">
+                <div class="col-md-2">Logo URL:</div><div class="col-md-10 hide-overflow-ellipsis">{{currentInstOrgObject.logoUrl}}</div>
+            </div>
+            <div class="clearfix" ng-repeat="otherId in currentInstOrgObject.otherId">
+                <div class="col-sm-2 hide-overflow-ellipsis">Other Id ({{otherId.idType}}):</div><div class="col-md-10">{{otherId.idValue}}</div>
+            </div>
+            <div class="clearfix" ng-repeat="url in currentInstOrgObject.factSheet.url">
+                <div class="col-sm-2 hide-overflow-ellipsis">Fact sheet url ({{url.lang}}):</div><div class="col-md-10">{{url.text}}</div>
+            </div>
+            <div data-contact-details="currentInstOrgObject.factSheet.contactDetails"></div>
+        </div>
+
+        <div ng-if="currentInstOrgObject.organizationUnits.length > 0">
+            <div class="clearfix">
+                <h3 class="pull-left">Organization Units</h3>
+                <div class="btn-group pull-right" ng-show="!showAddOrganizationUnitForm">
+                    <button type="submit" class="btn btn-default" ng-click="viewAddForm()">
+                        <i class="glyphicon glyphicon-plus-sign"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="input-group">
+                <input class="form-control" id="search" name="search" placeholder="Search for" ng-model="query2"
+                       required="required"/>
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-default">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </button>
+                </span>
+            </div>
+            <div class="list-group">
+                <div ng-repeat="obj in currentInstOrgObject.organizationUnits| filter:query2" ng-click="setCurrentInstOrgObject(obj)">
+                    <a class="list-group-item clearfix">
+                        <b>{{(obj.name| languageItem : 'en').text}}</b>
+                        <i class="pull-right glyphicon glyphicon-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <button ng-click="backCurrentInstOrgObject()" class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i> Back</button>
+        <button type="submit" class="btn btn-default" ng-if="!currentInstOrgObject.organizationUnits || currentInstOrgObject.organizationUnits.length === 0" ng-click="viewAddForm()">
+            <i class="glyphicon glyphicon-plus-sign"></i> Add Organization Unit
+        </button>
+    </div>
+</div>
+
