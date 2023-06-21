@@ -761,6 +761,7 @@ public class GuiIiaResource {
 
                         sendingPartnerC.setContacts(sendingPartner.getContacts());
                         sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
+                        sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
                         //sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
 
                         IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
@@ -768,6 +769,7 @@ public class GuiIiaResource {
 
                         receivingPartnerC.setContacts(receivingPartner.getContacts());
                         receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
+                        receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
 
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
