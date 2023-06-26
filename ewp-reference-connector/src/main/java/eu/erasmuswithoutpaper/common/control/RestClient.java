@@ -108,6 +108,7 @@ public class RestClient {
                     if (clientRequest.isHttpsec()) {
                         httpSignature.signRequest("get", target.getUri(), builder, requestID);
                     }
+                    System.out.println(builder);
                     response = builder.get();
                     break;
             }
@@ -141,7 +142,7 @@ public class RestClient {
                     clientResponse.setRawResponse(rawResponse);
                     try {
                         eu.erasmuswithoutpaper.api.architecture.ErrorResponse error = response.readEntity(eu.erasmuswithoutpaper.api.architecture.ErrorResponse.class);
-                        clientResponse.setErrorMessage(error.getDeveloperMessage().getValue());
+                        clientResponse.setErrorMessage(rawResponse);
                     } catch (Exception e) {
                         clientResponse.setErrorMessage(rawResponse);
                     }

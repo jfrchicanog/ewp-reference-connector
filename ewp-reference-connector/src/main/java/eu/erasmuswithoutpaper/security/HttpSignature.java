@@ -164,7 +164,7 @@ public class HttpSignature {
                 headerNames.add(header.getKey());
                 request.header(header.getKey(), header.getValue());
             });
-
+            System.out.println("FINGERPRINT: " +keystoreController.getOwnPublicKeyFingerprint());
             final Signature signature = new Signature(keystoreController.getOwnPublicKeyFingerprint(), "rsa-sha256",
                     null,
                     headerNames);

@@ -22,7 +22,8 @@ import eu.erasmuswithoutpaper.error.control.EwpSecWebApplicationException;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 
 @Provider
-public class JaxRsAuthenticateInterceptor implements ContainerRequestFilter, ContainerResponseFilter  {
+public class JaxRsAuthenticateInterceptor implements ContainerRequestFilter, ContainerResponseFilter {
+
     private static final Logger logger = LoggerFactory.getLogger(JaxRsAuthenticateInterceptor.class);
 
     @Context
@@ -33,34 +34,33 @@ public class JaxRsAuthenticateInterceptor implements ContainerRequestFilter, Con
 
     @Inject
     RegistryClient registryClient;
-    
+
     @Inject
     HttpSignature httpSignature;
-    
+
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
         Method method = resourceInfo.getResourceMethod();
 
-        if (method  == null) {
-        	return;
+        if (method == null) {
+            return;
         }
-        
+
         if (method.getAnnotation(EwpAuthenticate.class) != null) {
-        	ewpAuthorization(requestContext);
+            ewpAuthorization(requestContext);
         } else if (method.getAnnotation(InternalAuthenticate.class) != null) {
-        	internalAuthorization(requestContext);
+            internalAuthorization(requestContext);
         }
     }
 
-	private void ewpAuthorization(ContainerRequestContext requestContext) {
-		AuthenticateMethodResponse httpSignatureVerifyResponse = httpSignature.verifyHttpSignatureRequest(requestContext);
+    private void ewpAuthorization(ContainerRequestContext requestContext) {
+        AuthenticateMethodResponse httpSignatureVerifyResponse = httpSignature.verifyHttpSignatureRequest(requestContext);
         if (httpSignatureVerifyResponse.isRequiredMethodInfoFulfilled()) {
             if (!httpSignatureVerifyResponse.isVerifiedOk()) {
                 throw new EwpSecWebApplicationException(httpSignatureVerifyResponse.errorMessage(), httpSignatureVerifyResponse.status(), EwpSecWebApplicationException.AuthMethod.HTTPSIG);
             }
             return;
         }
-        
         AuthenticateMethodResponse tlsCertVerifyResponse = verifyX509CertificateRequest(requestContext);
         if (tlsCertVerifyResponse.isRequiredMethodInfoFulfilled()) {
             if (!tlsCertVerifyResponse.isVerifiedOk()) {
@@ -68,31 +68,31 @@ public class JaxRsAuthenticateInterceptor implements ContainerRequestFilter, Con
             }
             return;
         }
-        
+
         throw new EwpSecWebApplicationException(httpSignatureVerifyResponse.hasErrorMessage() ? httpSignatureVerifyResponse.errorMessage() : "No authorization method found in the request", httpSignatureVerifyResponse.status());
-	}
-	
-	private void internalAuthorization(ContainerRequestContext requestContext) {
-		String algoriaToken = requestContext.getHeaderString("Algoria-Token");
-		if (!properties.getAlgoriaToken().equals(algoriaToken)) {
-			throw new EwpWebApplicationException("No valid authorization token found in the request", javax.ws.rs.core.Response.Status.UNAUTHORIZED);
-		}
-	}
-    
+    }
+
+    private void internalAuthorization(ContainerRequestContext requestContext) {
+        String algoriaToken = requestContext.getHeaderString("Algoria-Token");
+        if (!properties.getAlgoriaToken().equals(algoriaToken)) {
+            throw new EwpWebApplicationException("No valid authorization token found in the request", javax.ws.rs.core.Response.Status.UNAUTHORIZED);
+        }
+    }
+
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
 
-    	if (responseContext.getStatus() == javax.ws.rs.core.Response.Status.UNAUTHORIZED.getStatusCode()) {
+        if (responseContext.getStatus() == javax.ws.rs.core.Response.Status.UNAUTHORIZED.getStatusCode()) {
             responseContext.getHeaders().add("WWW-Authenticate", "Signature realm=\"EWP\"");
             responseContext.getHeaders().add("Want-Digest", "SHA-256");
         }
-    	
+
         if (httpSignature.clientWantsSignedResponse(requestContext)) {
             httpSignature.signResponse(requestContext, responseContext);
         }
 
     }
-    
+
     private AuthenticateMethodResponse verifyX509CertificateRequest(ContainerRequestContext requestContext) throws EwpSecWebApplicationException {
         X509Certificate[] certificates = (X509Certificate[]) requestContext.getProperty("javax.servlet.request.X509Certificate");
         logger.info("Verifying Client certificate");
@@ -102,7 +102,7 @@ public class JaxRsAuthenticateInterceptor implements ContainerRequestFilter, Con
                     .withResponseCode(javax.ws.rs.core.Response.Status.BAD_REQUEST)
                     .build();
         }
-        
+
         X509Certificate certificate = registryClient.getCertificateKnownInEwpNetwork(certificates);
         if (certificate == null && !properties.isAllowMissingClientCertificate()) {
             return AuthenticateMethodResponse.builder()
@@ -110,10 +110,10 @@ public class JaxRsAuthenticateInterceptor implements ContainerRequestFilter, Con
                     .withResponseCode(javax.ws.rs.core.Response.Status.UNAUTHORIZED)
                     .build();
         }
-        
+
         requestContext.setProperty("EwpRequestCertificate", certificate);
-            return AuthenticateMethodResponse.builder().build();
-        
+        return AuthenticateMethodResponse.builder().build();
+
     }
 
 }
