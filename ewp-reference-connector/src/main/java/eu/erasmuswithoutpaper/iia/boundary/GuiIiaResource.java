@@ -646,7 +646,7 @@ public class GuiIiaResource {
             entity = new GenericEntity<eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse>(index) {
             };
         } catch (Exception e) {
-            return javax.ws.rs.core.Response.ok(iiaResponse.getErrorMessage()).build();
+            return javax.ws.rs.core.Response.serverError().entity(iiaResponse.getErrorMessage()).build();
         }
 
         return javax.ws.rs.core.Response.ok(entity).build();

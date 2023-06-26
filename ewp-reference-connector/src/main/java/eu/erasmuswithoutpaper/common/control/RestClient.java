@@ -142,7 +142,7 @@ public class RestClient {
                     clientResponse.setRawResponse(rawResponse);
                     try {
                         eu.erasmuswithoutpaper.api.architecture.ErrorResponse error = response.readEntity(eu.erasmuswithoutpaper.api.architecture.ErrorResponse.class);
-                        clientResponse.setErrorMessage(rawResponse);
+                        clientResponse.setErrorMessage(error.getDeveloperMessage().getValue());
                     } catch (Exception e) {
                         clientResponse.setErrorMessage(rawResponse);
                     }
