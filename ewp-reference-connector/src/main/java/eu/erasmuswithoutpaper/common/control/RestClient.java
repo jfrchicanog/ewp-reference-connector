@@ -12,6 +12,7 @@ import java.security.NoSuchProviderException;
 import java.security.UnrecoverableKeyException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,18 +35,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RestClient {
+
     private static final Logger logger = LoggerFactory.getLogger(RestClient.class);
     @Inject
     GlobalProperties properties;
-    
+
     @Inject
     EwpKeyStore keystoreController;
-    
+
     @Inject
     HttpSignature httpSignature;
 
     private Client client;
-    
+
     @PostConstruct
     void createClient() {
         try {
@@ -61,11 +63,11 @@ public class RestClient {
             logger.error("Cant't create HTTP client.", ex);
         }
     }
-    
+
     public Client client() {
         return client;
     }
-    
+
     public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass) {
         ClientResponse clientResponse = new ClientResponse();
         String requestID = UUID.randomUUID().toString();
@@ -75,7 +77,10 @@ public class RestClient {
             target.property("http.autoredirect", true);
             Response response;
             Instant start = Instant.now();
-            Map<String, List<String>> params = clientRequest.getParams();
+            Map<String, List<String>> params = new HashMap<>();
+            if (clientRequest.getParams() != null) {
+                params = clientRequest.getParams().getUnknownFields();
+            }
             switch (clientRequest.getMethod()) {
                 case POST:
                     Form form = new Form();
@@ -83,7 +88,7 @@ public class RestClient {
                     params.entrySet().forEach((entry) -> {
                         entry.getValue().stream().forEach(e -> form.param(entry.getKey(), e));
                     });
-                    
+
                     String formData = formData2String(form);
                     Invocation.Builder postBuilder = target.request();
                     if (clientRequest.isHttpsec()) {
@@ -103,21 +108,21 @@ public class RestClient {
                             target = target.queryParam(entry.getKey(), value);
                         }
                     }
-                    
+
                     Invocation.Builder builder = target.request();
+                    System.err.println(target.getUri());
                     if (clientRequest.isHttpsec()) {
                         httpSignature.signRequest("get", target.getUri(), builder, requestID);
                     }
-                    System.out.println(builder);
                     response = builder.get();
                     break;
             }
-            
-            clientResponse.setDuration(ChronoUnit.MILLIS.between(start,Instant.now()));
-            
+
+            clientResponse.setDuration(ChronoUnit.MILLIS.between(start, Instant.now()));
+
             clientResponse.setStatusCode(response.getStatus());
             clientResponse.setMediaType(response.getMediaType().toString());
-            
+
             clientResponse.setHeaders(
                     response
                             .getHeaders()
@@ -125,11 +130,11 @@ public class RestClient {
                             .stream()
                             .map(es -> es.getKey() + ": " + es.getValue().stream().map(Object::toString).collect(Collectors.joining(", ")))
                             .collect(Collectors.toList()));
-            
+
             String rawResponse = "";
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 response.bufferEntity();
-                
+
                 rawResponse = response.readEntity(String.class);
                 clientResponse.setRawResponse(rawResponse);
                 Object responseObject = response.readEntity(responseClass);
@@ -157,10 +162,10 @@ public class RestClient {
         } catch (Exception e) {
             clientResponse.setErrorMessage(e.getMessage());
         }
- 
+
         return clientResponse;
     }
-    
+
     private static SSLContext initSecurityContext(KeyStore keyStore, KeyStore trustStore, String pwd) throws NoSuchAlgorithmException, NoSuchProviderException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509", "SunJSSE");
         kmf.init(keyStore, pwd.toCharArray());
@@ -171,7 +176,7 @@ public class RestClient {
         context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
         return context;
     }
-    
+
     protected String formData2String(Form form) {
         final StringBuilder sb = new StringBuilder();
 
@@ -188,11 +193,10 @@ public class RestClient {
                     }
                 }
             }
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             logger.error("failed to convert form", e);
         }
 
         return sb.toString();
-    }    
+    }
 }

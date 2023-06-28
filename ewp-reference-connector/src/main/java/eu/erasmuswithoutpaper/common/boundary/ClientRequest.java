@@ -1,18 +1,22 @@
 package eu.erasmuswithoutpaper.common.boundary;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.johnzon.mapper.JohnzonAny;
+import org.apache.johnzon.mapper.JohnzonIgnore;
 
 public class ClientRequest implements Serializable {
+
     private String url;
     private String heiId;
     private HttpMethodEnum method;
-    private Map<String, List<String>> params = new HashMap<>();
+    private ParamsClass params;
 
     private boolean httpsec = false;
-    
+
     public String getUrl() {
         return url;
     }
@@ -37,11 +41,11 @@ public class ClientRequest implements Serializable {
         this.heiId = heiId;
     }
 
-    public Map<String, List<String>> getParams() {
+    public ParamsClass getParams() {
         return params;
     }
 
-    public void setParams(Map<String, List<String>> params) {
+    public void setParams(ParamsClass params) {
         this.params = params;
     }
 
@@ -53,4 +57,3 @@ public class ClientRequest implements Serializable {
         this.httpsec = httpsec;
     }
 }
-

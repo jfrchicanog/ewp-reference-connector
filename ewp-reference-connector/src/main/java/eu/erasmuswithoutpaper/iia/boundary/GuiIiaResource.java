@@ -59,6 +59,7 @@ import eu.erasmuswithoutpaper.api.types.contact.Contact;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
+import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
@@ -899,8 +900,11 @@ public class GuiIiaResource {
 
         Map<String, List<String>> params = new HashMap<>();
         params.put("iia_approval_id", iiaIds);
+        
+        ParamsClass pc = new ParamsClass();
+        pc.setUnknownFields(params);
 
-        clientRequestGetIia.setParams(params);
+        clientRequestGetIia.setParams(pc);
 
         ClientResponse iiaApprovalResponse = restClient.sendRequest(clientRequestGetIia, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
         eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse response = (IiasApprovalResponse) iiaApprovalResponse.getResult();
@@ -929,7 +933,10 @@ public class GuiIiaResource {
         Map<String, List<String>> paramsCnr = new HashMap<>();
         paramsCnr.put("iia_approval_id", iiaIds);
 
-        clientRequestGetIia.setParams(paramsCnr);
+        ParamsClass pc2 = new ParamsClass();
+        pc2.setUnknownFields(paramsCnr);
+
+        clientRequestGetIia.setParams(pc2);
 
         ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, Empty.class);
         return javax.ws.rs.core.Response.ok(iiaResponse).build();

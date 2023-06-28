@@ -9,3 +9,4 @@ connector.iml
 **/nbproject/
 **/workshops/
 **/derby.log
+/ewp-connector-api/target/
