@@ -383,6 +383,10 @@ public class OutgoingMobilityLearningAgreementsResource {
     }
 
     private javax.ws.rs.core.Response omobilityLasIndex(List<String> sendingHeiIds, List<String> receivingHeiIdList, List<String> receiving_academic_year_ids, List<String> globalIds, List<String> mobilityTypes, List<String> modifiedSinces) {
+        String receiving_academic_year_id;
+        String globalId;
+        String mobilityType;
+        String modifiedSince;
 
         if (sendingHeiIds.size() != 1) {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
@@ -391,23 +395,35 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         if (receiving_academic_year_ids.size() > 1) {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        } else if (!receiving_academic_year_ids.isEmpty()) {
+            receiving_academic_year_id = receiving_academic_year_ids.get(0);
+        } else {
+            receiving_academic_year_id = null;
         }
-        String receiving_academic_year_id = receiving_academic_year_ids.get(0);
 
         if (globalIds.size() > 1) {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        } else if (!globalIds.isEmpty()) {
+            globalId = globalIds.get(0);
+        } else {
+            globalId = null;
         }
-        String globalId = globalIds.get(0);
 
         if (mobilityTypes.size() > 1) {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        } else if (!mobilityTypes.isEmpty()) {
+            mobilityType = mobilityTypes.get(0);
+        } else {
+            mobilityType = null;
         }
-        String mobilityType = mobilityTypes.get(0);
 
         if (modifiedSinces.size() > 1) {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        } else if (!modifiedSinces.isEmpty()) {
+            modifiedSince = modifiedSinces.get(0);
+        } else {
+            modifiedSince = null;
         }
-        String modifiedSince = modifiedSinces.get(0);
 
         OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
 
@@ -424,6 +440,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         if (mobilityType != null && !mobilityList.isEmpty()) {
             mobilityList = mobilityList.stream().filter(omobility -> anyMatchSpecifiedType.test(omobility, mobilityType)).collect(Collectors.toList());
         }
+
         if (modifiedSince != null && !modifiedSince.isEmpty()) {
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
