@@ -55,6 +55,8 @@ import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
 import eu.erasmuswithoutpaper.omobility.las.entity.Student;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Stateless
 @Path("omobilities/las")
@@ -81,7 +83,6 @@ public class OutgoingMobilityLearningAgreementsResource {
     @GET
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
-    @EwpAuthenticate
     public javax.ws.rs.core.Response indexGet(@QueryParam("sending_hei_id") List<String> sendingHeiIds, @QueryParam("receiving_hei_id") List<String> receivingHeiIdList, @QueryParam("receiving_academic_year_id") List<String> receiving_academic_year_ids,
             @QueryParam("global_id") List<String> globalIds, @QueryParam("mobility_type") List<String> mobilityTypes, @QueryParam("modified_since") List<String> modifiedSinces) {
         return omobilityLasIndex(sendingHeiIds, receivingHeiIdList, receiving_academic_year_ids, globalIds, mobilityTypes, modifiedSinces);
@@ -455,12 +456,13 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         if (modifiedSince != null && !modifiedSince.isEmpty()) {
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
+            //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
             Calendar calendarModifySince = Calendar.getInstance();
 
             try {
-                calendarModifySince.setTime(sdf.parse(modifiedSince));
-            } catch (ParseException e) {
+                OffsetDateTime dateTime = OffsetDateTime.parse(modifiedSince);
+                calendarModifySince.setTime(Date.from(dateTime.toInstant()));
+            } catch (Exception e) {
                 throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
             }
 
