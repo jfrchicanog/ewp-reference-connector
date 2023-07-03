@@ -80,17 +80,17 @@ public class OutgoingMobilityLearningAgreementsResource {
     @GET
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response indexGet(@QueryParam("sending_hei_id") String sendingHeiId, @QueryParam("receiving_hei_id") List<String> receivingHeiIdList, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id,
-            @QueryParam("global_id") String globalId, @QueryParam("mobility_type") String mobilityType, @QueryParam("modified_since") String modifiedSince) {
-        return omobilityLasIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id, globalId, mobilityType, modifiedSince);
+    public javax.ws.rs.core.Response indexGet(@QueryParam("sending_hei_id") List<String> sendingHeiIds, @QueryParam("receiving_hei_id") List<String> receivingHeiIdList, @QueryParam("receiving_academic_year_id") List<String> receiving_academic_year_ids,
+            @QueryParam("global_id") List<String> globalIds, @QueryParam("mobility_type") List<String> mobilityTypes, @QueryParam("modified_since") List<String> modifiedSinces) {
+        return omobilityLasIndex(sendingHeiIds, receivingHeiIdList, receiving_academic_year_ids, globalIds, mobilityTypes, modifiedSinces);
     }
 
     @POST
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
-    public javax.ws.rs.core.Response indexPost(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("receiving_hei_id") List<String> receivingHeiIdList, @FormParam("receiving_academic_year_id") String receiving_academic_year_id,
-            @FormParam("global_id") String globalId, @FormParam("mobility_type") String mobilityType, @FormParam("modified_since") String modifiedSince) {
-        return omobilityLasIndex(sendingHeiId, receivingHeiIdList, receiving_academic_year_id, globalId, mobilityType, modifiedSince);
+    public javax.ws.rs.core.Response indexPost(@FormParam("sending_hei_id") List<String> sendingHeiIds, @FormParam("receiving_hei_id") List<String> receivingHeiIdList, @FormParam("receiving_academic_year_id") List<String> receiving_academic_year_ids,
+            @FormParam("global_id") List<String> globalIds, @FormParam("mobility_type") List<String> mobilityTypes, @FormParam("modified_since") List<String> modifiedSinces) {
+        return omobilityLasIndex(sendingHeiIds, receivingHeiIdList, receiving_academic_year_ids, globalIds, mobilityTypes, modifiedSinces);
     }
 
     @GET
@@ -353,10 +353,10 @@ public class OutgoingMobilityLearningAgreementsResource {
     }
 
     private javax.ws.rs.core.Response mobilityGet(String sendingHeiId, List<String> mobilityIdList) {
-        if(sendingHeiId == null || sendingHeiId.trim().isEmpty()){
+        if (sendingHeiId == null || sendingHeiId.trim().isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for get.", Response.Status.BAD_REQUEST);
         }
-        
+
         if (mobilityIdList.size() > properties.getMaxOmobilitylasIds()) {
             throw new EwpWebApplicationException("Max number of omobility learning agreements id's has exceeded.", Response.Status.BAD_REQUEST);
         }
@@ -382,74 +382,93 @@ public class OutgoingMobilityLearningAgreementsResource {
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
-    private javax.ws.rs.core.Response omobilityLasIndex(String sendingHeiId, List<String> receivingHeiIdList, String receiving_academic_year_id, String globalId, String mobilityType, String modifiedSince) {
-        
-        if(sendingHeiId == null || sendingHeiId.trim().isEmpty()){
+    private javax.ws.rs.core.Response omobilityLasIndex(List<String> sendingHeiIds, List<String> receivingHeiIdList, List<String> receiving_academic_year_ids, List<String> globalIds, List<String> mobilityTypes, List<String> modifiedSinces) {
+
+        if (sendingHeiIds.size() != 1) {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
         }
+        String sendingHeiId = sendingHeiIds.get(0);
+
+        if (receiving_academic_year_ids.size() > 1) {
+            throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        }
+        String receiving_academic_year_id = receiving_academic_year_ids.get(0);
+
+        if (globalIds.size() > 1) {
+            throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        }
+        String globalId = globalIds.get(0);
+
+        if (mobilityTypes.size() > 1) {
+            throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        }
+        String mobilityType = mobilityTypes.get(0);
+
+        if (modifiedSinces.size() > 1) {
+            throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        }
+        String modifiedSince = modifiedSinces.get(0);
 
         OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
 
         List<OlearningAgreement> mobilityList = em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHei", sendingHeiId).getResultList();
-        if (!mobilityList.isEmpty()) {
 
-            if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
-                mobilityList = mobilityList.stream().filter(omobility -> anyMatchReceivingAcademicYear.test(omobility, receiving_academic_year_id)).collect(Collectors.toList());
+        if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
+            mobilityList = mobilityList.stream().filter(omobility -> anyMatchReceivingAcademicYear.test(omobility, receiving_academic_year_id)).collect(Collectors.toList());
+        }
+
+        if (globalId != null && !globalId.isEmpty()) {
+            mobilityList = mobilityList.stream().filter(omobility -> anyMatchSpecifiedStudent.test(omobility, globalId)).collect(Collectors.toList());
+        }
+
+        if (mobilityType != null && !mobilityList.isEmpty()) {
+            mobilityList = mobilityList.stream().filter(omobility -> anyMatchSpecifiedType.test(omobility, mobilityType)).collect(Collectors.toList());
+        }
+        if (modifiedSince != null && !modifiedSince.isEmpty()) {
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
+            Calendar calendarModifySince = Calendar.getInstance();
+
+            try {
+                calendarModifySince.setTime(sdf.parse(modifiedSince));
+            } catch (ParseException e) {
+                throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
             }
 
-            if (globalId != null && !globalId.isEmpty()) {
-                mobilityList = mobilityList.stream().filter(omobility -> anyMatchSpecifiedStudent.test(omobility, globalId)).collect(Collectors.toList());
-            }
+            Date modified_since = calendarModifySince.getTime();
 
-            if (mobilityType != null && !mobilityList.isEmpty()) {
-                mobilityList = mobilityList.stream().filter(omobility -> anyMatchSpecifiedType.test(omobility, mobilityType)).collect(Collectors.toList());
-            }
+            List<OlearningAgreement> mobilities = new ArrayList<>();
+            mobilityList.stream().forEachOrdered((m) -> {
 
-            if (modifiedSince != null && !modifiedSince.isEmpty()) {
+                Date studentSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
+                Date receivingSignatureDate = m.getFirstVersion().getReceivingHeiSignature() != null ? m.getFirstVersion().getReceivingHeiSignature().getTimestamp() : null;
+                Date sendingSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
 
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");//2004-02-12T15:19:21+01:00
-                Calendar calendarModifySince = Calendar.getInstance();
-
-                try {
-                    calendarModifySince.setTime(sdf.parse(modifiedSince));
-                } catch (ParseException e) {
-                    throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
+                if (studentSignatureDate != null) {
+                    if (studentSignatureDate.after(modified_since)) {
+                        mobilities.add(m);
+                    }
                 }
 
-                Date modified_since = calendarModifySince.getTime();
-
-                List<OlearningAgreement> mobilities = new ArrayList<>();
-                mobilityList.stream().forEachOrdered((m) -> {
-
-                    Date studentSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
-                    Date receivingSignatureDate = m.getFirstVersion().getReceivingHeiSignature() != null ? m.getFirstVersion().getReceivingHeiSignature().getTimestamp() : null;
-                    Date sendingSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
-
-                    if (studentSignatureDate != null) {
-                        if (studentSignatureDate.after(modified_since)) {
-                            mobilities.add(m);
-                        }
+                if (receivingSignatureDate != null) {
+                    if (receivingSignatureDate.after(modified_since)) {
+                        mobilities.add(m);
                     }
+                }
 
-                    if (receivingSignatureDate != null) {
-                        if (receivingSignatureDate.after(modified_since)) {
-                            mobilities.add(m);
-                        }
+                if (sendingSignatureDate != null) {
+                    if (sendingSignatureDate.after(modified_since)) {
+                        mobilities.add(m);
                     }
+                }
+            });
 
-                    if (sendingSignatureDate != null) {
-                        if (sendingSignatureDate.after(modified_since)) {
-                            mobilities.add(m);
-                        }
-                    }
-                });
-
-                mobilityList.clear();
-                mobilityList.addAll(mobilities);
-            }
-
-            response.getOmobilityId().addAll(omobilityLasIds(mobilityList, receivingHeiIdList));
+            mobilityList.clear();
+            mobilityList.addAll(mobilities);
         }
+
+        response.getOmobilityId().addAll(omobilityLasIds(mobilityList, receivingHeiIdList));
+        //}
 
         return javax.ws.rs.core.Response.ok(response).build();
     }
@@ -480,6 +499,11 @@ public class OutgoingMobilityLearningAgreementsResource {
     BiPredicate<OlearningAgreement, String> anyMatchReceivingAcademicYear = new BiPredicate<OlearningAgreement, String>() {
         @Override
         public boolean test(OlearningAgreement omobility, String receiving_academic_year_id) {
+            try {
+                (new SimpleDateFormat("yyyy/yyyy")).parse(receiving_academic_year_id);
+            } catch (ParseException e) {
+                throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
+            }
 
             return receiving_academic_year_id.equals(omobility.getReceivingAcademicTermEwpId());
         }
