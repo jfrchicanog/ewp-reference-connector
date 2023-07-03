@@ -223,7 +223,12 @@ public class IiaResource {
     public javax.ws.rs.core.Response iiaGetStats(@QueryParam(value = "hei_id") String hei_id) {
 
         if (hei_id == null || hei_id.isEmpty() || hei_id == null || hei_id.isEmpty()) {
-            throw new EwpWebApplicationException("Missing argumanets for statistics.", Response.Status.BAD_REQUEST);
+            List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
+            if (institutionList.size() != 1) {
+                throw new IllegalStateException("Internal error: more than one insitution covered");
+            }
+            hei_id = institutionList.get(0).getInstitutionId();
+            //throw new EwpWebApplicationException("Missing argumanets for statistics.", Response.Status.BAD_REQUEST);
         }
 
         Collection<String> heisCoveredByCertificate;
@@ -246,7 +251,12 @@ public class IiaResource {
     public javax.ws.rs.core.Response iiaPostStats(@FormParam("hei_id") String hei_id) {
 
         if (hei_id == null || hei_id.isEmpty() || hei_id == null || hei_id.isEmpty()) {
-            throw new EwpWebApplicationException("Missing argumanets for statistics.", Response.Status.BAD_REQUEST);
+            List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
+            if (institutionList.size() != 1) {
+                throw new IllegalStateException("Internal error: more than one insitution covered");
+            }
+            hei_id = institutionList.get(0).getInstitutionId();
+            //throw new EwpWebApplicationException("Missing argumanets for statistics.", Response.Status.BAD_REQUEST);
         }
 
         Collection<String> heisCoveredByCertificate;

@@ -110,7 +110,6 @@ public class RestClient {
                     }
 
                     Invocation.Builder builder = target.request();
-                    System.err.println(target.getUri());
                     if (clientRequest.isHttpsec()) {
                         httpSignature.signRequest("get", target.getUri(), builder, requestID);
                     }
