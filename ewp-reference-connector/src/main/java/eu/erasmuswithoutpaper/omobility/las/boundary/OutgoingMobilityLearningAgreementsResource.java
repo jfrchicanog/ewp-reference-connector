@@ -54,6 +54,7 @@ import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
 import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
 import eu.erasmuswithoutpaper.omobility.las.entity.Student;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
+import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 
 @Stateless
 @Path("omobilities/las")
@@ -80,6 +81,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @GET
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
+    @EwpAuthenticate
     public javax.ws.rs.core.Response indexGet(@QueryParam("sending_hei_id") List<String> sendingHeiIds, @QueryParam("receiving_hei_id") List<String> receivingHeiIdList, @QueryParam("receiving_academic_year_id") List<String> receiving_academic_year_ids,
             @QueryParam("global_id") List<String> globalIds, @QueryParam("mobility_type") List<String> mobilityTypes, @QueryParam("modified_since") List<String> modifiedSinces) {
         return omobilityLasIndex(sendingHeiIds, receivingHeiIdList, receiving_academic_year_ids, globalIds, mobilityTypes, modifiedSinces);
@@ -88,6 +90,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
+    @EwpAuthenticate
     public javax.ws.rs.core.Response indexPost(@FormParam("sending_hei_id") List<String> sendingHeiIds, @FormParam("receiving_hei_id") List<String> receivingHeiIdList, @FormParam("receiving_academic_year_id") List<String> receiving_academic_year_ids,
             @FormParam("global_id") List<String> globalIds, @FormParam("mobility_type") List<String> mobilityTypes, @FormParam("modified_since") List<String> modifiedSinces) {
         return omobilityLasIndex(sendingHeiIds, receivingHeiIdList, receiving_academic_year_ids, globalIds, mobilityTypes, modifiedSinces);
@@ -96,6 +99,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @GET
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
+    @EwpAuthenticate
     public javax.ws.rs.core.Response omobilityGetGet(@QueryParam("sending_hei_id") String sendingHeiId, @QueryParam("omobility_id") List<String> mobilityIdList) {
         return mobilityGet(sendingHeiId, mobilityIdList);
     }
@@ -103,6 +107,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
+    @EwpAuthenticate
     public javax.ws.rs.core.Response omobilityGetPost(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("omobility_id") List<String> mobilityIdList) {
         return mobilityGet(sendingHeiId, mobilityIdList);
     }
@@ -110,6 +115,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("update")
     @Produces(MediaType.APPLICATION_XML)
+    @EwpAuthenticate
     public javax.ws.rs.core.Response omobilityLasUpdatePost(OmobilityLasUpdateRequest request) {
         if (request == null) {
             throw new EwpWebApplicationException("No update data was sent", Response.Status.BAD_REQUEST);
@@ -192,6 +198,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @GET
     @Path("stats")
     @Produces(MediaType.APPLICATION_XML)
+    @EwpAuthenticate
     public javax.ws.rs.core.Response omobilityGetStats() {
         List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
         if (institutionList.size() != 1) {
@@ -397,6 +404,11 @@ public class OutgoingMobilityLearningAgreementsResource {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
         } else if (!receiving_academic_year_ids.isEmpty()) {
             receiving_academic_year_id = receiving_academic_year_ids.get(0);
+            try {
+                System.out.println((new SimpleDateFormat("yyyy/yyyy")).parse(receiving_academic_year_id));
+            } catch (ParseException e) {
+                throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
+            }
         } else {
             receiving_academic_year_id = null;
         }
@@ -516,12 +528,6 @@ public class OutgoingMobilityLearningAgreementsResource {
     BiPredicate<OlearningAgreement, String> anyMatchReceivingAcademicYear = new BiPredicate<OlearningAgreement, String>() {
         @Override
         public boolean test(OlearningAgreement omobility, String receiving_academic_year_id) {
-            try {
-                (new SimpleDateFormat("yyyy/yyyy")).parse(receiving_academic_year_id);
-            } catch (ParseException e) {
-                throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
-            }
-
             return receiving_academic_year_id.equals(omobility.getReceivingAcademicTermEwpId());
         }
     };
