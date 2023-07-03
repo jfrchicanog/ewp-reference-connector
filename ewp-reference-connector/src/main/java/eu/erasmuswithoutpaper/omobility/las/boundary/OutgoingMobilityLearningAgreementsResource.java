@@ -390,7 +390,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
 
-        List<OlearningAgreement> mobilityList = em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHeiId", sendingHeiId).getResultList();
+        List<OlearningAgreement> mobilityList = em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHei", sendingHeiId).getResultList();
         if (!mobilityList.isEmpty()) {
 
             if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
