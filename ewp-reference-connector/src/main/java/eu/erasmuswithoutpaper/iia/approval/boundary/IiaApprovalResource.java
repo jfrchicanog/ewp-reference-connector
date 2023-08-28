@@ -52,29 +52,30 @@ import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 @Stateless
 @Path("iiasApproval")
 public class IiaApprovalResource {
-	private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
-	
+
+    private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
+
     @PersistenceContext(unitName = "connector")
     EntityManager em;
-    
+
     @Inject
     GlobalProperties properties;
-    
+
     @Inject
     RegistryClient registryClient;
-    
+
     @Inject
     RestClient restClient;
-    
+
     @Inject
     IiaApprovalConverter iiaApprovalConverter;
-    
+
     @Context
     HttpServletRequest httpRequest;
-    
+
     @Inject
     GlobalProperties globalProperties;
-          
+
     @GET
     @Path("get")
     @EwpAuthenticate
@@ -82,7 +83,7 @@ public class IiaApprovalResource {
     public javax.ws.rs.core.Response iiasApprovalGet(@QueryParam("approving_hei_id") String heiId, @QueryParam("owner_hei_id") String owner_hei_id, @QueryParam("iia_id") List<String> iiaIdList, @QueryParam("send_pdf") Boolean pdf) {
         return iiaApprovalGet(heiId, owner_hei_id, iiaIdList, pdf);
     }
-    
+
     @POST
     @Path("get")
     @EwpAuthenticate
@@ -90,142 +91,140 @@ public class IiaApprovalResource {
     public javax.ws.rs.core.Response iiasApprovalPost(@FormParam("approving_hei_id") String heiId, @FormParam("owner_hei_id") String owner_hei_id, @FormParam("iia_id") List<String> iiaIdList, @FormParam("send_pdf") Boolean pdf) {
         return iiaApprovalGet(heiId, owner_hei_id, iiaIdList, pdf);
     }
-    
+
     @POST
     @Path("cnr")
     @EwpAuthenticate
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response cnrPost(@FormParam("approving_hei_id") String approvingHeiId, @FormParam("owner_hei_id") String owner_hei_id, @FormParam("iia_id") String iiaApprovalId) {
-    	 if (approvingHeiId == null || approvingHeiId.isEmpty()) {
-        	throw new EwpWebApplicationException("Missing arguments for notification, approving_hei_id required.", Response.Status.BAD_REQUEST);
-         }
-		 
-		 if (owner_hei_id == null || owner_hei_id.isEmpty()) {
-        	throw new EwpWebApplicationException("Missing arguments for notification, owner_hei_id required.", Response.Status.BAD_REQUEST);
-         }
-    	
-    	if (iiaApprovalId == null || iiaApprovalId.isEmpty()) {
+        if (approvingHeiId == null || approvingHeiId.isEmpty()) {
+            throw new EwpWebApplicationException("Missing arguments for notification, approving_hei_id required.", Response.Status.BAD_REQUEST);
+        }
+
+        if (owner_hei_id == null || owner_hei_id.isEmpty()) {
+            throw new EwpWebApplicationException("Missing arguments for notification, owner_hei_id required.", Response.Status.BAD_REQUEST);
+        }
+
+        if (iiaApprovalId == null || iiaApprovalId.isEmpty()) {
             throw new EwpWebApplicationException("Missing arguments for notification, iia_id is required.", Response.Status.BAD_REQUEST);
         }
-    	
-    	 Collection<String> heisCoveredByCertificate;
-         if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
-             heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
-         } else {
-             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
-         }
-         
-         //Checking if owner_hei_id is covered by the list of institutions from the server
-         List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
-         boolean ownerHeiIdCoverd = institutionList.stream().anyMatch(institution -> owner_hei_id.equals(institution.getInstitutionId()));
-         if (!ownerHeiIdCoverd) {
-        	 throw new EwpWebApplicationException("The owner_hei_id is not covered by the server.", Response.Status.BAD_REQUEST);
-         }
-         
-         //Checking if the approvingHeiId is covered by the client certificate before create the notification
-         if (heisCoveredByCertificate.contains(approvingHeiId)) {
-        	 Notification notification = new Notification();
-             notification.setType(NotificationTypes.IIAAPPROVAL);
-             notification.setHeiId(approvingHeiId);
-             notification.setChangedElementIds(iiaApprovalId);
-             notification.setNotificationDate(new Date());
-             em.persist(notification);
-             
-             //Register and execute Algoria notification
-             execNotificationToAlgoria(iiaApprovalId);
-         } else {
-         	throw new EwpWebApplicationException("The client signature does not cover the approving_hei_id.", Response.Status.BAD_REQUEST);
-         }
-        
+
+        Collection<String> heisCoveredByCertificate;
+        if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+        } else {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+        }
+
+        //Checking if owner_hei_id is covered by the list of institutions from the server
+        List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
+        boolean ownerHeiIdCoverd = institutionList.stream().anyMatch(institution -> owner_hei_id.equals(institution.getInstitutionId()));
+        if (!ownerHeiIdCoverd) {
+            throw new EwpWebApplicationException("The owner_hei_id is not covered by the server.", Response.Status.BAD_REQUEST);
+        }
+
+        //Checking if the approvingHeiId is covered by the client certificate before create the notification
+        if (heisCoveredByCertificate.contains(approvingHeiId)) {
+            Notification notification = new Notification();
+            notification.setType(NotificationTypes.IIAAPPROVAL);
+            notification.setHeiId(approvingHeiId);
+            notification.setChangedElementIds(iiaApprovalId);
+            notification.setNotificationDate(new Date());
+            em.persist(notification);
+
+            //Register and execute Algoria notification
+            execNotificationToAlgoria(iiaApprovalId);
+        } else {
+            throw new EwpWebApplicationException("The client signature does not cover the approving_hei_id.", Response.Status.BAD_REQUEST);
+        }
+
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaApprovalCnrResponse(new Empty())).build();
     }
-    
-    private void execNotificationToAlgoria(String iiaApprovalId) {
-    	
-		Callable<String> callableTask = IiaTaskService.createTask(iiaApprovalId, IiaTaskService.APPROVED);
-		
-	   	//Put the task in the queue
-	   	IiaTaskService.addTask(callableTask);
-	}
 
-	private javax.ws.rs.core.Response iiaApprovalGet(String heiId, String owner_hei_id, List<String> iiaIdList, Boolean pdf) {
-		 if (heiId == null || heiId.isEmpty()) {
-        	throw new EwpWebApplicationException("approving_hei_id required.", Response.Status.BAD_REQUEST);
-         }
-		 
-		 if (owner_hei_id == null || owner_hei_id.isEmpty()) {
-        	throw new EwpWebApplicationException("owner_hei_id required.", Response.Status.BAD_REQUEST);
-         }
-		
-		if (iiaIdList.size() > properties.getMaxIiaIds()) {
+    private void execNotificationToAlgoria(String iiaApprovalId) {
+
+        Callable<String> callableTask = IiaTaskService.createTask(iiaApprovalId, IiaTaskService.APPROVED);
+
+        //Put the task in the queue
+        IiaTaskService.addTask(callableTask);
+    }
+
+    private javax.ws.rs.core.Response iiaApprovalGet(String heiId, String owner_hei_id, List<String> iiaIdList, Boolean pdf) {
+        if (heiId == null || heiId.isEmpty()) {
+            throw new EwpWebApplicationException("approving_hei_id required.", Response.Status.BAD_REQUEST);
+        }
+
+        if (owner_hei_id == null || owner_hei_id.isEmpty()) {
+            throw new EwpWebApplicationException("owner_hei_id required.", Response.Status.BAD_REQUEST);
+        }
+
+        if (iiaIdList.size() > properties.getMaxIiaIds()) {
             throw new EwpWebApplicationException("Max number of IIA APPROVAL id's has exceeded.", Response.Status.BAD_REQUEST);
         }
-        
+
         if (iiaIdList.isEmpty()) {
-        	throw new EwpWebApplicationException("iia_id required.", Response.Status.BAD_REQUEST);
+            throw new EwpWebApplicationException("iia_id required.", Response.Status.BAD_REQUEST);
         }
-        
+
         Collection<String> heisCoveredByCertificate;
-		 if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
-           heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
-		 } else {
-           heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
-		 }
-	      
-		 if (!heisCoveredByCertificate.contains(owner_hei_id)) {
-			 throw new EwpWebApplicationException("The client signature does not cover the owner_hei_id.", Response.Status.BAD_REQUEST);
-		 }
-        
+        if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+        } else {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+        }
+
+        if (!heisCoveredByCertificate.contains(owner_hei_id)) {
+            throw new EwpWebApplicationException("The client signature does not cover the owner_hei_id.", Response.Status.BAD_REQUEST);
+        }
+
         IiasApprovalResponse response = new IiasApprovalResponse();
-        
+
         //Initialize the result list
         List<IiaApproval> iiaApprovalList = new ArrayList<IiaApproval>();
-        
+
         //Getting all agreements which corresponds to the list of identifiers
         List<Iia> iiaList = iiaIdList.stream().map(id -> em.find(Iia.class, id)).filter(iia -> iia != null).collect(Collectors.toList());
-        if(!iiaList.isEmpty()) {
-        	Map<String, String> heiIds = new HashMap<String,String>();
-        	heiIds.put("Owner", owner_hei_id);
-        	heiIds.put("HeiId", heiId);
-        	
-        	//Apply filter by the heiId and the owner of the copy
-        	iiaList = iiaList.stream().filter(iia -> equalCheckHeiId.test(iia, heiIds)).collect(Collectors.toList());
-        	
-        	if(!iiaList.isEmpty()) {
-        		//Extract the iia ids
-        		List<String> ids = iiaList.stream().map(iia -> {
-        			return iia.getId();
-        		}).collect(Collectors.toList());
-        		
-        		//Get the list of iiaApproval
-        		if (!ids.isEmpty()) {
-        			iiaApprovalList = ids.stream().map(id -> em.find(IiaApproval.class, id)).filter(iia -> iia != null).collect(Collectors.toList());
-        		}
-        	}
+        if (!iiaList.isEmpty()) {
+            Map<String, String> heiIds = new HashMap<String, String>();
+            heiIds.put("Owner", owner_hei_id);
+            heiIds.put("HeiId", heiId);
+
+            //Apply filter by the heiId and the owner of the copy
+            iiaList = iiaList.stream().filter(iia -> equalCheckHeiId.test(iia, heiIds)).collect(Collectors.toList());
+
+            if (!iiaList.isEmpty()) {
+                //Extract the iia ids
+                List<String> ids = iiaList.stream().map(iia -> {
+                    return iia.getId();
+                }).collect(Collectors.toList());
+
+                //Get the list of iiaApproval
+                if (!ids.isEmpty()) {
+                    iiaApprovalList = ids.stream().map(id -> em.find(IiaApproval.class, id)).filter(iia -> iia != null).collect(Collectors.toList());
+                }
+            }
         }
-        
+
         if (!iiaApprovalList.isEmpty()) {
             response.getApproval().addAll(iiaApprovalConverter.convertToIiasApproval(heiId, iiaApprovalList));
         }
-        
+
         return javax.ws.rs.core.Response.ok(response).build();
-    } 
-	
-    BiPredicate<Iia,Map<String, String>> equalCheckHeiId = new BiPredicate<Iia,Map<String, String>>()
-	{
-		@Override
-		public boolean test(Iia iia, Map<String, String> heiIds) {
-			List<CooperationCondition> cConditions = iia.getCooperationConditions();
-			
-			String owner_hei_id = heiIds.get("Owner");
-			String hei_id = heiIds.get("HeiId");
-			
-			Stream<CooperationCondition> stream = cConditions.stream().filter(c -> ( 
-					(c.getSendingPartner().getInstitutionId().equals(owner_hei_id) && c.getReceivingPartner().getInstitutionId().equals(hei_id)) || 
-					(c.getReceivingPartner().getInstitutionId().equals(owner_hei_id) && c.getSendingPartner().getInstitutionId().equals(hei_id)) ) );
-			
-			return !stream.collect(Collectors.toList()).isEmpty();
-		}
-	};
-    
+    }
+
+    BiPredicate<Iia, Map<String, String>> equalCheckHeiId = new BiPredicate<Iia, Map<String, String>>() {
+        @Override
+        public boolean test(Iia iia, Map<String, String> heiIds) {
+            List<CooperationCondition> cConditions = iia.getCooperationConditions();
+
+            String owner_hei_id = heiIds.get("Owner");
+            String hei_id = heiIds.get("HeiId");
+
+            Stream<CooperationCondition> stream = cConditions.stream().filter(c -> ((c.getSendingPartner().getInstitutionId().equals(owner_hei_id) && c.getReceivingPartner().getInstitutionId().equals(hei_id))
+                    || (c.getReceivingPartner().getInstitutionId().equals(owner_hei_id) && c.getSendingPartner().getInstitutionId().equals(hei_id))));
+
+            return !stream.collect(Collectors.toList()).isEmpty();
+        }
+    };
+
 }
