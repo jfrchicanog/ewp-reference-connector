@@ -944,7 +944,7 @@ public class GuiIiaResource {
 
         clientRequestNotifyApproval.setParams(pc2);
 
-        ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, Empty.class);
+        ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, Object.class);
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
     }
 
