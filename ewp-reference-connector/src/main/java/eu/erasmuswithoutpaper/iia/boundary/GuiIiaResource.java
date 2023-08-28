@@ -1040,7 +1040,7 @@ public class GuiIiaResource {
         ParamsClass pc2 = new ParamsClass();
         pc2.setUnknownFields(paramsCnr);
 
-        clientRequestGetIia.setParams(pc2);
+        clientRequestNotifyApproval.setParams(pc2);
 
         ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, Empty.class);
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
