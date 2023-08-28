@@ -88,7 +88,7 @@ import java.util.Arrays;
 @Stateless
 @Path("iia")
 public class GuiIiaResource {
-    
+
     @PersistenceContext(unitName = "connector")
     EntityManager em;
 
@@ -904,20 +904,15 @@ public class GuiIiaResource {
         params.put("approving_hei_id", Arrays.asList(heiId));
         params.put("owner_hei_id", Arrays.asList(partnerReceiving.getInstitutionId()));
         params.put("iia_id", iiaIds);
-        
+
         ParamsClass pc = new ParamsClass();
         pc.setUnknownFields(params);
 
         clientRequestGetIia.setParams(pc);
-        
-        logger.info("------------------------------------TEST BEGIN-----------------------------------------");
-        logger.info(urlGetValues.get(0));
-        
+
         ClientResponse iiaApprovalResponse = restClient.sendRequest(clientRequestGetIia, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
-        logger.info(iiaApprovalResponse.getStatusCode() + "");
-        logger.info(iiaApprovalResponse.getErrorMessage());
         eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse response = (IiasApprovalResponse) iiaApprovalResponse.getResult();
-        
+
         Approval approval = response.getApproval().stream()
                 .filter(app -> theIia.getIiaCode().equals(app.getIiaId()))
                 .findAny()
@@ -941,6 +936,10 @@ public class GuiIiaResource {
 
         Map<String, List<String>> paramsCnr = new HashMap<>();
         paramsCnr.put("iia_approval_id", iiaIds);
+        
+                logger.info("------------------------------------TEST BEGIN-----------------------------------------");
+        logger.info(urlValues.get(0));
+
 
         ParamsClass pc2 = new ParamsClass();
         pc2.setUnknownFields(paramsCnr);
@@ -948,9 +947,12 @@ public class GuiIiaResource {
         clientRequestGetIia.setParams(pc2);
 
         ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, Empty.class);
+        logger.info(iiaResponse.getStatusCode() + "");
+        logger.info(iiaResponse.getErrorMessage());
+
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
     }
-    
+
     @POST
     @Path("iias-test")
     @InternalAuthenticate
@@ -1004,15 +1006,15 @@ public class GuiIiaResource {
 
         Map<String, List<String>> params = new HashMap<>();
         params.put("iia_approval_id", iiaIds);
-        
+
         ParamsClass pc = new ParamsClass();
         pc.setUnknownFields(params);
 
         clientRequestGetIia.setParams(pc);
-        
+
         ClientResponse iiaApprovalResponse = restClient.sendRequest(clientRequestGetIia, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
         eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse response = (IiasApprovalResponse) iiaApprovalResponse.getResult();
-        
+
         logger.debug(response.toString());
         logger.debug(iiaApprovalResponse.toString());
 
@@ -1048,7 +1050,7 @@ public class GuiIiaResource {
         ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, Empty.class);
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
     }
-    
+
     private boolean validateConditions(List<CooperationCondition> conditions) {
 
         Predicate<CooperationCondition> condition = new Predicate<CooperationCondition>() {
