@@ -901,8 +901,8 @@ public class GuiIiaResource {
         iiaIds.add(theIia.getId());
 
         Map<String, List<String>> params = new HashMap<>();
-        params.put("approving_hei_id", Arrays.asList(heiId));
-        params.put("owner_hei_id", Arrays.asList(partnerReceiving.getInstitutionId()));
+        params.put("approving_hei_id", Arrays.asList(partnerReceiving.getInstitutionId()));
+        params.put("owner_hei_id", Arrays.asList(heiId));
         params.put("iia_id", iiaIds);
 
         ParamsClass pc = new ParamsClass();
@@ -935,11 +935,9 @@ public class GuiIiaResource {
         clientRequestNotifyApproval.setHttpsec(true);
 
         Map<String, List<String>> paramsCnr = new HashMap<>();
-        paramsCnr.put("iia_approval_id", iiaIds);
-        
-                logger.info("------------------------------------TEST BEGIN-----------------------------------------");
-        logger.info(urlValues.get(0));
-
+        params.put("approving_hei_id", Arrays.asList(partnerReceiving.getInstitutionId()));
+        params.put("owner_hei_id", Arrays.asList(heiId));
+        params.put("iia_id", iiaIds);
 
         ParamsClass pc2 = new ParamsClass();
         pc2.setUnknownFields(paramsCnr);
@@ -947,9 +945,6 @@ public class GuiIiaResource {
         clientRequestGetIia.setParams(pc2);
 
         ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, Empty.class);
-        logger.info(iiaResponse.getStatusCode() + "");
-        logger.info(iiaResponse.getErrorMessage());
-
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
     }
 
