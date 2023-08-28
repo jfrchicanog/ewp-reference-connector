@@ -83,6 +83,7 @@ import eu.erasmuswithoutpaper.organization.entity.Gender;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.organization.entity.Person;
 import eu.erasmuswithoutpaper.security.InternalAuthenticate;
+import java.util.Arrays;
 
 @Stateless
 @Path("iia")
@@ -900,7 +901,9 @@ public class GuiIiaResource {
         iiaIds.add(theIia.getId());
 
         Map<String, List<String>> params = new HashMap<>();
-        params.put("approving_hei_id", iiaIds);
+        params.put("approving_hei_id", Arrays.asList(heiId));
+        params.put("owner_hei_id", Arrays.asList(partnerReceiving.getInstitutionId()));
+        params.put("iiaIds", iiaIds);
         
         ParamsClass pc = new ParamsClass();
         pc.setUnknownFields(params);
