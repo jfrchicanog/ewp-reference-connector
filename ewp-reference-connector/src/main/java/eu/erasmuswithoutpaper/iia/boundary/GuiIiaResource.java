@@ -935,9 +935,9 @@ public class GuiIiaResource {
         clientRequestNotifyApproval.setHttpsec(true);
 
         Map<String, List<String>> paramsCnr = new HashMap<>();
-        params.put("approving_hei_id", Arrays.asList(partnerReceiving.getInstitutionId()));
-        params.put("owner_hei_id", Arrays.asList(heiId));
-        params.put("iia_id", iiaIds);
+        paramsCnr.put("approving_hei_id", Arrays.asList(partnerReceiving.getInstitutionId()));
+        paramsCnr.put("owner_hei_id", Arrays.asList(heiId));
+        paramsCnr.put("iia_id", iiaIds);
 
         ParamsClass pc2 = new ParamsClass();
         pc2.setUnknownFields(paramsCnr);
