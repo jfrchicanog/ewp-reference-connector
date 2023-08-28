@@ -903,7 +903,7 @@ public class GuiIiaResource {
         Map<String, List<String>> params = new HashMap<>();
         params.put("approving_hei_id", Arrays.asList(heiId));
         params.put("owner_hei_id", Arrays.asList(partnerReceiving.getInstitutionId()));
-        params.put("iiaIds", iiaIds);
+        params.put("iia_id", iiaIds);
         
         ParamsClass pc = new ParamsClass();
         pc.setUnknownFields(params);
