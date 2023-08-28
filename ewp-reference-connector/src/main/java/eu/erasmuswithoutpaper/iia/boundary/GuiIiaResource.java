@@ -900,7 +900,7 @@ public class GuiIiaResource {
         iiaIds.add(theIia.getId());
 
         Map<String, List<String>> params = new HashMap<>();
-        params.put("iia_approval_id", iiaIds);
+        params.put("approving_hei_id", iiaIds);
         
         ParamsClass pc = new ParamsClass();
         pc.setUnknownFields(params);
