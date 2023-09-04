@@ -24,7 +24,8 @@ public class GlobalProperties {
     String defaultUniversityName;
     String defaultAlgoriaToken = "675701176db0293a8cac23814481f8e50b320fbd";
     
-    String defaultAlgoriaApprovalURL = "https://relacionesi.uma.es/algoria/ewp_approved_agreement_notifications/";
+    //String defaultAlgoriaApprovalURL = "https://relacionesi.uma.es/algoria/ewp_approved_agreement_notifications/";
+    String defaultAlgoriaApprovalURL = "https://relacionesi-test.uma.es/algoria/ewp_approved_agreement_notifications/";
     String defaultAlgoriaModifyURL = "https://relacionesi.uma.es/algoria/ewp_modified_agreement_notifications/";
     String defaultAlgoriaAuthorizationToken = "Token 83796a548ff904efcc2811ba2cf6d4049009d149";
     
