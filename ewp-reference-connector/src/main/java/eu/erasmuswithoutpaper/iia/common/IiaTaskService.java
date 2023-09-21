@@ -43,8 +43,7 @@ public class IiaTaskService {
     public final static String MODIFIED = "Modified";
     public final static String APPROVED = "Approved";
 
-    @Inject
-    static GlobalProperties globalProperties;
+    static GlobalProperties globalProperties = new GlobalProperties();
 
     private final static ExecutorService exeService = Executors.newCachedThreadPool();
     private static BlockingQueue<Future<String>> queue = new LinkedBlockingDeque<Future<String>>(100);
@@ -88,18 +87,12 @@ public class IiaTaskService {
 
             logger.info("Created json! " + json);
             
-            System.out.println("-------------------------------------------------------------");
-            System.out.println("BEFORE TOKEN");
-            System.out.println(globalProperties);
-            System.out.println(globalProperties.toString());
-            System.out.println("-------------------------------------------------------------");
-
             String token = globalProperties.getAlgoriaAuthotizationToken();
             
             System.out.println("-------------------------------------------------------------");
-            System.out.println(token);
+            System.out.println(globalProperties);
             System.out.println("-------------------------------------------------------------");
-
+            
             String url = null;
             if (APPROVED.equals(mode)) {
                 url = globalProperties.getAlgoriaApprovalURL();
