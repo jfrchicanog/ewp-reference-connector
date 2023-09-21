@@ -87,8 +87,16 @@ public class IiaTaskService {
             String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
 
             logger.info("Created json! " + json);
+            
+            System.out.println("-------------------------------------------------------------");
+            System.out.println("BEFORE TOKEN");
+            System.out.println("-------------------------------------------------------------");
 
             String token = globalProperties.getAlgoriaAuthotizationToken();
+            
+            System.out.println("-------------------------------------------------------------");
+            System.out.println(token);
+            System.out.println("-------------------------------------------------------------");
 
             String url = null;
             if (APPROVED.equals(mode)) {
