@@ -216,6 +216,7 @@ public class IiaTaskService {
         } catch (InterruptedException | ExecutionException | IOException e) {
 
             logger.error("The task was interrupted! " + e.getMessage());
+            logger.error(e.toString());
         }
     }
 }
