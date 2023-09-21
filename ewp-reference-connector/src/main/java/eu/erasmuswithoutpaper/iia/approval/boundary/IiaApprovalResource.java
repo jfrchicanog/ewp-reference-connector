@@ -97,9 +97,6 @@ public class IiaApprovalResource {
     @EwpAuthenticate
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response cnrPost(@FormParam("approving_hei_id") String approvingHeiId, @FormParam("owner_hei_id") String owner_hei_id, @FormParam("iia_id") String iiaApprovalId) {
-        System.out.println("------------------------------------------------------");
-        System.out.println(approvingHeiId);
-        System.out.println("------------------------------------------------------");
         if (approvingHeiId == null || approvingHeiId.isEmpty()) {
             throw new EwpWebApplicationException("Missing arguments for notification, approving_hei_id required.", Response.Status.BAD_REQUEST);
         }
@@ -125,6 +122,10 @@ public class IiaApprovalResource {
         if (!ownerHeiIdCoverd) {
             throw new EwpWebApplicationException("The owner_hei_id is not covered by the server.", Response.Status.BAD_REQUEST);
         }
+
+        System.out.println("------------------------------------------------------");
+        System.out.println("TEST");
+        System.out.println("------------------------------------------------------");
 
         //Checking if the approvingHeiId is covered by the client certificate before create the notification
         if (heisCoveredByCertificate.contains(approvingHeiId)) {
