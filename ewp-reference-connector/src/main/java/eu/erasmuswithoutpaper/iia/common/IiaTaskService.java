@@ -96,7 +96,9 @@ public class IiaTaskService {
             } else {
                 url = globalProperties.getAlgoriaModifyURL();
             }
-
+            System.out.println("-------------------------------------------------------------");
+            System.out.println(url);
+            System.out.println("-------------------------------------------------------------");
             //Invoke the method to execute the request
             Response result = MessageNotificationService.addApprovalNotification(url, json, token);
 
