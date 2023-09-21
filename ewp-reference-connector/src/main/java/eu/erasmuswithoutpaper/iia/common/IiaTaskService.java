@@ -87,24 +87,7 @@ public class IiaTaskService {
 
             logger.info("Created json! " + json);
 
-            try {
-                logger.info("\n-------------------------------------------------------------");
-                logger.info(globalProperties.toString());
-                logger.info("-------------------------------------------------------------\n");
-            } catch (Exception e) {
-                logger.info(e.toString());
-            }
-
             String token = globalProperties.getAlgoriaAuthotizationToken();
-
-            try {
-                logger.info("\n-------------------------------------------------------------");
-                logger.info(APPROVED);
-                logger.info(mode);
-                logger.info("-------------------------------------------------------------\n");
-            } catch (Exception e) {
-                logger.info(e.toString());
-            }
 
             String url = null;
             if (APPROVED.equals(mode)) {
@@ -112,13 +95,7 @@ public class IiaTaskService {
             } else {
                 url = globalProperties.getAlgoriaModifyURL();
             }
-            try {
-                logger.info("\n-------------------------------------------------------------");
-                logger.info(url);
-                logger.info("-------------------------------------------------------------\n");
-            } catch (Exception e) {
-                logger.info(e.toString());
-            }
+
             //Invoke the method to execute the request
             Response result = MessageNotificationService.addApprovalNotification(url, json, token);
 
@@ -215,8 +192,7 @@ public class IiaTaskService {
             }
         } catch (InterruptedException | ExecutionException | IOException e) {
 
-            logger.error("The task was interrupted TEST! " + e.getMessage());
-            e.printStackTrace();
+            logger.error("The task was interrupted! " + e.getMessage());
         }
     }
 }
