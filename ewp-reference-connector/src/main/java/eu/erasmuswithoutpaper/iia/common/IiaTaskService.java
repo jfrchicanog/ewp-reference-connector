@@ -87,11 +87,11 @@ public class IiaTaskService {
 
             logger.info("Created json! " + json);
             
-            String token = globalProperties.getAlgoriaAuthotizationToken();
-            
             System.out.println("-------------------------------------------------------------");
             System.out.println(globalProperties);
             System.out.println("-------------------------------------------------------------");
+            
+            String token = globalProperties.getAlgoriaAuthotizationToken();
             
             String url = null;
             if (APPROVED.equals(mode)) {
