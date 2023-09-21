@@ -90,6 +90,8 @@ public class IiaTaskService {
             
             System.out.println("-------------------------------------------------------------");
             System.out.println("BEFORE TOKEN");
+            System.out.println(globalProperties);
+            System.out.println(globalProperties.toString());
             System.out.println("-------------------------------------------------------------");
 
             String token = globalProperties.getAlgoriaAuthotizationToken();
