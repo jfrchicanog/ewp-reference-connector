@@ -87,11 +87,16 @@ public class IiaTaskService {
 
             logger.info("Created json! " + json);
             
-            logger.info("-------------------------------------------------------------");
-            logger.info(globalProperties.toString());
-            logger.info("-------------------------------------------------------------");
+            logger.debug("\n-------------------------------------------------------------");
+            logger.debug(globalProperties.toString());
+            logger.debug("-------------------------------------------------------------\n");
             
             String token = globalProperties.getAlgoriaAuthotizationToken();
+            
+            logger.debug("\n-------------------------------------------------------------");
+            logger.debug(APPROVED);
+            logger.debug(mode);
+            logger.debug("-------------------------------------------------------------\n");
             
             String url = null;
             if (APPROVED.equals(mode)) {
@@ -99,9 +104,9 @@ public class IiaTaskService {
             } else {
                 url = globalProperties.getAlgoriaModifyURL();
             }
-            System.out.println("-------------------------------------------------------------");
-            System.out.println(url);
-            System.out.println("-------------------------------------------------------------");
+            logger.debug("\n-------------------------------------------------------------");
+            logger.debug(url);
+            logger.debug("-------------------------------------------------------------\n");
             //Invoke the method to execute the request
             Response result = MessageNotificationService.addApprovalNotification(url, json, token);
 
