@@ -191,6 +191,9 @@ public class GlobalProperties {
     }
     
     private String getProperty(String key, String defaultValue) {
+        System.out.println("---------------------------------------------");
+        System.out.println("key = "+key +" -- defaultValue = "+defaultValue);
+        System.out.println("---------------------------------------------");
         String property = properties.getProperty(key, defaultValue);
         return property;
     }
