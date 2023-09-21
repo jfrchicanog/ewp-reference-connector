@@ -87,9 +87,9 @@ public class IiaTaskService {
 
             logger.info("Created json! " + json);
             
-            System.out.println("-------------------------------------------------------------");
-            System.out.println(globalProperties);
-            System.out.println("-------------------------------------------------------------");
+            logger.info("-------------------------------------------------------------");
+            logger.info(globalProperties.toString());
+            logger.info("-------------------------------------------------------------");
             
             String token = globalProperties.getAlgoriaAuthotizationToken();
             

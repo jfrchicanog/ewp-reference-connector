@@ -167,6 +167,9 @@ public class GlobalProperties {
     }
     
     public String getAlgoriaAuthotizationToken() {
+        logger.info("---------------------------------------------");
+        logger.info("TEST: "+defaultAlgoriaAuthorizationToken);
+        logger.info("---------------------------------------------");
     	return getProperty("algoria.tokens.authorization", defaultAlgoriaAuthorizationToken);
     }
             
