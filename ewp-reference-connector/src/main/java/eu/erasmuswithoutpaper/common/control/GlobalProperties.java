@@ -28,6 +28,12 @@ public class GlobalProperties {
     String defaultAlgoriaApprovalURL = "https://relacionesi-test.uma.es/algoria/ewp_approved_agreement_notifications/";
     String defaultAlgoriaModifyURL = "https://relacionesi.uma.es/algoria/ewp_modified_agreement_notifications/";
     String defaultAlgoriaAuthorizationToken = "Token 83796a548ff904efcc2811ba2cf6d4049009d149";
+
+    public GlobalProperties() {
+        loadProperties();
+    }
+    
+    
     
     @PostConstruct
     private void loadProperties() {
