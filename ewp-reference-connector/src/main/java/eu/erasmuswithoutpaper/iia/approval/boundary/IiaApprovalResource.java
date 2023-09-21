@@ -123,10 +123,6 @@ public class IiaApprovalResource {
             throw new EwpWebApplicationException("The owner_hei_id is not covered by the server.", Response.Status.BAD_REQUEST);
         }
 
-        System.out.println("------------------------------------------------------");
-        System.out.println("TEST");
-        System.out.println("------------------------------------------------------");
-
         //Checking if the approvingHeiId is covered by the client certificate before create the notification
         if (heisCoveredByCertificate.contains(approvingHeiId)) {
             Notification notification = new Notification();
@@ -136,8 +132,13 @@ public class IiaApprovalResource {
             notification.setNotificationDate(new Date());
             em.persist(notification);
 
+            System.out.println("------------------------------------------------------");
+            System.out.println("BEFORE");
             //Register and execute Algoria notification
             execNotificationToAlgoria(iiaApprovalId);
+            System.out.println("AFTER");
+            System.out.println("------------------------------------------------------");
+
         } else {
             throw new EwpWebApplicationException("The client signature does not cover the approving_hei_id.", Response.Status.BAD_REQUEST);
         }
