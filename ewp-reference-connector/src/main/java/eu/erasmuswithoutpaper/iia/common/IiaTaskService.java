@@ -86,27 +86,39 @@ public class IiaTaskService {
             String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
 
             logger.info("Created json! " + json);
-            
-            logger.debug("\n-------------------------------------------------------------");
-            logger.debug(globalProperties.toString());
-            logger.debug("-------------------------------------------------------------\n");
-            
+
+            try {
+                logger.info("\n-------------------------------------------------------------");
+                logger.info(globalProperties.toString());
+                logger.info("-------------------------------------------------------------\n");
+            } catch (Exception e) {
+                logger.info(e.toString());
+            }
+
             String token = globalProperties.getAlgoriaAuthotizationToken();
-            
-            logger.debug("\n-------------------------------------------------------------");
-            logger.debug(APPROVED);
-            logger.debug(mode);
-            logger.debug("-------------------------------------------------------------\n");
-            
+
+            try {
+                logger.info("\n-------------------------------------------------------------");
+                logger.info(APPROVED);
+                logger.info(mode);
+                logger.info("-------------------------------------------------------------\n");
+            } catch (Exception e) {
+                logger.info(e.toString());
+            }
+
             String url = null;
             if (APPROVED.equals(mode)) {
                 url = globalProperties.getAlgoriaApprovalURL();
             } else {
                 url = globalProperties.getAlgoriaModifyURL();
             }
-            logger.debug("\n-------------------------------------------------------------");
-            logger.debug(url);
-            logger.debug("-------------------------------------------------------------\n");
+            try {
+                logger.info("\n-------------------------------------------------------------");
+                logger.info(url);
+                logger.info("-------------------------------------------------------------\n");
+            } catch (Exception e) {
+                logger.info(e.toString());
+            }
             //Invoke the method to execute the request
             Response result = MessageNotificationService.addApprovalNotification(url, json, token);
 
