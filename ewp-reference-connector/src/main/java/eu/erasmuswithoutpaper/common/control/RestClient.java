@@ -95,7 +95,7 @@ public class RestClient {
                         httpSignature.signRequest("post", target.getUri(), postBuilder, formData, requestID);
                     }
                     System.out.println("-------------------------------------------------------------------------------");
-                    System.out.println(target);
+                    System.out.println(clientRequest.getUrl());
                     System.out.println(formData);
                     System.out.println("-------------------------------------------------------------------------------");
                     Entity<String> entity = Entity.entity(formData, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
