@@ -39,7 +39,7 @@ public class MessageNotificationService {
         
         logger.info("\n\n------------------------------------");
         logger.info("response: " + response);
-        logger.info("enity: " + response.getEntity());
+        logger.info("statues: " + response.getStatus());
         logger.info("\n\n------------------------------------\n\n");
 
         return response;
