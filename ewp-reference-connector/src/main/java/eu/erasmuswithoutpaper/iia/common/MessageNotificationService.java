@@ -35,13 +35,12 @@ public class MessageNotificationService {
         Invocation.Builder postBuilder = target.request().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_TYPE);
         postBuilder = postBuilder.header("Authorization", token);
         
-        logger.info("\n\n------------------------------------");
-        logger.info("url: " + url);
-        logger.info("msg: " + msg);
-        logger.info("toke: " + token);
-        logger.info("\n\n------------------------------------\n\n");
-        
         Response response = postBuilder.post(Entity.json(msg));
+        
+        logger.info("\n\n------------------------------------");
+        logger.info("response: " + response);
+        logger.info("enity: " + response.getEntity());
+        logger.info("\n\n------------------------------------\n\n");
 
         return response;
     }
