@@ -36,11 +36,6 @@ public class MessageNotificationService {
         postBuilder = postBuilder.header("Authorization", token);
         
         Response response = postBuilder.post(Entity.json(msg));
-        
-        logger.info("\n\n------------------------------------");
-        logger.info("response: " + response);
-        logger.info("statues: " + response.getStatus());
-        logger.info("\n\n------------------------------------\n\n");
 
         return response;
     }
