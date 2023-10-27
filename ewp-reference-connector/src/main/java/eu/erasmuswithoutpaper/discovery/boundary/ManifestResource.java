@@ -101,7 +101,7 @@ public class ManifestResource {
     }
     
     private String getAdminProvider() {
-    	return "University of Malaga";
+    	return "UNIVERSIDAD DE MALAGA";
     }
     
     private InstitutionsCovered getInstitutionsCovered() {
