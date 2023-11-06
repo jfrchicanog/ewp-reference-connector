@@ -15,7 +15,7 @@ public class ClientRequest implements Serializable {
     private HttpMethodEnum method;
     private ParamsClass params;
 
-    private boolean httpsec = false;
+    private boolean httpsec = true;
 
     public String getUrl() {
         return url;
