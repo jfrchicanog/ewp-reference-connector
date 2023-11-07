@@ -1,8 +1,10 @@
 package eu.erasmuswithoutpaper.common.control;
 
+import eu.erasmuswithoutpaper.api.institutions.InstitutionsResponse;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.security.HttpSignature;
+import java.io.StringReader;
 import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -31,6 +33,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,10 +139,15 @@ public class RestClient {
                 response.bufferEntity();
 
                 rawResponse = response.readEntity(String.class);
-                rawResponse = rawResponse.replaceAll("\n", "");
-                rawResponse = rawResponse.replaceAll("\r", "");
                 clientResponse.setRawResponse(rawResponse);
-                Object responseObject = response.readEntity(responseClass);
+                JAXBContext jaxbContext = JAXBContext.newInstance(InstitutionsResponse.class);
+                Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+                StringReader reader = new StringReader(rawResponse);
+                InstitutionsResponse institutionsResponse = (InstitutionsResponse) unmarshaller.unmarshal(reader);
+                
+                clientResponse.setRawResponse(rawResponse);
+                Object responseObject = institutionsResponse;
 
                 clientResponse.setResult(responseObject);
             } else {
