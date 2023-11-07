@@ -131,9 +131,23 @@ public class IiaApprovalResource {
             notification.setChangedElementIds(iiaApprovalId);
             notification.setNotificationDate(new Date());
             em.persist(notification);
+            
+            Iia iia = em.find(Iia.class, iiaApprovalId);
+            
+            if(iia != null) {
+                System.out.println("-------------------------------------------------");
+                System.out.println(iia.getId());
+                System.out.println(iia.getIiaCode());
+                System.out.println(iia.getConditionsHash());
+                System.out.println("-------------------------------------------------");
+            }else {
+                System.out.println("-------------------------------------------------");
+                System.out.println("NULL");
+                System.out.println("-------------------------------------------------");
+            }
 
             //Register and execute Algoria notification
-            execNotificationToAlgoria(iiaApprovalId);
+            //execNotificationToAlgoria(iiaApprovalId);
 
         } else {
             throw new EwpWebApplicationException("The client signature does not cover the approving_hei_id.", Response.Status.BAD_REQUEST);
