@@ -208,7 +208,7 @@ public class IiaResource {
             em.persist(notification);
 
             //Register and execute Algoria notification
-            execNotificationToAlgoria(iiaId);
+            execNotificationToAlgoria(iiaId, notifierHeiId);
 
         } else {
             throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
@@ -358,9 +358,9 @@ public class IiaResource {
         return Response.ok(response).build();
     }
 
-    private void execNotificationToAlgoria(String iiaId) {
+    private void execNotificationToAlgoria(String iiaId, String notifierHeiId) {
 
-        Callable<String> callableTask = IiaTaskService.createTask(iiaId, IiaTaskService.MODIFIED);
+        Callable<String> callableTask = IiaTaskService.createTask(iiaId, IiaTaskService.MODIFIED, notifierHeiId);
 
         //Put the task in the queue
         IiaTaskService.addTask(callableTask);

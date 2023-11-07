@@ -132,7 +132,7 @@ public class IiaApprovalResource {
             notification.setNotificationDate(new Date());
             em.persist(notification);
             
-            Iia iia = em.find(Iia.class, iiaApprovalId);
+            /*Iia iia = em.find(Iia.class, iiaApprovalId);
             
             if(iia != null) {
                 System.out.println("-------------------------------------------------");
@@ -144,10 +144,10 @@ public class IiaApprovalResource {
                 System.out.println("-------------------------------------------------");
                 System.out.println("NULL");
                 System.out.println("-------------------------------------------------");
-            }
+            }*/
 
             //Register and execute Algoria notification
-            //execNotificationToAlgoria(iiaApprovalId);
+            execNotificationToAlgoria(iiaApprovalId, approvingHeiId);
 
         } else {
             throw new EwpWebApplicationException("The client signature does not cover the approving_hei_id.", Response.Status.BAD_REQUEST);
@@ -156,9 +156,9 @@ public class IiaApprovalResource {
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaApprovalCnrResponse(new Empty())).build();
     }
 
-    private void execNotificationToAlgoria(String iiaApprovalId) {
+    private void execNotificationToAlgoria(String iiaApprovalId, String approvingHeiId) {
 
-        Callable<String> callableTask = IiaTaskService.createTask(iiaApprovalId, IiaTaskService.APPROVED);
+        Callable<String> callableTask = IiaTaskService.createTask(iiaApprovalId, IiaTaskService.APPROVED, approvingHeiId);
 
         //Put the task in the queue
         IiaTaskService.addTask(callableTask);

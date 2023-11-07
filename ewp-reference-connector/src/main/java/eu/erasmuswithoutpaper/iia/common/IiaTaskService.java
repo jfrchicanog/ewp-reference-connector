@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
+import java.math.BigDecimal;
 
 public class IiaTaskService {
 
@@ -71,7 +72,7 @@ public class IiaTaskService {
      * for modification
      * @return
      */
-    public static Callable<String> createTask(String iiaId, String mode) {
+    public static Callable<String> createTask(String iiaId, String mode, String approvingHeiId) {
 
         //Create the task
         Callable<String> callableTask = () -> {
@@ -81,6 +82,7 @@ public class IiaTaskService {
 
             ObjectNode node = mapper.createObjectNode();
             node.put("agreement_uuid", iiaId);
+            node.put("hei_id", approvingHeiId);
             node.put("description", "Approved Agreement");
 
             String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
@@ -101,6 +103,7 @@ public class IiaTaskService {
 
             ObjectNode nodeRes = mapper.createObjectNode();
             node.put("agreement_uuid", iiaId);
+            node.put("approvingHeiId", approvingHeiId);
             node.put("mode", mode);
             node.put("statusCode", result.getStatusInfo().getStatusCode());
 
@@ -136,6 +139,7 @@ public class IiaTaskService {
 
                 JsonNode node = mapper.readTree(response);
                 String iiaApprovalId = node.get("agreement_uuid").asText();
+                String approvingHeiId = node.get("approvingHeiId").asText();
                 int statusCode = node.get("statusCode").asInt();
                 String bodyResult = node.get("bodyResult").asText();
                 String mode = node.get("mode").asText();
@@ -180,7 +184,7 @@ public class IiaTaskService {
                             public void run() {
 
                                 //Reinsert the task into the queue
-                                Callable<String> callableTask = createTask(iiaApprovalId, mode);
+                                Callable<String> callableTask = createTask(iiaApprovalId, mode, approvingHeiId);
                                 addTask(callableTask);
                             }
 

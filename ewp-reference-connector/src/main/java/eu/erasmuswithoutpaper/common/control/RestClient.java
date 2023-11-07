@@ -135,6 +135,8 @@ public class RestClient {
                 response.bufferEntity();
 
                 rawResponse = response.readEntity(String.class);
+                rawResponse=rawResponse.replaceAll("TrÃ¤chtler", "Trachtler");
+                rawResponse=rawResponse.replaceAll("StraÃe", "Strase");
                 clientResponse.setRawResponse(rawResponse);
                 Object responseObject = response.readEntity(responseClass);
 
