@@ -135,8 +135,8 @@ public class RestClient {
                 response.bufferEntity();
 
                 rawResponse = response.readEntity(String.class);
-                rawResponse = rawResponse.replaceAll("\n", rawResponse);
-                rawResponse = rawResponse.replaceAll("\r", rawResponse);
+                rawResponse = rawResponse.replaceAll("\n", "");
+                rawResponse = rawResponse.replaceAll("\r", "");
                 clientResponse.setRawResponse(rawResponse);
                 Object responseObject = response.readEntity(responseClass);
 
