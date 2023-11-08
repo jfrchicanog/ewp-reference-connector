@@ -73,7 +73,7 @@ public class StartupLoader {
             } 
 
             switch (properties.getUniversity()) {
-                case IKEA_U:
+                /*case IKEA_U:
                     institutionLoader.createDemoDataIkea();
                     personLoader.createDemoDataIkea();
                     contactLoader.createDemoDataIkea();
@@ -100,10 +100,10 @@ public class StartupLoader {
                     iiaLoader.createDemoDataPomodoro();
                     mobilityLoader.createDemoDataPomodoro();
                     factsheetLoader.createDemoDataPomodoro();
-                    break;
+                    break;*/
                 case UMA_U:
-                	institutionLoader.createDemoDataUma();
-                    personLoader.createDemoDataUma();
+                    institutionLoader.createDemoDataUma();
+                    /*personLoader.createDemoDataUma();
                     contactLoader.createDemoDataUma();;
                     mobilityParticipantLoader.createDemoDataUma();
                     
@@ -111,7 +111,7 @@ public class StartupLoader {
                     
                     iiaLoader.createDemoDataUma();
                     mobilityLoader.createDemoDataUma();
-                    factsheetLoader.createDemoDataUma();
+                    factsheetLoader.createDemoDataUma();*/
                     break;
             }
         } catch (IOException ex) {
