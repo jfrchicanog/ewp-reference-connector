@@ -103,7 +103,7 @@ public class IiaTaskService {
 
             ObjectNode nodeRes = mapper.createObjectNode();
             node.put("agreement_uuid", iiaId);
-            node.put("approvingHeiId", approvingHeiId);
+            //node.put("approvingHeiId", approvingHeiId);
             node.put("mode", mode);
             node.put("statusCode", result.getStatusInfo().getStatusCode());
 
