@@ -30,7 +30,7 @@ public class MessageNotificationService {
         }*/
 
         WebTarget target = clientBuilder.build().target(url);
-        //target.property("http.autoredirect", true);
+        target.property("http.autoredirect", true);
 
         Invocation.Builder postBuilder = target.request().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_TYPE);
         postBuilder = postBuilder.header("Authorization", token);
