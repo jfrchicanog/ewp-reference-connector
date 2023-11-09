@@ -142,7 +142,8 @@ public class RestClient {
 
                 rawResponse = response.readEntity(String.class);
                 clientResponse.setRawResponse(rawResponse);
-                if (response.getMediaType().equals(MediaType.TEXT_PLAIN_TYPE)) {
+                System.out.println(response.getMediaType());
+                if (response.getMediaType().isCompatible(MediaType.TEXT_PLAIN_TYPE)) {
                     JAXBContext jaxbContext = JAXBContext.newInstance(InstitutionsResponse.class);
                     Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
