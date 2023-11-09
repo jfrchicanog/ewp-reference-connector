@@ -102,16 +102,16 @@ public class IiaTaskService {
             Response result = MessageNotificationService.addApprovalNotification(url, json, token);
 
             ObjectNode nodeRes = mapper.createObjectNode();
-            node.put("agreement_uuid", iiaId);
-            node.put("approvingHeiId", approvingHeiId);
-            node.put("mode", mode);
-            node.put("statusCode", result.getStatusInfo().getStatusCode());
+            nodeRes.put("agreement_uuid", iiaId);
+            nodeRes.put("approvingHeiId", approvingHeiId);
+            nodeRes.put("mode", mode);
+            nodeRes.put("statusCode", result.getStatusInfo().getStatusCode());
 
             if (result.getEntity() instanceof String) {
                 String bodyResult = (String) result.getEntity();
-                node.put("bodyResult", bodyResult);
+                nodeRes.put("bodyResult", bodyResult);
             } else {
-                node.put("bodyResult", "hola");
+                nodeRes.put("bodyResult", "");
             }
 
             String jsonRes = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(nodeRes);
