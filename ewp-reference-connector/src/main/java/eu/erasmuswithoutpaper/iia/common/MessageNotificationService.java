@@ -23,11 +23,11 @@ public class MessageNotificationService {
     public static Response addApprovalNotification(String url, String msg, String token) {
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        /*try {
+        try {
             clientBuilder.sslContext(SSLContext.getDefault());
         } catch (NoSuchAlgorithmException e1) {
             logger.error("Error setting ssl context! " + e1.getMessage());
-        }*/
+        }
 
         WebTarget target = clientBuilder.build().target(url);
         target.property("http.autoredirect", true);
