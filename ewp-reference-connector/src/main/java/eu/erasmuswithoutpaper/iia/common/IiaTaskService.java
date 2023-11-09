@@ -107,13 +107,13 @@ public class IiaTaskService {
             node.put("mode", mode);
             node.put("statusCode", result.getStatusInfo().getStatusCode());
 
-            if(result.getEntity() instanceof String){
+            if (result.getEntity() instanceof String) {
                 String bodyResult = (String) result.getEntity();
                 node.put("bodyResult", bodyResult);
-            }else {
+            } else {
                 node.put("bodyResult", "");
             }
-            
+
             String jsonRes = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(nodeRes);
             return jsonRes;
         };
@@ -149,22 +149,34 @@ public class IiaTaskService {
 
                 //Evaluate the task result
                 if (HttpStatus.SC_BAD_REQUEST == statusCode) {
+                    System.out.println("-------------------------------------");
+                    System.out.println("Test1");
+                    System.out.println("-------------------------------------");
 
                     String responseJSON = bodyResult;
 
                     logger.error("Error incorrect json! " + responseJSON);
 
                 } else if (HttpStatus.SC_NOT_FOUND == statusCode) {
+                    System.out.println("-------------------------------------");
+                    System.out.println("Test2");
+                    System.out.println("-------------------------------------");
 
                     logger.error("Error the agreement was not found into Algoria");
 
                 } else if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
+                    System.out.println("-------------------------------------");
+                    System.out.println("Test3");
+                    System.out.println("-------------------------------------");
 
                     String responseJSON = bodyResult;
 
                     logger.error("Error missing or invalid token! " + responseJSON);
 
                 } else if (HttpStatus.SC_SERVICE_UNAVAILABLE == statusCode) {
+                    System.out.println("-------------------------------------");
+                    System.out.println("Test4");
+                    System.out.println("-------------------------------------");
 
                     logger.info("The service (server) is temporarily unavailable but should be restored in the future");
 
@@ -195,9 +207,16 @@ public class IiaTaskService {
 
                         scheduler.shutdown();
                     }
+                } else {
+                    System.out.println("-------------------------------------");
+                    System.out.println("Test4");
+                    System.out.println("-------------------------------------");
                 }
             }
         } catch (InterruptedException | ExecutionException | IOException e) {
+            System.out.println("-------------------------------------");
+            System.out.println("Test6");
+            System.out.println("-------------------------------------");
 
             logger.error("The task was interrupted! " + e.getMessage());
         }
