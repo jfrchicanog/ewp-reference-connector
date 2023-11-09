@@ -103,18 +103,18 @@ public class IiaTaskService {
 
             ObjectNode nodeRes = mapper.createObjectNode();
             node.put("agreement_uuid", iiaId);
-            //node.put("approvingHeiId", approvingHeiId);
+            node.put("approvingHeiId", approvingHeiId);
             node.put("mode", mode);
             node.put("statusCode", result.getStatusInfo().getStatusCode());
 
-            String bodyResult = (String) result.getEntity();
-            node.put("bodyResult", bodyResult);
-
+            if(result.getEntity() instanceof String){
+                String bodyResult = (String) result.getEntity();
+                node.put("bodyResult", bodyResult);
+            }else {
+                node.put("bodyResult", "");
+            }
+            
             String jsonRes = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(nodeRes);
-            System.out.println();
-            System.out.println("--------------------START JSON ALGORIA---------------------");
-            System.out.println(jsonRes);
-            System.out.println("--------------------END JSON ALGORIA-----------------------");
             return jsonRes;
         };
 
