@@ -111,7 +111,10 @@ public class IiaTaskService {
             node.put("bodyResult", bodyResult);
 
             String jsonRes = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(nodeRes);
-
+            System.out.println();
+            System.out.println("--------------------START JSON ALGORIA---------------------");
+            System.out.println(jsonRes);
+            System.out.println("--------------------END JSON ALGORIA-----------------------");
             return jsonRes;
         };
 
