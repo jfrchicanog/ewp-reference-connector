@@ -115,6 +115,7 @@ public class IiaTaskService {
             }
 
             String jsonRes = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(nodeRes);
+            System.out.println(jsonRes);
             return jsonRes;
         };
 
