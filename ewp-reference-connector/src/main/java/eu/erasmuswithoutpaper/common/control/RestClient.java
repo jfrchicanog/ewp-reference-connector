@@ -135,19 +135,23 @@ public class RestClient {
                             .collect(Collectors.toList()));
 
             String rawResponse = "";
+            clientResponse.setRawResponse(rawResponse);
+            Object responseObject;
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 response.bufferEntity();
 
                 rawResponse = response.readEntity(String.class);
                 clientResponse.setRawResponse(rawResponse);
-                JAXBContext jaxbContext = JAXBContext.newInstance(InstitutionsResponse.class);
-                Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+                if (response.getMediaType().equals(MediaType.TEXT_PLAIN_TYPE)) {
+                    JAXBContext jaxbContext = JAXBContext.newInstance(InstitutionsResponse.class);
+                    Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-                StringReader reader = new StringReader(rawResponse);
-                InstitutionsResponse institutionsResponse = (InstitutionsResponse) unmarshaller.unmarshal(reader);
-                
-                clientResponse.setRawResponse(rawResponse);
-                Object responseObject = institutionsResponse;
+                    StringReader reader = new StringReader(rawResponse);
+                    InstitutionsResponse institutionsResponse = (InstitutionsResponse) unmarshaller.unmarshal(reader);
+                    responseObject = institutionsResponse;
+                } else {
+                    responseObject = response.readEntity(responseClass);
+                }
 
                 clientResponse.setResult(responseObject);
             } else {
