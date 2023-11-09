@@ -111,7 +111,7 @@ public class IiaTaskService {
                 String bodyResult = (String) result.getEntity();
                 node.put("bodyResult", bodyResult);
             } else {
-                node.put("bodyResult", "");
+                node.put("bodyResult", "hola");
             }
 
             String jsonRes = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(nodeRes);
