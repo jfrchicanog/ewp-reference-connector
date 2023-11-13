@@ -110,8 +110,8 @@ public class StartupLoader {
                     mobilityTypeLoader.createDemoDataUma();
                     
                     iiaLoader.createDemoDataUma();
-                    mobilityLoader.createDemoDataUma();
-                    factsheetLoader.createDemoDataUma();*/
+                    mobilityLoader.createDemoDataUma();*/
+                    factsheetLoader.createDemoDataUma();
                     break;
             }
         } catch (IOException ex) {
