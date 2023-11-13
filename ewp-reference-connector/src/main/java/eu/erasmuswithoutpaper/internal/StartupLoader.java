@@ -65,12 +65,12 @@ public class StartupLoader {
     @PostConstruct
     public void loadDemoData() {
         try {
-            /*if (institutionLoader.dataAlreadyExist()) {
+            if (institutionLoader.dataAlreadyExist()) {
                 logger.info("Database already exist, no default data will be loaded. Remove DB to restore database content.");
                 return;
             } else {
                 logger.info("Database is created, default data will be loaded.");
-            } */
+            } 
 
             switch (properties.getUniversity()) {
                 /*case IKEA_U:
@@ -102,7 +102,7 @@ public class StartupLoader {
                     factsheetLoader.createDemoDataPomodoro();
                     break;*/
                 case UMA_U:
-                    //institutionLoader.createDemoDataUma();
+                    institutionLoader.createDemoDataUma();
                     /*personLoader.createDemoDataUma();
                     contactLoader.createDemoDataUma();;
                     mobilityParticipantLoader.createDemoDataUma();
