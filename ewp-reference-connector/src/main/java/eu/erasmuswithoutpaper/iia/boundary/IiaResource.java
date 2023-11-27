@@ -221,30 +221,33 @@ public class IiaResource {
     @Path("stats")
     @Produces(MediaType.APPLICATION_XML)
     public javax.ws.rs.core.Response iiaGetStats(@QueryParam(value = "hei_id") String hei_id) {
-        LOG.info("------------------------------ START /iias/stats ------------------------------");
+        LOG.fine("------------------------------ START /iias/stats ------------------------------");
         if (hei_id == null || hei_id.isEmpty() || hei_id == null || hei_id.isEmpty()) {
             List<Institution> institutionList = em.createNamedQuery(Institution.findAll).getResultList();
             if (institutionList.size() != 1) {
-                LOG.info("------------------------------ ERROR /iias/stats ------------------------------");
+                LOG.fine("------------------------------ ERROR /iias/stats ------------------------------");
                 throw new IllegalStateException("Internal error: more than one insitution covered");
             }
             hei_id = institutionList.get(0).getInstitutionId();
             //throw new EwpWebApplicationException("Missing argumanets for statistics.", Response.Status.BAD_REQUEST);
         }
 
-        Collection<String> heisCoveredByCertificate;
+        Collection<String> heisCoveredByCertificate = null;
         if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
             heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
-        } else {
+        }
+        
+        if(heisCoveredByCertificate == null || heisCoveredByCertificate.isEmpty()) {
             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
         }
-        LOG.info("HEI_ID recibida: "+hei_id);
-        LOG.info("lista recibida de EWP: "+heisCoveredByCertificate);
+        
+        LOG.fine("HEI_ID recibida: "+hei_id);
+        LOG.fine("lista recibida de EWP: "+heisCoveredByCertificate);
         if (heisCoveredByCertificate.contains(hei_id)) {
-            LOG.info("------------------------------ END /iias/stats ------------------------------");
+            LOG.fine("------------------------------ END /iias/stats ------------------------------");
             return iiaStats(hei_id);
         } else {
-            LOG.info("------------------------------ ERROR /iias/stats ------------------------------");
+            LOG.fine("------------------------------ ERROR /iias/stats ------------------------------");
             throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
         }
     }
