@@ -36,13 +36,7 @@ public class FactsheetResource {
     GlobalProperties properties;
     
     @Inject
-    RegistryClient registryClient;
-    
-    @Inject
     FactsheetConverter factsheetConverter;
-    
-    @Context
-    HttpServletRequest httpRequest;
           
     @GET
     @EwpAuthenticate

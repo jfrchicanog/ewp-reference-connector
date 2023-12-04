@@ -232,7 +232,7 @@ public class IiaResource {
             //throw new EwpWebApplicationException("Missing argumanets for statistics.", Response.Status.BAD_REQUEST);
         }
 
-        Collection<String> heisCoveredByCertificate = null;
+        /*Collection<String> heisCoveredByCertificate = null;
         if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
             heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
         }
@@ -243,13 +243,13 @@ public class IiaResource {
         
         LOG.fine("HEI_ID recibida: "+hei_id);
         LOG.fine("lista recibida de EWP: "+heisCoveredByCertificate);
-        if (heisCoveredByCertificate.contains(hei_id)) {
+        if (heisCoveredByCertificate.contains(hei_id)) {*/
             LOG.fine("------------------------------ END /iias/stats ------------------------------");
             return iiaStats(hei_id);
-        } else {
+        /*} else {
             LOG.fine("------------------------------ ERROR /iias/stats ------------------------------");
             throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
-        }
+        }*/
     }
 
     @POST
