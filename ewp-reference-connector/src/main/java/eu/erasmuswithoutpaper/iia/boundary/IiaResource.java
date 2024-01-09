@@ -544,9 +544,9 @@ public class IiaResource {
                     while (modifiedSinceIter.hasNext() && match) {
                         String modifiedValue = modifiedSinceIter.next();
                         if(LOG.getLevel() != null) {
-                            LOG.log(LOG.getLevel(), modifiedValue);
+                            LOG.log(LOG.getLevel(), "\n\n\n"+modifiedValue+"\n\n\n");
                         }else {
-                            LOG.log(Level.ALL, modifiedValue);
+                            LOG.log(Level.FINE, "\n\n\n"+modifiedValue+"\n\n\n");
                         }
                         Date date = javax.xml.bind.DatatypeConverter.parseDateTime(modifiedValue).getTime();
                         calendarModifySince.setTime(date);
