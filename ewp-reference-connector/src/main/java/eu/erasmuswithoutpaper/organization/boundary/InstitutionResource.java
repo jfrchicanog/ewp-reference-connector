@@ -60,6 +60,12 @@ public class InstitutionResource {
                 .forEachOrdered((institutionList) -> {
                     response.getHei().addAll(institutionConverter.convertToHei(institutionList));
                 });
+        response.getHei().stream().forEach(hei -> {
+            if(hei.getHeiId() == null) {
+                hei.setHeiId("");
+            }
+            
+        });
         return javax.ws.rs.core.Response.ok(response).build();
     }
     

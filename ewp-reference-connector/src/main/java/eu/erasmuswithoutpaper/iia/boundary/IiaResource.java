@@ -51,6 +51,7 @@ import eu.erasmuswithoutpaper.notification.entity.Notification;
 import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
+import java.util.logging.Level;
 
 @Stateless
 @Path("iias")
@@ -244,8 +245,8 @@ public class IiaResource {
         LOG.fine("HEI_ID recibida: "+hei_id);
         LOG.fine("lista recibida de EWP: "+heisCoveredByCertificate);
         if (heisCoveredByCertificate.contains(hei_id)) {*/
-            LOG.fine("------------------------------ END /iias/stats ------------------------------");
-            return iiaStats(hei_id);
+        LOG.fine("------------------------------ END /iias/stats ------------------------------");
+        return iiaStats(hei_id);
         /*} else {
             LOG.fine("------------------------------ ERROR /iias/stats ------------------------------");
             throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
@@ -542,11 +543,17 @@ public class IiaResource {
                     boolean match = true;
                     while (modifiedSinceIter.hasNext() && match) {
                         String modifiedValue = modifiedSinceIter.next();
-
+                        if(LOG.getLevel() != null) {
+                            LOG.log(LOG.getLevel(), modifiedValue);
+                        }else {
+                            LOG.log(Level.ALL, modifiedValue);
+                        }
                         Date date = javax.xml.bind.DatatypeConverter.parseDateTime(modifiedValue).getTime();
                         calendarModifySince.setTime(date);
-
-                        tempFilteredModifiedSince.addAll(filteredIiaList.stream().filter(iia -> compareModifiedSince.test(iia, calendarModifySince)).collect(Collectors.toList()));
+                        List<Iia> aux = filteredIiaList.stream().filter(iia -> compareModifiedSince.test(iia, calendarModifySince)).collect(Collectors.toList());
+                        if (aux != null) {
+                            tempFilteredModifiedSince.addAll(aux);
+                        }
                     }
                     filteredIiaList = new ArrayList<>(tempFilteredModifiedSince);
                 }
