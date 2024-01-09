@@ -613,7 +613,7 @@ public class IiaResource {
         public boolean test(Iia iia, Calendar calendarModifySince) {
 
             if(iia.getModifyDate() == null) {
-                return false;
+                return true;
             }
             Calendar calendarModify = Calendar.getInstance();
             calendarModify.setTime(iia.getModifyDate());
