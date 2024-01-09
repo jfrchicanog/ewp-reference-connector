@@ -612,6 +612,9 @@ public class IiaResource {
         @Override
         public boolean test(Iia iia, Calendar calendarModifySince) {
 
+            if(iia.getModifyDate() == null) {
+                return false;
+            }
             Calendar calendarModify = Calendar.getInstance();
             calendarModify.setTime(iia.getModifyDate());
 
