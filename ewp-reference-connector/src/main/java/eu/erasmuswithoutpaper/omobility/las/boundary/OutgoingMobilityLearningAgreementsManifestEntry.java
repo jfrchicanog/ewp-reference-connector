@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import eu.erasmuswithoutpaper.PublicAPI;
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.httpsig.CliauthHttpsig;
-import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
+//import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.httpsig.SrvauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.tlscert.SrvauthTlscert;
 import eu.erasmuswithoutpaper.api.omobilities.las.OmobilityLas;
@@ -36,9 +36,9 @@ public class OutgoingMobilityLearningAgreementsManifestEntry implements Manifest
         
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
         
-        CliauthTlscert cliauthtlscert = new CliauthTlscert();
+        /*CliauthTlscert cliauthtlscert = new CliauthTlscert();
         cliauthtlscert.setAllowsSelfSigned(true);
-        clientAuthMethods.getAny().add(cliauthtlscert);
+        clientAuthMethods.getAny().add(cliauthtlscert);*/
         
         clientAuthMethods.getAny().add(new CliauthHttpsig());
         

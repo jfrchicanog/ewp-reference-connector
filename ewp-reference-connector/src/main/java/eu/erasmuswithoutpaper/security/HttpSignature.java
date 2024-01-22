@@ -2,7 +2,7 @@ package eu.erasmuswithoutpaper.security;
 
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.httpsig.CliauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.none.CliauthAnonymous;
-import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
+//import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.httpsig.SrvauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.tlscert.SrvauthTlscert;
 import java.io.IOException;
@@ -451,7 +451,7 @@ public class HttpSignature {
             byte[] bodyBytes;
             JAXBContext jaxbContext = JAXBContext.newInstance(
                     responseContext.getEntityClass(),
-                    CliauthTlscert.class,
+                    //CliauthTlscert.class,
                     CliauthAnonymous.class,
                     CliauthHttpsig.class,
                     SrvauthHttpsig.class,

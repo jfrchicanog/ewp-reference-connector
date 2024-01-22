@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import eu.erasmuswithoutpaper.PublicAPI;
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.httpsig.CliauthHttpsig;
-import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
+//import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.httpsig.SrvauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.tlscert.SrvauthTlscert;
 import eu.erasmuswithoutpaper.api.iias.cnr.IiaCnr;
@@ -29,9 +29,9 @@ public class IiaCnrManifestEntry implements ManifestEntryStrategy {
         
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
         
-        CliauthTlscert cliauthtlscert = new CliauthTlscert();
+        /*CliauthTlscert cliauthtlscert = new CliauthTlscert();
         cliauthtlscert.setAllowsSelfSigned(false);
-        clientAuthMethods.getAny().add(cliauthtlscert);
+        clientAuthMethods.getAny().add(cliauthtlscert);*/
         
 //        clientAuthMethods.getAny().add(new Anonymous());
         
