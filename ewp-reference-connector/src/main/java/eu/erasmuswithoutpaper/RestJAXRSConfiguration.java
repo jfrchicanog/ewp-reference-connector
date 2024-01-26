@@ -6,6 +6,7 @@ import eu.erasmuswithoutpaper.factsheet.boundary.FactsheetResource;
 import eu.erasmuswithoutpaper.iia.approval.boundary.IiaApprovalResource;
 import eu.erasmuswithoutpaper.iia.boundary.IiaResource;
 import eu.erasmuswithoutpaper.imobility.boundary.IncomingMobilityResource;
+import eu.erasmuswithoutpaper.monitoring.TestMonitoringEndpoint;
 import eu.erasmuswithoutpaper.omobility.boundary.OutgoingMobilityResource;
 import eu.erasmuswithoutpaper.omobility.las.boundary.OutgoingMobilityLearningAgreementsResource;
 import eu.erasmuswithoutpaper.organization.boundary.InstitutionResource;
@@ -33,6 +34,8 @@ public class RestJAXRSConfiguration extends Application {
         resources.add(IiaApprovalResource.class);
         resources.add(FactsheetResource.class);
         resources.add(OutgoingMobilityLearningAgreementsResource.class);
+        
+        resources.add(TestMonitoringEndpoint.class);
         return resources;
     }
 }

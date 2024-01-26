@@ -36,7 +36,6 @@ public class GuiJAXRSConfiguration extends Application {
         resources.add(GuiNotificationResource.class);
         resources.add(GuiFactsheetResource.class);
         resources.add(GuiOUnitResource.class);
-        resources.add(TestMonitoringEndpoint.class);
         return resources;
     }
 }
