@@ -2,7 +2,7 @@
 // Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.3.2 generiert 
 // Siehe <a href="https://javaee.github.io/jaxb-v2/">https://javaee.github.io/jaxb-v2/</a> 
 // Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-// Generiert: 2024.01.22 um 10:33:29 AM CET 
+// Generiert: 2024.01.26 um 12:10:01 PM CET 
 //
 
 
@@ -29,6 +29,7 @@ import eu.erasmuswithoutpaper.api.imobilities.cnr.ImobilityCnr;
 import eu.erasmuswithoutpaper.api.imobilities.tors.ImobilityTors;
 import eu.erasmuswithoutpaper.api.imobilities.tors.cnr.ImobilityTorCnr;
 import eu.erasmuswithoutpaper.api.institutions.Institutions;
+import eu.erasmuswithoutpaper.api.monitoring.Monitoring;
 import eu.erasmuswithoutpaper.api.omobilities.Omobilities;
 import eu.erasmuswithoutpaper.api.omobilities.cnr.OmobilityCnr;
 import eu.erasmuswithoutpaper.api.omobilities.las.OmobilityLas;
@@ -80,6 +81,7 @@ import eu.erasmuswithoutpaper.api.registry.Registry;
     "adminNotes"
 })
 @XmlSeeAlso({
+    Monitoring.class,
     ImobilityTorCnr.class,
     ImobilityTors.class,
     ImobilityCnr.class,

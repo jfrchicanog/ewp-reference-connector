@@ -5,7 +5,7 @@
 Diese Datei wurde mit der JavaTM Architecture for XML Binding(JAXB) Reference Implementation, v2.3.2 generiert 
 Siehe <a href="https://javaee.github.io/jaxb-v2/">https://javaee.github.io/jaxb-v2/</a> 
 Änderungen an dieser Datei gehen bei einer Neukompilierung des Quellschemas verloren. 
-Generiert: 2024.01.22 um 10:33:29 AM CET 
+Generiert: 2024.01.26 um 12:10:01 PM CET 
 
   -->
   <bindings scd="x-schema::tns" xmlns:tns="https://github.com/erasmus-without-paper/ewp-specs-api-discovery/tree/stable-v6">
@@ -612,6 +612,14 @@ Generiert: 2024.01.22 um 10:33:29 AM CET
     </schemaBindings>
     <bindings scd="tns:httpsig">
       <class ref="eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.httpsig.SrvauthHttpsig"/>
+    </bindings>
+  </bindings>
+  <bindings scd="x-schema::tns" xmlns:tns="https://github.com/erasmus-without-paper/ewp-specs-api-monitoring/blob/stable-v1/manifest-entry.xsd">
+    <schemaBindings map="false">
+      <package name="eu.erasmuswithoutpaper.api.monitoring"/>
+    </schemaBindings>
+    <bindings scd="tns:monitoring">
+      <class ref="eu.erasmuswithoutpaper.api.monitoring.Monitoring"/>
     </bindings>
   </bindings>
   <bindings scd="x-schema::tns" xmlns:tns="http://europass.cedefop.europa.eu/Europass/V2.0">

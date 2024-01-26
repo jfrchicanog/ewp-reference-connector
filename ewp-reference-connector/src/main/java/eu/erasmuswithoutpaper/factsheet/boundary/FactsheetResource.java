@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.factsheet.boundary;
 
+import eu.erasmuswithoutpaper.api.architecture.ErrorResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class FactsheetResource {
         }
         
         FactsheetResponse response = new FactsheetResponse();
-        
+                
         List<MobilityFactsheet> factsheetList = new ArrayList<>();
         for (String heiid : factsheetHeiIdList) {
 			List<MobilityFactsheet> foundFactSheet = em.createNamedQuery(MobilityFactsheet.findByHeid, MobilityFactsheet.class).setParameter("heiId", heiid).getResultList();

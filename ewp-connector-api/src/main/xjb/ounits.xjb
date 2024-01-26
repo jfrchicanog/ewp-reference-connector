@@ -10,7 +10,7 @@
     </jaxb:bindings>
     <jaxb:bindings schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-ounits/v2.1.1/manifest-entry.xsd">
         <jaxb:schemaBindings>
-            <jaxb:package name="eu.erasmuswithoutpaper.api.ounits"/>
-        </jaxb:schemaBindings>
+            <jaxb:package name="eu.erasmuswithoutpaper.api.ounits"/> 
+       </jaxb:schemaBindings>
     </jaxb:bindings>
 </jaxb:bindings>
