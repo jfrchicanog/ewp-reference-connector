@@ -5,6 +5,7 @@ import eu.erasmuswithoutpaper.factsheet.boundary.GuiFactsheetResource;
 import eu.erasmuswithoutpaper.home.boundary.GuiHomeResource;
 import eu.erasmuswithoutpaper.iia.boundary.GuiIiaPartnerResource;
 import eu.erasmuswithoutpaper.iia.boundary.GuiIiaResource;
+import eu.erasmuswithoutpaper.monitoring.TestMonitoringEndpoint;
 import eu.erasmuswithoutpaper.notification.boundary.GuiNotificationResource;
 import eu.erasmuswithoutpaper.omobility.boundary.GuiOutgoingMobilityResource;
 import eu.erasmuswithoutpaper.organization.boundary.GuiContactResource;
@@ -35,6 +36,7 @@ public class GuiJAXRSConfiguration extends Application {
         resources.add(GuiNotificationResource.class);
         resources.add(GuiFactsheetResource.class);
         resources.add(GuiOUnitResource.class);
+        resources.add(TestMonitoringEndpoint.class);
         return resources;
     }
 }
