@@ -76,7 +76,7 @@ public class TestMonitoringEndpoint {
         
         ClientRequest cr = new ClientRequest();
         cr.setHeiId("uma.es");
-        cr.setHttpsec(true);
+        cr.setHttpsec(false);
         cr.setMethod(HttpMethodEnum.POST);
         cr.setUrl("https://stats.erasmuswithoutpaper.eu");
         Map<String, List<String>> unknownFields = new HashMap<>();
