@@ -6,10 +6,12 @@ package eu.erasmuswithoutpaper.monitoring;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
+import eu.erasmuswithoutpaper.api.registry.Registry;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
+import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -57,9 +59,9 @@ public class TestMonitoringEndpoint {
         
         ClientRequest cr = new ClientRequest();
         cr.setHeiId("uma.es");
-        cr.setHttpsec(false);
+        cr.setHttpsec(true);
         cr.setMethod(HttpMethodEnum.POST);
-        cr.setUrl("https://stats.erasmuswithoutpaper.eu");
+        cr.setUrl("https://stats.erasmuswithoutpaper.eu/ewp/monitoring");
         Map<String, List<String>> unknownFields = new HashMap<>();
         unknownFields.put("server_hei_id", Arrays.asList("test.uma.es"));
         unknownFields.put("api_name", Arrays.asList("omobility-las"));
