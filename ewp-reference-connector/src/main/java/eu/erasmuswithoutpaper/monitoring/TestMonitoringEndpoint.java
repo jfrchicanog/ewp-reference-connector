@@ -71,7 +71,7 @@ public class TestMonitoringEndpoint {
         cr.setParams(pc);
         ClientResponse response = restClient.sendRequest(cr, Empty.class);
 
-        return Response.ok(response).build();
+        return Response.status(response.getStatusCode()).entity(response.getResult()).build();
     }
 
     @POST
