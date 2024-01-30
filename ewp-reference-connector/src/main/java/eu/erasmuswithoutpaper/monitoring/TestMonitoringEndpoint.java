@@ -44,7 +44,7 @@ public class TestMonitoringEndpoint {
         MonitoringParams mp = new MonitoringParams();
 
         // Build the request
-        HttpPost request = new HttpPost("http://your-server/testMonitoring");
+        HttpPost request = new HttpPost("https://ewp.uma.es/rest/testMonitoring");
         request.addHeader("Content-Type", "application/x-www-form-urlencoded");
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(new BasicNameValuePair("server_hei_id", "test.uma.es"));
