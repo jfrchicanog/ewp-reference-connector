@@ -84,9 +84,7 @@ public class TestMonitoringEndpoint {
         ParamsClass pc = new ParamsClass();
         pc.setUnknownFields(unknownFields);
         cr.setParams(pc);
-        ClientResponse response = restClient.sendRequest(cr, Empty.class);
-
-        return Response.ok().entity(response).build();
+        return restClient.sendRequest2(cr, Empty.class);
     }
 
     @POST
