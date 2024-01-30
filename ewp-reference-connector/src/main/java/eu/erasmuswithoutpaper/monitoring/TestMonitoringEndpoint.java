@@ -43,7 +43,7 @@ public class TestMonitoringEndpoint {
     public Response testMonitoring() throws Exception {
 
         // Build the request
-        HttpPost request = new HttpPost("https://ewp.uma.es/rest/testMonitoring");
+        HttpPost request = new HttpPost("https://stats.erasmuswithoutpaper.eu");
         request.addHeader("Content-Type", "application/x-www-form-urlencoded");
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(new BasicNameValuePair("server_hei_id", "test.uma.es"));
