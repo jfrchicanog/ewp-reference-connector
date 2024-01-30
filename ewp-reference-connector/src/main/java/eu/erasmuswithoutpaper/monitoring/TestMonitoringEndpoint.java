@@ -5,11 +5,21 @@
 package eu.erasmuswithoutpaper.monitoring;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.erasmuswithoutpaper.api.architecture.Empty;
+import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
+import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
+import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
+import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
+import eu.erasmuswithoutpaper.common.control.RestClient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -37,6 +47,9 @@ import org.apache.http.util.EntityUtils;
 @Stateless
 @Path("testMonitoring")
 public class TestMonitoringEndpoint {
+    
+    @Inject
+    RestClient restClient;
 
     @GET
     @Produces(MediaType.APPLICATION_FORM_URLENCODED)
@@ -60,8 +73,24 @@ public class TestMonitoringEndpoint {
             
             result = EntityUtils.toString(response.getEntity());
         }
+        
+        ClientRequest cr = new ClientRequest();
+        cr.setHeiId("uma.es");
+        cr.setHttpsec(true);
+        cr.setMethod(HttpMethodEnum.POST);
+        cr.setUrl("https://stats.erasmuswithoutpaper.eu");
+        Map<String, List<String>> unknownFields = new HashMap<>();
+        unknownFields.put("server_hei_id", Arrays.asList("test.uma.es"));
+        unknownFields.put("api_name", Arrays.asList("omobility-las"));
+        unknownFields.put("endpoint_name", Arrays.asList("get"));
+        unknownFields.put("http_code", Arrays.asList("500"));
+        unknownFields.put("server_message", Arrays.asList("Mensaje error Server"));
+        ParamsClass pc = new ParamsClass();
+        pc.setUnknownFields(unknownFields);
+        cr.setParams(pc);
+        ClientResponse response = restClient.sendRequest(cr, Empty.class);
 
-        return Response.ok(result).build();
+        return Response.ok(response.getResult()).build();
     }
 
     @POST
