@@ -76,7 +76,7 @@ public class RestClient {
         String requestID = UUID.randomUUID().toString();
 
         WebTarget target = client().target(clientRequest.getUrl());
-        target.property("http.autoredirect", true);
+        //target.property("http.autoredirect", true);
         Map<String, List<String>> params = new HashMap<>();
         if (clientRequest.getParams() != null) {
             params = clientRequest.getParams().getUnknownFields();
