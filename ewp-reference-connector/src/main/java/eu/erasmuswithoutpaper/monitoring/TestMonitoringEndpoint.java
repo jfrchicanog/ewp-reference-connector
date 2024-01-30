@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -49,18 +50,31 @@ import org.apache.http.util.EntityUtils;
 @Stateless
 @Path("testMonitoring")
 public class TestMonitoringEndpoint {
-    
+
     @Inject
     RestClient restClient;
+    @Inject
+    RegistryClient rc;
+
+    @GET
+    @Path("test")
+    public Response test() {
+        Map<String, String> map = rc.getEwpInstanceHeiUrls("stats.erasmuswithoutpaper.eu");
+        return Response.ok(map.keySet().stream()
+                .map(key -> key + "=" + map.get(key))
+                .collect(Collectors.joining(", ", "{", "}"))
+        ).build();
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_FORM_URLENCODED)
     public Response testMonitoring() throws Exception {
-        
+
         ClientRequest cr = new ClientRequest();
         cr.setHeiId("uma.es");
         cr.setHttpsec(true);
         cr.setMethod(HttpMethodEnum.POST);
+        rc.getEwpInstanceHeiUrls("stats.erasmuswithoutpaper.eu");
         cr.setUrl("https://stats.erasmuswithoutpaper.eu/ewp/monitoring");
         Map<String, List<String>> unknownFields = new HashMap<>();
         unknownFields.put("server_hei_id", Arrays.asList("test.uma.es"));
@@ -73,7 +87,7 @@ public class TestMonitoringEndpoint {
         cr.setParams(pc);
         ClientResponse response = restClient.sendRequest(cr, Empty.class);
 
-        return Response.status(response.getStatusCode()).entity(response.getResult()).build();
+        return Response.status(response.getStatusCode()).entity(new Empty()).build();
     }
 
     @POST
