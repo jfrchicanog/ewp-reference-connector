@@ -59,7 +59,7 @@ public class TestMonitoringEndpoint {
         cr.setHeiId("uma.es");
         cr.setHttpsec(false);
         cr.setMethod(HttpMethodEnum.POST);
-        cr.setUrl("http://stats.erasmuswithoutpaper.eu");
+        cr.setUrl("https://stats.erasmuswithoutpaper.eu");
         Map<String, List<String>> unknownFields = new HashMap<>();
         unknownFields.put("server_hei_id", Arrays.asList("test.uma.es"));
         unknownFields.put("api_name", Arrays.asList("omobility-las"));
