@@ -67,14 +67,13 @@ public class TestMonitoringEndpoint {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response testMonitoring() throws Exception {
 
         ClientRequest cr = new ClientRequest();
         cr.setHeiId("uma.es");
         cr.setHttpsec(true);
         cr.setMethod(HttpMethodEnum.POST);
-        rc.getEwpInstanceHeiUrls("stats.erasmuswithoutpaper.eu");
         cr.setUrl("https://stats.erasmuswithoutpaper.eu/ewp/monitoring");
         Map<String, List<String>> unknownFields = new HashMap<>();
         unknownFields.put("server_hei_id", Arrays.asList("test.uma.es"));
@@ -87,7 +86,7 @@ public class TestMonitoringEndpoint {
         cr.setParams(pc);
         ClientResponse response = restClient.sendRequest(cr, Empty.class);
 
-        return Response.ok().entity(response.getStatusCode()).build();
+        return Response.ok().entity(response).build();
     }
 
     @POST
