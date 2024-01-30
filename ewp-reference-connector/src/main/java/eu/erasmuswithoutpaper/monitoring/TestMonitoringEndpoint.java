@@ -41,7 +41,6 @@ public class TestMonitoringEndpoint {
     @GET
     @Produces(MediaType.APPLICATION_FORM_URLENCODED)
     public Response testMonitoring() throws Exception {
-        MonitoringParams mp = new MonitoringParams();
 
         // Build the request
         HttpPost request = new HttpPost("https://ewp.uma.es/rest/testMonitoring");
@@ -55,16 +54,14 @@ public class TestMonitoringEndpoint {
 
         request.setEntity(new UrlEncodedFormEntity(urlParameters));
 
-        // Send the request and get the response
+        String result = "";
         try (CloseableHttpClient httpClient = HttpClients.createDefault();
              CloseableHttpResponse response = httpClient.execute(request)){
-            ObjectMapper objectMapper = new ObjectMapper();
             
-            String result = EntityUtils.toString(response.getEntity());
-            mp = objectMapper.readValue(result, MonitoringParams.class);
+            result = EntityUtils.toString(response.getEntity());
         }
 
-        return Response.ok(mp).build();
+        return Response.ok(result).build();
     }
 
     @POST
