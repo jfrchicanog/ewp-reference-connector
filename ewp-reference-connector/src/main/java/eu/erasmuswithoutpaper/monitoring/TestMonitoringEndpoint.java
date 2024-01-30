@@ -54,31 +54,12 @@ public class TestMonitoringEndpoint {
     @GET
     @Produces(MediaType.APPLICATION_FORM_URLENCODED)
     public Response testMonitoring() throws Exception {
-
-        // Build the request
-        HttpPost request = new HttpPost("https://stats.erasmuswithoutpaper.eu");
-        request.addHeader("Content-Type", "application/x-www-form-urlencoded");
-        List<NameValuePair> urlParameters = new ArrayList<>();
-        urlParameters.add(new BasicNameValuePair("server_hei_id", "test.uma.es"));
-        urlParameters.add(new BasicNameValuePair("api_name", "omobility-las"));
-        urlParameters.add(new BasicNameValuePair("endpoint_name", "get"));
-        urlParameters.add(new BasicNameValuePair("http_code", "500"));
-        urlParameters.add(new BasicNameValuePair("server_message", "Mensaje error Server"));
-
-        request.setEntity(new UrlEncodedFormEntity(urlParameters));
-
-        String result = "";
-        try (CloseableHttpClient httpClient = HttpClients.createDefault();
-             CloseableHttpResponse response = httpClient.execute(request)){
-            
-            result = EntityUtils.toString(response.getEntity());
-        }
         
         ClientRequest cr = new ClientRequest();
         cr.setHeiId("uma.es");
-        cr.setHttpsec(false);
+        cr.setHttpsec(true);
         cr.setMethod(HttpMethodEnum.POST);
-        cr.setUrl("http://stats.erasmuswithoutpaper.eu");
+        cr.setUrl("https://stats.erasmuswithoutpaper.eu");
         Map<String, List<String>> unknownFields = new HashMap<>();
         unknownFields.put("server_hei_id", Arrays.asList("test.uma.es"));
         unknownFields.put("api_name", Arrays.asList("omobility-las"));
