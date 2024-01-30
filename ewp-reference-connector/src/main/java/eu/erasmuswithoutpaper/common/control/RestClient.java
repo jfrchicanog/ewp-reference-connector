@@ -72,49 +72,6 @@ public class RestClient {
         return client;
     }
 
-    public Response sendRequest2(ClientRequest clientRequest, Class responseClass) {
-        String requestID = UUID.randomUUID().toString();
-
-        WebTarget target = client().target(clientRequest.getUrl());
-        target.property("http.autoredirect", true);
-        Map<String, List<String>> params = new HashMap<>();
-        if (clientRequest.getParams() != null) {
-            params = clientRequest.getParams().getUnknownFields();
-        }
-        switch (clientRequest.getMethod()) {
-            case POST:
-                Form form = new Form();
-                form.param("hei_id", clientRequest.getHeiId());
-                params.entrySet().forEach((entry) -> {
-                    entry.getValue().stream().forEach(e -> form.param(entry.getKey(), e));
-                });
-
-                String formData = formData2String(form);
-                Invocation.Builder postBuilder = target.request();
-                if (clientRequest.isHttpsec()) {
-                    httpSignature.signRequest("post", target.getUri(), postBuilder, formData, requestID);
-                }
-
-                Entity<String> entity = Entity.entity(formData, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-                return postBuilder.post(entity);
-            case PUT:
-                return target.request().put(null);
-            default:
-                target = target.queryParam("hei_id", clientRequest.getHeiId());
-                for (Map.Entry<String, List<String>> entry : params.entrySet()) {
-                    for (String value : entry.getValue()) {
-                        target = target.queryParam(entry.getKey(), value);
-                    }
-                }
-
-                Invocation.Builder builder = target.request();
-                if (clientRequest.isHttpsec()) {
-                    httpSignature.signRequest("get", target.getUri(), builder, requestID);
-                }
-                return builder.get();
-        }
-    }
-
     public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass) {
         ClientResponse clientResponse = new ClientResponse();
         String requestID = UUID.randomUUID().toString();

@@ -59,7 +59,10 @@ public class TestMonitoringEndpoint {
     @GET
     @Path("test")
     public Response test() {
-        Map<String, String> map = rc.getEwpInstanceHeiUrls("stats.erasmuswithoutpaper.eu");
+        Map<String, String> map = rc.getTest();
+        if(map == null) {
+            return Response.ok("NullMap").build();
+        }
         return Response.ok(map.keySet().stream()
                 .map(key -> key + "=" + map.get(key))
                 .collect(Collectors.joining(", ", "{", "}"))
@@ -84,7 +87,9 @@ public class TestMonitoringEndpoint {
         ParamsClass pc = new ParamsClass();
         pc.setUnknownFields(unknownFields);
         cr.setParams(pc);
-        return restClient.sendRequest2(cr, Empty.class);
+        ClientResponse response = restClient.sendRequest(cr, Empty.class);
+        
+        return Response.ok(response).build();
     }
 
     @POST
