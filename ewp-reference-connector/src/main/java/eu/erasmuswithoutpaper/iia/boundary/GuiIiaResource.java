@@ -829,7 +829,6 @@ public class GuiIiaResource {
     }
 
     private List<ClientResponse> notifyPartner(Iia iia) {
-        System.out.println("TEST: Notify");
         List<ClientResponse> partnersResponseList = new ArrayList<>();
 
         //Getting agreement partners
@@ -840,9 +839,6 @@ public class GuiIiaResource {
         for (CooperationCondition condition : iia.getCooperationConditions()) {
             partnerSending = condition.getSendingPartner();
             partnerReceiving = condition.getReceivingPartner();
-
-            System.out.println("Partener reciving:" + partnerReceiving.getInstitutionId());
-            System.out.println("Partener sending:" + partnerSending.getInstitutionId());
 
             Map<String, String> urls = null;
             for (Institution institution : institutions) {
@@ -865,23 +861,10 @@ public class GuiIiaResource {
 
                 //Notify the other institution about the modification 
                 ClientRequest clientRequest = new ClientRequest();
-                clientRequest.setUrl(urls.get(urlValues.get(0)));//get the first and only one url
+                clientRequest.setUrl(urlValues.get(0));//get the first and only one url
                 clientRequest.setHeiId(partnerReceiving.getInstitutionId());
                 clientRequest.setMethod(HttpMethodEnum.POST);
                 clientRequest.setHttpsec(true);
-
-                StringBuilder s = new StringBuilder("");
-                if (urlValues == null) {
-                    
-                } else {
-                    urlValues.forEach(key -> {
-                        s.append(key).append("\n");
-                    });
-                }
-
-                System.out.println("Map: " + s.toString());
-
-                System.out.println("Send to url:" + urls.get(urlValues.get(0)));
 
                 ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
 
