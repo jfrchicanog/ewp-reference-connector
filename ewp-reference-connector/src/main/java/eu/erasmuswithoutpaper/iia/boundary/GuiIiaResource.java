@@ -840,6 +840,9 @@ public class GuiIiaResource {
             partnerSending = condition.getSendingPartner();
             partnerReceiving = condition.getReceivingPartner();
 
+           System.out.println("Partener reciving:" + partnerReceiving.getInstitutionId());
+           System.out.println("Partener sending:" + partnerSending.getInstitutionId());
+            
             Map<String, String> urls = null;
             for (Institution institution : institutions) {
 
