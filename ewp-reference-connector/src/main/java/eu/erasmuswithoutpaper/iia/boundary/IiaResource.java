@@ -237,14 +237,14 @@ public class IiaResource {
             throw new EwpWebApplicationException("Missing argumanets for notification.", Response.Status.BAD_REQUEST);
         }
 
-        Collection<String> heisCoveredByCertificate;
+        /*Collection<String> heisCoveredByCertificate;
         if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
             heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
         } else {
             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
-        }
+        }*/
 
-        if (heisCoveredByCertificate.contains(notifierHeiId)) {
+        //if (heisCoveredByCertificate.contains(notifierHeiId)) {
             Notification notification = new Notification();
             notification.setType(NotificationTypes.IIA);
             notification.setHeiId(notifierHeiId);
@@ -259,9 +259,9 @@ public class IiaResource {
             CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
             getThread.start();
 
-        } else {
+        /*} else {
             throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
-        }
+        }*/
 
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build();
     }
