@@ -689,6 +689,7 @@ public class IiaResource {
         }).map(iia -> iia).collect(Collectors.toList());
     }
 
+    @Stateless
     private class CNRGetFirst extends Thread {
 
         private String heiId;
