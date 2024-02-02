@@ -245,9 +245,9 @@ public class GuiIiaResource {
 //        
 //        em.persist(iiaInternal);
         System.out.println("Created Iia Id:" + iiaInternal.getId());
-        
+
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
-        
+
         IiaResponse response = new IiaResponse(iiaInternal.getId(), iiaInternal.getConditionsHash());
 
         return Response.ok(response).build();
@@ -841,9 +841,9 @@ public class GuiIiaResource {
             partnerSending = condition.getSendingPartner();
             partnerReceiving = condition.getReceivingPartner();
 
-           System.out.println("Partener reciving:" + partnerReceiving.getInstitutionId());
-           System.out.println("Partener sending:" + partnerSending.getInstitutionId());
-            
+            System.out.println("Partener reciving:" + partnerReceiving.getInstitutionId());
+            System.out.println("Partener sending:" + partnerSending.getInstitutionId());
+
             Map<String, String> urls = null;
             for (Institution institution : institutions) {
 
@@ -860,6 +860,15 @@ public class GuiIiaResource {
                 }
             }
 
+            Map<String, String> map = registryClient.getIiaHeiUrls("test.uma.es");
+            if (map == null) {
+                return null;
+            }
+            StringBuilder s = new StringBuilder();
+            map.keySet().forEach(key -> {
+                s.append(key).append(":").append(map.get(key)).append("\n");
+            });
+
             if (urls != null) {
                 List<String> urlValues = new ArrayList<String>(urls.values());
 
@@ -869,7 +878,7 @@ public class GuiIiaResource {
                 clientRequest.setHeiId(partnerReceiving.getInstitutionId());
                 clientRequest.setMethod(HttpMethodEnum.POST);
                 clientRequest.setHttpsec(true);
-                
+
                 System.out.println("Send to url:" + urls.get(urlValues.get(0)));
 
                 ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
