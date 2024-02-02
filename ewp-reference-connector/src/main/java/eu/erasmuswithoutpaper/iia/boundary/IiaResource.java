@@ -84,7 +84,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
 import javax.transaction.Transaction;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -689,19 +691,18 @@ public class IiaResource {
         }).map(iia -> iia).collect(Collectors.toList());
     }
 
-    @Stateless
     private class CNRGetFirst extends Thread {
 
         private String heiId;
         private String iiaId;
 
-        @PersistenceContext(unitName = "connector")
         EntityManager entityManager;
-
 
         public CNRGetFirst(String heiId, String iiaId) {
             this.heiId = heiId;
             this.iiaId = iiaId;
+            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("connector");
+            entityManager = entityManagerFactory.createEntityManager();
         }
 
         @Override
