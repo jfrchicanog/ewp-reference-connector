@@ -860,7 +860,7 @@ public class GuiIiaResource {
                 }
             }
 
-            Map<String, String> map = registryClient.getIiaHeiUrls("test.uma.es");
+            Map<String, String> map = registryClient.getIiaCnrHeiUrls(partnerReceiving.getInstitutionId());
             if (map == null) {
                 return null;
             }
@@ -868,6 +868,8 @@ public class GuiIiaResource {
             map.keySet().forEach(key -> {
                 s.append(key).append(":").append(map.get(key)).append("\n");
             });
+            
+            System.out.println("Map: "+s.toString());
 
             if (urls != null) {
                 List<String> urlValues = new ArrayList<String>(urls.values());
