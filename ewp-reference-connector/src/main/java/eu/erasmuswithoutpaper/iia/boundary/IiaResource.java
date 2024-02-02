@@ -257,7 +257,7 @@ public class IiaResource {
         execNotificationToAlgoria(iiaId, notifierHeiId);
 
         LOG.fine("TEST: START THREAD");
-        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId, em);
+        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
         getThread.start();
 
         /*} else {
@@ -693,13 +693,14 @@ public class IiaResource {
 
         private String heiId;
         private String iiaId;
-        
-        private EntityManager em;
 
-        public CNRGetFirst(String heiId, String iiaId, EntityManager em) {
+        @PersistenceContext(unitName = "connector")
+        EntityManager entityManager;
+
+
+        public CNRGetFirst(String heiId, String iiaId) {
             this.heiId = heiId;
             this.iiaId = iiaId;
-            this.em = em;
         }
 
         @Override
@@ -740,7 +741,7 @@ public class IiaResource {
                 return;
             }
 
-            List<Iia> iia = em.createNamedQuery(Iia.findByPartnerId, Iia.class).setParameter("idPartner", iiaId).getResultList();
+            List<Iia> iia = entityManager.createNamedQuery(Iia.findByPartnerId, Iia.class).setParameter("idPartner", iiaId).getResultList();
             LOG.fine("CNRGetFirst: Busqueda en bbdd " + (iia == null ? "null" : iia.size()));
             if (iia == null || iia.isEmpty()) {
                 eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia sendIia = ((IiasGetResponse) clientResponse.getResult()).getIia().get(0);
@@ -780,9 +781,9 @@ public class IiaResource {
                 }
 
                 LOG.fine("CNRGetFirst: Iia hash calculated: " + newIia.getConditionsHash());
-                
-                em.persist(newIia);
-                em.flush();
+
+                entityManager.persist(newIia);
+                entityManager.flush();
 
                 LOG.fine("CNRGetFirst: Iia persisted: " + newIia.getId());
 
