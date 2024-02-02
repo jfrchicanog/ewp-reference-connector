@@ -232,6 +232,7 @@ public class IiaResource {
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
     public javax.ws.rs.core.Response cnrPost(@FormParam("notifier_hei_id") String notifierHeiId, @FormParam("iia_id") String iiaId) {
+        LOG.fine("TEST: START CNR");
         if (notifierHeiId == null || notifierHeiId.isEmpty() || iiaId == null || iiaId.isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for notification.", Response.Status.BAD_REQUEST);
         }
@@ -254,6 +255,7 @@ public class IiaResource {
             //Register and execute Algoria notification
             execNotificationToAlgoria(iiaId, notifierHeiId);
 
+            LOG.fine("TEST: START THREAD");
             CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
             getThread.start();
 
