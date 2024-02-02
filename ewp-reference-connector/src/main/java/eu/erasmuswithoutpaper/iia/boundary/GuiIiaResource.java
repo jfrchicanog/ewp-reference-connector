@@ -829,6 +829,7 @@ public class GuiIiaResource {
     }
 
     private List<ClientResponse> notifyPartner(Iia iia) {
+        System.out.println("TEST: Notify");
         List<ClientResponse> partnersResponseList = new ArrayList<>();
 
         //Getting agreement partners
