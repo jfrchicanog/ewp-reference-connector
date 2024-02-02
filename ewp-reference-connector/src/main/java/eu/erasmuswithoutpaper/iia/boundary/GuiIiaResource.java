@@ -245,8 +245,11 @@ public class GuiIiaResource {
 //        
 //        em.persist(iiaInternal);
         System.out.println("Created Iia Id:" + iiaInternal.getId());
-
+        
+        List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
+        
         IiaResponse response = new IiaResponse(iiaInternal.getId(), iiaInternal.getConditionsHash());
+
         return Response.ok(response).build();
     }
 
