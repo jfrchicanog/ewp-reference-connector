@@ -835,12 +835,14 @@ public class GuiIiaResource {
         IiaPartner partnerSending = null;
         IiaPartner partnerReceiving = null;
 
+        String notifyHeyId = "";
         List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
         for (CooperationCondition condition : iia.getCooperationConditions()) {
             partnerSending = condition.getSendingPartner();
             partnerReceiving = condition.getReceivingPartner();
 
             Map<String, String> urls = null;
+            notifyHeyId = partnerSending.getInstitutionId();
             for (Institution institution : institutions) {
 
                 if (!institution.getInstitutionId().equals(partnerSending.getInstitutionId())) {
@@ -865,6 +867,13 @@ public class GuiIiaResource {
                 clientRequest.setHeiId(partnerReceiving.getInstitutionId());
                 clientRequest.setMethod(HttpMethodEnum.POST);
                 clientRequest.setHttpsec(true);
+                
+                Map<String, List<String>> paramsMap = new HashMap<>();
+                paramsMap.put("notifier_hei_id", Arrays.asList(notifyHeyId));
+                paramsMap.put("iia_id", Arrays.asList(iia.getId()));
+                ParamsClass paramsClass = new ParamsClass();
+                paramsClass.setUnknownFields(paramsMap);
+                clientRequest.setParams(paramsClass);
 
                 ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
 
