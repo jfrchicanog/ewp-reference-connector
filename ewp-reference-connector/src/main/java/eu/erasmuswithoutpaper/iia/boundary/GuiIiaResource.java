@@ -859,17 +859,6 @@ public class GuiIiaResource {
 
                 }
             }
-            StringBuilder s = new StringBuilder("");
-            Map<String, String> map = urls;
-            if (map == null) {
-                return null;
-            } else {
-                map.keySet().forEach(key -> {
-                    s.append(key).append(":").append(map.get(key)).append("\n");
-                });
-            }
-
-            System.out.println("Map: " + s.toString());
 
             if (urls != null) {
                 List<String> urlValues = new ArrayList<String>(urls.values());
@@ -880,6 +869,17 @@ public class GuiIiaResource {
                 clientRequest.setHeiId(partnerReceiving.getInstitutionId());
                 clientRequest.setMethod(HttpMethodEnum.POST);
                 clientRequest.setHttpsec(true);
+
+                StringBuilder s = new StringBuilder("");
+                if (urlValues == null) {
+                    
+                } else {
+                    urlValues.forEach(key -> {
+                        s.append(key).append("\n");
+                    });
+                }
+
+                System.out.println("Map: " + s.toString());
 
                 System.out.println("Send to url:" + urls.get(urlValues.get(0)));
 
