@@ -36,7 +36,7 @@ public class Iia implements Serializable {
     public static final String findAll = PREFIX + "all";
     public static final String findById = PREFIX + "byId";
     public static final String findByIiaCode = PREFIX + "byIiaCode";
-    public static final String findByPartnerId = PREFIX + "byIiaCode";
+    public static final String findByPartnerId = PREFIX + "byPartnerId";
 
     @Id
     @GeneratedValue(generator = "system-uuid")
