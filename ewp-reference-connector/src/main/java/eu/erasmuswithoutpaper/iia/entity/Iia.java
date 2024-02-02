@@ -1,4 +1,3 @@
-
 package eu.erasmuswithoutpaper.iia.entity;
 
 import java.io.Serializable;
@@ -30,53 +29,60 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
     @NamedQuery(name = Iia.findAll, query = "SELECT i FROM Iia i"),
     @NamedQuery(name = Iia.findById, query = "SELECT i FROM Iia i WHERE i.id = :id"),
     @NamedQuery(name = Iia.findByIiaCode, query = "SELECT i FROM Iia i WHERE i.iiaCode = :iiaCode"),
-})
-public class Iia implements Serializable{
-    
+    @NamedQuery(name = Iia.findByPartnerId, query = "SELECT i FROM Iia i WHERE i.idPartner = :idPartner"),})
+public class Iia implements Serializable {
+
     private static final String PREFIX = "eu.erasmuswithoutpaper.iia.entity.Iia.";
     public static final String findAll = PREFIX + "all";
     public static final String findById = PREFIX + "byId";
     public static final String findByIiaCode = PREFIX + "byIiaCode";
-    
+    public static final String findByPartnerId = PREFIX + "byIiaCode";
+
     @Id
-    @GeneratedValue(generator="system-uuid")
+    @GeneratedValue(generator = "system-uuid")
     String id;
-    
+
     private String iiaCode;
     private boolean inEfect;
-    
+
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
     private Date startDate;
-    
+
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
     private Date endDate;
-    
+
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
     private Date modifyDate;
-    
+
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
     private Date signingDate;
-    
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinTable(name = "IIA_COOPERATION_CONDITION")
     List<CooperationCondition> cooperationConditions;
-    
+
     @Column(name = "CONDITIONS_HASH", nullable = true)
     private String conditionsHash;
-    
+
+    @Column(name = "ID_PARTNER", nullable = true)
+    private String idPartner;
+
+    @Column(name = "HASH_PARTNER", nullable = true)
+    private String hashPartner;
+
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "PDF", nullable = true)
     private byte[] pdf;
-    
-    public Iia(){
+
+    public Iia() {
     }
-    
-    public Iia(String iiaCode){
+
+    public Iia(String iiaCode) {
         this.iiaCode = iiaCode;
     }
 
@@ -129,38 +135,54 @@ public class Iia implements Serializable{
     }
 
     public String getConditionsHash() {
-		return conditionsHash;
-	}
+        return conditionsHash;
+    }
 
-	public void setConditionsHash(String conditionsHash) {
-		this.conditionsHash = conditionsHash;
-	}
+    public void setConditionsHash(String conditionsHash) {
+        this.conditionsHash = conditionsHash;
+    }
 
-	public byte[] getPdf() {
-		return pdf;
-	}
+    public byte[] getPdf() {
+        return pdf;
+    }
 
-	public void setPdf(byte[] pdf) {
-		this.pdf = pdf;
-	}
+    public void setPdf(byte[] pdf) {
+        this.pdf = pdf;
+    }
 
-	public boolean isInEfect() {
-		return inEfect;
-	}
+    public boolean isInEfect() {
+        return inEfect;
+    }
 
-	public void setInEfect(boolean inEfect) {
-		this.inEfect = inEfect;
-	}
+    public void setInEfect(boolean inEfect) {
+        this.inEfect = inEfect;
+    }
 
-	public Date getSigningDate() {
-		return signingDate;
-	}
+    public Date getSigningDate() {
+        return signingDate;
+    }
 
-	public void setSigningDate(Date signingDate) {
-		this.signingDate = signingDate;
-	}
+    public void setSigningDate(Date signingDate) {
+        this.signingDate = signingDate;
+    }
 
-	@Override
+    public String getIdPartner() {
+        return idPartner;
+    }
+
+    public void setIdPartner(String idPartner) {
+        this.idPartner = idPartner;
+    }
+
+    public String getHashPartner() {
+        return hashPartner;
+    }
+
+    public void setHashPartner(String hashPartner) {
+        this.hashPartner = hashPartner;
+    }
+
+    @Override
     public int hashCode() {
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.id);
@@ -184,5 +206,5 @@ public class Iia implements Serializable{
         }
         return true;
     }
-    
+
 }
