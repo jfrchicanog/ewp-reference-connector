@@ -865,6 +865,8 @@ public class GuiIiaResource {
                 clientRequest.setHeiId(partnerReceiving.getInstitutionId());
                 clientRequest.setMethod(HttpMethodEnum.POST);
                 clientRequest.setHttpsec(true);
+                
+                System.out.println("Send to url:" + urls.get(urlValues.get(0)));
 
                 ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
 
