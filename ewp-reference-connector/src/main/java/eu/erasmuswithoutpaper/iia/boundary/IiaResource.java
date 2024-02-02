@@ -257,7 +257,7 @@ public class IiaResource {
         execNotificationToAlgoria(iiaId, notifierHeiId);
 
         LOG.fine("TEST: START THREAD");
-        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
+        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId, em);
         getThread.start();
 
         /*} else {
@@ -693,10 +693,13 @@ public class IiaResource {
 
         private String heiId;
         private String iiaId;
+        
+        private EntityManager em;
 
-        public CNRGetFirst(String heiId, String iiaId) {
+        public CNRGetFirst(String heiId, String iiaId, EntityManager em) {
             this.heiId = heiId;
             this.iiaId = iiaId;
+            this.em = em;
         }
 
         @Override
