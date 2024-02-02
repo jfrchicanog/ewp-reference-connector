@@ -77,6 +77,7 @@ import eu.erasmuswithoutpaper.iia.entity.MobilityNumberVariants;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
 import eu.erasmuswithoutpaper.iia.entity.SubjectArea;
 import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
+import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.organization.entity.ContactDetails;
 import eu.erasmuswithoutpaper.organization.entity.FlexibleAddress;
 import eu.erasmuswithoutpaper.organization.entity.Gender;
@@ -103,6 +104,9 @@ public class GuiIiaResource {
 
     @Inject
     GlobalProperties properties;
+
+    @Inject
+    SendMonitoringService sendMonitoringService;
 
     private static final Logger logger = LoggerFactory.getLogger(GuiIiaResource.class);
 
@@ -643,6 +647,16 @@ public class GuiIiaResource {
     public javax.ws.rs.core.Response iiasIndex(ClientRequest clientRequest) {
         ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse.class);
 
+        try {
+            if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "index", Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), null);
+            } else if (iiaResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "index", Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), "Error");
+            }
+        } catch (Exception e) {
+
+        }
+
         GenericEntity<eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse> entity = null;
         try {
             eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse index = (eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse) iiaResponse.getResult();
@@ -661,6 +675,17 @@ public class GuiIiaResource {
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response iias(ClientRequest clientRequest) {
         ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.class);
+
+        try {
+            if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), null);
+            } else if (iiaResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), "Error");
+            }
+        } catch (Exception e) {
+
+        }
+
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
     }
 
@@ -840,6 +865,16 @@ public class GuiIiaResource {
 
                 ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
 
+                try {
+                    if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
+                        sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iia-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), null);
+                    } else if (iiaResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                        sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iia-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), "Error");
+                    }
+                } catch (Exception e) {
+
+                }
+
                 partnersResponseList.add(iiaResponse);
             }
 
@@ -911,6 +946,17 @@ public class GuiIiaResource {
         clientRequestGetIia.setParams(pc);
 
         ClientResponse iiaApprovalResponse = restClient.sendRequest(clientRequestGetIia, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
+
+        try {
+            if (iiaApprovalResponse.getStatusCode() <= 599 && iiaApprovalResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequestGetIia.getHeiId(), "iias-approval", null, Integer.toString(iiaApprovalResponse.getStatusCode()), iiaApprovalResponse.getErrorMessage(), null);
+            } else if (iiaApprovalResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequestGetIia.getHeiId(), "iias-approval", null, Integer.toString(iiaApprovalResponse.getStatusCode()), iiaApprovalResponse.getErrorMessage(), "Error");
+            }
+        } catch (Exception e) {
+
+        }
+
         eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse response = (IiasApprovalResponse) iiaApprovalResponse.getResult();
 
         Approval approval = response.getApproval().stream()
@@ -945,6 +991,17 @@ public class GuiIiaResource {
         clientRequestNotifyApproval.setParams(pc2);
 
         ClientResponse iiaResponse = restClient.sendRequest(clientRequestNotifyApproval, Object.class);
+
+        try {
+            if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequestNotifyApproval.getHeiId(), "iia-approval-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), null);
+            } else if (iiaResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequestNotifyApproval.getHeiId(), "iia-approval-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), "Error");
+            }
+        } catch (Exception e) {
+
+        }
+
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
     }
 

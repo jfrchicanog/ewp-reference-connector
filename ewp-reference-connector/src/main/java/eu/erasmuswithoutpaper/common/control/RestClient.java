@@ -164,7 +164,7 @@ public class RestClient {
                         eu.erasmuswithoutpaper.api.architecture.ErrorResponse error = response.readEntity(eu.erasmuswithoutpaper.api.architecture.ErrorResponse.class);
                         clientResponse.setErrorMessage(error.getDeveloperMessage().getValue());
                     } catch (Exception e) {
-                        clientResponse.setErrorMessage(rawResponse);
+                        clientResponse.setRawResponse(rawResponse);
                     }
                 }
             }

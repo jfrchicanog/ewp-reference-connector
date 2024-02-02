@@ -52,64 +52,21 @@ import org.apache.http.util.EntityUtils;
 public class TestMonitoringEndpoint {
 
     @Inject
-    RestClient restClient;
-    @Inject
     RegistryClient rc;
-
-    @GET
-    @Path("test")
-    public Response test() {
-        Map<String, String> map = rc.getTest();
-        if(map == null) {
-            return Response.ok("NullMap").build();
-        }
-        return Response.ok(map.keySet().stream()
-                .map(key -> key + "=" + map.get(key))
-                .collect(Collectors.joining(", ", "{", "}"))
-        ).build();
-    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response testMonitoring() throws Exception {
 
-        ClientRequest cr = new ClientRequest();
-        cr.setHeiId("uma.es");
-        cr.setHttpsec(true);
-        cr.setMethod(HttpMethodEnum.POST);
-        cr.setUrl("https://dev-stats.erasmuswithoutpaper.eu/ewp/monitoring/");
-        Map<String, List<String>> unknownFields = new HashMap<>();
-        unknownFields.put("server_hei_id", Arrays.asList("test.uma.es"));
-        unknownFields.put("api_name", Arrays.asList("omobility-las"));
-        unknownFields.put("endpoint_name", Arrays.asList("get"));
-        unknownFields.put("http_code", Arrays.asList("500"));
-        unknownFields.put("server_message", Arrays.asList("Mensaje error Server"));
-        ParamsClass pc = new ParamsClass();
-        pc.setUnknownFields(unknownFields);
-        cr.setParams(pc);
-        ClientResponse response = restClient.sendRequest(cr, Empty.class);
+        Map<String, String> map = rc.getIiaHeiUrls("test.uma.es");
+        if(map == null) {
+            return Response.ok("").build();
+        }
+        StringBuilder s = new StringBuilder();
+        map.keySet().forEach(key -> {
+            s.append(key).append(":").append(map.get(key)).append("\n");
+        });
         
-        return Response.ok(response).build();
-    }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response testMonitoring(
-            @FormParam("server_hei_id") String serverHeiId,
-            @FormParam("api_name") String apiName,
-            @FormParam("endpoint_name") String endpointName,
-            @FormParam("http_code") String httpCode,
-            @FormParam("server_message") String serverMessage
-    ) {
-        MonitoringParams mp = new MonitoringParams();
-        mp.setServerHeiId(serverHeiId);
-        mp.setApiName(apiName);
-        mp.setEndpointName(endpointName);
-        mp.setHttpCode(httpCode);
-        mp.setServerMessage(serverMessage);
-
-        // Process the data as needed
-        return Response.ok(mp).build();
+        return Response.ok(s.toString()).build();
     }
 }

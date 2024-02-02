@@ -254,14 +254,4 @@ public class RegistryClient {
     public Collection<String> getHeisCoveredByClientKey(RSAPublicKey rsapk) {
         return client.getHeisCoveredByClientKey(rsapk);
     }
-    
-    public Map<String, String> getTest() {
-        ApiSearchConditions asc = new ApiSearchConditions();
-        asc.setRequiredHei("stats.erasmuswithoutpaper.");
-        Element manifest = client.findApi(asc);
-
-        if (manifest != null) {
-        	return getUrlsFromManifestElement(manifest);
-        } else return null;
-    }
 }

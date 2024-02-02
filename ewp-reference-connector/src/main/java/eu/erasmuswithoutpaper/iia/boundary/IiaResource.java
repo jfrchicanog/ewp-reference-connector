@@ -210,6 +210,9 @@ public class IiaResource {
 
             //Register and execute Algoria notification
             execNotificationToAlgoria(iiaId, notifierHeiId);
+            
+            CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
+            getThread.start();
 
         } else {
             throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
@@ -639,5 +642,21 @@ public class IiaResource {
         return iiaList.stream().filter((iia) -> {
             return filterByInstitutionId(heisCoveredByCertificate, iia);
         }).map(iia -> iia).collect(Collectors.toList());
+    }
+    
+    private class CNRGetFirst extends Thread {
+        private String heiId;
+        private String iiaId;
+        
+        public CNRGetFirst(String heiId, String iiaId) {
+            this.heiId = heiId;
+            this.iiaId = iiaId;
+        }
+
+        @Override
+        public void run() {
+            registryClient.getIiaHeiUrls(heiId);
+        }
+       
     }
 }
