@@ -3,7 +3,7 @@
     <persistence-unit name="connector" transaction-type="JTA">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <properties>
-            <property name="javax.persistence.schema-generation.database.action" value="create"/>
+            <property name="javax.persistence.schema-generation.database.action" value="create-or-extend-tables"/>
             <property name="eclipselink.session.customizer" value="eu.erasmuswithoutpaper.internal.UUIDSequence"/>
             <!-- property name="javax.persistence.sql-load-script-source" value="META-INF/preload_data.sql"/ --> 
             <property name="eclipselink.logging.level" value="FINE"/>   
