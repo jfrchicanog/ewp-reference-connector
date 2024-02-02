@@ -84,6 +84,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
+import javax.persistence.EntityTransaction;
+import javax.transaction.Transaction;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -243,26 +245,24 @@ public class IiaResource {
         } else {
             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
         }*/
-
         //if (heisCoveredByCertificate.contains(notifierHeiId)) {
-            Notification notification = new Notification();
-            notification.setType(NotificationTypes.IIA);
-            notification.setHeiId(notifierHeiId);
-            notification.setChangedElementIds(iiaId);
-            notification.setNotificationDate(new Date());
-            em.persist(notification);
+        Notification notification = new Notification();
+        notification.setType(NotificationTypes.IIA);
+        notification.setHeiId(notifierHeiId);
+        notification.setChangedElementIds(iiaId);
+        notification.setNotificationDate(new Date());
+        em.persist(notification);
 
-            //Register and execute Algoria notification
-            execNotificationToAlgoria(iiaId, notifierHeiId);
+        //Register and execute Algoria notification
+        execNotificationToAlgoria(iiaId, notifierHeiId);
 
-            LOG.fine("TEST: START THREAD");
-            CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
-            getThread.start();
+        LOG.fine("TEST: START THREAD");
+        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
+        getThread.start();
 
         /*} else {
             throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
         }*/
-
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build();
     }
 
@@ -738,12 +738,12 @@ public class IiaResource {
             }
 
             List<Iia> iia = em.createNamedQuery(Iia.findByPartnerId, Iia.class).setParameter("idPartner", iiaId).getResultList();
-            LOG.fine("CNRGetFirst: Busqueda en bbdd " + (iia==null?"null":iia.size()));
+            LOG.fine("CNRGetFirst: Busqueda en bbdd " + (iia == null ? "null" : iia.size()));
             if (iia == null || iia.isEmpty()) {
                 eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia sendIia = ((IiasGetResponse) clientResponse.getResult()).getIia().get(0);
                 Iia newIia = new Iia();
                 convertToIia(sendIia, newIia);
-                
+
                 LOG.fine("CNRGetFirst: Iia convertsed");
 
                 try {
@@ -775,12 +775,20 @@ public class IiaResource {
                 } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
                         | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
                 }
-                
+
                 LOG.fine("CNRGetFirst: Iia hash calculated: " + newIia.getConditionsHash());
 
-                em.persist(newIia);
-                em.flush();
-                
+                EntityTransaction transaction = em.getTransaction();
+
+                transaction.begin();
+                try {
+                    em.persist(newIia);
+                    em.flush();
+                    transaction.commit();
+                } catch (Exception e) {
+                    transaction.rollback();
+                }
+
                 LOG.fine("CNRGetFirst: Iia persisted: " + newIia.getId());
 
             }
