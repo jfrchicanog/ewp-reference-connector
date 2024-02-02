@@ -859,17 +859,17 @@ public class GuiIiaResource {
 
                 }
             }
-
-            Map<String, String> map = registryClient.getIiaCnrHeiUrls(partnerReceiving.getInstitutionId());
+            StringBuilder s = new StringBuilder("");
+            Map<String, String> map = urls;
             if (map == null) {
                 return null;
+            } else {
+                map.keySet().forEach(key -> {
+                    s.append(key).append(":").append(map.get(key)).append("\n");
+                });
             }
-            StringBuilder s = new StringBuilder();
-            map.keySet().forEach(key -> {
-                s.append(key).append(":").append(map.get(key)).append("\n");
-            });
-            
-            System.out.println("Map: "+s.toString());
+
+            System.out.println("Map: " + s.toString());
 
             if (urls != null) {
                 List<String> urlValues = new ArrayList<String>(urls.values());
