@@ -788,6 +788,7 @@ public class IiaResource {
                 LOG.fine("CNRGetFirst: Iia hash calculated: " + newIia.getConditionsHash());
 
                 entityManager.persist(newIia);
+                entityManager.flush();
 
                 LOG.fine("CNRGetFirst: Iia persisted: " + newIia.getId());
 
