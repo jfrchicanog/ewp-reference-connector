@@ -72,7 +72,7 @@ public class AuxIiaThread {
 
     @PersistenceContext(unitName = "connector")
     EntityManager em;
-    
+
     @Inject
     RegistryClient registryClient;
 
@@ -81,7 +81,7 @@ public class AuxIiaThread {
 
     @Inject
     RestClient restClient;
-    
+
     private static final Logger LOG = Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
     public void run(String heiId, String iiaId) {
@@ -160,12 +160,32 @@ public class AuxIiaThread {
                     | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
             }
 
+            newIia.setIdPartner(iiaId);
+            newIia.setHashPartner(sendIia.getConditionsHash());
+
             LOG.fine("CNRGetFirst: Iia hash calculated: " + newIia.getConditionsHash());
 
             em.persist(newIia);
             em.flush();
 
             LOG.fine("CNRGetFirst: Iia persisted: " + newIia.getId());
+
+            map = registryClient.getIiaCnrHeiUrls(heiId);
+
+            if (map == null) {
+                return;
+            }
+
+            LOG.fine("CNRGetFirst: MAP 2 ENCONTRADO");
+
+            url = (new ArrayList<>(map.values())).get(0);
+            if (url == null) {
+                return;
+            }
+            
+            LOG.fine("CNRGetFirst: CNR URL: " + url);
+        } else {
+
         }
 
     }
