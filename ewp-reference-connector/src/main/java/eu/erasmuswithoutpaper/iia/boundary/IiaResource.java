@@ -262,7 +262,7 @@ public class IiaResource {
         execNotificationToAlgoria(iiaId, notifierHeiId);
 
         LOG.fine("TEST: START THREAD");
-        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
+        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId, em);
         getThread.start();
 
         /*} else {
@@ -701,11 +701,10 @@ public class IiaResource {
 
         EntityManager entityManager;
 
-        public CNRGetFirst(String heiId, String iiaId) {
+        public CNRGetFirst(String heiId, String iiaId, EntityManager entityManager) {
             this.heiId = heiId;
             this.iiaId = iiaId;
-            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("connector");
-            entityManager = entityManagerFactory.createEntityManager();
+            this.entityManager = entityManager;
         }
 
         @Override
