@@ -84,6 +84,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
@@ -235,6 +237,7 @@ public class IiaResource {
     @Path("cnr")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public javax.ws.rs.core.Response cnrPost(@FormParam("notifier_hei_id") String notifierHeiId, @FormParam("iia_id") String iiaId) {
         LOG.fine("TEST: START CNR");
         if (notifierHeiId == null || notifierHeiId.isEmpty() || iiaId == null || iiaId.isEmpty()) {
@@ -787,14 +790,8 @@ public class IiaResource {
                 entityManager.persist(newIia);
 
                 LOG.fine("CNRGetFirst: Iia persisted: " + newIia.getId());
-                
-                List<Iia> iiaAux = entityManager.createNamedQuery(Iia.findById, Iia.class).setParameter("id", "92F64E20-71C9-4704-A8EF-E68C3988F4BA").getResultList();
-                if(iiaAux.isEmpty()) {
-                    LOG.fine("CNRGetFirst: Id not found");
-                }else {
-                    LOG.fine("CNRGetFirst: Found: " + iiaAux.get(0).getConditionsHash());
-                }
 
+                entityManager.close();
             }
 
         }
