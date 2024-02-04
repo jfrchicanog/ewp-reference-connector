@@ -6,6 +6,7 @@ package eu.erasmuswithoutpaper.iia.boundary;
 
 import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
 import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
+import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
@@ -182,10 +183,28 @@ public class AuxIiaThread {
             if (url == null) {
                 return;
             }
-            
-            LOG.fine("CNRGetFirst: CNR URL: " + url);
-        } else {
 
+            LOG.fine("CNRGetFirst: CNR URL: " + url);
+            
+            ClientRequest cnrRequest = new ClientRequest();
+            cnrRequest.setUrl(url);
+            cnrRequest.setHeiId(heiId);
+            cnrRequest.setMethod(HttpMethodEnum.POST);
+            cnrRequest.setHttpsec(true);
+
+            Map<String, List<String>> paramsMapCNR = new HashMap<>();
+            paramsMapCNR.put("notifier_hei_id", Arrays.asList(heiId));
+            paramsMapCNR.put("iia_id", Arrays.asList(newIia.getIdPartner()));
+            ParamsClass paramsClassCNR = new ParamsClass();
+            paramsClassCNR.setUnknownFields(paramsMapCNR);
+            cnrRequest.setParams(paramsClassCNR);
+
+            ClientResponse cnrResponse = restClient.sendRequest(cnrRequest, Empty.class);
+            
+            LOG.fine("CNRGetFirst: After CNR with code: " + cnrResponse.getStatusCode());
+        
+        } else {
+            LOG.fine("CNRGetFirst: Found existing iia");
         }
 
     }
