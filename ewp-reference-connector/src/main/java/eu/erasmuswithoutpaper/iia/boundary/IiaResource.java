@@ -126,6 +126,9 @@ public class IiaResource {
     @Inject
     RestClient restClient;
 
+    @Inject
+    AuxIiaThread ait;
+
     @GET
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
@@ -698,9 +701,6 @@ public class IiaResource {
 
         private String heiId;
         private String iiaId;
-        
-        @Inject
-        AuxIiaThread ait;
 
         public CNRGetFirst(String heiId, String iiaId) {
             this.heiId = heiId;
@@ -712,7 +712,7 @@ public class IiaResource {
             ait.run(heiId, iiaId);
         }
     }
-/*private class CNRGetFirst extends Thread {
+    /*private class CNRGetFirst extends Thread {
 
         private String heiId;
         private String iiaId;
