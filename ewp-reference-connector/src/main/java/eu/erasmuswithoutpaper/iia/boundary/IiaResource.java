@@ -785,9 +785,15 @@ public class IiaResource {
                 LOG.fine("CNRGetFirst: Iia hash calculated: " + newIia.getConditionsHash());
 
                 entityManager.persist(newIia);
-                //entityManager.flush();
 
                 LOG.fine("CNRGetFirst: Iia persisted: " + newIia.getId());
+                
+                List<Iia> iiaAux = entityManager.createNamedQuery(Iia.findById, Iia.class).setParameter("id", newIia.getId()).getResultList();
+                if(iiaAux.isEmpty()) {
+                    LOG.fine("CNRGetFirst: Id not found");
+                }else {
+                    LOG.fine("CNRGetFirst: Found: " + iiaAux.get(0).getConditionsHash());
+                }
 
             }
 
