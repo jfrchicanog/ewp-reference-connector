@@ -698,6 +698,24 @@ public class IiaResource {
 
         private String heiId;
         private String iiaId;
+        
+        @Inject
+        AuxIiaThread ait;
+
+        public CNRGetFirst(String heiId, String iiaId) {
+            this.heiId = heiId;
+            this.iiaId = iiaId;
+        }
+
+        @Override
+        public void run() {
+            ait.run(heiId, iiaId);
+        }
+    }
+/*private class CNRGetFirst extends Thread {
+
+        private String heiId;
+        private String iiaId;
 
         @PersistenceContext(unitName = "connector")
         EntityManager entityManager;
@@ -1172,5 +1190,5 @@ public class IiaResource {
             return contactRec;
         }
 
-    }
+    }*/
 }
