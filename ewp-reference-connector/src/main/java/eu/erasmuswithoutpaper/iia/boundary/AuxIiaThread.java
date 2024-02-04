@@ -86,6 +86,11 @@ public class AuxIiaThread {
     private static final Logger LOG = Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
     public void run(String heiId, String iiaId) {
+        String localHeiId = "";
+        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+
+        localHeiId = institutions.get(0).getInstitutionId();
+
         LOG.fine("CNRGetFirst: Empezando GET tras CNR");
         Map<String, String> map = registryClient.getIiaHeiUrls(heiId);
         if (map == null) {
@@ -122,14 +127,30 @@ public class AuxIiaThread {
             return;
         }
 
-        List<Iia> iia = em.createNamedQuery(Iia.findByPartnerId, Iia.class).setParameter("idPartner", iiaId).getResultList();
-        LOG.fine("CNRGetFirst: Busqueda en bbdd " + (iia == null ? "null" : iia.size()));
-        if (iia == null || iia.isEmpty()) {
-            eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia sendIia = ((IiasGetResponse) clientResponse.getResult()).getIia().get(0);
+        IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
+
+        boolean foundLocalIia = false;
+
+        if (responseEnity.getIia() != null && !responseEnity.getIia().isEmpty()) {
+            IiasGetResponse.Iia responseEnityIia = responseEnity.getIia().get(0);
+            for (IiasGetResponse.Iia.Partner partner : responseEnityIia.getPartner()) {
+                if (localHeiId.equals(partner.getHeiId())) {
+                    if (partner.getIiaId() != null) {
+                        List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("idPartner", iiaId).getResultList();
+                        foundLocalIia = iia != null && !iia.isEmpty();
+                    }
+                }
+            }
+        }
+
+        LOG.fine("CNRGetFirst: Busqueda en bbdd " + foundLocalIia);
+        if (!foundLocalIia) {
+            eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
             Iia newIia = new Iia();
             convertToIia(sendIia, newIia);
-
-            LOG.fine("CNRGetFirst: Iia convertsed");
+            
+           
+            LOG.fine("CNRGetFirst: Iia convertsed with conditions: " + newIia.getCooperationConditions().size());
 
             try {
 
@@ -161,7 +182,7 @@ public class AuxIiaThread {
                     | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
             }
 
-            newIia.setIdPartner(iiaId);
+            //newIia.setIdPartner(iiaId);
             newIia.setHashPartner(sendIia.getConditionsHash());
 
             LOG.fine("CNRGetFirst: Iia hash calculated: " + newIia.getConditionsHash());
@@ -185,7 +206,7 @@ public class AuxIiaThread {
             }
 
             LOG.fine("CNRGetFirst: CNR URL: " + url);
-            
+
             ClientRequest cnrRequest = new ClientRequest();
             cnrRequest.setUrl(url);
             cnrRequest.setHeiId(heiId);
@@ -193,16 +214,16 @@ public class AuxIiaThread {
             cnrRequest.setHttpsec(true);
 
             Map<String, List<String>> paramsMapCNR = new HashMap<>();
-            paramsMapCNR.put("notifier_hei_id", Arrays.asList(heiId));
-            paramsMapCNR.put("iia_id", Arrays.asList(newIia.getIdPartner()));
+            paramsMapCNR.put("notifier_hei_id", Arrays.asList(localHeiId));
+            paramsMapCNR.put("iia_id", Arrays.asList(newIia.getId()));
             ParamsClass paramsClassCNR = new ParamsClass();
             paramsClassCNR.setUnknownFields(paramsMapCNR);
             cnrRequest.setParams(paramsClassCNR);
 
             ClientResponse cnrResponse = restClient.sendRequest(cnrRequest, Empty.class);
-            
+
             LOG.fine("CNRGetFirst: After CNR with code: " + cnrResponse.getStatusCode());
-        
+
         } else {
             LOG.fine("CNRGetFirst: Found existing iia");
         }
