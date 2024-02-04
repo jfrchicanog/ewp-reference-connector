@@ -262,7 +262,7 @@ public class IiaResource {
         execNotificationToAlgoria(iiaId, notifierHeiId);
 
         LOG.fine("TEST: START THREAD");
-        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId, em);
+        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
         getThread.start();
 
         /*} else {
@@ -699,12 +699,12 @@ public class IiaResource {
         private String heiId;
         private String iiaId;
 
+        @PersistenceContext(unitName = "connector")
         EntityManager entityManager;
 
-        public CNRGetFirst(String heiId, String iiaId, EntityManager entityManager) {
+        public CNRGetFirst(String heiId, String iiaId) {
             this.heiId = heiId;
             this.iiaId = iiaId;
-            this.entityManager = entityManager;
         }
 
         @Override
@@ -790,8 +790,6 @@ public class IiaResource {
                 entityManager.flush();
 
                 LOG.fine("CNRGetFirst: Iia persisted: " + newIia.getId());
-
-                entityManager.close();
             }
 
         }
