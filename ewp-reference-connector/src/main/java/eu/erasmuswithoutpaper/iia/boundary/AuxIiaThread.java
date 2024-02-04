@@ -148,8 +148,7 @@ public class AuxIiaThread {
             eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
             Iia newIia = new Iia();
             convertToIia(sendIia, newIia);
-            
-           
+
             LOG.fine("CNRGetFirst: Iia convertsed with conditions: " + newIia.getCooperationConditions().size());
 
             try {
@@ -181,8 +180,16 @@ public class AuxIiaThread {
             } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
                     | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
             }
+            for (CooperationCondition cc : newIia.getCooperationConditions()) {
+                for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
+                    if (partner.getHeiId().equals(cc.getSendingPartner().getInstitutionId())) {
+                        cc.getSendingPartner().setIiaCode(partner.getIiaCode());
+                        cc.getSendingPartner().setIiaId(partner.getIiaId());
+                    }
+                }
 
-            //newIia.setIdPartner(iiaId);
+            }
+            LOG.fine("CNRGetFirst: After setting partner id");
             newIia.setHashPartner(sendIia.getConditionsHash());
 
             LOG.fine("CNRGetFirst: Iia hash calculated: " + newIia.getConditionsHash());
@@ -191,6 +198,15 @@ public class AuxIiaThread {
             em.flush();
 
             LOG.fine("CNRGetFirst: Iia persisted: " + newIia.getId());
+
+            for (CooperationCondition cc : newIia.getCooperationConditions()) {
+                cc.getReceivingPartner().setIiaId(newIia.getId());
+            }
+            
+            em.merge(newIia);
+            em.flush();
+            
+            LOG.fine("CNRGetFirst: After seting id");
 
             map = registryClient.getIiaCnrHeiUrls(heiId);
 
