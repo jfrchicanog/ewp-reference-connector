@@ -788,7 +788,7 @@ public class IiaResource {
 
                 LOG.fine("CNRGetFirst: Iia persisted: " + newIia.getId());
                 
-                List<Iia> iiaAux = entityManager.createNamedQuery(Iia.findById, Iia.class).setParameter("id", newIia.getId()).getResultList();
+                List<Iia> iiaAux = entityManager.createNamedQuery(Iia.findById, Iia.class).setParameter("id", "92F64E20-71C9-4704-A8EF-E68C3988F4BA").getResultList();
                 if(iiaAux.isEmpty()) {
                     LOG.fine("CNRGetFirst: Id not found");
                 }else {
