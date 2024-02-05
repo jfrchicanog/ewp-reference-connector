@@ -129,7 +129,6 @@ public class AuxIiaThread {
 
         IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
 
-        boolean foundLocalIia = false;
         Iia localIia = null;
 
         if (responseEnity.getIia() != null && !responseEnity.getIia().isEmpty()) {
@@ -137,18 +136,18 @@ public class AuxIiaThread {
             for (IiasGetResponse.Iia.Partner partner : responseEnityIia.getPartner()) {
                 if (localHeiId.equals(partner.getHeiId())) {
                     if (partner.getIiaId() != null) {
-                        List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("idPartner", iiaId).getResultList();
-                        foundLocalIia = iia != null && !iia.isEmpty();
-                        if (foundLocalIia) {
+                        List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", iiaId).getResultList();
+                        if (iia != null && !iia.isEmpty()) {
                             localIia = iia.get(0);
+                            break;
                         }
                     }
                 }
             }
         }
 
-        LOG.fine("CNRGetFirst: Busqueda en bbdd " + foundLocalIia);
-        if (!foundLocalIia) {
+        LOG.fine("CNRGetFirst: Busqueda en bbdd " + (localIia != null));
+        if (localIia != null) {
             eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
             Iia newIia = new Iia();
             convertToIia(sendIia, newIia);
@@ -186,13 +185,13 @@ public class AuxIiaThread {
             }
             for (CooperationCondition cc : newIia.getCooperationConditions()) {
                 for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
-                    if (partner.getHeiId().equals(cc.getSendingPartner().getInstitutionId())) {
+                    if (!partner.getHeiId().equals(localHeiId)) {
                         cc.getSendingPartner().setIiaCode(partner.getIiaCode());
                         cc.getSendingPartner().setIiaId(partner.getIiaId());
                     }
                 }
-
             }
+            
             LOG.fine("CNRGetFirst: After setting partner id");
             newIia.setHashPartner(sendIia.getConditionsHash());
 
