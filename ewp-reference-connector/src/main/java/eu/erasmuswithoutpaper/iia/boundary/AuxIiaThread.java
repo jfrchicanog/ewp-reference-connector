@@ -130,6 +130,7 @@ public class AuxIiaThread {
         IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
 
         boolean foundLocalIia = false;
+        Iia localIia = null;
 
         if (responseEnity.getIia() != null && !responseEnity.getIia().isEmpty()) {
             IiasGetResponse.Iia responseEnityIia = responseEnity.getIia().get(0);
@@ -138,6 +139,9 @@ public class AuxIiaThread {
                     if (partner.getIiaId() != null) {
                         List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("idPartner", iiaId).getResultList();
                         foundLocalIia = iia != null && !iia.isEmpty();
+                        if (foundLocalIia) {
+                            localIia = iia.get(0);
+                        }
                     }
                 }
             }
@@ -202,10 +206,10 @@ public class AuxIiaThread {
             for (CooperationCondition cc : newIia.getCooperationConditions()) {
                 cc.getReceivingPartner().setIiaId(newIia.getId());
             }
-            
+
             em.merge(newIia);
             em.flush();
-            
+
             LOG.fine("CNRGetFirst: After seting id");
 
             map = registryClient.getIiaCnrHeiUrls(heiId);
@@ -242,6 +246,13 @@ public class AuxIiaThread {
 
         } else {
             LOG.fine("CNRGetFirst: Found existing iia");
+            localIia.getCooperationConditions().forEach(cc -> {
+                LOG.fine("CNRGetFirst: Sending HeiId" + cc.getSendingPartner().getInstitutionId());
+                LOG.fine("CNRGetFirst: Reciving HeiId" + cc.getReceivingPartner().getInstitutionId());
+            });
+            /*if (localIia.getCooperationConditions().stream().allMatch((cc) -> cc.get)) {
+
+            }*/
         }
 
     }
