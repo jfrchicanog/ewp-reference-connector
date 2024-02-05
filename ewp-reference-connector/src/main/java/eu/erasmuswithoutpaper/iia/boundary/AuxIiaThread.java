@@ -147,7 +147,7 @@ public class AuxIiaThread {
         }
 
         LOG.fine("CNRGetFirst: Busqueda en bbdd " + (localIia != null));
-        if (localIia != null) {
+        if (localIia == null) {
             eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
             Iia newIia = new Iia();
             convertToIia(sendIia, newIia);
