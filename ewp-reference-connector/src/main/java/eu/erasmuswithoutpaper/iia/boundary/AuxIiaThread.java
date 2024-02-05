@@ -130,10 +130,11 @@ public class AuxIiaThread {
         IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
 
         Iia localIia = null;
+        
+        IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
 
         if (responseEnity.getIia() != null && !responseEnity.getIia().isEmpty()) {
-            IiasGetResponse.Iia responseEnityIia = responseEnity.getIia().get(0);
-            for (IiasGetResponse.Iia.Partner partner : responseEnityIia.getPartner()) {
+            for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
                 if (localHeiId.equals(partner.getHeiId())) {
                     if (partner.getIiaId() != null) {
                         List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", iiaId).getResultList();
@@ -148,7 +149,6 @@ public class AuxIiaThread {
 
         LOG.fine("CNRGetFirst: Busqueda en bbdd " + (localIia != null));
         if (localIia == null) {
-            eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
             Iia newIia = new Iia();
             convertToIia(sendIia, newIia);
 
