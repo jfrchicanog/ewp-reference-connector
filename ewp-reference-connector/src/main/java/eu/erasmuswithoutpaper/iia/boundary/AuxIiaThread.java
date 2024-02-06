@@ -139,8 +139,8 @@ public class AuxIiaThread {
 
         IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
         
-        LOG.fine("CNRGetFirst: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId()==null?" ":p.getHeiId()) + " "));
-        LOG.fine("CNRGetFirst: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId()==null?" ":p.getIiaId()) + " "));
+        LOG.fine("CNRGetFirst: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId()==null?" ":p.getHeiId()) + " ").collect(Collectors.toList()));
+        LOG.fine("CNRGetFirst: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId()==null?" ":p.getIiaId()) + " ").collect(Collectors.toList()));
 
         if (responseEnity.getIia() != null && !responseEnity.getIia().isEmpty()) {
             for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
