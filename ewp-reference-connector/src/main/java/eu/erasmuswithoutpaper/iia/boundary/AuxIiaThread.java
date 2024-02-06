@@ -239,9 +239,9 @@ public class AuxIiaThread {
             paramsClassCNR.setUnknownFields(paramsMapCNR);
             cnrRequest.setParams(paramsClassCNR);
 
-            ClientResponse cnrResponse = restClient.sendRequest(cnrRequest, Empty.class);
+            //ClientResponse cnrResponse = restClient.sendRequest(cnrRequest, Empty.class);
 
-            LOG.fine("CNRGetFirst: After CNR with code: " + cnrResponse.getStatusCode());
+            //LOG.fine("CNRGetFirst: After CNR with code: " + cnrResponse.getStatusCode());
 
         } else {
             LOG.fine("CNRGetFirst: Found existing iia");
