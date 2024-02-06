@@ -235,17 +235,24 @@ public class GuiIiaResource {
         em.flush();
 
         //Update generated iiaId for the partner owner of the iia
+        String localHeiId = "";
+        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+
+        localHeiId = institutions.get(0).getInstitutionId();
+
         String iiaIdGenerated = iiaInternal.getId();
         for (CooperationCondition condition : iiaInternal.getCooperationConditions()) {
-
-            for (Partner p : iia.getPartner()) {
-                if (p.getHeiId().equals(condition.getSendingPartner().getInstitutionId())) {
-                    p.setIiaId(iiaIdGenerated);
-                }
+            if(condition.getSendingPartner().getInstitutionId().equals(localHeiId)) {
+                condition.getSendingPartner().setIiaId(iiaInternal.getId());
+            }
+            
+            if(condition.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
+                condition.getReceivingPartner().setIiaId(iiaInternal.getId());
             }
         }
 
-        em.persist(iiaInternal);
+        em.merge(iiaInternal);
+        em.flush();
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
