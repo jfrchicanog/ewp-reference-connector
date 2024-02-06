@@ -235,23 +235,23 @@ public class GuiIiaResource {
         em.flush();
 
         //Update generated iiaId for the partner owner of the iia
-//        String iiaIdGenerated = iiaInternal.getId();
-//        for (CooperationCondition condition : iiaInternal.getCooperationConditions()) {
-//        	
-//        	for (Partner p : iia.getPartner()) {
-//        		if (p.getHeiId().equals(condition.getSendingPartner().getInstitutionId())) {
-//        			p.setIiaId(iiaIdGenerated);
-//        		}
-//        	}
-//        }
-//        
-//        em.persist(iiaInternal);
+        String iiaIdGenerated = iiaInternal.getId();
+        for (CooperationCondition condition : iiaInternal.getCooperationConditions()) {
+
+            for (Partner p : iia.getPartner()) {
+                if (p.getHeiId().equals(condition.getSendingPartner().getInstitutionId())) {
+                    p.setIiaId(iiaIdGenerated);
+                }
+            }
+        }
+
+        em.persist(iiaInternal);
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
-        
+
         LOG.fine("ADD: Notification send");
-        
+
         IiaResponse response = new IiaResponse(iiaInternal.getId(), iiaInternal.getConditionsHash());
 
         return Response.ok(response).build();
@@ -834,12 +834,12 @@ public class GuiIiaResource {
 
     private List<ClientResponse> notifyPartner(Iia iia) {
         LOG.fine("NOTIFY: Send notification");
-        
+
         String localHeiId = "";
         List<Institution> internalInstitution = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
 
         localHeiId = internalInstitution.get(0).getInstitutionId();
-        
+
         List<ClientResponse> partnersResponseList = new ArrayList<>();
 
         //Getting agreement partners
@@ -850,7 +850,7 @@ public class GuiIiaResource {
         for (CooperationCondition condition : iia.getCooperationConditions()) {
             partnerSending = condition.getSendingPartner();
             partnerReceiving = condition.getReceivingPartner();
-            
+
             LOG.fine("NOTIFY: partnerSending: " + partnerSending.getInstitutionId());
             LOG.fine("NOTIFY: partnerReceiving: " + partnerReceiving.getInstitutionId());
 
@@ -879,7 +879,7 @@ public class GuiIiaResource {
                 clientRequest.setHeiId(partnerReceiving.getInstitutionId());
                 clientRequest.setMethod(HttpMethodEnum.POST);
                 clientRequest.setHttpsec(true);
-                
+
                 Map<String, List<String>> paramsMap = new HashMap<>();
                 paramsMap.put("notifier_hei_id", Arrays.asList(localHeiId));
                 paramsMap.put("iia_id", Arrays.asList(iia.getId()));
