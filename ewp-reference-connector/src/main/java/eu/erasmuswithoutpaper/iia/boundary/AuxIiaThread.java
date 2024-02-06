@@ -118,6 +118,12 @@ public class AuxIiaThread {
         params.setUnknownFields(paramsMap);
         clientRequest.setParams(params);
 
+        LOG.fine("CNRGetFirst: Parametros encontrados: ");
+
+        paramsMap.forEach((key, value) -> {
+            LOG.fine("\t\t\t\t"+key+":"+value);
+        });
+
         ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasGetResponse.class);
 
         LOG.fine("CNRGetFirst: Respuesta del cliente " + clientResponse.getStatusCode());
@@ -130,7 +136,7 @@ public class AuxIiaThread {
         IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
 
         Iia localIia = null;
-        
+
         IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
 
         if (responseEnity.getIia() != null && !responseEnity.getIia().isEmpty()) {
@@ -191,7 +197,7 @@ public class AuxIiaThread {
                     }
                 }
             }
-            
+
             LOG.fine("CNRGetFirst: After setting partner id");
             newIia.setHashPartner(sendIia.getConditionsHash());
 
