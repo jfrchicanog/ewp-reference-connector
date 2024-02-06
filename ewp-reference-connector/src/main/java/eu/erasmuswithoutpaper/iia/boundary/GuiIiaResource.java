@@ -109,6 +109,7 @@ public class GuiIiaResource {
     SendMonitoringService sendMonitoringService;
 
     private static final Logger logger = LoggerFactory.getLogger(GuiIiaResource.class);
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
     @GET
     @Path("get_all")
@@ -194,6 +195,7 @@ public class GuiIiaResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response add(IiasGetResponse.Iia iia) {
+        LOG.fine("ADD: Add start");
         Iia iiaInternal = new Iia();
 
         convertToIia(iia, iiaInternal);
@@ -244,10 +246,12 @@ public class GuiIiaResource {
 //        }
 //        
 //        em.persist(iiaInternal);
-        System.out.println("Created Iia Id:" + iiaInternal.getId());
+        System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
-
+        
+        LOG.fine("ADD: Notification send");
+        
         IiaResponse response = new IiaResponse(iiaInternal.getId(), iiaInternal.getConditionsHash());
 
         return Response.ok(response).build();
@@ -829,6 +833,7 @@ public class GuiIiaResource {
     }
 
     private List<ClientResponse> notifyPartner(Iia iia) {
+        LOG.fine("NOTIFY: Send notification");
         List<ClientResponse> partnersResponseList = new ArrayList<>();
 
         //Getting agreement partners
@@ -840,6 +845,9 @@ public class GuiIiaResource {
         for (CooperationCondition condition : iia.getCooperationConditions()) {
             partnerSending = condition.getSendingPartner();
             partnerReceiving = condition.getReceivingPartner();
+            
+            LOG.fine("NOTIFY: partnerSending: " + partnerSending.getInstitutionId());
+            LOG.fine("NOTIFY: partnerReceiving: " + partnerReceiving.getInstitutionId());
 
             Map<String, String> urls = null;
             notifyHeyId = partnerSending.getInstitutionId();
