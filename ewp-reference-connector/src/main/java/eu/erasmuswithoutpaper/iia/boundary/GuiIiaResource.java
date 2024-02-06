@@ -834,13 +834,18 @@ public class GuiIiaResource {
 
     private List<ClientResponse> notifyPartner(Iia iia) {
         LOG.fine("NOTIFY: Send notification");
+        
+        String localHeiId = "";
+        List<Institution> internalInstitution = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+
+        localHeiId = internalInstitution.get(0).getInstitutionId();
+        
         List<ClientResponse> partnersResponseList = new ArrayList<>();
 
         //Getting agreement partners
         IiaPartner partnerSending = null;
         IiaPartner partnerReceiving = null;
 
-        String notifyHeyId = "";
         List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
         for (CooperationCondition condition : iia.getCooperationConditions()) {
             partnerSending = condition.getSendingPartner();
@@ -850,7 +855,6 @@ public class GuiIiaResource {
             LOG.fine("NOTIFY: partnerReceiving: " + partnerReceiving.getInstitutionId());
 
             Map<String, String> urls = null;
-            notifyHeyId = partnerSending.getInstitutionId();
             for (Institution institution : institutions) {
 
                 if (!institution.getInstitutionId().equals(partnerSending.getInstitutionId())) {
@@ -877,7 +881,7 @@ public class GuiIiaResource {
                 clientRequest.setHttpsec(true);
                 
                 Map<String, List<String>> paramsMap = new HashMap<>();
-                paramsMap.put("notifier_hei_id", Arrays.asList(notifyHeyId));
+                paramsMap.put("notifier_hei_id", Arrays.asList(localHeiId));
                 paramsMap.put("iia_id", Arrays.asList(iia.getId()));
                 ParamsClass paramsClass = new ParamsClass();
                 paramsClass.setUnknownFields(paramsMap);
