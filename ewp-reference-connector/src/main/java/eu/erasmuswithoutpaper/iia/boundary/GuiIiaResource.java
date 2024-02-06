@@ -248,7 +248,7 @@ public class GuiIiaResource {
 //        em.persist(iiaInternal);
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
-        List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
+        //List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
         
         LOG.fine("ADD: Notification send");
         
