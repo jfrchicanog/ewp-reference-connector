@@ -121,7 +121,7 @@ public class AuxIiaThread {
         LOG.fine("CNRGetFirst: Parametros encontrados: ");
 
         paramsMap.forEach((key, value) -> {
-            LOG.fine("\t\t\t\t"+key+":"+value);
+            LOG.fine("\t\t\t\t" + key + ":" + value);
         });
 
         ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasGetResponse.class);
@@ -138,9 +138,9 @@ public class AuxIiaThread {
         Iia localIia = null;
 
         IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
-        
-        LOG.fine("CNRGetFirst: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId()==null?" ":p.getHeiId()) + " ").collect(Collectors.toList()));
-        LOG.fine("CNRGetFirst: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId()==null?" ":p.getIiaId()) + " ").collect(Collectors.toList()));
+
+        LOG.fine("CNRGetFirst: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId() == null ? " " : p.getHeiId()) + " ").collect(Collectors.toList()));
+        LOG.fine("CNRGetFirst: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId() == null ? " " : p.getIiaId()) + " ").collect(Collectors.toList()));
 
         if (responseEnity.getIia() != null && !responseEnity.getIia().isEmpty()) {
             for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
@@ -211,8 +211,14 @@ public class AuxIiaThread {
 
             LOG.fine("CNRGetFirst: Iia persisted: " + newIia.getId());
 
-            for (CooperationCondition cc : newIia.getCooperationConditions()) {
-                cc.getReceivingPartner().setIiaId(newIia.getId());
+            for (CooperationCondition condition : newIia.getCooperationConditions()) {
+                if (condition.getSendingPartner().getInstitutionId().equals(localHeiId)) {
+                    condition.getSendingPartner().setIiaId(newIia.getId());
+                }
+
+                if (condition.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
+                    condition.getReceivingPartner().setIiaId(newIia.getId());
+                }
             }
 
             em.merge(newIia);
