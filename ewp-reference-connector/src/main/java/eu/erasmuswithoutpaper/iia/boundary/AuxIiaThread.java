@@ -137,9 +137,6 @@ public class AuxIiaThread {
 
         Iia localIia = null;
 
-        if (responseEnity.getIia() == null || !responseEnity.getIia().isEmpty()) {
-            return;
-        }
         IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
 
         LOG.fine("CNRGetFirst: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId() == null ? "" : p.getHeiId())).collect(Collectors.toList()));
