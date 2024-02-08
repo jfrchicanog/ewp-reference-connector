@@ -137,20 +137,26 @@ public class AuxIiaThread {
 
         Iia localIia = null;
 
+        if (responseEnity.getIia() == null || !responseEnity.getIia().isEmpty()) {
+            return;
+        }
         IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
 
-        LOG.fine("CNRGetFirst: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId() == null ? " " : p.getHeiId()) + " ").collect(Collectors.toList()));
-        LOG.fine("CNRGetFirst: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId() == null ? " " : p.getIiaId()) + " ").collect(Collectors.toList()));
+        LOG.fine("CNRGetFirst: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId() == null ? "" : p.getHeiId())).collect(Collectors.toList()));
+        LOG.fine("CNRGetFirst: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId() == null ? "" : p.getIiaId())).collect(Collectors.toList()));
 
-        if (responseEnity.getIia() != null && !responseEnity.getIia().isEmpty()) {
-            for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
-                if (localHeiId.equals(partner.getHeiId())) {
-                    if (partner.getIiaId() != null) {
-                        List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", iiaId).getResultList();
-                        if (iia != null && !iia.isEmpty()) {
-                            localIia = iia.get(0);
-                            break;
-                        }
+        for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
+            LOG.fine("CNRGetFirst: Partner heiID: " + partner.getHeiId());
+            LOG.fine("CNRGetFirst: Partner ID: " + partner.getIiaId());
+            if (localHeiId.equals(partner.getHeiId())) {
+                LOG.fine("CNRGetFirst: Partner localeId found: " + (partner.getIiaId()==null?"":partner.getIiaId()));
+                if (partner.getIiaId() != null) {
+                    List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", iiaId).getResultList();
+                    LOG.fine("CNRGetFirst: Find local iias: " + iia.size());
+                    if (iia != null && !iia.isEmpty()) {
+                        localIia = iia.get(0);
+                        LOG.fine("CNRGetFirst: Foind local iia: " + localIia.getId());
+                        break;
                     }
                 }
             }
