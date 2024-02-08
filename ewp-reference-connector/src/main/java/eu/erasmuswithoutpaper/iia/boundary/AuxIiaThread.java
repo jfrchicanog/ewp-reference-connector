@@ -146,9 +146,9 @@ public class AuxIiaThread {
             LOG.fine("CNRGetFirst: Partner heiID: " + partner.getHeiId());
             LOG.fine("CNRGetFirst: Partner ID: " + partner.getIiaId());
             if (localHeiId.equals(partner.getHeiId())) {
-                LOG.fine("CNRGetFirst: Partner localeId found: " + (partner.getIiaId()==null?"":partner.getIiaId()));
+                LOG.fine("CNRGetFirst: Own localeId found: " + (partner.getIiaId()==null?"":partner.getIiaId()));
                 if (partner.getIiaId() != null) {
-                    List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", iiaId).getResultList();
+                    List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", partner.getIiaId()).getResultList();
                     LOG.fine("CNRGetFirst: Find local iias: " + iia.size());
                     if (iia != null && !iia.isEmpty()) {
                         localIia = iia.get(0);
