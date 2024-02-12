@@ -328,6 +328,7 @@ public class AuxIiaThread {
 
                 //localIia.setConditionsHash(iiaInternal.getConditionsHash());
                 localIia.setInEfect(modifIia.isInEfect());
+                localIia.setHashPartner(sendIia.getConditionsHash());
                 //localIia.setIiaCode(iiaInternal.getIiaCode());
 
                 List<CooperationCondition> cooperationConditions = modifIia.getCooperationConditions();
