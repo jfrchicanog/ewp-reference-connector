@@ -292,19 +292,89 @@ public class AuxIiaThread {
                 em.merge(localIia);
                 em.flush();
                 LOG.fine("AuxIiaThread: Merged");
-
-                Iia newIia = new Iia();
-                convertToIia(sendIia, newIia);
-                newIia.setId("1");
-                em.merge(newIia);
-                em.flush();
             } else {
-                LOG.fine("AuxIiaThread: Update local IIA with canges and ");
-                LOG.fine("AuxIiaThread: Partners hash set to: " + sendIia.getConditionsHash());
-                localIia.setHashPartner(sendIia.getConditionsHash());
+                Iia modifIia = new Iia();
+                convertToIia(sendIia, modifIia);
+
+                try {
+
+                    JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
+                    Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+                    jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+                    StringWriter sw = new StringWriter();
+
+                    //Create a copy off CooperationConditions to be used in calculateSha256 function
+                    IiasGetResponse.Iia.CooperationConditions cc = new IiasGetResponse.Iia.CooperationConditions();
+                    cc.getStaffTeacherMobilitySpec().addAll(sendIia.getCooperationConditions().getStaffTeacherMobilitySpec());
+                    cc.getStaffTrainingMobilitySpec().addAll(sendIia.getCooperationConditions().getStaffTrainingMobilitySpec());
+                    cc.getStudentStudiesMobilitySpec().addAll(sendIia.getCooperationConditions().getStudentStudiesMobilitySpec());
+                    cc.getStudentTraineeshipMobilitySpec().addAll(sendIia.getCooperationConditions().getStudentTraineeshipMobilitySpec());
+
+                    cc = iiaConverter.removeContactInfo(cc);
+
+                    QName qName = new QName("cooperation_conditions");
+                    JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
+
+                    jaxbMarshaller.marshal(root, sw);
+                    String xmlString = sw.toString();
+
+                    String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
+
+                    localIia.setConditionsHash(calculatedHash);
+                } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
+                        | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
+                }
+
+                //localIia.setConditionsHash(iiaInternal.getConditionsHash());
+                localIia.setInEfect(modifIia.isInEfect());
+                //localIia.setIiaCode(iiaInternal.getIiaCode());
+
+                List<CooperationCondition> cooperationConditions = modifIia.getCooperationConditions();
+                List<CooperationCondition> cooperationConditionsCurrent = localIia.getCooperationConditions();//cc in database
+                for (CooperationCondition cc : cooperationConditions) {
+                    for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
+                        if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
+                            if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
+                                ccCurrent.setBlended(cc.isBlended());
+                                ccCurrent.setDuration(cc.getDuration());
+                                ccCurrent.setEndDate(cc.getEndDate());
+                                ccCurrent.setEqfLevel(cc.getEqfLevel());
+                                ccCurrent.setMobilityNumber(cc.getMobilityNumber());
+                                ccCurrent.setMobilityType(cc.getMobilityType());
+                                ccCurrent.setOtherInfoTerms(cc.getOtherInfoTerms());
+                                ccCurrent.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
+                                ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill());
+                                ccCurrent.setStartDate(cc.getStartDate());
+                                ccCurrent.setSubjectAreas(cc.getSubjectAreas());
+
+                                IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
+                                IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
+
+                                sendingPartnerC.setContacts(sendingPartner.getContacts());
+                                sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
+                                sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
+                                //sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
+
+                                IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
+                                IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
+
+                                receivingPartnerC.setContacts(receivingPartner.getContacts());
+                                receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
+                                receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
+
+                                ccCurrent.setSendingPartner(sendingPartnerC);
+                                ccCurrent.setReceivingPartner(receivingPartnerC);
+                            }
+                        }
+                    }
+                }
+
+                localIia.setCooperationConditions(cooperationConditionsCurrent);
+                System.err.println("Iia to be updated: " + localIia.getId() + "; " + localIia.getConditionsHash());
+
                 em.merge(localIia);
                 em.flush();
-                LOG.fine("AuxIiaThread: Merged");
             }
         }
 
