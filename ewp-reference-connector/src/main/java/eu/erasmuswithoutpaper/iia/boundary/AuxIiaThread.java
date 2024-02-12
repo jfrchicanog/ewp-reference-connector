@@ -229,14 +229,6 @@ public class AuxIiaThread {
 
             LOG.fine("AuxIiaThread: After seting id");
 
-            map = registryClient.getIiaCnrHeiUrls(heiId);
-
-            if (map == null) {
-                return;
-            }
-
-            LOG.fine("AuxIiaThread: MAP 2 ENCONTRADO");
-
             url = (new ArrayList<>(map.values())).get(0);
             if (url == null) {
                 return;
@@ -294,6 +286,7 @@ public class AuxIiaThread {
                 LOG.fine("AuxIiaThread: Merged");
             } else {
                 String beforeHash = localIia.getConditionsHash();
+                LOG.fine("AuxIiaThread: Before hash: " + beforeHash);
                 Iia modifIia = new Iia();
                 convertToIia(sendIia, modifIia);
 
@@ -323,6 +316,7 @@ public class AuxIiaThread {
                     String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
 
                     localIia.setConditionsHash(calculatedHash);
+                    LOG.fine("AuxIiaThread: New hash: " + localIia.getConditionsHash());
                 } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
                         | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
                 }
@@ -379,16 +373,12 @@ public class AuxIiaThread {
                 em.flush();
                 
                 LOG.fine("AuxIiaThread: After mergeing changes");
+                
+                LOG.fine("AuxIiaThread: Compare hashes: " + beforeHash + " " + localIia.getConditionsHash());
 
                 if (!beforeHash.equals(localIia.getConditionsHash())) {
 
-                    map = registryClient.getIiaCnrHeiUrls(heiId);
-
-                    if (map == null) {
-                        return;
-                    }
-
-                    LOG.fine("AuxIiaThread: MAP CERN ENCONTRADO");
+                    LOG.fine("AuxIiaThread: MAP CNR ENCONTRADO");
 
                     url = (new ArrayList<>(map.values())).get(0);
                     if (url == null) {
