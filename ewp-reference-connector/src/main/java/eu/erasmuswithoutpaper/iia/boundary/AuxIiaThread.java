@@ -293,6 +293,7 @@ public class AuxIiaThread {
                 em.flush();
                 LOG.fine("AuxIiaThread: Merged");
             } else {
+                String beforeHash = localIia.getConditionsHash();
                 Iia modifIia = new Iia();
                 convertToIia(sendIia, modifIia);
 
@@ -376,6 +377,43 @@ public class AuxIiaThread {
 
                 em.merge(localIia);
                 em.flush();
+                
+                LOG.fine("AuxIiaThread: After mergeing changes");
+
+                if (!beforeHash.equals(localIia.getConditionsHash())) {
+
+                    map = registryClient.getIiaCnrHeiUrls(heiId);
+
+                    if (map == null) {
+                        return;
+                    }
+
+                    LOG.fine("AuxIiaThread: MAP CERN ENCONTRADO");
+
+                    url = (new ArrayList<>(map.values())).get(0);
+                    if (url == null) {
+                        return;
+                    }
+
+                    LOG.fine("AuxIiaThread: CNR URL: " + url);
+
+                    ClientRequest cnrRequest = new ClientRequest();
+                    cnrRequest.setUrl(url);
+                    cnrRequest.setHeiId(heiId);
+                    cnrRequest.setMethod(HttpMethodEnum.POST);
+                    cnrRequest.setHttpsec(true);
+
+                    Map<String, List<String>> paramsMapCNR = new HashMap<>();
+                    paramsMapCNR.put("notifier_hei_id", Arrays.asList(localHeiId));
+                    paramsMapCNR.put("iia_id", Arrays.asList(localIia.getId()));
+                    ParamsClass paramsClassCNR = new ParamsClass();
+                    paramsClassCNR.setUnknownFields(paramsMapCNR);
+                    cnrRequest.setParams(paramsClassCNR);
+
+                    ClientResponse cnrResponse = restClient.sendRequest(cnrRequest, Empty.class);
+
+                    LOG.fine("AuxIiaThread: After CNR with code: " + cnrResponse.getStatusCode());
+                }
             }
         }
 
