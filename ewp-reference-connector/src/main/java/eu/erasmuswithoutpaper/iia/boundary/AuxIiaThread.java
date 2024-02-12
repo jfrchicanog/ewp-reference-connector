@@ -229,6 +229,14 @@ public class AuxIiaThread {
 
             LOG.fine("AuxIiaThread: After seting id");
 
+            map = registryClient.getIiaCnrHeiUrls(heiId);
+
+            if (map == null) {
+                return;
+            }
+
+            LOG.fine("AuxIiaThread: MAP 2 ENCONTRADO");
+
             url = (new ArrayList<>(map.values())).get(0);
             if (url == null) {
                 return;
@@ -377,6 +385,12 @@ public class AuxIiaThread {
                 LOG.fine("AuxIiaThread: Compare hashes: " + beforeHash + " " + localIia.getConditionsHash());
 
                 if (!beforeHash.equals(localIia.getConditionsHash())) {
+
+                    map = registryClient.getIiaCnrHeiUrls(heiId);
+
+                    if (map == null) {
+                        return;
+                    }
 
                     LOG.fine("AuxIiaThread: MAP CNR ENCONTRADO");
 
