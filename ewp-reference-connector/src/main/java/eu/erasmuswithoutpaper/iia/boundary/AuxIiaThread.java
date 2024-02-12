@@ -146,7 +146,7 @@ public class AuxIiaThread {
             LOG.fine("CNRGetFirst: Partner heiID: " + partner.getHeiId());
             LOG.fine("CNRGetFirst: Partner ID: " + partner.getIiaId());
             if (localHeiId.equals(partner.getHeiId())) {
-                LOG.fine("CNRGetFirst: Own localeId found: " + (partner.getIiaId()==null?"":partner.getIiaId()));
+                LOG.fine("CNRGetFirst: Own localeId found: " + (partner.getIiaId() == null ? "" : partner.getIiaId()));
                 if (partner.getIiaId() != null) {
                     List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", partner.getIiaId()).getResultList();
                     LOG.fine("CNRGetFirst: Find local iias: " + iia.size());
@@ -263,13 +263,36 @@ public class AuxIiaThread {
 
         } else {
             LOG.fine("CNRGetFirst: Found existing iia");
-            localIia.getCooperationConditions().forEach(cc -> {
+            boolean containOtherId = false;
+            for (CooperationCondition cc : localIia.getCooperationConditions()) {
                 LOG.fine("CNRGetFirst: Sending HeiId" + cc.getSendingPartner().getInstitutionId());
                 LOG.fine("CNRGetFirst: Reciving HeiId" + cc.getReceivingPartner().getInstitutionId());
-            });
-            /*if (localIia.getCooperationConditions().stream().allMatch((cc) -> cc.get)) {
+                if (heiId.equals(cc.getSendingPartner().getInstitutionId())) {
+                    containOtherId = cc.getSendingPartner().getIiaId() != null;
+                }
+                if (heiId.equals(cc.getReceivingPartner().getInstitutionId())) {
+                    containOtherId = cc.getReceivingPartner().getIiaId() != null;
+                }
+            }
+            if (!containOtherId) {
+                LOG.fine("CNRGetFirst: Not containing other ID");
+                for (CooperationCondition condition : localIia.getCooperationConditions()) {
+                    if (condition.getSendingPartner().getInstitutionId().equals(heiId)) {
+                        LOG.fine("CNRGetFirst: Partner " + condition.getSendingPartner().getInstitutionId() + " ID set to: " + iiaId);
+                        condition.getSendingPartner().setIiaId(iiaId);
+                    }
 
-            }*/
+                    if (condition.getReceivingPartner().getInstitutionId().equals(heiId)) {
+                        LOG.fine("CNRGetFirst: Partner " + condition.getSendingPartner().getInstitutionId() + " ID set to: " + iiaId);
+                        condition.getReceivingPartner().setIiaId(iiaId);
+                    }
+                }
+                LOG.fine("CNRGetFirst: Partners hash set to: " + sendIia.getConditionsHash());
+                localIia.setHashPartner(sendIia.getConditionsHash());
+                em.merge(localIia);
+                em.flush();
+                LOG.fine("CNRGetFirst: Merged");
+            }
         }
 
     }
