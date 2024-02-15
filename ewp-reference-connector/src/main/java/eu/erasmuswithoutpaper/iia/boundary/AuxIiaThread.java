@@ -285,7 +285,7 @@ public class AuxIiaThread {
                     }
 
                     if (condition.getReceivingPartner().getInstitutionId().equals(heiId)) {
-                        LOG.fine("AuxIiaThread: Partner " + condition.getSendingPartner().getInstitutionId() + " ID set to: " + iiaId);
+                        LOG.fine("AuxIiaThread: Partner " + condition.getReceivingPartner().getInstitutionId() + " ID set to: " + iiaId);
                         condition.getReceivingPartner().setIiaId(iiaId);
                     }
                 }

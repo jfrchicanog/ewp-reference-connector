@@ -242,11 +242,11 @@ public class GuiIiaResource {
 
         String iiaIdGenerated = iiaInternal.getId();
         for (CooperationCondition condition : iiaInternal.getCooperationConditions()) {
-            if(condition.getSendingPartner().getInstitutionId().equals(localHeiId)) {
+            if (condition.getSendingPartner().getInstitutionId().equals(localHeiId)) {
                 condition.getSendingPartner().setIiaId(iiaInternal.getId());
             }
-            
-            if(condition.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
+
+            if (condition.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
                 condition.getReceivingPartner().setIiaId(iiaInternal.getId());
             }
         }
@@ -709,6 +709,7 @@ public class GuiIiaResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response update(IiasGetResponse.Iia iia) {
+        LOG.fine("UPDATE: Start update");
         Iia iiaInternal = new Iia();
 
         convertToIia(iia, iiaInternal);
@@ -748,37 +749,6 @@ public class GuiIiaResource {
         } else if (!validateConditions(iiaInternal.getCooperationConditions())) {
             System.err.println("Update Algoria: Invalids Cooperation Conditions");
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
-        try {
-
-            JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            StringWriter sw = new StringWriter();
-
-            //Create a copy off CooperationConditions to be used in calculateSha256 function
-            CooperationConditions cc = new CooperationConditions();
-            cc.getStaffTeacherMobilitySpec().addAll(iia.getCooperationConditions().getStaffTeacherMobilitySpec());
-            cc.getStaffTrainingMobilitySpec().addAll(iia.getCooperationConditions().getStaffTrainingMobilitySpec());
-            cc.getStudentStudiesMobilitySpec().addAll(iia.getCooperationConditions().getStudentStudiesMobilitySpec());
-            cc.getStudentTraineeshipMobilitySpec().addAll(iia.getCooperationConditions().getStudentTraineeshipMobilitySpec());
-
-            cc = iiaConverter.removeContactInfo(cc);
-
-            QName qName = new QName("cooperation_conditions");
-            JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
-
-            jaxbMarshaller.marshal(root, sw);
-            String xmlString = sw.toString();
-
-            String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
-
-            foundIia.setConditionsHash(calculatedHash);
-        } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
-                | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
-            logger.error("Can't calculate sha256 adding new iia", e);
         }
 
         //foundIia.setConditionsHash(iiaInternal.getConditionsHash());
@@ -830,6 +800,56 @@ public class GuiIiaResource {
 
         em.merge(foundIia);
         em.flush();
+        
+        LOG.fine("UPDATE: updated");
+        LOG.fine("UPDATE: start hash generation");
+        
+        String localHeiId = "";
+        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+
+        localHeiId = institutions.get(0).getInstitutionId();
+        
+        List<IiasGetResponse.Iia> list =  new ArrayList<>();
+        list.addAll(iiaConverter.convertToIias(localHeiId, Arrays.asList(foundIia)));
+        IiasGetResponse.Iia iiaUpdated  = list.get(0);
+        
+        try {
+
+            JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            StringWriter sw = new StringWriter();
+
+            //Create a copy off CooperationConditions to be used in calculateSha256 function
+            CooperationConditions cc = new CooperationConditions();
+            cc.getStaffTeacherMobilitySpec().addAll(iiaUpdated.getCooperationConditions().getStaffTeacherMobilitySpec());
+            cc.getStaffTrainingMobilitySpec().addAll(iiaUpdated.getCooperationConditions().getStaffTrainingMobilitySpec());
+            cc.getStudentStudiesMobilitySpec().addAll(iiaUpdated.getCooperationConditions().getStudentStudiesMobilitySpec());
+            cc.getStudentTraineeshipMobilitySpec().addAll(iiaUpdated.getCooperationConditions().getStudentTraineeshipMobilitySpec());
+
+            cc = iiaConverter.removeContactInfo(cc);
+
+            QName qName = new QName("cooperation_conditions");
+            JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
+
+            jaxbMarshaller.marshal(root, sw);
+            String xmlString = sw.toString();
+            
+            LOG.fine("UPDATE: calculate hach:\n" + xmlString);
+
+            String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
+            LOG.fine("UPDATE: hash generated: "+ calculatedHash);
+            foundIia.setConditionsHash(calculatedHash);
+        } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
+                | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
+            logger.error("Can't calculate sha256 adding new iia", e);
+        }
+        
+        em.merge(foundIia);
+        em.flush();
+        
+        LOG.fine("UPDATE: hash updated");
 
         //Notify the partner about the modification using the API GUI IIA CNR 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
