@@ -804,13 +804,17 @@ public class GuiIiaResource {
         LOG.fine("UPDATE: updated");
         LOG.fine("UPDATE: start hash generation");
         
+        foundIias = em.createNamedQuery(Iia.findById).setParameter("id", foundIia.getId()).getResultList();
+        
+        Iia afterUptadeIia = foundIias.get(0);
+        
         String localHeiId = "";
         List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
 
         localHeiId = institutions.get(0).getInstitutionId();
         
         List<IiasGetResponse.Iia> list =  new ArrayList<>();
-        list.addAll(iiaConverter.convertToIias(localHeiId, Arrays.asList(foundIia)));
+        list.addAll(iiaConverter.convertToIias(localHeiId, Arrays.asList(afterUptadeIia)));
         IiasGetResponse.Iia iiaUpdated  = list.get(0);
         
         try {
@@ -840,13 +844,13 @@ public class GuiIiaResource {
 
             String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
             LOG.fine("UPDATE: hash generated: "+ calculatedHash);
-            foundIia.setConditionsHash(calculatedHash);
+            afterUptadeIia.setConditionsHash(calculatedHash);
         } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
                 | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
             logger.error("Can't calculate sha256 adding new iia", e);
         }
         
-        em.merge(foundIia);
+        em.merge(afterUptadeIia);
         em.flush();
         
         LOG.fine("UPDATE: hash updated");
