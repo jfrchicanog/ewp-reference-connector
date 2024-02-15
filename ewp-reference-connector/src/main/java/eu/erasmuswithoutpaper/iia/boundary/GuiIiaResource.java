@@ -85,6 +85,7 @@ import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.organization.entity.Person;
 import eu.erasmuswithoutpaper.security.InternalAuthenticate;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 @Stateless
 @Path("iia")
@@ -833,6 +834,11 @@ public class GuiIiaResource {
 
         em.merge(foundIia);
         em.flush();
+        
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException ex) {
+        }
 
         //Notify the partner about the modification using the API GUI IIA CNR 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
