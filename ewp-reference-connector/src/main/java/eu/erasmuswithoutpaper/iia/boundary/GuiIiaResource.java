@@ -751,14 +751,6 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        String localHeiId = "";
-        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-
-        localHeiId = institutions.get(0).getInstitutionId();
-
-        List<IiasGetResponse.Iia> iiasForHash = iiaConverter.convertToIias(localHeiId, Arrays.asList(iiaInternal));
-        IiasGetResponse.Iia iiaForHash = iiasForHash.get(0);
-
         try {
 
             JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
@@ -769,10 +761,10 @@ public class GuiIiaResource {
 
             //Create a copy off CooperationConditions to be used in calculateSha256 function
             CooperationConditions cc = new CooperationConditions();
-            cc.getStaffTeacherMobilitySpec().addAll(iiaForHash.getCooperationConditions().getStaffTeacherMobilitySpec());
-            cc.getStaffTrainingMobilitySpec().addAll(iiaForHash.getCooperationConditions().getStaffTrainingMobilitySpec());
-            cc.getStudentStudiesMobilitySpec().addAll(iiaForHash.getCooperationConditions().getStudentStudiesMobilitySpec());
-            cc.getStudentTraineeshipMobilitySpec().addAll(iiaForHash.getCooperationConditions().getStudentTraineeshipMobilitySpec());
+            cc.getStaffTeacherMobilitySpec().addAll(iia.getCooperationConditions().getStaffTeacherMobilitySpec());
+            cc.getStaffTrainingMobilitySpec().addAll(iia.getCooperationConditions().getStaffTrainingMobilitySpec());
+            cc.getStudentStudiesMobilitySpec().addAll(iia.getCooperationConditions().getStudentStudiesMobilitySpec());
+            cc.getStudentTraineeshipMobilitySpec().addAll(iia.getCooperationConditions().getStudentTraineeshipMobilitySpec());
 
             cc = iiaConverter.removeContactInfo(cc);
 

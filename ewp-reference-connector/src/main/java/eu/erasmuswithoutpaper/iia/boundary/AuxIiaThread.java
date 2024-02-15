@@ -132,8 +132,8 @@ public class AuxIiaThread {
             //NOTIFY
             return;
         }
-        
-        LOG.fine("AuxIiaThread: Respuesta raw: "+ clientResponse.getRawResponse());
+
+        LOG.fine("AuxIiaThread: Respuesta raw: " + clientResponse.getRawResponse());
 
         IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
 
@@ -323,6 +323,8 @@ public class AuxIiaThread {
                     jaxbMarshaller.marshal(root, sw);
                     String xmlString = sw.toString();
 
+                    LOG.fine("AuxIiaThread: recalculate hash from: " + xmlString);
+
                     String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
 
                     localIia.setConditionsHash(calculatedHash);
@@ -381,9 +383,9 @@ public class AuxIiaThread {
 
                 em.merge(localIia);
                 em.flush();
-                
+
                 LOG.fine("AuxIiaThread: After mergeing changes");
-                
+
                 LOG.fine("AuxIiaThread: Compare hashes: " + beforeHash + " " + localIia.getConditionsHash());
 
                 if (!beforeHash.equals(localIia.getConditionsHash())) {
