@@ -132,6 +132,8 @@ public class AuxIiaThread {
             //NOTIFY
             return;
         }
+        
+        LOG.fine("AuxIiaThread: Respuesta raw: "+ clientResponse.getRawResponse());
 
         IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
 
