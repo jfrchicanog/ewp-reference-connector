@@ -265,7 +265,7 @@ public class IiaResource {
         em.persist(notification);
 
         //Register and execute Algoria notification
-        execNotificationToAlgoria(iiaId, notifierHeiId);
+        //execNotificationToAlgoria(iiaId, notifierHeiId);
 
         LOG.fine("TEST: START THREAD");
         /*CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
