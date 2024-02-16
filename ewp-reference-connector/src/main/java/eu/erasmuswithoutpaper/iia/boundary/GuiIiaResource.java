@@ -898,7 +898,7 @@ public class GuiIiaResource {
         }
 
         String finalLocalHeiId = localHeiId;
-        cnrUrls.forEach(url -> {
+        /*cnrUrls.forEach(url -> {
             //Notify the other institution about the modification
             ClientRequest clientRequest = new ClientRequest();
             clientRequest.setUrl(url.getUrl());//get the first and only one url
@@ -926,6 +926,12 @@ public class GuiIiaResource {
             }
 
             partnersResponseList.add(iiaResponse);
+        });*/
+
+        //log the cnrUrls
+        cnrUrls.forEach(url -> {
+            LOG.fine("NOTIFY: url: " + url.getUrl());
+            LOG.fine("NOTIFY: heiId: " + url.getHeiId());
         });
 
         return partnersResponseList;

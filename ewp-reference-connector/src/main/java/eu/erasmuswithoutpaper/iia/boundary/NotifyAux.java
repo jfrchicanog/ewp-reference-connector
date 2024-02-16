@@ -46,4 +46,9 @@ public class NotifyAux {
         hash = 53 * hash + (this.heiId != null ? this.heiId.hashCode() : 0);
         return hash;
     }
+
+    @Override
+    public String toString() {
+        return "NotifyAux{" + "heiId=" + heiId + ", url=" + url + '}';
+    }
 }
