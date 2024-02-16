@@ -3,11 +3,7 @@ package eu.erasmuswithoutpaper.iia.boundary;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -84,7 +80,7 @@ import eu.erasmuswithoutpaper.organization.entity.Gender;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.organization.entity.Person;
 import eu.erasmuswithoutpaper.security.InternalAuthenticate;
-import java.util.Arrays;
+
 import java.util.logging.Level;
 
 @Stateless
@@ -228,7 +224,7 @@ public class GuiIiaResource {
 
             iiaInternal.setConditionsHash(calculatedHash);
         } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
-                | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
+                 | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
             logger.error("Can't calculate sha256 adding new iia", e);
         }
 
@@ -254,12 +250,12 @@ public class GuiIiaResource {
 
         em.merge(iiaInternal);
         em.flush();
-        
+
         try {
             Thread.sleep(10000);
         } catch (InterruptedException ex) {
         }
-        
+
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
@@ -479,7 +475,7 @@ public class GuiIiaResource {
     }
 
     private CooperationCondition convertFromStudentToCooperationCondition(MobilityType mobType,
-            StudentMobilitySpecification studentStudies) {
+                                                                          StudentMobilitySpecification studentStudies) {
         CooperationCondition cc = new CooperationCondition();
 
         cc.setMobilityType(mobType);
@@ -502,7 +498,7 @@ public class GuiIiaResource {
     }
 
     private CooperationCondition convertFromStaffToCooperationCondition(MobilityType mobType,
-            StaffMobilitySpecification staffTeacher) {
+                                                                        StaffMobilitySpecification staffTeacher) {
         CooperationCondition cc = new CooperationCondition();
 
         cc.setMobilityType(mobType);
@@ -787,7 +783,7 @@ public class GuiIiaResource {
             LOG.fine("UPDATE: Calculated hash: " + calculatedHash);
             foundIia.setConditionsHash(calculatedHash);
         } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
-                | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
+                 | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
             logger.error("Can't calculate sha256 adding new iia", e);
         }
 
@@ -840,7 +836,7 @@ public class GuiIiaResource {
 
         em.merge(foundIia);
         em.flush();
-        
+
         try {
             Thread.sleep(10000);
         } catch (InterruptedException ex) {
@@ -868,6 +864,8 @@ public class GuiIiaResource {
         IiaPartner partnerSending = null;
         IiaPartner partnerReceiving = null;
 
+        Set<NotifyAux> cnrUrls = new HashSet<>();
+
         List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
         for (CooperationCondition condition : iia.getCooperationConditions()) {
             partnerSending = condition.getSendingPartner();
@@ -893,38 +891,42 @@ public class GuiIiaResource {
             }
 
             if (urls != null) {
-                List<String> urlValues = new ArrayList<String>(urls.values());
-
-                //Notify the other institution about the modification 
-                ClientRequest clientRequest = new ClientRequest();
-                clientRequest.setUrl(urlValues.get(0));//get the first and only one url
-                clientRequest.setHeiId(partnerReceiving.getInstitutionId());
-                clientRequest.setMethod(HttpMethodEnum.POST);
-                clientRequest.setHttpsec(true);
-
-                Map<String, List<String>> paramsMap = new HashMap<>();
-                paramsMap.put("notifier_hei_id", Arrays.asList(localHeiId));
-                paramsMap.put("iia_id", Arrays.asList(iia.getId()));
-                ParamsClass paramsClass = new ParamsClass();
-                paramsClass.setUnknownFields(paramsMap);
-                clientRequest.setParams(paramsClass);
-
-                ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
-
-                try {
-                    if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
-                        sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iia-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), null);
-                    } else if (iiaResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
-                        sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iia-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), "Error");
-                    }
-                } catch (Exception e) {
-
+                for (Map.Entry<String, String> entry : urls.entrySet()) {
+                    cnrUrls.add(new NotifyAux(entry.getKey(), entry.getValue()));
                 }
+            }
+        }
 
-                partnersResponseList.add(iiaResponse);
+        String finalLocalHeiId = localHeiId;
+        cnrUrls.forEach(url -> {
+            //Notify the other institution about the modification
+            ClientRequest clientRequest = new ClientRequest();
+            clientRequest.setUrl(url.getUrl());//get the first and only one url
+            clientRequest.setHeiId(url.getHeiId());
+            clientRequest.setMethod(HttpMethodEnum.POST);
+            clientRequest.setHttpsec(true);
+
+            Map<String, List<String>> paramsMap = new HashMap<>();
+            paramsMap.put("notifier_hei_id", Arrays.asList(finalLocalHeiId));
+            paramsMap.put("iia_id", Arrays.asList(iia.getId()));
+            ParamsClass paramsClass = new ParamsClass();
+            paramsClass.setUnknownFields(paramsMap);
+            clientRequest.setParams(paramsClass);
+
+            ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
+
+            try {
+                if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
+                    sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iia-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), null);
+                } else if (iiaResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                    sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iia-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), "Error");
+                }
+            } catch (Exception e) {
+
             }
 
-        }
+            partnersResponseList.add(iiaResponse);
+        });
 
         return partnersResponseList;
 

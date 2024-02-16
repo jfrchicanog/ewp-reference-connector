@@ -265,11 +265,11 @@ public class IiaResource {
         em.persist(notification);
 
         //Register and execute Algoria notification
-        //execNotificationToAlgoria(iiaId, notifierHeiId);
+        execNotificationToAlgoria(iiaId, notifierHeiId);
 
         LOG.fine("TEST: START THREAD");
-        /*CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
-        getThread.start();*/
+        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
+        getThread.start();
 
         /*} else {
             throw new EwpWebApplicationException("The client signature does not cover the notifier_heid.", Response.Status.BAD_REQUEST);
