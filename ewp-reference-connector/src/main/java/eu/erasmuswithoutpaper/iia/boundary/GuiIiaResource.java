@@ -254,6 +254,12 @@ public class GuiIiaResource {
 
         em.merge(iiaInternal);
         em.flush();
+        
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException ex) {
+        }
+        
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);

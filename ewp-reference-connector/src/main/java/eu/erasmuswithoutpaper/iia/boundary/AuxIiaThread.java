@@ -85,7 +85,7 @@ public class AuxIiaThread {
 
     private static final Logger LOG = Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
-    public void run(String heiId, String iiaId) {
+    public void run(String heiId, String iiaId) throws InterruptedException {
         String localHeiId = "";
         List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
 
@@ -125,6 +125,7 @@ public class AuxIiaThread {
         });
 
         ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasGetResponse.class);
+        Thread.sleep(2000);
 
         LOG.fine("AuxIiaThread: Respuesta del cliente " + clientResponse.getStatusCode());
 
@@ -228,6 +229,7 @@ public class AuxIiaThread {
 
             em.merge(newIia);
             em.flush();
+            Thread.sleep(2000);
 
             LOG.fine("AuxIiaThread: After seting id");
 
@@ -383,6 +385,7 @@ public class AuxIiaThread {
 
                 em.merge(localIia);
                 em.flush();
+                Thread.sleep(2000);
 
                 LOG.fine("AuxIiaThread: After mergeing changes");
 

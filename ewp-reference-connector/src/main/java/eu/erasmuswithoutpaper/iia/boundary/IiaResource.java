@@ -224,16 +224,16 @@ public class IiaResource {
 
         //Flag to define the search criteria. It is two possible way for identifying an IIA, by identifiers OR local IIA codes.
         boolean byLocalCodes = false;
-        LOG.fine("GET: heiID: "+heiId.stream().map(h -> h+" ").collect(Collectors.toList()));
-        LOG.fine("GET: iiaIdList: "+iiaIdList.stream().map(h -> h+" ").collect(Collectors.toList()));
+        LOG.fine("GET: heiID: " + heiId.stream().map(h -> h + " ").collect(Collectors.toList()));
+        LOG.fine("GET: iiaIdList: " + iiaIdList.stream().map(h -> h + " ").collect(Collectors.toList()));
         if (iiaIdList != null && !iiaIdList.isEmpty()) {
             iiaIdentifiers = iiaIdList;
         } else {
             iiaIdentifiers = iiaCodeList;
             byLocalCodes = true;
         }
-        
-        LOG.fine("GET: byLocalCodes: "+byLocalCodes);
+
+        LOG.fine("GET: byLocalCodes: " + byLocalCodes);
 
         String hei_Id = heiId.get(0);
         return iiaGet(hei_Id, iiaIdentifiers, byLocalCodes);
@@ -712,7 +712,11 @@ public class IiaResource {
 
         @Override
         public void run() {
-            ait.run(heiId, iiaId);
+            try {
+                ait.run(heiId, iiaId);
+            } catch (Exception e) {
+
+            }
         }
     }
     /*private class CNRGetFirst extends Thread {
