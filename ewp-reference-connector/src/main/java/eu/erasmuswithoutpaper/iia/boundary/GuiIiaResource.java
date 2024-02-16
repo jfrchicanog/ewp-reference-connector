@@ -882,23 +882,32 @@ public class GuiIiaResource {
                     //Get the url for notify the institute not supported by our EWP
                     urls = registryClient.getIiaCnrHeiUrls(partnerSending.getInstitutionId());
 
+                    if (urls != null) {
+                        for (Map.Entry<String, String> entry : urls.entrySet()) {
+                            cnrUrls.add(new NotifyAux(partnerSending.getInstitutionId(), entry.getValue()));
+                        }
+                    }
+
                 } else if (!institution.getInstitutionId().equals(partnerReceiving.getInstitutionId())) {
 
                     //Get the url for notify the institute not supported by our EWP
                     urls = registryClient.getIiaCnrHeiUrls(partnerReceiving.getInstitutionId());
 
-                }
-            }
+                    if (urls != null) {
+                        for (Map.Entry<String, String> entry : urls.entrySet()) {
+                            cnrUrls.add(new NotifyAux(partnerReceiving.getInstitutionId(), entry.getValue()));
+                        }
 
-            if (urls != null) {
-                for (Map.Entry<String, String> entry : urls.entrySet()) {
-                    cnrUrls.add(new NotifyAux(entry.getKey(), entry.getValue()));
+                    }
                 }
+
             }
         }
 
         String finalLocalHeiId = localHeiId;
-        /*cnrUrls.forEach(url -> {
+        cnrUrls.forEach(url -> {
+            LOG.fine("NOTIFY: url: " + url.getUrl());
+            LOG.fine("NOTIFY: heiId: " + url.getHeiId());
             //Notify the other institution about the modification
             ClientRequest clientRequest = new ClientRequest();
             clientRequest.setUrl(url.getUrl());//get the first and only one url
@@ -907,8 +916,8 @@ public class GuiIiaResource {
             clientRequest.setHttpsec(true);
 
             Map<String, List<String>> paramsMap = new HashMap<>();
-            paramsMap.put("notifier_hei_id", Arrays.asList(finalLocalHeiId));
-            paramsMap.put("iia_id", Arrays.asList(iia.getId()));
+            paramsMap.put("notifier_hei_id", Collections.singletonList(finalLocalHeiId));
+            paramsMap.put("iia_id", Collections.singletonList(iia.getId()));
             ParamsClass paramsClass = new ParamsClass();
             paramsClass.setUnknownFields(paramsMap);
             clientRequest.setParams(paramsClass);
@@ -926,12 +935,6 @@ public class GuiIiaResource {
             }
 
             partnersResponseList.add(iiaResponse);
-        });*/
-
-        //log the cnrUrls
-        cnrUrls.forEach(url -> {
-            LOG.fine("NOTIFY: url: " + url.getUrl());
-            LOG.fine("NOTIFY: heiId: " + url.getHeiId());
         });
 
         return partnersResponseList;
@@ -942,7 +945,8 @@ public class GuiIiaResource {
     @Path("iias-approve")
     @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response iiasApprove(@FormParam("hei_id") String heiId, @FormParam("iia_code") String iiaCode) {
+    public javax.ws.rs.core.Response iiasApprove(@FormParam("hei_id") String heiId, @FormParam("iia_code") String
+            iiaCode) {
         if (heiId == null || heiId.isEmpty() || iiaCode == null || iiaCode.isEmpty()) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -976,7 +980,7 @@ public class GuiIiaResource {
             partnerReceiving = cooCondition.getReceivingPartner();
         }
 
-        //Verify if the agreement is approved by the other institution. 
+        //Verify if the agreement is approved by the other institution.
         Map<String, String> urlsGet = registryClient.getIiaApprovalHeiUrls(heiId);
         List<String> urlGetValues = new ArrayList<String>(urlsGet.values());
 
@@ -1027,7 +1031,7 @@ public class GuiIiaResource {
         Map<String, String> urls = registryClient.getIiaApprovalCnrHeiUrls(heiId);
         List<String> urlValues = new ArrayList<String>(urls.values());
 
-        //Notify the other institution about the approval 
+        //Notify the other institution about the approval
         ClientRequest clientRequestNotifyApproval = new ClientRequest();
         clientRequestNotifyApproval.setUrl(urlValues.get(0));//get the first and only one url
         clientRequestNotifyApproval.setHeiId(partnerReceiving.getInstitutionId());
