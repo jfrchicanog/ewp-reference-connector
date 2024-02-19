@@ -385,9 +385,9 @@ public class AuxIiaThread {
 
                 em.merge(localIia);
                 em.flush();
-                Thread.sleep(2000);
+                Thread.sleep(10000);
 
-                LOG.fine("AuxIiaThread: After mergeing changes");
+                LOG.fine("AuxIiaThread: After merging changes");
 
                 LOG.fine("AuxIiaThread: Compare hashes: " + beforeHash + " " + localIia.getConditionsHash());
 
