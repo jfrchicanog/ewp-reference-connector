@@ -789,6 +789,7 @@ public class GuiIiaResource {
 
         //foundIia.setConditionsHash(iiaInternal.getConditionsHash());
         foundIia.setInEfect(iiaInternal.isInEfect());
+        foundIia.setHashPartner(iiaInternal.getHashPartner());
         //foundIia.setIiaCode(iiaInternal.getIiaCode());
 
         List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
@@ -836,11 +837,6 @@ public class GuiIiaResource {
 
         em.merge(foundIia);
         em.flush();
-
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException ex) {
-        }
 
         //Notify the partner about the modification using the API GUI IIA CNR 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);

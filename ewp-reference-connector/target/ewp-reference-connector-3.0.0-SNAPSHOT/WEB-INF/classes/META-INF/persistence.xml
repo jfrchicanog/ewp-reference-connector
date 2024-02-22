@@ -6,11 +6,8 @@
         <properties>
             <property name="javax.persistence.schema-generation.database.action" value="create"/>
             <property name="eclipselink.session.customizer" value="eu.erasmuswithoutpaper.internal.UUIDSequence"/>
-            <property name="eclipselink.jdbc.isolation-level" value="READ_COMMITTED"/>
-            <property name="eclipselink.cache.shared.default" value="false"/>
-            <property name="eclipselink.query-results-cache" value="false"/>
-            <!-- property name="javax.persistence.sql-load-script-source" value="META-INF/preload_data.sql"/ --> 
-            <property name="eclipselink.logging.level" value="FINE"/>   
+            <!-- property name="javax.persistence.sql-load-script-source" value="META-INF/preload_data.sql"/ -->
+            <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>
         </properties>
     </persistence-unit>
