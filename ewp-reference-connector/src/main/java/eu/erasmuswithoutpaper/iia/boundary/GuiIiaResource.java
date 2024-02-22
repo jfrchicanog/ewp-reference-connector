@@ -836,7 +836,6 @@ public class GuiIiaResource {
         System.err.println("Iia to be updated: " + foundIia.getId() + "; " + foundIia.getConditionsHash());
 
         em.merge(foundIia);
-        em.flush();
 
         //Notify the partner about the modification using the API GUI IIA CNR 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
