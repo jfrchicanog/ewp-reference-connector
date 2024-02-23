@@ -835,6 +835,37 @@ public class GuiIiaResource {
         foundIia.setCooperationConditions(cooperationConditionsCurrent);
         System.err.println("Iia to be updated: " + foundIia.getId() + "; " + foundIia.getConditionsHash());
 
+        IiasGetResponse.Iia iiaX = iiaConverter.convertToIias("test.uma.es", Collections.singletonList(foundIia)).get(0);
+
+        try {
+
+            JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            StringWriter sw = new StringWriter();
+
+            //Create a copy off CooperationConditions to be used in calculateSha256 function
+            CooperationConditions cc = new CooperationConditions();
+            cc.getStaffTeacherMobilitySpec().addAll(iiaX.getCooperationConditions().getStaffTeacherMobilitySpec());
+            cc.getStaffTrainingMobilitySpec().addAll(iiaX.getCooperationConditions().getStaffTrainingMobilitySpec());
+            cc.getStudentStudiesMobilitySpec().addAll(iiaX.getCooperationConditions().getStudentStudiesMobilitySpec());
+            cc.getStudentTraineeshipMobilitySpec().addAll(iiaX.getCooperationConditions().getStudentTraineeshipMobilitySpec());
+
+            cc = iiaConverter.removeContactInfo(cc);
+
+            QName qName = new QName("cooperation_conditions");
+            JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
+
+            jaxbMarshaller.marshal(root, sw);
+            String xmlString = sw.toString();
+
+            LOG.fine("UPDATE: Used conditions for hash:\n" + xmlString);
+
+        } catch (JAXBException e) {
+            logger.error("Can't calculate sha256 adding new iia", e);
+        }
+
         em.merge(foundIia);
 
         //Notify the partner about the modification using the API GUI IIA CNR 
