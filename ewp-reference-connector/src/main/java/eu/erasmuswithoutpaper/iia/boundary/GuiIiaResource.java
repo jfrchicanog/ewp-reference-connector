@@ -251,11 +251,6 @@ public class GuiIiaResource {
         em.merge(iiaInternal);
         em.flush();
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException ex) {
-        }
-
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
@@ -754,39 +749,6 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        try {
-
-            JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            StringWriter sw = new StringWriter();
-
-            //Create a copy off CooperationConditions to be used in calculateSha256 function
-            CooperationConditions cc = new CooperationConditions();
-            cc.getStaffTeacherMobilitySpec().addAll(iia.getCooperationConditions().getStaffTeacherMobilitySpec());
-            cc.getStaffTrainingMobilitySpec().addAll(iia.getCooperationConditions().getStaffTrainingMobilitySpec());
-            cc.getStudentStudiesMobilitySpec().addAll(iia.getCooperationConditions().getStudentStudiesMobilitySpec());
-            cc.getStudentTraineeshipMobilitySpec().addAll(iia.getCooperationConditions().getStudentTraineeshipMobilitySpec());
-
-            cc = iiaConverter.removeContactInfo(cc);
-
-            QName qName = new QName("cooperation_conditions");
-            JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
-
-            jaxbMarshaller.marshal(root, sw);
-            String xmlString = sw.toString();
-
-            LOG.fine("UPDATE: Used conditions for hash:\n" + xmlString);
-
-            String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
-            LOG.fine("UPDATE: Calculated hash: " + calculatedHash);
-            foundIia.setConditionsHash(calculatedHash);
-        } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
-                 | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
-            logger.error("Can't calculate sha256 adding new iia", e);
-        }
-
         //foundIia.setConditionsHash(iiaInternal.getConditionsHash());
         foundIia.setInEfect(iiaInternal.isInEfect());
         foundIia.setHashPartner(iiaInternal.getHashPartner());
@@ -862,7 +824,11 @@ public class GuiIiaResource {
 
             LOG.fine("UPDATE: Used conditions for hash:\n" + xmlString);
 
-        } catch (JAXBException e) {
+            String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
+            LOG.fine("UPDATE: Calculated hash: " + calculatedHash);
+            foundIia.setConditionsHash(calculatedHash);
+
+        } catch (Exception e) {
             logger.error("Can't calculate sha256 adding new iia", e);
         }
 
