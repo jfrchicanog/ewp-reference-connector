@@ -758,6 +758,8 @@ public class GuiIiaResource {
         List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
         for (CooperationCondition cc : cooperationConditions) {
             for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
+                LOG.fine("UPDATE: ccCurrent partner: " + ccCurrent.getSendingPartner().getInstitutionId() + " - " + ccCurrent.getReceivingPartner().getInstitutionId());
+                LOG.fine("UPDATE: cc partner: " + cc.getSendingPartner().getInstitutionId() + " - " + cc.getReceivingPartner().getInstitutionId());
                 if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
                     if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
                         ccCurrent.setBlended(cc.isBlended());
