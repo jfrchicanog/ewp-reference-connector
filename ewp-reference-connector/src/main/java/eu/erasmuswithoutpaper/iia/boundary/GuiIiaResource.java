@@ -764,7 +764,48 @@ public class GuiIiaResource {
                 LOG.fine("UPDATE: cc partner: " + cc.getSendingPartner().getInstitutionId() + " - " + cc.getReceivingPartner().getInstitutionId());
                 if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
                     if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
-                        ccCurrent.setBlended(cc.isBlended());
+                        CooperationCondition newCC = new CooperationCondition();
+                        newCC.setId(ccCurrent.getId());
+                        newCC.setBlended(cc.isBlended());
+                        LOG.fine("UPDATE: Duration ccCurrent: " + ccCurrent.getDuration().getNumber());
+                        LOG.fine("UPDATE: Duration cc: " + cc.getDuration().getNumber());
+                        newCC.setDuration(cc.getDuration());
+                        newCC.setEndDate(cc.getEndDate());
+                        newCC.setEqfLevel(cc.getEqfLevel());
+                        newCC.setMobilityNumber(cc.getMobilityNumber());
+                        newCC.setMobilityType(cc.getMobilityType());
+                        newCC.setOtherInfoTerms(cc.getOtherInfoTerms());
+                        newCC.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
+                        newCC.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill());
+                        newCC.setStartDate(cc.getStartDate());
+                        newCC.setSubjectAreas(cc.getSubjectAreas());
+
+                        IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
+                        IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
+                        IiaPartner newSendingPartner = new IiaPartner();
+
+                        newSendingPartner.setId(sendingPartnerC.getId());
+                        newSendingPartner.setContacts(sendingPartner.getContacts());
+                        newSendingPartner.setSigningContact(sendingPartner.getSigningContact());
+                        newSendingPartner.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
+                        newSendingPartner.setIiaCode(sendingPartner.getIiaCode());
+
+                        IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
+                        IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
+                        IiaPartner newReceivingPartner = new IiaPartner();
+
+                        newReceivingPartner.setId(receivingPartnerC.getId());
+                        newReceivingPartner.setContacts(receivingPartner.getContacts());
+                        newReceivingPartner.setSigningContact(receivingPartner.getSigningContact());
+                        newReceivingPartner.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
+                        newReceivingPartner.setIiaCode(receivingPartner.getIiaCode());
+
+                        newCC.setSendingPartner(newSendingPartner);
+                        newCC.setReceivingPartner(newReceivingPartner);
+
+                        newCooperationConditions.add(newCC);
+
+                        /*ccCurrent.setBlended(cc.isBlended());
                         LOG.fine("UPDATE: Duration ccCurrent: " + ccCurrent.getDuration().getNumber());
                         LOG.fine("UPDATE: Duration cc: " + cc.getDuration().getNumber());
                         ccCurrent.setDuration(cc.getDuration());
@@ -796,7 +837,7 @@ public class GuiIiaResource {
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
 
-                        newCooperationConditions.add(ccCurrent);
+                        newCooperationConditions.add(ccCurrent);*/
                     }
                 }
             }
@@ -848,7 +889,7 @@ public class GuiIiaResource {
         em.merge(foundIia);
 
         //Notify the partner about the modification using the API GUI IIA CNR 
-        List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
+        //List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
 
         //ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
         IiaResponse response = new IiaResponse(foundIia.getId(), foundIia.getConditionsHash());
