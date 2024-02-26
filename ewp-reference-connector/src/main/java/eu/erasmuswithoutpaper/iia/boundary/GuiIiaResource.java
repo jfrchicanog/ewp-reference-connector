@@ -799,6 +799,11 @@ public class GuiIiaResource {
             }
         }
 
+        cooperationConditionsCurrent.forEach(cc -> {
+            LOG.fine("UPDATE: ccCurrent partner: " + cc.getSendingPartner().getInstitutionId() + " - " + cc.getReceivingPartner().getInstitutionId());
+            LOG.fine("UPDATE: ccCurrent duration: " + cc.getDuration().getNumber());
+        });
+
         foundIia.setCooperationConditions(cooperationConditionsCurrent);
         System.err.println("Iia to be updated: " + foundIia.getId() + "; " + foundIia.getConditionsHash());
 
