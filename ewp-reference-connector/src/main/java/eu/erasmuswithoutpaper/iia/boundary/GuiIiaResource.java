@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -763,6 +764,8 @@ public class GuiIiaResource {
                 if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
                     if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
                         ccCurrent.setBlended(cc.isBlended());
+                        LOG.fine("UPDATE: Duration ccCurrent: " + ccCurrent.getDuration().getNumber());
+                        LOG.fine("UPDATE: Duration cc: " + cc.getDuration().getNumber());
                         ccCurrent.setDuration(cc.getDuration());
                         ccCurrent.setEndDate(cc.getEndDate());
                         ccCurrent.setEqfLevel(cc.getEqfLevel());
