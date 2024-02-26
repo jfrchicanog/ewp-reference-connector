@@ -760,15 +760,11 @@ public class GuiIiaResource {
         List<CooperationCondition> newCooperationConditions = new ArrayList<>();
         for (CooperationCondition cc : cooperationConditions) {
             for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
-                LOG.fine("UPDATE: ccCurrent partner: " + ccCurrent.getSendingPartner().getInstitutionId() + " - " + ccCurrent.getReceivingPartner().getInstitutionId());
-                LOG.fine("UPDATE: cc partner: " + cc.getSendingPartner().getInstitutionId() + " - " + cc.getReceivingPartner().getInstitutionId());
                 if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
                     if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
                         CooperationCondition newCC = new CooperationCondition();
                         newCC.setId(ccCurrent.getId());
                         newCC.setBlended(cc.isBlended());
-                        LOG.fine("UPDATE: Duration ccCurrent: " + ccCurrent.getDuration().getNumber());
-                        LOG.fine("UPDATE: Duration cc: " + cc.getDuration().getNumber());
                         newCC.setDuration(cc.getDuration());
                         newCC.setEndDate(cc.getEndDate());
                         newCC.setEqfLevel(cc.getEqfLevel());
@@ -810,54 +806,19 @@ public class GuiIiaResource {
                         newCC.setReceivingPartner(newReceivingPartner);
 
                         newCooperationConditions.add(newCC);
-
-                        /*ccCurrent.setBlended(cc.isBlended());
-                        LOG.fine("UPDATE: Duration ccCurrent: " + ccCurrent.getDuration().getNumber());
-                        LOG.fine("UPDATE: Duration cc: " + cc.getDuration().getNumber());
-                        ccCurrent.setDuration(cc.getDuration());
-                        ccCurrent.setEndDate(cc.getEndDate());
-                        ccCurrent.setEqfLevel(cc.getEqfLevel());
-                        ccCurrent.setMobilityNumber(cc.getMobilityNumber());
-                        ccCurrent.setMobilityType(cc.getMobilityType());
-                        ccCurrent.setOtherInfoTerms(cc.getOtherInfoTerms());
-                        ccCurrent.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
-                        ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill());
-                        ccCurrent.setStartDate(cc.getStartDate());
-                        ccCurrent.setSubjectAreas(cc.getSubjectAreas());
-
-                        IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
-                        IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
-
-                        sendingPartnerC.setContacts(sendingPartner.getContacts());
-                        sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
-                        sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
-                        //sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
-
-                        IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
-                        IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
-
-                        receivingPartnerC.setContacts(receivingPartner.getContacts());
-                        receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
-                        receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
-
-                        ccCurrent.setSendingPartner(sendingPartnerC);
-                        ccCurrent.setReceivingPartner(receivingPartnerC);
-
-                        newCooperationConditions.add(ccCurrent);*/
                     }
                 }
             }
         }
 
-        newCooperationConditions.forEach(cc -> {
-            LOG.fine("UPDATE: ccCurrent partner: " + cc.getSendingPartner().getInstitutionId() + " - " + cc.getReceivingPartner().getInstitutionId());
-            LOG.fine("UPDATE: ccCurrent duration: " + cc.getDuration().getNumber());
-        });
-
-        foundIia.setCooperationConditions(cooperationConditionsCurrent);
+        foundIia.setCooperationConditions(newCooperationConditions);
         System.err.println("Iia to be updated: " + foundIia.getId() + "; " + foundIia.getConditionsHash());
 
-        IiasGetResponse.Iia iiaX = iiaConverter.convertToIias("test.uma.es", Collections.singletonList(foundIia)).get(0);
+        String localHeiId = "";
+        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+        localHeiId = institutions.get(0).getInstitutionId();
+
+        IiasGetResponse.Iia iiaX = iiaConverter.convertToIias(localHeiId, Collections.singletonList(foundIia)).get(0);
 
         try {
 
