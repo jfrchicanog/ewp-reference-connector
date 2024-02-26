@@ -757,6 +757,7 @@ public class GuiIiaResource {
 
         List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
         List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
+        List<CooperationCondition> newCooperationConditions = new ArrayList<>();
         for (CooperationCondition cc : cooperationConditions) {
             for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
                 LOG.fine("UPDATE: ccCurrent partner: " + ccCurrent.getSendingPartner().getInstitutionId() + " - " + ccCurrent.getReceivingPartner().getInstitutionId());
@@ -794,12 +795,14 @@ public class GuiIiaResource {
 
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
+
+                        newCooperationConditions.add(ccCurrent);
                     }
                 }
             }
         }
 
-        cooperationConditionsCurrent.forEach(cc -> {
+        newCooperationConditions.forEach(cc -> {
             LOG.fine("UPDATE: ccCurrent partner: " + cc.getSendingPartner().getInstitutionId() + " - " + cc.getReceivingPartner().getInstitutionId());
             LOG.fine("UPDATE: ccCurrent duration: " + cc.getDuration().getNumber());
         });
