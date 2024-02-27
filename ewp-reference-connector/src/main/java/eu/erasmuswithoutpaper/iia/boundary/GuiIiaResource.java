@@ -250,7 +250,6 @@ public class GuiIiaResource {
         }
 
         em.merge(iiaInternal);
-        em.flush();
 
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
