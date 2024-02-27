@@ -748,7 +748,7 @@ public class GuiIiaResource {
             System.err.println("Update Algoria: Invalids Cooperation Conditions");
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
-
+/*
         //foundIia.setConditionsHash(iiaInternal.getConditionsHash());
         foundIia.setInEfect(iiaInternal.isInEfect());
         foundIia.setHashPartner(iiaInternal.getHashPartner());
@@ -850,7 +850,9 @@ public class GuiIiaResource {
             logger.error("Can't calculate sha256 adding new iia", e);
         }
 
-        em.merge(foundIia);
+        em.merge(foundIia);*/
+
+        updateIia(iiaInternal, foundIia);
 
         //Notify the partner about the modification using the API GUI IIA CNR 
         //List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
@@ -858,6 +860,94 @@ public class GuiIiaResource {
         //ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
         IiaResponse response = new IiaResponse(foundIia.getId(), foundIia.getConditionsHash());
         return javax.ws.rs.core.Response.ok(response).build();
+    }
+
+    private void updateIia(Iia iiaInternal, Iia foundIia) {
+        em.merge(foundIia);
+
+        foundIia.setInEfect(iiaInternal.isInEfect());
+        foundIia.setHashPartner(iiaInternal.getHashPartner());
+        //foundIia.setIiaCode(iiaInternal.getIiaCode());
+
+        List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
+        List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
+        for (CooperationCondition cc : cooperationConditions) {
+            for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
+                if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
+                    if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
+                        ccCurrent.setBlended(cc.isBlended());
+                        ccCurrent.setDuration(cc.getDuration());
+                        ccCurrent.setEndDate(cc.getEndDate());
+                        ccCurrent.setEqfLevel(cc.getEqfLevel());
+                        ccCurrent.setMobilityNumber(cc.getMobilityNumber());
+                        ccCurrent.setMobilityType(cc.getMobilityType());
+                        ccCurrent.setOtherInfoTerms(cc.getOtherInfoTerms());
+                        ccCurrent.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
+                        ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill());
+                        ccCurrent.setStartDate(cc.getStartDate());
+                        ccCurrent.setSubjectAreas(cc.getSubjectAreas());
+
+                        IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
+                        IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
+
+                        sendingPartnerC.setContacts(sendingPartner.getContacts());
+                        sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
+                        sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
+                        sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
+
+                        IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
+                        IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
+
+                        receivingPartnerC.setContacts(receivingPartner.getContacts());
+                        receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
+                        receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
+                        receivingPartnerC.setIiaCode(receivingPartner.getIiaCode());
+                    }
+                }
+            }
+        }
+
+        String localHeiId = "";
+        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+        localHeiId = institutions.get(0).getInstitutionId();
+
+        IiasGetResponse.Iia iiaX = iiaConverter.convertToIias(localHeiId, Collections.singletonList(foundIia)).get(0);
+
+        try {
+
+            JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            StringWriter sw = new StringWriter();
+
+            //Create a copy off CooperationConditions to be used in calculateSha256 function
+            CooperationConditions cc = new CooperationConditions();
+            cc.getStaffTeacherMobilitySpec().addAll(iiaX.getCooperationConditions().getStaffTeacherMobilitySpec());
+            cc.getStaffTrainingMobilitySpec().addAll(iiaX.getCooperationConditions().getStaffTrainingMobilitySpec());
+            cc.getStudentStudiesMobilitySpec().addAll(iiaX.getCooperationConditions().getStudentStudiesMobilitySpec());
+            cc.getStudentTraineeshipMobilitySpec().addAll(iiaX.getCooperationConditions().getStudentTraineeshipMobilitySpec());
+
+            cc = iiaConverter.removeContactInfo(cc);
+
+            QName qName = new QName("cooperation_conditions");
+            JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
+
+            jaxbMarshaller.marshal(root, sw);
+            String xmlString = sw.toString();
+
+            LOG.fine("UPDATE: Used conditions for hash:\n" + xmlString);
+
+            String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
+            LOG.fine("UPDATE: Calculated hash: " + calculatedHash);
+            foundIia.setConditionsHash(calculatedHash);
+
+        } catch (Exception e) {
+            logger.error("Can't calculate sha256 adding new iia", e);
+        }
+
+        em.merge(foundIia);
+
     }
 
     private List<ClientResponse> notifyPartner(Iia iia) {
