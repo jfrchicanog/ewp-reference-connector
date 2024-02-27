@@ -865,9 +865,10 @@ public class GuiIiaResource {
     private void updateIia(Iia iiaInternal, Iia foundIia) {
         em.merge(foundIia);
 
+        //localIia.setConditionsHash(iiaInternal.getConditionsHash());
         foundIia.setInEfect(iiaInternal.isInEfect());
         foundIia.setHashPartner(iiaInternal.getHashPartner());
-        //foundIia.setIiaCode(iiaInternal.getIiaCode());
+        //localIia.setIiaCode(iiaInternal.getIiaCode());
 
         List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
         List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
@@ -893,7 +894,7 @@ public class GuiIiaResource {
                         sendingPartnerC.setContacts(sendingPartner.getContacts());
                         sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
                         sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
-                        sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
+                        //sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
 
                         IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
                         IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
@@ -901,11 +902,15 @@ public class GuiIiaResource {
                         receivingPartnerC.setContacts(receivingPartner.getContacts());
                         receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
                         receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
-                        receivingPartnerC.setIiaCode(receivingPartner.getIiaCode());
+
+                        ccCurrent.setSendingPartner(sendingPartnerC);
+                        ccCurrent.setReceivingPartner(receivingPartnerC);
                     }
                 }
             }
         }
+
+        foundIia.setCooperationConditions(cooperationConditionsCurrent);
 
         String localHeiId = "";
         List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
