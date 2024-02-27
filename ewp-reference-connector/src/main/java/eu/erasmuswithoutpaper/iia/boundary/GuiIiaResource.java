@@ -779,7 +779,6 @@ public class GuiIiaResource {
                         IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
                         IiaPartner newSendingPartner = new IiaPartner();
 
-                        newSendingPartner.setId(sendingPartnerC.getId());
                         newSendingPartner.setInstitutionId(sendingPartnerC.getInstitutionId());
                         newSendingPartner.setIiaId(sendingPartnerC.getIiaId());
 
@@ -792,7 +791,6 @@ public class GuiIiaResource {
                         IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
                         IiaPartner newReceivingPartner = new IiaPartner();
 
-                        newReceivingPartner.setId(receivingPartnerC.getId());
                         newReceivingPartner.setInstitutionId(receivingPartnerC.getInstitutionId());
                         newReceivingPartner.setIiaId(receivingPartnerC.getIiaId());
 
