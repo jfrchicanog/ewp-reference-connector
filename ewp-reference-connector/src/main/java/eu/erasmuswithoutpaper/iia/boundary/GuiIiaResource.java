@@ -855,7 +855,7 @@ public class GuiIiaResource {
         updateIia(iiaInternal, foundIia);
 
         //Notify the partner about the modification using the API GUI IIA CNR 
-        //List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
+        List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
 
         //ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
         IiaResponse response = new IiaResponse(foundIia.getId(), foundIia.getConditionsHash());
