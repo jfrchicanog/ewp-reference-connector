@@ -73,6 +73,7 @@ public class IncomingMobilityResource {
         notification.setChangedElementIds(String.join(", ", omobilityId));
         notification.setNotificationDate(new Date());
         em.persist(notification);
+
          
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createImobilityCnrResponse(new Empty())).build();
     }

@@ -1,12 +1,8 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
-import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
-import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -17,7 +13,6 @@ import java.util.concurrent.Callable;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,63 +36,23 @@ import eu.erasmuswithoutpaper.api.iias.cnr.ObjectFactory;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasStatsResponse;
-import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTeacherMobilitySpec;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTrainingMobilitySpec;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StudentMobilitySpecification;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StudentStudiesMobilitySpec;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StudentTraineeshipMobilitySpec;
-import eu.erasmuswithoutpaper.api.types.contact.Contact;
-import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
-import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
-import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
-import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
-import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
-import eu.erasmuswithoutpaper.iia.entity.Duration;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
-import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
-import eu.erasmuswithoutpaper.iia.entity.MobilityNumber;
-import eu.erasmuswithoutpaper.iia.entity.MobilityType;
-import eu.erasmuswithoutpaper.iia.entity.SubjectArea;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
 import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
-import eu.erasmuswithoutpaper.organization.entity.ContactDetails;
-import eu.erasmuswithoutpaper.organization.entity.FlexibleAddress;
-import eu.erasmuswithoutpaper.organization.entity.Gender;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
-import eu.erasmuswithoutpaper.organization.entity.Person;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+
 import java.util.logging.Level;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
-import javax.transaction.Transaction;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import org.xml.sax.SAXException;
 
 @Stateless
 @Path("iias")
@@ -713,7 +668,7 @@ public class IiaResource {
         @Override
         public void run() {
             try {
-                ait.run(heiId, iiaId);
+                ait.addEditIia(heiId, iiaId);
             } catch (Exception e) {
 
             }

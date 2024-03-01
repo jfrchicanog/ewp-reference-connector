@@ -7,6 +7,7 @@ package eu.erasmuswithoutpaper.iia.boundary;
 import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
 import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
+import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
@@ -20,9 +21,9 @@ import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
-import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
@@ -37,6 +38,7 @@ import eu.erasmuswithoutpaper.organization.entity.FlexibleAddress;
 import eu.erasmuswithoutpaper.organization.entity.Gender;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.organization.entity.Person;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.security.NoSuchAlgorithmException;
@@ -47,8 +49,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -57,10 +57,10 @@ import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+
 import org.xml.sax.SAXException;
 
 /**
- *
  * @author Moritz Baader
  */
 @Stateless
@@ -80,26 +80,26 @@ public class AuxIiaThread {
 
     private static final Logger LOG = Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
-    public void run(String heiId, String iiaId) throws InterruptedException {
+    public void addEditIia(String heiId, String iiaId) throws InterruptedException {
         String localHeiId = "";
         List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
 
         localHeiId = institutions.get(0).getInstitutionId();
 
-        LOG.fine("AuxIiaThread: Empezando GET tras CNR");
+        LOG.fine("AuxIiaThread_ADDEDIT: Empezando GET tras CNR");
         Map<String, String> map = registryClient.getIiaHeiUrls(heiId);
         if (map == null) {
             return;
         }
 
-        LOG.fine("AuxIiaThread: MAP ENCONTRADO");
+        LOG.fine("AuxIiaThread_ADDEDIT: MAP ENCONTRADO");
 
         String url = map.get("get-url");
         if (url == null) {
             return;
         }
 
-        LOG.fine("AuxIiaThread: Url encontrada: " + url);
+        LOG.fine("AuxIiaThread_ADDEDIT: Url encontrada: " + url);
 
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setHeiId(heiId);
@@ -113,7 +113,7 @@ public class AuxIiaThread {
         params.setUnknownFields(paramsMap);
         clientRequest.setParams(params);
 
-        LOG.fine("AuxIiaThread: Parametros encontrados: ");
+        LOG.fine("AuxIiaThread_ADDEDIT: Parametros encontrados: ");
 
         paramsMap.forEach((key, value) -> {
             LOG.fine("\t\t\t\t" + key + ":" + value);
@@ -121,14 +121,14 @@ public class AuxIiaThread {
 
         ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasGetResponse.class);
 
-        LOG.fine("AuxIiaThread: Respuesta del cliente " + clientResponse.getStatusCode());
+        LOG.fine("AuxIiaThread_ADDEDIT: Respuesta del cliente " + clientResponse.getStatusCode());
 
         if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
-            //NOTIFY
+            //TODO: Handle error, notify monitoring
             return;
         }
 
-        LOG.fine("AuxIiaThread: Respuesta raw: " + clientResponse.getRawResponse());
+        LOG.fine("AuxIiaThread_ADDEDIT: Respuesta raw: " + clientResponse.getRawResponse());
 
         IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
 
@@ -136,32 +136,32 @@ public class AuxIiaThread {
 
         IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
 
-        LOG.fine("AuxIiaThread: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId() == null ? "" : p.getHeiId())).collect(Collectors.toList()));
-        LOG.fine("AuxIiaThread: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId() == null ? "" : p.getIiaId())).collect(Collectors.toList()));
+        LOG.fine("AuxIiaThread_ADDEDIT: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId() == null ? "" : p.getHeiId())).collect(Collectors.toList()));
+        LOG.fine("AuxIiaThread_ADDEDIT: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId() == null ? "" : p.getIiaId())).collect(Collectors.toList()));
 
         for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
-            LOG.fine("AuxIiaThread: Partner heiID: " + partner.getHeiId());
-            LOG.fine("AuxIiaThread: Partner ID: " + partner.getIiaId());
+            LOG.fine("AuxIiaThread_ADDEDIT: Partner heiID: " + partner.getHeiId());
+            LOG.fine("AuxIiaThread_ADDEDIT: Partner ID: " + partner.getIiaId());
             if (localHeiId.equals(partner.getHeiId())) {
-                LOG.fine("AuxIiaThread: Own localeId found: " + (partner.getIiaId() == null ? "" : partner.getIiaId()));
+                LOG.fine("AuxIiaThread_ADDEDIT: Own localeId found: " + (partner.getIiaId() == null ? "" : partner.getIiaId()));
                 if (partner.getIiaId() != null) {
                     List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", partner.getIiaId()).getResultList();
-                    LOG.fine("AuxIiaThread: Find local iias: " + (iia == null ? "0" : iia.size()));
+                    LOG.fine("AuxIiaThread_ADDEDIT: Find local iias: " + (iia == null ? "0" : iia.size()));
                     if (iia != null && !iia.isEmpty()) {
                         localIia = iia.get(0);
-                        LOG.fine("AuxIiaThread: Foind local iia: " + localIia.getId());
+                        LOG.fine("AuxIiaThread_ADDEDIT: Foind local iia: " + localIia.getId());
                         break;
                     }
                 }
             }
         }
 
-        LOG.fine("AuxIiaThread: Busqueda en bbdd " + (localIia != null));
+        LOG.fine("AuxIiaThread_ADDEDIT: Busqueda en bbdd " + (localIia != null));
         if (localIia == null) {
             Iia newIia = new Iia();
             convertToIia(sendIia, newIia);
 
-            LOG.fine("AuxIiaThread: Iia convertsed with conditions: " + newIia.getCooperationConditions().size());
+            LOG.fine("AuxIiaThread_ADDEDIT: Iia convertsed with conditions: " + newIia.getCooperationConditions().size());
 
             try {
 
@@ -190,7 +190,7 @@ public class AuxIiaThread {
 
                 newIia.setConditionsHash(calculatedHash);
             } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
-                    | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
+                     | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
             }
             for (CooperationCondition cc : newIia.getCooperationConditions()) {
                 for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
@@ -201,15 +201,15 @@ public class AuxIiaThread {
                 }
             }
 
-            LOG.fine("AuxIiaThread: After setting partner id");
+            LOG.fine("AuxIiaThread_ADDEDIT: After setting partner id");
             newIia.setHashPartner(sendIia.getConditionsHash());
 
-            LOG.fine("AuxIiaThread: Iia hash calculated: " + newIia.getConditionsHash());
+            LOG.fine("AuxIiaThread_ADDEDIT: Iia hash calculated: " + newIia.getConditionsHash());
 
             em.persist(newIia);
             em.flush();
 
-            LOG.fine("AuxIiaThread: Iia persisted: " + newIia.getId());
+            LOG.fine("AuxIiaThread_ADDEDIT: Iia persisted: " + newIia.getId());
 
             for (CooperationCondition condition : newIia.getCooperationConditions()) {
                 if (condition.getSendingPartner().getInstitutionId().equals(localHeiId)) {
@@ -224,7 +224,7 @@ public class AuxIiaThread {
             em.merge(newIia);
             em.flush();
 
-            LOG.fine("AuxIiaThread: After seting id");
+            LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
 
             map = registryClient.getIiaCnrHeiUrls(heiId);
 
@@ -232,14 +232,14 @@ public class AuxIiaThread {
                 return;
             }
 
-            LOG.fine("AuxIiaThread: MAP 2 ENCONTRADO");
+            LOG.fine("AuxIiaThread_ADDEDIT: MAP 2 ENCONTRADO");
 
             url = (new ArrayList<>(map.values())).get(0);
             if (url == null) {
                 return;
             }
 
-            LOG.fine("AuxIiaThread: CNR URL: " + url);
+            LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
 
             ClientRequest cnrRequest = new ClientRequest();
             cnrRequest.setUrl(url);
@@ -256,14 +256,14 @@ public class AuxIiaThread {
 
             ClientResponse cnrResponse = restClient.sendRequest(cnrRequest, Empty.class);
 
-            LOG.fine("AuxIiaThread: After CNR with code: " + cnrResponse.getStatusCode());
+            LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + cnrResponse.getStatusCode());
 
         } else {
-            LOG.fine("AuxIiaThread: Found existing iia");
+            LOG.fine("AuxIiaThread_ADDEDIT: Found existing iia");
             boolean containOtherId = false;
             for (CooperationCondition cc : localIia.getCooperationConditions()) {
-                LOG.fine("AuxIiaThread: Sending HeiId" + cc.getSendingPartner().getInstitutionId());
-                LOG.fine("AuxIiaThread: Reciving HeiId" + cc.getReceivingPartner().getInstitutionId());
+                LOG.fine("AuxIiaThread_ADDEDIT: Sending HeiId" + cc.getSendingPartner().getInstitutionId());
+                LOG.fine("AuxIiaThread_ADDEDIT: Reciving HeiId" + cc.getReceivingPartner().getInstitutionId());
                 if (heiId.equals(cc.getSendingPartner().getInstitutionId())) {
                     containOtherId = cc.getSendingPartner().getIiaId() != null;
                 }
@@ -272,26 +272,26 @@ public class AuxIiaThread {
                 }
             }
             if (!containOtherId) {
-                LOG.fine("AuxIiaThread: Not containing other ID");
+                LOG.fine("AuxIiaThread_ADDEDIT: Not containing other ID");
                 for (CooperationCondition condition : localIia.getCooperationConditions()) {
                     if (condition.getSendingPartner().getInstitutionId().equals(heiId)) {
-                        LOG.fine("AuxIiaThread: Partner " + condition.getSendingPartner().getInstitutionId() + " ID set to: " + iiaId);
+                        LOG.fine("AuxIiaThread_ADDEDIT: Partner " + condition.getSendingPartner().getInstitutionId() + " ID set to: " + iiaId);
                         condition.getSendingPartner().setIiaId(iiaId);
                     }
 
                     if (condition.getReceivingPartner().getInstitutionId().equals(heiId)) {
-                        LOG.fine("AuxIiaThread: Partner " + condition.getReceivingPartner().getInstitutionId() + " ID set to: " + iiaId);
+                        LOG.fine("AuxIiaThread_ADDEDIT: Partner " + condition.getReceivingPartner().getInstitutionId() + " ID set to: " + iiaId);
                         condition.getReceivingPartner().setIiaId(iiaId);
                     }
                 }
-                LOG.fine("AuxIiaThread: Partners hash set to: " + sendIia.getConditionsHash());
+                LOG.fine("AuxIiaThread_ADDEDIT: Partners hash set to: " + sendIia.getConditionsHash());
                 localIia.setHashPartner(sendIia.getConditionsHash());
                 em.merge(localIia);
                 em.flush();
-                LOG.fine("AuxIiaThread: Merged");
+                LOG.fine("AuxIiaThread_ADDEDIT: Merged");
             } else {
                 String beforeHash = localIia.getConditionsHash();
-                LOG.fine("AuxIiaThread: Before hash: " + beforeHash);
+                LOG.fine("AuxIiaThread_ADDEDIT: Before hash: " + beforeHash);
                 Iia modifIia = new Iia();
                 convertToIia(sendIia, modifIia);
 
@@ -318,12 +318,12 @@ public class AuxIiaThread {
                     jaxbMarshaller.marshal(root, sw);
                     String xmlString = sw.toString();
 
-                    LOG.fine("AuxIiaThread: recalculate hash from: " + xmlString);
+                    LOG.fine("AuxIiaThread_ADDEDIT: recalculate hash from: " + xmlString);
 
                     String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
 
                     localIia.setConditionsHash(calculatedHash);
-                    LOG.fine("AuxIiaThread: New hash: " + localIia.getConditionsHash());
+                    LOG.fine("AuxIiaThread_ADDEDIT: New hash: " + localIia.getConditionsHash());
                 } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
                         | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
                 }
@@ -381,9 +381,9 @@ public class AuxIiaThread {
 
                 updateIia(modifIia, localIia);
 
-                LOG.fine("AuxIiaThread: After merging changes");
+                LOG.fine("AuxIiaThread_ADDEDIT: After merging changes");
 
-                LOG.fine("AuxIiaThread: Compare hashes: " + beforeHash + " " + localIia.getConditionsHash());
+                LOG.fine("AuxIiaThread_ADDEDIT: Compare hashes: " + beforeHash + " " + localIia.getConditionsHash());
 
                 if (!beforeHash.equals(localIia.getConditionsHash())) {
 
@@ -393,14 +393,14 @@ public class AuxIiaThread {
                         return;
                     }
 
-                    LOG.fine("AuxIiaThread: MAP CNR ENCONTRADO");
+                    LOG.fine("AuxIiaThread_ADDEDIT: MAP CNR ENCONTRADO");
 
                     url = (new ArrayList<>(map.values())).get(0);
                     if (url == null) {
                         return;
                     }
 
-                    LOG.fine("AuxIiaThread: CNR URL: " + url);
+                    LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
 
                     ClientRequest cnrRequest = new ClientRequest();
                     cnrRequest.setUrl(url);
@@ -417,11 +417,82 @@ public class AuxIiaThread {
 
                     ClientResponse cnrResponse = restClient.sendRequest(cnrRequest, Empty.class);
 
-                    LOG.fine("AuxIiaThread: After CNR with code: " + cnrResponse.getStatusCode());
+                    LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + cnrResponse.getStatusCode());
                 }
             }
         }
 
+    }
+
+    public void aprovals(String approving_heiId, String owner_heiId, String iiaId) {
+        LOG.fine("AuxIiaThread_APROVALS: Sending aproval request");
+        Map<String, String> map = registryClient.getIiaApprovalHeiUrls(approving_heiId);
+        if (map == null) {
+            return;
+        }
+
+        LOG.fine("AuxIiaThread_APROVALS: MAP ENCONTRADO");
+
+        String url = map.get("get-url");
+        if (url == null) {
+            return;
+        }
+
+        LOG.fine("AuxIiaThread_APROVALS: Url encontrada: " + url);
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(approving_heiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(url);
+
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("approving_hei", Arrays.asList(approving_heiId));
+        paramsMap.put("owner_hei", Arrays.asList(owner_heiId));
+        paramsMap.put("iia_id", Arrays.asList(iiaId));
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+
+        LOG.fine("AuxIiaThread_APROVALS: Parametros encontrados: ");
+
+        paramsMap.forEach((key, value) -> {
+            LOG.fine("\t\t\t\t" + key + ":" + value);
+        });
+
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasApprovalResponse.class);
+
+        LOG.fine("AuxIiaThread_APROVALS: Respuesta del cliente " + clientResponse.getStatusCode());
+
+        if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+            //TODO: Handle error, notify monitoring
+            return;
+        }
+
+        LOG.fine("AuxIiaThread_APROVALS: Respuesta raw: " + clientResponse.getRawResponse());
+
+        IiasApprovalResponse responseEnity = (IiasApprovalResponse) clientResponse.getResult();
+
+        IiasApprovalResponse.Approval iiaApproval = responseEnity.getApproval().get(0);
+
+        Iia localIia = null;
+        List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", iiaApproval.getIiaId()).getResultList();
+        LOG.fine("AuxIiaThread_APROVALS: Find local iias: " + (iia == null ? "0" : iia.size()));
+        if (iia != null && !iia.isEmpty()) {
+            localIia = iia.get(0);
+            LOG.fine("AuxIiaThread_APROVALS: Found local iia: " + localIia.getId());
+        }
+
+
+        LOG.fine("AuxIiaThread_APROVALS: Busqueda en bbdd " + (localIia != null));
+        LOG.fine("AuxIiaThread_APROVALS: Found HASH: " + (localIia != null ? localIia.getConditionsHash(): ""));
+        LOG.fine("AuxIiaThread_APROVALS: Send HASH: " + iiaApproval.getConditionsHash());
+        if (localIia != null && localIia.getConditionsHash().equals(iiaApproval.getConditionsHash())) {
+            LOG.fine("AuxIiaThread_APROVALS: Found existing iia and hash is the same");
+            //localIia.setInEfect(iiaApproval.isApproved());
+            em.merge(localIia);
+            em.flush();
+        }
     }
 
     private void updateIia(Iia iiaInternal, Iia foundIia) {
@@ -724,7 +795,7 @@ public class AuxIiaThread {
     }
 
     private CooperationCondition convertFromStudentToCooperationCondition(MobilityType mobType,
-            StudentMobilitySpecification studentStudies) {
+                                                                          StudentMobilitySpecification studentStudies) {
         CooperationCondition cc = new CooperationCondition();
 
         cc.setMobilityType(mobType);
@@ -747,7 +818,7 @@ public class AuxIiaThread {
     }
 
     private CooperationCondition convertFromStaffToCooperationCondition(MobilityType mobType,
-            StaffMobilitySpecification staffTeacher) {
+                                                                        StaffMobilitySpecification staffTeacher) {
         CooperationCondition cc = new CooperationCondition();
 
         cc.setMobilityType(mobType);

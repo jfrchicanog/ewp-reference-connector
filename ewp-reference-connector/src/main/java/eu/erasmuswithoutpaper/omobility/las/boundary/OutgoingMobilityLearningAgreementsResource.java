@@ -31,6 +31,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
 import eu.erasmuswithoutpaper.api.imobilities.Imobilities;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LasOutgoingStatsResponse;
@@ -79,6 +80,9 @@ public class OutgoingMobilityLearningAgreementsResource {
 
     @Context
     HttpServletRequest httpRequest;
+
+    @Inject
+    OmobilitiesLasAuxThread ait;
 
     @GET
     @Path("index")
@@ -209,6 +213,31 @@ public class OutgoingMobilityLearningAgreementsResource {
         String heiId = institutionList.get(0).getId();
 
         return omobilityStatsGet(heiId);
+    }
+
+    @POST
+    @Path("cnr")
+    @Produces(MediaType.APPLICATION_XML)
+    @EwpAuthenticate
+    public javax.ws.rs.core.Response omobilitiesLasCnr(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("omobility_id") List<String> mobilityIdList) {
+        if (sendingHeiId == null || sendingHeiId.trim().isEmpty()) {
+            throw new EwpWebApplicationException("Missing argumanets for get.", Response.Status.BAD_REQUEST);
+        }
+
+        if (mobilityIdList.size() > properties.getMaxOmobilitylasIds()) {
+            throw new EwpWebApplicationException("Max number of omobility learning agreements id's has exceeded.", Response.Status.BAD_REQUEST);
+        }
+
+        //TODO: Notify algoria
+
+        for (String mobilityId : mobilityIdList) {
+            CNROmobilitiesLa cnr = new CNROmobilitiesLa(sendingHeiId, mobilityId);
+            cnr.start();
+        }
+
+        Empty response = new Empty();
+
+        return javax.ws.rs.core.Response.ok(response).build();
     }
 
     private javax.ws.rs.core.Response omobilityStatsGet(String heiId) {
@@ -568,4 +597,24 @@ public class OutgoingMobilityLearningAgreementsResource {
             return false;
         }
     };
+
+    private class CNROmobilitiesLa extends Thread {
+
+        private String heiId;
+        private String mobilityId;
+
+        public CNROmobilitiesLa(String heiId, String mobilityId) {
+            this.heiId = heiId;
+            this.mobilityId = mobilityId;
+        }
+
+        @Override
+        public void run() {
+            try {
+                ait.createLas(heiId, mobilityId);
+            } catch (Exception e) {
+
+            }
+        }
+    }
 }
