@@ -15,7 +15,8 @@ public class ListOfComponents {
     public static final String findAll = PREFIX + "all";
 	
 	@Id
-    @Column(updatable = false) @GeneratedValue(generator="system-uuid")
+    @Column(updatable = false)
+	@GeneratedValue(generator="system-uuid")
     String id;
 	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)

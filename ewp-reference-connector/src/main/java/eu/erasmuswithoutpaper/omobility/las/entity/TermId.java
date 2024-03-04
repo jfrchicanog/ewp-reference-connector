@@ -3,11 +3,7 @@ package eu.erasmuswithoutpaper.omobility.las.entity;
 import java.math.BigInteger;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 
 @Entity
 @NamedQueries({
@@ -20,6 +16,7 @@ public class TermId {
 	
 	@Id
     @Column(updatable = false)
+    @GeneratedValue(generator="system-uuid")
     String id;
 	
     private BigInteger termNumber;
