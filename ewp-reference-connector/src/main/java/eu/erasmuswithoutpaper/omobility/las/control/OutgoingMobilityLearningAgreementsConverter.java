@@ -124,7 +124,9 @@ public class OutgoingMobilityLearningAgreementsConverter {
 	private ListOfComponents convertToListOfComponents(eu.erasmuswithoutpaper.omobility.las.entity.ListOfComponents olistOfCmp)
 			throws DatatypeConfigurationException {
 		ListOfComponents approvalChanges = new ListOfComponents();
-    	
+    	if (olistOfCmp == null) {
+			return approvalChanges;
+		}
     	List<eu.erasmuswithoutpaper.omobility.las.entity.Component> oBlendedLasComponents = olistOfCmp.getBlendedMobilityComponents();
     	ComponentList blendedMobility = convertToComponentsList(oBlendedLasComponents);
     	approvalChanges.setBlendedMobilityComponents(blendedMobility);
