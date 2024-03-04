@@ -33,7 +33,7 @@ public class Component {
     protected String title;
     protected String loiId;
     
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "COMPONENT_TERM_ID",referencedColumnName = "ID")
     protected TermId termId;
     

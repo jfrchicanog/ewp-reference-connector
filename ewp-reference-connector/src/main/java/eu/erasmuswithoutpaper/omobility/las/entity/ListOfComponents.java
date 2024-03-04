@@ -48,15 +48,15 @@ public class ListOfComponents {
     @JoinTable(name = "COMPONENTS_SHORT_TERM_DOCTORAL")
     private List<Component> shortTermDoctoralComponents;
 	
-	@OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+	@OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "COMMENT_STUDENT_SIGNATURE",referencedColumnName = "ID")
     private eu.erasmuswithoutpaper.omobility.las.entity.Signature studentSignature;
 	
-	@OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+	@OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "COMMENT_SENDING_HEI_SIGNATURE",referencedColumnName = "ID")
     private eu.erasmuswithoutpaper.omobility.las.entity.Signature sendingHeiSignature;
 	
-	@OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+	@OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "COMMENT_RECEIVING_HEI_SIGNATURE",referencedColumnName = "ID")
     private eu.erasmuswithoutpaper.omobility.las.entity.Signature receivingHeiSignature;
 

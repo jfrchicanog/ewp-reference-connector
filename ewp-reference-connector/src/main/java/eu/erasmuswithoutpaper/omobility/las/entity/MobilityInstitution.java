@@ -37,7 +37,7 @@ public class MobilityInstitution implements Serializable {
     
     private String ounitName;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "OMOBILITY_LAS_CONTACT_PERSON",referencedColumnName = "ID")
     ContactPerson contactPerson;
 
