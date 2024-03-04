@@ -109,7 +109,11 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
 	private eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Student convertToStudent(Student oStudent) {
 		eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Student student = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Student();
-    	
+
+		if(oStudent == null) {
+			return null;
+		}
+
 		try {
 			if(oStudent.getBirthDate() != null) {
 				student.setBirthDate(ConverterHelper.convertToXmlGregorianCalendar(oStudent.getBirthDate()));
