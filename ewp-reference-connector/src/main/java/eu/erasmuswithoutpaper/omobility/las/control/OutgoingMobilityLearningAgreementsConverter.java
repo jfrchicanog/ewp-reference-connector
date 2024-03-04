@@ -49,15 +49,18 @@ public class OutgoingMobilityLearningAgreementsConverter {
         	
         	ListOfComponents firstVersion = convertToListOfComponents(olearningAgreement.getFirstVersion());
         	learningAgreement.setFirstVersion(firstVersion);
-        	
-        	learningAgreement.setEndDate(ConverterHelper.convertToXmlGregorianCalendar(olearningAgreement.getEndDate()));
-        	Calendar calendar = Calendar.getInstance();
-        	calendar.clear();
-        	calendar.set(Calendar.MONTH, olearningAgreement.getEndYearMonth().getMonthValue());
-        	calendar.set(Calendar.YEAR, olearningAgreement.getEndYearMonth().getYear());
-        	Date date = calendar.getTime();
-        	learningAgreement.setEndYearMonth(ConverterHelper.convertToXmlGregorianCalendar(date));
-        	
+
+			Calendar calendar = Calendar.getInstance();
+
+			if(olearningAgreement.getEndDate() != null) {
+				learningAgreement.setEndDate(ConverterHelper.convertToXmlGregorianCalendar(olearningAgreement.getEndDate()));
+				calendar.clear();
+				calendar.set(Calendar.MONTH, olearningAgreement.getEndYearMonth().getMonthValue());
+				calendar.set(Calendar.YEAR, olearningAgreement.getEndYearMonth().getYear());
+				Date date = calendar.getTime();
+				learningAgreement.setEndYearMonth(ConverterHelper.convertToXmlGregorianCalendar(date));
+			}
+
             learningAgreement.setEqfLevelStudiedAtDeparture(olearningAgreement.getEqfLevelStudiedAtDeparture());
             learningAgreement.setIscedClarification(olearningAgreement.getIscedClarification());
             learningAgreement.setIscedFCode(olearningAgreement.getIscedFCode());
@@ -67,14 +70,15 @@ public class OutgoingMobilityLearningAgreementsConverter {
             learningAgreement.setReceivingAcademicYearId(olearningAgreement.getReceivingAcademicTermEwpId());
             learningAgreement.setReceivingHei(convertToMobilityInstitution(olearningAgreement.getReceivingHei()));
             learningAgreement.setSendingHei(convertToMobilityInstitution(olearningAgreement.getSendingHei()));
-            learningAgreement.setStartDate(ConverterHelper.convertToXmlGregorianCalendar(olearningAgreement.getStartDate()));
-            
-        	calendar.clear();
-        	calendar.set(Calendar.MONTH, olearningAgreement.getStartYearMonth().getMonthValue());
-        	calendar.set(Calendar.YEAR, olearningAgreement.getStartYearMonth().getYear());
-        	Date dateStart = calendar.getTime();
-        	learningAgreement.setStartYearMonth(ConverterHelper.convertToXmlGregorianCalendar(dateStart));
-            
+
+			if (olearningAgreement.getStartDate() != null) {
+				learningAgreement.setStartDate(ConverterHelper.convertToXmlGregorianCalendar(olearningAgreement.getStartDate()));
+				calendar.clear();
+				calendar.set(Calendar.MONTH, olearningAgreement.getStartYearMonth().getMonthValue());
+				calendar.set(Calendar.YEAR, olearningAgreement.getStartYearMonth().getYear());
+				Date dateStart = calendar.getTime();
+				learningAgreement.setStartYearMonth(ConverterHelper.convertToXmlGregorianCalendar(dateStart));
+			}
             learningAgreement.setStudent(convertToStudent(olearningAgreement.getStudent()));
             learningAgreement.setStudentLanguageSkill(convertToStudentLanguageSkill(olearningAgreement.getStudentLanguageSkill()));
             
