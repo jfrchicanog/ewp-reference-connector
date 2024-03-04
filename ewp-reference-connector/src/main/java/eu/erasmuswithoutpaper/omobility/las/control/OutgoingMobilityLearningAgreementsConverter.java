@@ -54,6 +54,8 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
 			if(olearningAgreement.getEndDate() != null) {
 				learningAgreement.setEndDate(ConverterHelper.convertToXmlGregorianCalendar(olearningAgreement.getEndDate()));
+			}
+			if(olearningAgreement.getEndYearMonth() != null) {
 				calendar.clear();
 				calendar.set(Calendar.MONTH, olearningAgreement.getEndYearMonth().getMonthValue());
 				calendar.set(Calendar.YEAR, olearningAgreement.getEndYearMonth().getYear());
@@ -73,6 +75,8 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
 			if (olearningAgreement.getStartDate() != null) {
 				learningAgreement.setStartDate(ConverterHelper.convertToXmlGregorianCalendar(olearningAgreement.getStartDate()));
+			}
+			if (olearningAgreement.getStartYearMonth() != null) {
 				calendar.clear();
 				calendar.set(Calendar.MONTH, olearningAgreement.getStartYearMonth().getMonthValue());
 				calendar.set(Calendar.YEAR, olearningAgreement.getStartYearMonth().getYear());
