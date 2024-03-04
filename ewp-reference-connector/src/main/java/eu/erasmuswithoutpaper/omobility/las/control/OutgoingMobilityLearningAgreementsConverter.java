@@ -206,10 +206,14 @@ public class OutgoingMobilityLearningAgreementsConverter {
     		component.setStatus(cmp.getStatus());
     		
     		https.github_com.erasmus_without_paper.ewp_specs_types_academic_term.tree.stable_v2.TermId termId = new https.github_com.erasmus_without_paper.ewp_specs_types_academic_term.tree.stable_v2.TermId();
-    		termId.setTermNumber(cmp.getTermId().getTermNumber());
-    		termId.setTotalTerms(cmp.getTermId().getTotalTerms());
+    		if (cmp.getTermId() != null) {
+				termId.setTermNumber(cmp.getTermId().getTermNumber());
+				termId.setTotalTerms(cmp.getTermId().getTotalTerms());
+				component.setTermId(termId);
+			}else {
+				component.setTermId(null);
+			}
     		
-    		component.setTermId(termId);
     		component.setTitle(cmp.getTitle());
     		return component;
     	}).collect(Collectors.toList());
