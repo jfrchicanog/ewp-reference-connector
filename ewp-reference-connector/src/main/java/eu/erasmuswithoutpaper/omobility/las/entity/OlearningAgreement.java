@@ -44,17 +44,17 @@ public class OlearningAgreement implements Serializable {
     
     private String omobilityId;
     
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "OMOBILITY_LAS_RECEIVING_HEI",referencedColumnName = "ID")
     MobilityInstitution receivingHei;
     
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "OMOBILITY_LAS_SENDING_HEI",referencedColumnName = "ID")
     MobilityInstitution sendingHei;
     
     private String receivingAcademicTermEwpId;
     
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "OMOBILITY_LAS_STUDENT",referencedColumnName = "ID")
     private eu.erasmuswithoutpaper.omobility.las.entity.Student student;
     
@@ -76,19 +76,19 @@ public class OlearningAgreement implements Serializable {
     private  String iscedFCode;
     private String iscedClarification;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "LANGSKILL_OMOBILITY_LAS",referencedColumnName = "ID")
     private OlasLanguageSkill studentLanguageSkill;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "FIRST_VERSION",referencedColumnName = "ID")
     private ListOfComponents firstVersion;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "APPROVED_VERSION",referencedColumnName = "ID")
     private ListOfComponents approvedChanges;
     
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "CHANGES_PROPOSAL",referencedColumnName = "ID")
     private ChangesProposal changesProposal;
     
