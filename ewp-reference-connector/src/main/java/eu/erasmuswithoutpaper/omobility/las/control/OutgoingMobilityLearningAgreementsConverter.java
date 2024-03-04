@@ -34,7 +34,11 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
     public LearningAgreement convertToLearningAgreements(OlearningAgreement olearningAgreement) {
     	LearningAgreement learningAgreement = new LearningAgreement();
-    	
+
+		if (olearningAgreement == null) {
+			return null;
+		}
+
     	try {
     		ListOfComponents approvalChanges = convertToListOfComponents(olearningAgreement.getApprovedChanges());
         	learningAgreement.setApprovedChanges(approvalChanges);
