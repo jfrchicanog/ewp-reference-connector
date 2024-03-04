@@ -39,7 +39,7 @@ public class TestEndpointsOLAS {
     @Path("")
     public Response hello(@QueryParam("sending_hei_id") String sendingHeiId, @QueryParam("omobility_id") List<String> mobilityIdList) {
         OmobilityLasGetResponse response = new OmobilityLasGetResponse();
-        List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHeiId", sendingHeiId).getResultList();
+        List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHei", sendingHeiId).getResultList();
 
         if (!omobilityLasList.isEmpty()) {
 
