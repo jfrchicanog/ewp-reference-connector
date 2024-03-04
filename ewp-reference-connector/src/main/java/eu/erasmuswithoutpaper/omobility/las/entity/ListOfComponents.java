@@ -3,17 +3,7 @@ package eu.erasmuswithoutpaper.omobility.las.entity;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 @Entity
 @NamedQueries({
@@ -25,7 +15,7 @@ public class ListOfComponents {
     public static final String findAll = PREFIX + "all";
 	
 	@Id
-    @Column(updatable = false)
+    @Column(updatable = false) @GeneratedValue(generator="system-uuid")
     String id;
 	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval=true)
