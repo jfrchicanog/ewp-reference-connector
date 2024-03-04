@@ -85,7 +85,11 @@ public class OutgoingMobilityLearningAgreementsConverter {
 			eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal ochangesProposal)
 			throws DatatypeConfigurationException {
 		ListOfComponents tmpChangesProposal = convertToListOfComponents(ochangesProposal);
-    	
+
+		if (tmpChangesProposal == null) {
+			return null;
+		}
+
     	ChangesProposal changesProposal = new ChangesProposal();
     	changesProposal.setBlendedMobilityComponents(tmpChangesProposal.getBlendedMobilityComponents());
     	changesProposal.setComponentsRecognized(tmpChangesProposal.getComponentsRecognized());
@@ -125,7 +129,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
 			throws DatatypeConfigurationException {
 		ListOfComponents approvalChanges = new ListOfComponents();
     	if (olistOfCmp == null) {
-			return approvalChanges;
+			return null;
 		}
     	List<eu.erasmuswithoutpaper.omobility.las.entity.Component> oBlendedLasComponents = olistOfCmp.getBlendedMobilityComponents();
     	ComponentList blendedMobility = convertToComponentsList(oBlendedLasComponents);
@@ -169,7 +173,11 @@ public class OutgoingMobilityLearningAgreementsConverter {
 	private eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature convertToSignature(Signature localReceivingHeiSig)
 			throws DatatypeConfigurationException {
 		eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature receivingHeiSig = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
-    	
+
+		if(localReceivingHeiSig == null) {
+			return null;
+		}
+
 		receivingHeiSig.setSignerApp(localReceivingHeiSig.getSignerApp());
     	receivingHeiSig.setSignerEmail(localReceivingHeiSig.getSignerEmail());
     	receivingHeiSig.setSignerName(localReceivingHeiSig.getSignerName());
@@ -180,6 +188,10 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
 	private ComponentList convertToComponentsList(List<eu.erasmuswithoutpaper.omobility.las.entity.Component> oLasComponents) {
 		ComponentList componentList = new ComponentList();
+
+		if (oLasComponents == null) {
+			return null;
+		}
     	
     	List<Component> components = oLasComponents.stream().map((cmp) -> {
     		Component component = new Component();
@@ -208,7 +220,11 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
 	private StudentLanguageSkill convertToStudentLanguageSkill(OlasLanguageSkill studentLanguageSkill) {
 		StudentLanguageSkill studentlangSkill = new StudentLanguageSkill();
-		
+
+		if (studentLanguageSkill == null) {
+			return null;
+		}
+
 		studentlangSkill.setLanguage(studentLanguageSkill.getLanguage());
 		studentlangSkill.setCefrLevel(studentLanguageSkill.getCefrLevel());
 		
@@ -217,7 +233,11 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
     private MobilityInstitution convertToMobilityInstitution(eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution mobilityInstitution) {
     	MobilityInstitution mobilityInst = new MobilityInstitution();
-    	
+
+		if (mobilityInstitution == null) {
+			return null;
+		}
+
         mobilityInst.setHeiId(mobilityInstitution.getHeiId());
         mobilityInst.setOunitId(mobilityInstitution.getOunitId());
         mobilityInst.setOunitName(mobilityInstitution.getOunitName());
@@ -228,7 +248,11 @@ public class OutgoingMobilityLearningAgreementsConverter {
 	public AcademicYearLaStats convertToLearningAgreementsStats(
 			eu.erasmuswithoutpaper.omobility.las.entity.AcademicYearLaStats m) {
 		AcademicYearLaStats apiAcademicYearLaStats = new AcademicYearLaStats();
-		
+
+		if (m == null) {
+			return null;
+		}
+
 		apiAcademicYearLaStats.setLaOutgoingLatestVersionApproved(m.getLaOutgoingLatestVersionApproved());
 		apiAcademicYearLaStats.setLaOutgoingLatestVersionAwaiting(m.getLaOutgoingLatestVersionAwaiting());
 		apiAcademicYearLaStats.setLaOutgoingLatestVersionRejected(m.getLaOutgoingLatestVersionRejected());
