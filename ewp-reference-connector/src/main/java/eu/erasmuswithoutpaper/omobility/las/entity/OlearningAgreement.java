@@ -6,19 +6,7 @@ import java.time.YearMonth;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import org.apache.johnzon.mapper.JohnzonConverter;
 
@@ -40,6 +28,7 @@ public class OlearningAgreement implements Serializable {
     
     @Id
     @Column(updatable = false)
+	@GeneratedValue(generator="system-uuid")
     String id;
     
     private String omobilityId;
