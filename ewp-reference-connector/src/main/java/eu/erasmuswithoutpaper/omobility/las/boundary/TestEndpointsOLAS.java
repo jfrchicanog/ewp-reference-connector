@@ -76,7 +76,9 @@ public class TestEndpointsOLAS {
 
     private List<String> omobilityLasIds(List<OlearningAgreement> lasList, List<String> receivingHeiIdList) {
         List<String> omobilityLasIds = new ArrayList<>();
-
+        if (lasList == null) {
+            return omobilityLasIds;
+        }
         lasList.stream().forEachOrdered((m) -> {
             if (receivingHeiIdList.isEmpty() || receivingHeiIdList.contains(m.getReceivingHei())) {
                 omobilityLasIds.add(m.getId());

@@ -200,7 +200,9 @@ public class OutgoingMobilityLearningAgreementsConverter {
     	receivingHeiSig.setSignerEmail(localReceivingHeiSig.getSignerEmail());
     	receivingHeiSig.setSignerName(localReceivingHeiSig.getSignerName());
     	receivingHeiSig.setSignerPosition(localReceivingHeiSig.getSignerPosition());
-    	receivingHeiSig.setTimestamp(ConverterHelper.convertToXmlGregorianCalendar(localReceivingHeiSig.getTimestamp()));
+		if(localReceivingHeiSig.getTimestamp() != null) {
+			receivingHeiSig.setTimestamp(ConverterHelper.convertToXmlGregorianCalendar(localReceivingHeiSig.getTimestamp()));
+		}
 		return receivingHeiSig;
 	}
 
