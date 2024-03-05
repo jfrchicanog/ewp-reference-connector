@@ -104,7 +104,7 @@ public class TestEndpointsOLAS {
         if (!localHeiId.equals(partnerSending.getHeiId())) {
 
             //Get the url for notify the institute not supported by our EWP
-            urls = registryClient.getOmobilitiesCnrHeiUrls(partnerSending.getHeiId());
+            urls = registryClient.getOmobilityLaCnrHeiUrls(partnerSending.getHeiId());
 
             if (urls != null) {
                 for (Map.Entry<String, String> entry : urls.entrySet()) {
@@ -116,7 +116,7 @@ public class TestEndpointsOLAS {
         if (!localHeiId.equals(partnerReceiving.getHeiId())) {
 
             //Get the url for notify the institute not supported by our EWP
-            urls = registryClient.getOmobilitiesCnrHeiUrls(partnerReceiving.getHeiId());
+            urls = registryClient.getOmobilityLaCnrHeiUrls(partnerReceiving.getHeiId());
 
             if (urls != null) {
                 for (Map.Entry<String, String> entry : urls.entrySet()) {
