@@ -26,9 +26,11 @@ public class ChangesProposal extends ListOfComponents{
     private  String id;
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @JoinColumn(name = "CHANGE_PROPOSAL_APPROVED_PROPOSAL",referencedColumnName = "ID")
     private ApprovedProposal approvedProposal;
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @JoinColumn(name = "CHANGE_PROPOSAL_COMMENT_PROPOSAL",referencedColumnName = "ID")
     private CommentProposal commentProposal;
     
 	public Student getStudent() {
