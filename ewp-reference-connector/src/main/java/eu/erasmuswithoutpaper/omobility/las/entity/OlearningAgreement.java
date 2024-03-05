@@ -252,6 +252,38 @@ public class OlearningAgreement implements Serializable {
 		this.student = student;
 	}
 
+	public ApprovedProposal getSendingHeiApprovedProposal() {
+		return sendingHeiApprovedProposal;
+	}
+
+	public void setSendingHeiApprovedProposal(ApprovedProposal sendingHeiApprovedProposal) {
+		this.sendingHeiApprovedProposal = sendingHeiApprovedProposal;
+	}
+
+	public ApprovedProposal getReceivingHeiApprovedProposal() {
+		return receivingHeiApprovedProposal;
+	}
+
+	public void setReceivingHeiApprovedProposal(ApprovedProposal receivingHeiApprovedProposal) {
+		this.receivingHeiApprovedProposal = receivingHeiApprovedProposal;
+	}
+
+	public CommentProposal getSendingHeiCommentProposal() {
+		return sendingHeiCommentProposal;
+	}
+
+	public void setSendingHeiCommentProposal(CommentProposal sendingHeiCommentProposal) {
+		this.sendingHeiCommentProposal = sendingHeiCommentProposal;
+	}
+
+	public CommentProposal getReceivingHeiCommentProposal() {
+		return receivingHeiCommentProposal;
+	}
+
+	public void setReceivingHeiCommentProposal(CommentProposal receivingHeiCommentProposal) {
+		this.receivingHeiCommentProposal = receivingHeiCommentProposal;
+	}
+
 	@Override
     public int hashCode() {
         int hash = 7;

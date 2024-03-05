@@ -123,7 +123,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("update")
     @Produces(MediaType.APPLICATION_XML)
-    @EwpAuthenticate
+    //@EwpAuthenticate
     public javax.ws.rs.core.Response omobilityLasUpdatePost(OmobilityLasUpdateRequest request) {
         if (request == null) {
             throw new EwpWebApplicationException("No update data was sent", Response.Status.BAD_REQUEST);
@@ -133,7 +133,7 @@ public class OutgoingMobilityLearningAgreementsResource {
             throw new EwpWebApplicationException("Mising required parameter, sending-hei-id is required", Response.Status.BAD_REQUEST);
         }
 
-        Collection<String> heisCoveredByCertificate;
+        /*Collection<String> heisCoveredByCertificate;
         if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
             heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
         } else {
@@ -142,7 +142,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         if (!heisCoveredByCertificate.contains(request.getSendingHeiId())) {
             throw new EwpWebApplicationException("The client signature does not cover the receiving HEI of the mobility.", Response.Status.BAD_REQUEST);
-        }
+        }*/
 
         if (request.getCommentProposalV1() == null && request.getApproveProposalV1() == null) {
             throw new EwpWebApplicationException("Mising required parameter, approve-proposal-v1 and comment-proposal-v1 both of them can not be missing", Response.Status.BAD_REQUEST);
@@ -201,18 +201,44 @@ public class OutgoingMobilityLearningAgreementsResource {
         message.setValue("Thank you! We will review your suggestion");
         response.getSuccessUserMessage().add(message);*/
 
+        String localHeiId = "";
+        List<Institution> internalInstitution = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+
+        localHeiId = internalInstitution.get(0).getInstitutionId();
+
         if(request.getApproveProposalV1() != null){
             ApprovedProposal appCmp = approveCmpStudiedDraft(request);
             em.persist(appCmp);
+
+            OlearningAgreement olearningAgreement = em.find(OlearningAgreement.class, request.getApproveProposalV1().getOmobilityId());
+            boolean isSendingHei = !olearningAgreement.getSendingHei().getHeiId().equals(localHeiId);
+            if (isSendingHei) {
+                olearningAgreement.setSendingHeiApprovedProposal(appCmp);
+            } else {
+                olearningAgreement.setReceivingHeiApprovedProposal(appCmp);
+            }
+            em.merge(olearningAgreement);
+            em.flush();
+
         }else if(request.getCommentProposalV1() != null){
             CommentProposal updateComponentsStudied = updateComponentsStudied(request);
             em.persist(updateComponentsStudied);
+
+            OlearningAgreement olearningAgreement = em.find(OlearningAgreement.class, request.getCommentProposalV1().getOmobilityId());
+            boolean isSendingHei = !olearningAgreement.getSendingHei().getHeiId().equals(localHeiId);
+            if (isSendingHei) {
+                olearningAgreement.setSendingHeiCommentProposal(updateComponentsStudied);
+            } else {
+                olearningAgreement.setReceivingHeiCommentProposal(updateComponentsStudied);
+            }
+            em.merge(olearningAgreement);
+            em.flush();
         }
 
         OmobilityLasUpdateResponse response = new OmobilityLasUpdateResponse();
         MultilineStringWithOptionalLang message = new MultilineStringWithOptionalLang();
         message.setLang("en");
-        message.setValue("Thank you! We will review your suggestion");
+        message.setValue("The update request was received with success.");
         response.getSuccessUserMessage().add(message);
 
         return javax.ws.rs.core.Response.ok(response).build();
