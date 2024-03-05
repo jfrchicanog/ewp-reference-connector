@@ -87,9 +87,9 @@ public class TestEndpointsOLAS {
     public Response update(@QueryParam("heiId") String heiId, OmobilityLasUpdateRequest request) {
         ClientRequest clientRequest = new ClientRequest();
         if (heiId.startsWith("test")) {
-            clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/cnr");
+            clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/update");
         }else {
-            clientRequest.setUrl("https://ewp.uma.es/rest/omobilities/las/cnr");
+            clientRequest.setUrl("https://ewp.uma.es/rest/omobilities/las/update");
         }
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
