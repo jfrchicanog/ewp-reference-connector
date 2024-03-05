@@ -183,7 +183,7 @@ public class OutgoingMobilityLearningAgreementsResource {
                 throw new EwpWebApplicationException("Mising required parameter, comment is required", Response.Status.BAD_REQUEST);
             }
         }
-
+    /*
         eu.erasmuswithoutpaper.omobility.las.entity.OmobilityLasUpdateRequest mobilityUpdateRequest = new eu.erasmuswithoutpaper.omobility.las.entity.OmobilityLasUpdateRequest();
         mobilityUpdateRequest.setSendingHeiId(request.getSendingHeiId());
 
@@ -199,7 +199,22 @@ public class OutgoingMobilityLearningAgreementsResource {
         MultilineStringWithOptionalLang message = new MultilineStringWithOptionalLang();
         message.setLang("en");
         message.setValue("Thank you! We will review your suggestion");
+        response.getSuccessUserMessage().add(message);*/
+
+        if(request.getApproveProposalV1() != null){
+            ApprovedProposal appCmp = approveCmpStudiedDraft(request);
+            em.persist(appCmp);
+        }else if(request.getCommentProposalV1() != null){
+            CommentProposal updateComponentsStudied = updateComponentsStudied(request);
+            em.persist(updateComponentsStudied);
+        }
+
+        OmobilityLasUpdateResponse response = new OmobilityLasUpdateResponse();
+        MultilineStringWithOptionalLang message = new MultilineStringWithOptionalLang();
+        message.setLang("en");
+        message.setValue("Thank you! We will review your suggestion");
         response.getSuccessUserMessage().add(message);
+
         return javax.ws.rs.core.Response.ok(response).build();
     }
 

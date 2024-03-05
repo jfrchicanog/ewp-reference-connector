@@ -34,6 +34,12 @@ public class ApprovedProposal implements Serializable{
     @JoinColumn(name = "APPROVED_PROPOSAL_SIGNATURE",referencedColumnName = "ID")
     private Signature signature;
 
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "sendingHeiApprovedProposal")
+    private OlearningAgreement olearningAgreement;
+
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "receivingHeiApprovedProposal")
+    private OlearningAgreement olearningAgreementReceiving;
+
     public String getId() {
 		return id;
 	}

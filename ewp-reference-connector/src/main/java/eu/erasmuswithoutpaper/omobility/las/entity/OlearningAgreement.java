@@ -83,6 +83,22 @@ public class OlearningAgreement implements Serializable {
     
     private String learningOutcomesUrl;
     private String provisionsUrl;
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "SENDING_HEI_APPROVED_PROPOSAL",referencedColumnName = "ID")
+	private ApprovedProposal sendingHeiApprovedProposal;
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "RECEIVING_HEI_APPROVED_PROPOSAL",referencedColumnName = "ID")
+	private ApprovedProposal receivingHeiApprovedProposal;
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "SENDING_HEI_COMMENT_PROPOSAL",referencedColumnName = "ID")
+	private CommentProposal sendingHeiCommentProposal;
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "RECEIVING_HEI_COMMENT_PROPOSAL",referencedColumnName = "ID")
+	private CommentProposal receivingHeiCommentProposal;
     
     public String getId() {
         return id;

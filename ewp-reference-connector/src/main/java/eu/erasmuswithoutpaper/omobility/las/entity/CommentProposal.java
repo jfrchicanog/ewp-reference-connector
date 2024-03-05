@@ -37,6 +37,12 @@ public class CommentProposal implements Serializable{
     @JoinColumn(name = "COMMENT_PROPOSAL_SIGNATURE",referencedColumnName = "ID")
     private Signature signature;
 
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "sendingHeiCommentProposal")
+    private OlearningAgreement olearningAgreement;
+
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "receivingHeiCommentProposal")
+    private OlearningAgreement olearningAgreementReceiving;
+
 	public String getId() {
 		return id;
 	}
