@@ -13,6 +13,7 @@ public class EwpConstants {
     public static final String FACTSHEET_NAMESPACE = "https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-factsheet/v1.2.0/manifest-entry.xsd";
     public static final String OUTGOING_MOBILITIES_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/blob/v2.0.0/manifest-entry.xsd";
     public static final String OUTGOING_MOBILITIES_LAS_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobilities-las/blob/v1.2.0/manifest-entry.xsd";
+    public static final String OUTGOING_MOBILITIES_LA_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobility-la-cnr/blob/stable-v1/manifest-entry.xsd";
     public static final String OUTGOING_MOBILITIES_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobility-cnr/blob/stable-v1/manifest-entry.xsd";
     public static final String INCOMING_MOBILITIES_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-imobilities/blob/stable-v1/manifest-entry.xsd";
     public static final String INCOMING_MOBILITIES_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-imobility-cnr/blob/stable-v1/manifest-entry.xsd";
@@ -46,6 +47,7 @@ public class EwpConstants {
     public static final String COURSE_REPLICATION_CLIENT_VERSION = "1.0.0";
     public static final String OUTGOING_MOBILITIES_CLIENT_VERSION = "1.0.0";
     public static final String OUTGOING_MOBILITIES_CNR_CLIENT_VERSION = "1.0.0";
+    public static final String OUTGOING_MOBILITIES_LA_CNR_CLIENT_VERSION = "1.0.0";
     public static final String INCOMING_MOBILITIES_CLIENT_VERSION = "0.1.0";
     public static final String INCOMING_MOBILITY_CNR_CLIENT_VERSION = "0.1.0";
     public static final String INCOMING_MOBILITIES_TORS_CLIENT_VERSION = "0.7.0";

@@ -173,7 +173,7 @@ public class RegistryClient {
     }
 
     public Map<String, String> getOmobilityLaCnrHeiUrls(String heiId) {
-        return getHeiUrls(heiId, EwpConstants.OUTGOING_MOBILITIES_CNR_NAMESPACE, "omobility-la-cnr", EwpConstants.OUTGOING_MOBILITIES_CNR_CLIENT_VERSION);
+        return getHeiUrls(heiId, EwpConstants.OUTGOING_MOBILITIES_LA_CNR_NAMESPACE, "omobility-la-cnr", EwpConstants.OUTGOING_MOBILITIES_LA_CNR_CLIENT_VERSION);
     }
     
     public List<HeiEntry> getImobilitiesHeisWithUrls() {
