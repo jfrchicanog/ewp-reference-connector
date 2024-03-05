@@ -1,10 +1,8 @@
 package eu.erasmuswithoutpaper.common.boundary;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.apache.johnzon.mapper.JohnzonAny;
 import org.apache.johnzon.mapper.JohnzonIgnore;
 
@@ -14,6 +12,8 @@ public class ClientRequest implements Serializable {
     private String heiId;
     private HttpMethodEnum method;
     private ParamsClass params;
+
+    private Object xml;
 
     private boolean httpsec = true;
 
@@ -55,5 +55,13 @@ public class ClientRequest implements Serializable {
 
     public void setHttpsec(boolean httpsec) {
         this.httpsec = httpsec;
+    }
+
+    public Object getXml() {
+        return xml;
+    }
+
+    public void setXml(Object xml) {
+        this.xml = xml;
     }
 }

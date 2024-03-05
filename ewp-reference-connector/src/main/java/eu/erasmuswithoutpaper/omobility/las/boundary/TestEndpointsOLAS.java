@@ -81,6 +81,25 @@ public class TestEndpointsOLAS {
         return Response.ok(em.find(OlearningAgreement.class, olearningAgreement.getId())).build();
     }
 
+    @POST
+    @Path("update")
+    @Consumes("application/xml")
+    public Response update(@QueryParam("heiId") String heiId, OmobilityLasUpdateRequest request) {
+        ClientRequest clientRequest = new ClientRequest();
+        if (heiId.startsWith("test")) {
+            clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/cnr");
+        }else {
+            clientRequest.setUrl("https://ewp.uma.es/rest/omobilities/las/cnr");
+        }
+        clientRequest.setMethod(HttpMethodEnum.POST);
+        clientRequest.setHttpsec(true);
+        clientRequest.setXml(request);
+
+        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
+
+        return Response.ok(response).build();
+    }
+
     private List<ClientResponse> notifyPartner(OlearningAgreement olearningAgreement) {
         LOG.fine("NOTIFY: Send notification");
 

@@ -73,6 +73,10 @@ public class RestClient {
     }
 
     public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass) {
+        return sendRequest(clientRequest, responseClass, false);
+    }
+
+    public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass, boolean sendXML) {
         ClientResponse clientResponse = new ClientResponse();
         String requestID = UUID.randomUUID().toString();
 
@@ -87,20 +91,28 @@ public class RestClient {
             }
             switch (clientRequest.getMethod()) {
                 case POST:
-                    Form form = new Form();
-                    form.param("hei_id", clientRequest.getHeiId());
-                    params.entrySet().forEach((entry) -> {
-                        entry.getValue().stream().forEach(e -> form.param(entry.getKey(), e));
-                    });
+                    if (!sendXML) {
+                        Form form = new Form();
+                        form.param("hei_id", clientRequest.getHeiId());
+                        params.entrySet().forEach((entry) -> {
+                            entry.getValue().stream().forEach(e -> form.param(entry.getKey(), e));
+                        });
 
-                    String formData = formData2String(form);
-                    Invocation.Builder postBuilder = target.request();
-                    if (clientRequest.isHttpsec()) {
-                        httpSignature.signRequest("post", target.getUri(), postBuilder, formData, requestID);
+                        String formData = formData2String(form);
+                        Invocation.Builder postBuilder = target.request();
+                        if (clientRequest.isHttpsec()) {
+                            httpSignature.signRequest("post", target.getUri(), postBuilder, formData, requestID);
+                        }
+
+                        Entity<String> entity = Entity.entity(formData, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+                        response = postBuilder.post(entity);
+                    }else {
+                        Invocation.Builder postBuilder = target.request();
+                        if (clientRequest.isHttpsec()) {
+                            httpSignature.signRequest("post", target.getUri(), postBuilder, requestID);
+                        }
+                        response = postBuilder.post(Entity.entity(clientRequest.getXml(), MediaType.APPLICATION_XML));
                     }
-
-                    Entity<String> entity = Entity.entity(formData, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-                    response = postBuilder.post(entity);
                     break;
                 case PUT:
                     response = target.request().put(null);
