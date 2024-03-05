@@ -104,7 +104,7 @@ public class TestEndpointsOLAS {
         if (!localHeiId.equals(partnerSending.getHeiId())) {
 
             //Get the url for notify the institute not supported by our EWP
-            urls = registryClient.getIiaCnrHeiUrls(partnerSending.getHeiId());
+            urls = registryClient.getOmobilitiesCnrHeiUrls(partnerSending.getHeiId());
 
             if (urls != null) {
                 for (Map.Entry<String, String> entry : urls.entrySet()) {
