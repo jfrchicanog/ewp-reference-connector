@@ -84,6 +84,8 @@ public class OutgoingMobilityLearningAgreementsResource {
     @Inject
     OmobilitiesLasAuxThread ait;
 
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(OutgoingMobilityLearningAgreementsResource.class.getCanonicalName());
+
     @GET
     @Path("index")
     @Produces(MediaType.APPLICATION_XML)
@@ -230,10 +232,12 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         //TODO: Notify algoria
 
-        for (String mobilityId : mobilityIdList) {
+        LOG.info("Starting CNR for " + mobilityIdList.size() + " omobility learning agreements");
+
+        /*for (String mobilityId : mobilityIdList) {
             CNROmobilitiesLa cnr = new CNROmobilitiesLa(sendingHeiId, mobilityId);
             cnr.start();
-        }
+        }*/
 
         Empty response = new Empty();
 
