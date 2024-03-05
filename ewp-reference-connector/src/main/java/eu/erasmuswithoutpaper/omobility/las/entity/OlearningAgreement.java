@@ -84,22 +84,6 @@ public class OlearningAgreement implements Serializable {
     private String learningOutcomesUrl;
     private String provisionsUrl;
 
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "SENDING_HEI_APPROVED_PROPOSAL",referencedColumnName = "ID")
-	private ApprovedProposal sendingHeiApprovedProposal;
-
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "RECEIVING_HEI_APPROVED_PROPOSAL",referencedColumnName = "ID")
-	private ApprovedProposal receivingHeiApprovedProposal;
-
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "SENDING_HEI_COMMENT_PROPOSAL",referencedColumnName = "ID")
-	private CommentProposal sendingHeiCommentProposal;
-
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "RECEIVING_HEI_COMMENT_PROPOSAL",referencedColumnName = "ID")
-	private CommentProposal receivingHeiCommentProposal;
-    
     public String getId() {
         return id;
     }
@@ -250,38 +234,6 @@ public class OlearningAgreement implements Serializable {
 
 	public void setStudent(eu.erasmuswithoutpaper.omobility.las.entity.Student student) {
 		this.student = student;
-	}
-
-	public ApprovedProposal getSendingHeiApprovedProposal() {
-		return sendingHeiApprovedProposal;
-	}
-
-	public void setSendingHeiApprovedProposal(ApprovedProposal sendingHeiApprovedProposal) {
-		this.sendingHeiApprovedProposal = sendingHeiApprovedProposal;
-	}
-
-	public ApprovedProposal getReceivingHeiApprovedProposal() {
-		return receivingHeiApprovedProposal;
-	}
-
-	public void setReceivingHeiApprovedProposal(ApprovedProposal receivingHeiApprovedProposal) {
-		this.receivingHeiApprovedProposal = receivingHeiApprovedProposal;
-	}
-
-	public CommentProposal getSendingHeiCommentProposal() {
-		return sendingHeiCommentProposal;
-	}
-
-	public void setSendingHeiCommentProposal(CommentProposal sendingHeiCommentProposal) {
-		this.sendingHeiCommentProposal = sendingHeiCommentProposal;
-	}
-
-	public CommentProposal getReceivingHeiCommentProposal() {
-		return receivingHeiCommentProposal;
-	}
-
-	public void setReceivingHeiCommentProposal(CommentProposal receivingHeiCommentProposal) {
-		this.receivingHeiCommentProposal = receivingHeiCommentProposal;
 	}
 
 	@Override

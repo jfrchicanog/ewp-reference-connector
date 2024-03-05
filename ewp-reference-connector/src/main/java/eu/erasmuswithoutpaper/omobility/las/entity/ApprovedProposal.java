@@ -34,11 +34,8 @@ public class ApprovedProposal implements Serializable{
     @JoinColumn(name = "APPROVED_PROPOSAL_SIGNATURE",referencedColumnName = "ID")
     private Signature signature;
 
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "sendingHeiApprovedProposal")
-    private OlearningAgreement olearningAgreement;
-
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "receivingHeiApprovedProposal")
-    private OlearningAgreement olearningAgreementReceiving;
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "approvedProposal")
+    private ChangesProposal changesProposal;
 
     public String getId() {
 		return id;
@@ -71,6 +68,14 @@ public class ApprovedProposal implements Serializable{
 	public void setSignature(Signature signature) {
 		this.signature = signature;
 	}
+
+    public ChangesProposal getChangesProposal() {
+        return changesProposal;
+    }
+
+    public void setChangesProposal(ChangesProposal changesProposal) {
+        this.changesProposal = changesProposal;
+    }
 
 	@Override
     public int hashCode() {

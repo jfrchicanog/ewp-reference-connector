@@ -56,6 +56,7 @@ import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
 import eu.erasmuswithoutpaper.omobility.las.entity.Student;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
+
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -91,7 +92,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
     public javax.ws.rs.core.Response indexGet(@QueryParam("sending_hei_id") List<String> sendingHeiIds, @QueryParam("receiving_hei_id") List<String> receivingHeiIdList, @QueryParam("receiving_academic_year_id") List<String> receiving_academic_year_ids,
-            @QueryParam("global_id") List<String> globalIds, @QueryParam("mobility_type") List<String> mobilityTypes, @QueryParam("modified_since") List<String> modifiedSinces) {
+                                              @QueryParam("global_id") List<String> globalIds, @QueryParam("mobility_type") List<String> mobilityTypes, @QueryParam("modified_since") List<String> modifiedSinces) {
         return omobilityLasIndex(sendingHeiIds, receivingHeiIdList, receiving_academic_year_ids, globalIds, mobilityTypes, modifiedSinces);
     }
 
@@ -100,7 +101,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
     public javax.ws.rs.core.Response indexPost(@FormParam("sending_hei_id") List<String> sendingHeiIds, @FormParam("receiving_hei_id") List<String> receivingHeiIdList, @FormParam("receiving_academic_year_id") List<String> receiving_academic_year_ids,
-            @FormParam("global_id") List<String> globalIds, @FormParam("mobility_type") List<String> mobilityTypes, @FormParam("modified_since") List<String> modifiedSinces) {
+                                               @FormParam("global_id") List<String> globalIds, @FormParam("mobility_type") List<String> mobilityTypes, @FormParam("modified_since") List<String> modifiedSinces) {
         return omobilityLasIndex(sendingHeiIds, receivingHeiIdList, receiving_academic_year_ids, globalIds, mobilityTypes, modifiedSinces);
     }
 
@@ -206,31 +207,21 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         localHeiId = internalInstitution.get(0).getInstitutionId();
 
-        if(request.getApproveProposalV1() != null){
+        if (request.getApproveProposalV1() != null) {
             ApprovedProposal appCmp = approveCmpStudiedDraft(request);
             em.persist(appCmp);
 
             OlearningAgreement olearningAgreement = em.find(OlearningAgreement.class, request.getApproveProposalV1().getOmobilityId());
-            boolean isSendingHei = !olearningAgreement.getSendingHei().getHeiId().equals(localHeiId);
-            if (isSendingHei) {
-                olearningAgreement.setSendingHeiApprovedProposal(appCmp);
-            } else {
-                olearningAgreement.setReceivingHeiApprovedProposal(appCmp);
-            }
+            olearningAgreement.getChangesProposal().setApprovedProposal(appCmp);
             em.merge(olearningAgreement);
             em.flush();
 
-        }else if(request.getCommentProposalV1() != null){
+        } else if (request.getCommentProposalV1() != null) {
             CommentProposal updateComponentsStudied = updateComponentsStudied(request);
             em.persist(updateComponentsStudied);
 
             OlearningAgreement olearningAgreement = em.find(OlearningAgreement.class, request.getCommentProposalV1().getOmobilityId());
-            boolean isSendingHei = !olearningAgreement.getSendingHei().getHeiId().equals(localHeiId);
-            if (isSendingHei) {
-                olearningAgreement.setSendingHeiCommentProposal(updateComponentsStudied);
-            } else {
-                olearningAgreement.setReceivingHeiCommentProposal(updateComponentsStudied);
-            }
+            olearningAgreement.getChangesProposal().setCommentProposal(updateComponentsStudied);
             em.merge(olearningAgreement);
             em.flush();
         }

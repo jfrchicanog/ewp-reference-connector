@@ -24,6 +24,12 @@ public class ChangesProposal extends ListOfComponents{
 	private Student student;
     
     private  String id;
+
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    private ApprovedProposal approvedProposal;
+
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    private CommentProposal commentProposal;
     
 	public Student getStudent() {
 		return student;
@@ -40,6 +46,22 @@ public class ChangesProposal extends ListOfComponents{
 	public void setId(String id) {
 		this.id = id;
 	}
+
+    public ApprovedProposal getApprovedProposal() {
+        return approvedProposal;
+    }
+
+    public void setApprovedProposal(ApprovedProposal approvedProposal) {
+        this.approvedProposal = approvedProposal;
+    }
+
+    public CommentProposal getCommentProposal() {
+        return commentProposal;
+    }
+
+    public void setCommentProposal(CommentProposal commentProposal) {
+        this.commentProposal = commentProposal;
+    }
     
 	@Override
     public int hashCode() {
