@@ -147,6 +147,8 @@ public class TestEndpointsOLAS {
 
             ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
 
+            LOG.fine("NOTIFY: response: " + iiaResponse.getRawResponse());
+
             try {
                 if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
                     sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "ola-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), null);
