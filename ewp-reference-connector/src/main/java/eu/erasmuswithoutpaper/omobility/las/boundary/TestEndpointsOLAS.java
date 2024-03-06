@@ -1,6 +1,7 @@
 package eu.erasmuswithoutpaper.omobility.las.boundary;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ApproveProposalV1;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateRequest;
@@ -13,9 +14,7 @@ import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.iia.boundary.NotifyAux;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
-import eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution;
-import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
-import eu.erasmuswithoutpaper.omobility.las.entity.Student;
+import eu.erasmuswithoutpaper.omobility.las.entity.*;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 
 import javax.ejb.Stateless;
@@ -82,9 +81,23 @@ public class TestEndpointsOLAS {
     }
 
     @POST
-    @Path("update")
+    @Path("update/approve")
     @Consumes("application/xml")
-    public Response update(@QueryParam("heiId") String heiId, OmobilityLasUpdateRequest request) {
+    public Response update(@QueryParam("heiId") String heiId, ApprovedProposal request) {
+
+        OmobilityLasUpdateRequest requestSend = new OmobilityLasUpdateRequest();
+        ApproveProposalV1 approvedProposalV1 = new ApproveProposalV1();
+        approvedProposalV1.setChangesProposalId(request.getChangesProposalId());
+        approvedProposalV1.setOmobilityId(request.getOmobilityId());
+        eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature signature = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
+        signature.setSignerApp(request.getSignature().getSignerApp());
+        signature.setSignerEmail(request.getSignature().getSignerEmail());
+        signature.setSignerName(request.getSignature().getSignerName());
+        signature.setSignerPosition(request.getSignature().getSignerPosition());
+        approvedProposalV1.setSignature(signature);
+        requestSend.setApproveProposalV1(approvedProposalV1);
+        requestSend.setSendingHeiId(heiId);
+
         ClientRequest clientRequest = new ClientRequest();
         if (heiId.startsWith("test")) {
             clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/update");
@@ -93,11 +106,30 @@ public class TestEndpointsOLAS {
         }
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
-        clientRequest.setXml(request);
+        clientRequest.setXml(requestSend);
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
 
         return Response.ok(response).build();
+    }
+
+    private ApprovedProposal approveCmpStudiedDraft(OmobilityLasUpdateRequest request) {
+        ApprovedProposal appCmp = new ApprovedProposal();
+        String changesProposal = request.getApproveProposalV1().getChangesProposalId();
+        appCmp.setChangesProposalId(changesProposal);
+
+        appCmp.setOmobilityId(request.getApproveProposalV1().getOmobilityId());
+
+        Signature signature = new Signature();
+        signature.setSignerApp(request.getApproveProposalV1().getSignature().getSignerApp());
+        signature.setSignerEmail(request.getApproveProposalV1().getSignature().getSignerEmail());
+        signature.setSignerName(request.getApproveProposalV1().getSignature().getSignerName());
+        signature.setSignerPosition(request.getApproveProposalV1().getSignature().getSignerPosition());
+        signature.setTimestamp(request.getApproveProposalV1().getSignature().getTimestamp().toGregorianCalendar().getTime());
+
+        appCmp.setSignature(signature);
+
+        return appCmp;
     }
 
     private List<ClientResponse> notifyPartner(OlearningAgreement olearningAgreement) {
