@@ -48,12 +48,7 @@ import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.imobility.entity.IMobility;
 import eu.erasmuswithoutpaper.imobility.entity.IMobilityStatus;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
-import eu.erasmuswithoutpaper.omobility.las.entity.AcademicYearLaStats;
-import eu.erasmuswithoutpaper.omobility.las.entity.ApprovedProposal;
-import eu.erasmuswithoutpaper.omobility.las.entity.CommentProposal;
-import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
-import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
-import eu.erasmuswithoutpaper.omobility.las.entity.Student;
+import eu.erasmuswithoutpaper.omobility.las.entity.*;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 
@@ -158,14 +153,12 @@ public class OutgoingMobilityLearningAgreementsResource {
                 throw new EwpWebApplicationException("Mising required parameter, changes-proposal-id is required", Response.Status.BAD_REQUEST);
             }
 
-            String omobilityId = request.getApproveProposalV1().getOmobilityId();
+            ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getApproveProposalV1().getChangesProposalId());
 
-            OlearningAgreement olearningAgreement = em.find(OlearningAgreement.class, omobilityId);
-
-            if (olearningAgreement == null) {
+            if (changesProposal == null) {
                 throw new EwpWebApplicationException("Learning agreement does not exist", Response.Status.BAD_REQUEST);
-            } else if (olearningAgreement != null) {
-                if (!request.getSendingHeiId().equals(olearningAgreement.getSendingHei().getHeiId())) {
+            } else {
+                if (!request.getSendingHeiId().equals(changesProposal.getOlearningAgreement().getSendingHei().getHeiId())) {
                     throw new EwpWebApplicationException("Sending Hei Id doesn't match Omobility Id's sending HEI", Response.Status.BAD_REQUEST);
                 }
             }

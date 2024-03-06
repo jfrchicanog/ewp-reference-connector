@@ -32,6 +32,9 @@ public class ChangesProposal extends ListOfComponents{
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinColumn(name = "CHANGE_PROPOSAL_COMMENT_PROPOSAL",referencedColumnName = "ID")
     private CommentProposal commentProposal;
+
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "changesProposal")
+    private OlearningAgreement olearningAgreement;
     
 	public Student getStudent() {
 		return student;
@@ -63,6 +66,14 @@ public class ChangesProposal extends ListOfComponents{
 
     public void setCommentProposal(CommentProposal commentProposal) {
         this.commentProposal = commentProposal;
+    }
+
+    public OlearningAgreement getOlearningAgreement() {
+        return olearningAgreement;
+    }
+
+    public void setOlearningAgreement(OlearningAgreement olearningAgreement) {
+        this.olearningAgreement = olearningAgreement;
     }
     
 	@Override
