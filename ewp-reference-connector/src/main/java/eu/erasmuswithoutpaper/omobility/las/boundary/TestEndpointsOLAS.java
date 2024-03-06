@@ -68,6 +68,10 @@ public class TestEndpointsOLAS {
     @Consumes("application/json")
     public Response create(OlearningAgreement olearningAgreement) {
 
+        LOG.fine("CREATE: start");
+
+        LOG.fine("CREATE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
+
         em.persist(olearningAgreement);
         em.flush();
 
