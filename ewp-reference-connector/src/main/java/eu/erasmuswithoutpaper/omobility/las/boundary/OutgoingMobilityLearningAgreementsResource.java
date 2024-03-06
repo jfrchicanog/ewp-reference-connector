@@ -51,6 +51,7 @@ import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgre
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
+import org.apache.commons.logging.Log;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -153,7 +154,11 @@ public class OutgoingMobilityLearningAgreementsResource {
                 throw new EwpWebApplicationException("Mising required parameter, changes-proposal-id is required", Response.Status.BAD_REQUEST);
             }
 
+            LOG.fine("Starting CNR for " + request.getApproveProposalV1().getOmobilityId() + " omobility learning agreements");
+
             ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getApproveProposalV1().getChangesProposalId());
+
+            LOG.fine("ChangesProposal: " + (changesProposal==null?"null":changesProposal.getId()));
 
             if (changesProposal == null) {
                 throw new EwpWebApplicationException("Learning agreement does not exist", Response.Status.BAD_REQUEST);
