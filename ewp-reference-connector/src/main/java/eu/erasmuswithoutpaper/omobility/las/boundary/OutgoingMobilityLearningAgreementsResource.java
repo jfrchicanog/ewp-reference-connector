@@ -163,6 +163,9 @@ public class OutgoingMobilityLearningAgreementsResource {
             if (changesProposal == null) {
                 throw new EwpWebApplicationException("Learning agreement does not exist", Response.Status.BAD_REQUEST);
             } else {
+                LOG.fine("Request.getSendingHeiId: " + (request.getSendingHeiId() == null ? "null" : request.getSendingHeiId()));
+                LOG.fine("changesProposal.getOlearningAgreement:" + (changesProposal.getOlearningAgreement() == null ? "null" : changesProposal.getOlearningAgreement().getId()));
+                LOG.fine("changesProposal.getOlearningAgreement().getSendingHei():" + (changesProposal.getOlearningAgreement().getSendingHei() == null ? "null" : changesProposal.getOlearningAgreement().getSendingHei().getHeiId()));
                 if (!request.getSendingHeiId().equals(changesProposal.getOlearningAgreement().getSendingHei().getHeiId())) {
                     throw new EwpWebApplicationException("Sending Hei Id doesn't match Omobility Id's sending HEI", Response.Status.BAD_REQUEST);
                 }
