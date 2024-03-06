@@ -212,18 +212,18 @@ public class OutgoingMobilityLearningAgreementsResource {
             ApprovedProposal appCmp = approveCmpStudiedDraft(request);
             em.persist(appCmp);
 
-            OlearningAgreement olearningAgreement = em.find(OlearningAgreement.class, request.getApproveProposalV1().getOmobilityId());
-            olearningAgreement.getChangesProposal().setApprovedProposal(appCmp);
-            em.merge(olearningAgreement);
+            ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getApproveProposalV1().getChangesProposalId());
+            changesProposal.setApprovedProposal(appCmp);
+            em.merge(changesProposal);
             em.flush();
 
         } else if (request.getCommentProposalV1() != null) {
             CommentProposal updateComponentsStudied = updateComponentsStudied(request);
             em.persist(updateComponentsStudied);
 
-            OlearningAgreement olearningAgreement = em.find(OlearningAgreement.class, request.getCommentProposalV1().getOmobilityId());
-            olearningAgreement.getChangesProposal().setCommentProposal(updateComponentsStudied);
-            em.merge(olearningAgreement);
+            ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getCommentProposalV1().getChangesProposalId());
+            changesProposal.setCommentProposal(updateComponentsStudied);
+            em.merge(changesProposal);
             em.flush();
         }
 
