@@ -158,7 +158,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
             ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getApproveProposalV1().getChangesProposalId());
 
-            LOG.fine("ChangesProposal: " + (changesProposal==null?"null":changesProposal.getId()));
+            LOG.fine("ChangesProposal: " + (changesProposal == null ? "null" : changesProposal.getId()));
 
             if (changesProposal == null) {
                 throw new EwpWebApplicationException("Learning agreement does not exist", Response.Status.BAD_REQUEST);
@@ -410,6 +410,11 @@ public class OutgoingMobilityLearningAgreementsResource {
 
     private ApprovedProposal approveCmpStudiedDraft(OmobilityLasUpdateRequest request) {
         ApprovedProposal appCmp = new ApprovedProposal();
+
+        if(request == null || request.getApproveProposalV1() == null){
+            return null;
+        }
+
         String changesProposal = request.getApproveProposalV1().getChangesProposalId();
         appCmp.setChangesProposalId(changesProposal);
 
@@ -420,7 +425,9 @@ public class OutgoingMobilityLearningAgreementsResource {
         signature.setSignerEmail(request.getApproveProposalV1().getSignature().getSignerEmail());
         signature.setSignerName(request.getApproveProposalV1().getSignature().getSignerName());
         signature.setSignerPosition(request.getApproveProposalV1().getSignature().getSignerPosition());
-        signature.setTimestamp(request.getApproveProposalV1().getSignature().getTimestamp().toGregorianCalendar().getTime());
+        if (request.getApproveProposalV1().getSignature().getTimestamp() != null) {
+            signature.setTimestamp(request.getApproveProposalV1().getSignature().getTimestamp().toGregorianCalendar().getTime());
+        }
 
         appCmp.setSignature(signature);
 
