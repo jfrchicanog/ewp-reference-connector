@@ -82,7 +82,7 @@ public class TestEndpointsOLAS {
 
     @POST
     @Path("update/approve")
-    @Consumes("application/xml")
+    @Consumes("application/json")
     public Response update(@QueryParam("heiId") String heiId, ApprovedProposal request) {
 
         OmobilityLasUpdateRequest requestSend = new OmobilityLasUpdateRequest();
