@@ -85,6 +85,8 @@ public class TestEndpointsOLAS {
     @Consumes("application/json")
     public Response update(@QueryParam("heiId") String heiId, ApprovedProposal request) {
 
+        LOG.fine("UPDATE: start");
+
         OmobilityLasUpdateRequest requestSend = new OmobilityLasUpdateRequest();
         ApproveProposalV1 approvedProposalV1 = new ApproveProposalV1();
         approvedProposalV1.setChangesProposalId(request.getChangesProposalId());
@@ -109,6 +111,8 @@ public class TestEndpointsOLAS {
         clientRequest.setXml(requestSend);
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
+
+        LOG.fine("UPDATE: response: " + response.getRawResponse());
 
         return Response.ok(response).build();
     }
