@@ -33,7 +33,7 @@ public class CommentProposal implements Serializable{
     
     private String changesProposalId;
     
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "COMMENT_PROPOSAL_SIGNATURE",referencedColumnName = "ID")
     private Signature signature;
 
