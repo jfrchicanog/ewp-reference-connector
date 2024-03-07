@@ -482,7 +482,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         }
 
         OmobilityLasGetResponse response = new OmobilityLasGetResponse();
-        List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiIdAndNonComment).setParameter("sendingHeiId", sendingHeiId).getResultList();
+        List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHeiId", sendingHeiId).getResultList();
 
         if (!omobilityLasList.isEmpty()) {
 
@@ -551,7 +551,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
 
-        List<OlearningAgreement> mobilityList = em.createNamedQuery(OlearningAgreement.findBySendingHeiIdAndNonComment).setParameter("sendingHei", sendingHeiId).getResultList();
+        List<OlearningAgreement> mobilityList = em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHei", sendingHeiId).getResultList();
 
         if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
             mobilityList = mobilityList.stream().filter(omobility -> anyMatchReceivingAcademicYear.test(omobility, receiving_academic_year_id)).collect(Collectors.toList());
