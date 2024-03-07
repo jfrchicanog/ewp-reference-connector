@@ -241,7 +241,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
             em.persist(cmp);
 
-            if (omobility.getFirstVersion() != null) {
+            if (omobility.getFirstVersion() != null && omobility.getFirstVersion().getId() != null){
                 omobility.setApprovedChanges(cmp);
             } else {
                 omobility.setFirstVersion(cmp);
