@@ -165,7 +165,8 @@ public class OutgoingMobilityLearningAgreementsResource {
             } else {
                 LOG.fine("Request.getSendingHeiId: " + (request.getSendingHeiId() == null ? "null" : request.getSendingHeiId()));
                 LOG.fine("changesProposal.getOlearningAgreement:" + (changesProposal.getOlearningAgreement() == null ? "null" : changesProposal.getOlearningAgreement().getId()));
-                LOG.fine("changesProposal.getOlearningAgreement().getSendingHei():" + (changesProposal.getOlearningAgreement().getSendingHei() == null ? "null" : changesProposal.getOlearningAgreement().getSendingHei().getHeiId()));
+                LOG.fine("changesProposal.getOlearningAgreement().getSendingHei():" + (changesProposal.getOlearningAgreement().getSendingHei() == null ? "null" : changesProposal.getOlearningAgreement().getSendingHei()));
+                LOG.fine("changesProposal.getOlearningAgreement().getSendingHei().getHeiId():" + (changesProposal.getOlearningAgreement().getSendingHei().getHeiId() == null ? "null" : changesProposal.getOlearningAgreement().getSendingHei().getHeiId()));
                 if (!request.getSendingHeiId().equals(changesProposal.getOlearningAgreement().getSendingHei().getHeiId())) {
                     throw new EwpWebApplicationException("Sending Hei Id doesn't match Omobility Id's sending HEI", Response.Status.BAD_REQUEST);
                 }
