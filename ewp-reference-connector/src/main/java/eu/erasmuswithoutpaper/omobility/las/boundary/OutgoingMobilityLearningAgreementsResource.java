@@ -239,6 +239,8 @@ public class OutgoingMobilityLearningAgreementsResource {
             }
             cmp.setStudentSignature(changesProposal.getStudentSignature());
 
+            em.persist(cmp);
+
             if (omobility.getFirstVersion() != null) {
                 omobility.setApprovedChanges(cmp);
             } else {
