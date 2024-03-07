@@ -16,7 +16,7 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 @NamedQueries({
     @NamedQuery(name = OlearningAgreement.findAll, query = "SELECT la FROM OlearningAgreement la"),
     @NamedQuery(name = OlearningAgreement.findBySendingHeiId, query = "SELECT o FROM OlearningAgreement o WHERE o.sendingHei.heiId=:sendingHei"),
-	@NamedQuery(name = OlearningAgreement.findBySendingHeiIdFilterd, query = "SELECT o FROM OlearningAgreement o WHERE o.sendingHei.heiId=:sendingHei AND (o.changesProposal IS NULL OR o.changesProposal.commentProposal IS NULL)"),
+	@NamedQuery(name = OlearningAgreement.findBySendingHeiIdFilterd, query = "SELECT o FROM OlearningAgreement o WHERE o.sendingHei.heiId=:sendingHei AND (o.firstVersion IS NOT NULL OR o.changesProposal.commentProposal IS NULL)"),
     @NamedQuery(name = OlearningAgreement.findByReceivingHeiId, query = "SELECT o FROM OlearningAgreement o WHERE o.receivingHei.heiId=:receivingHei")
 })
 
