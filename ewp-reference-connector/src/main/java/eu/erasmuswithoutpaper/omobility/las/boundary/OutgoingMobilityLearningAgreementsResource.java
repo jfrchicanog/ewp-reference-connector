@@ -216,6 +216,9 @@ public class OutgoingMobilityLearningAgreementsResource {
 
             ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getApproveProposalV1().getChangesProposalId());
             changesProposal.setApprovedProposal(appCmp);
+            if(appCmp.getSignature() != null){
+                changesProposal.setReceivingHeiSignature(appCmp.getSignature());
+            }
             em.merge(changesProposal);
             em.flush();
 
@@ -226,6 +229,9 @@ public class OutgoingMobilityLearningAgreementsResource {
 
             ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getCommentProposalV1().getChangesProposalId());
             changesProposal.setCommentProposal(updateComponentsStudied);
+            if(updateComponentsStudied.getSignature() != null){
+                changesProposal.setReceivingHeiSignature(updateComponentsStudied.getSignature());
+            }
             em.merge(changesProposal);
             em.flush();
         }
