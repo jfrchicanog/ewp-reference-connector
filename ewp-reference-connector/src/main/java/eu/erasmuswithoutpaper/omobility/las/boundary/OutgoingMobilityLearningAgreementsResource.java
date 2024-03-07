@@ -454,7 +454,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         }
 
         OmobilityLasGetResponse response = new OmobilityLasGetResponse();
-        List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHeiId", sendingHeiId).getResultList();
+        List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiIdAndNonComment).setParameter("sendingHeiId", sendingHeiId).getResultList();
 
         if (!omobilityLasList.isEmpty()) {
 
@@ -466,9 +466,7 @@ public class OutgoingMobilityLearningAgreementsResource {
             }
 
             //checking if caller covers the receiving HEI of this mobility,
-            omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId()))
-                    .filter(omobility -> omobility.getChangesProposal() == null || omobility.getChangesProposal().getCommentProposal() == null)
-                    .collect(Collectors.toList());
+            omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId())).collect(Collectors.toList());
             response.getLa().addAll(omobilitiesLas(omobilityLasList, mobilityIdList));
         }
 
