@@ -219,6 +219,12 @@ public class OutgoingMobilityLearningAgreementsResource {
             OlearningAgreement omobility = em.find(OlearningAgreement.class, idLAS);
             changesProposal = omobility.getChangesProposal();
 
+            omobility.setChangesProposal(null);
+            em.remove(changesProposal);
+
+            em.merge(omobility);
+            em.flush();
+
             ListOfComponents cmp = new ListOfComponents();
 
             cmp.setId(changesProposal.getId());
@@ -228,15 +234,16 @@ public class OutgoingMobilityLearningAgreementsResource {
             cmp.setVirtualComponents(changesProposal.getVirtualComponents());
             cmp.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
             cmp.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
-            if(appCmp.getSignature() != null){
+            if (appCmp.getSignature() != null) {
                 cmp.setReceivingHeiSignature(appCmp.getSignature());
             }
             cmp.setStudentSignature(changesProposal.getStudentSignature());
 
-            omobility.setApprovedChanges(cmp);
-            omobility.setChangesProposal(null);
-
-            em.remove(changesProposal);
+            if (omobility.getFirstVersion() != null) {
+                omobility.setApprovedChanges(cmp);
+            } else {
+                omobility.setFirstVersion(cmp);
+            }
 
             em.merge(omobility);
             em.flush();
@@ -248,7 +255,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
             ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getCommentProposalV1().getChangesProposalId());
             changesProposal.setCommentProposal(updateComponentsStudied);
-            if(updateComponentsStudied.getSignature() != null){
+            if (updateComponentsStudied.getSignature() != null) {
                 changesProposal.setReceivingHeiSignature(updateComponentsStudied.getSignature());
             }
             em.merge(changesProposal);
@@ -440,7 +447,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     private ApprovedProposal approveCmpStudiedDraft(OmobilityLasUpdateRequest request) {
         ApprovedProposal appCmp = new ApprovedProposal();
 
-        if(request == null || request.getApproveProposalV1() == null){
+        if (request == null || request.getApproveProposalV1() == null) {
             return null;
         }
 
