@@ -128,6 +128,9 @@ public class OutgoingMobilityLearningAgreementsConverter {
     	changesProposal.setShortTermDoctoralComponents(tmpChangesProposal.getShortTermDoctoralComponents());
     	changesProposal.setStudentSignature(tmpChangesProposal.getStudentSignature());
     	changesProposal.setVirtualComponents(tmpChangesProposal.getVirtualComponents());
+
+		changesProposal.setSendingHeiSignature(tmpChangesProposal.getSendingHeiSignature());
+		changesProposal.setReceivingHeiSignature(tmpChangesProposal.getReceivingHeiSignature());
     	
     	Student oStudent = ochangesProposal.getStudent();
     	eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Student student = convertToStudent(oStudent);
