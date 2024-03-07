@@ -410,8 +410,9 @@ public class OutgoingMobilityLearningAgreementsResource {
         signature.setSignerEmail(request.getCommentProposalV1().getSignature().getSignerEmail());
         signature.setSignerName(request.getCommentProposalV1().getSignature().getSignerName());
         signature.setSignerPosition(request.getCommentProposalV1().getSignature().getSignerPosition());
-        signature.setTimestamp(request.getCommentProposalV1().getSignature().getTimestamp().toGregorianCalendar().getTime());
-
+        if (request.getCommentProposalV1().getSignature().getTimestamp() != null) {
+            signature.setTimestamp(request.getCommentProposalV1().getSignature().getTimestamp().toGregorianCalendar().getTime());
+        }
         commentProposal.setSignature(signature);
 
         return commentProposal;
