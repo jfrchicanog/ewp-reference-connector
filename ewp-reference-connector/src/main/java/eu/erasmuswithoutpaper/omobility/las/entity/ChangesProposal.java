@@ -19,7 +19,7 @@ public class ChangesProposal extends ListOfComponents{
 	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal.";
     public static final String findAll = PREFIX + "all";
 	
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "CHANGE_PROPOSAL_STUDENT",referencedColumnName = "ID")
 	private Student student;
     
