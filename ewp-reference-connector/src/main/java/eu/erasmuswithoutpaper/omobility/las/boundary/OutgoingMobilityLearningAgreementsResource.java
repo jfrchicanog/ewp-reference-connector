@@ -212,6 +212,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         if (request.getApproveProposalV1() != null) {
             ApprovedProposal appCmp = approveCmpStudiedDraft(request);
             em.persist(appCmp);
+            em.flush();
 
             ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getApproveProposalV1().getChangesProposalId());
             changesProposal.setApprovedProposal(appCmp);
@@ -221,6 +222,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         } else if (request.getCommentProposalV1() != null) {
             CommentProposal updateComponentsStudied = updateComponentsStudied(request);
             em.persist(updateComponentsStudied);
+            em.flush();
 
             ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getCommentProposalV1().getChangesProposalId());
             changesProposal.setCommentProposal(updateComponentsStudied);
