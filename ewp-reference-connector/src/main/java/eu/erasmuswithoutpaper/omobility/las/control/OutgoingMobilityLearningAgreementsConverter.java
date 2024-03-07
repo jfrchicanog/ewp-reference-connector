@@ -48,7 +48,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
 			learningAgreement.setChangesProposal(changesProposal);
 
 			ListOfComponents firstVersion = convertToListOfComponents(olearningAgreement.getFirstVersion());
-			learningAgreement.setApprovedChanges(firstVersion);
+			learningAgreement.setFirstVersion(firstVersion);
 
 			Calendar calendar = Calendar.getInstance();
 
