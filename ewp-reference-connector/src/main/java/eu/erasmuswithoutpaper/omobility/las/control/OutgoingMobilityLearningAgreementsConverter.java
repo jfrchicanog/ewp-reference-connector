@@ -43,29 +43,12 @@ public class OutgoingMobilityLearningAgreementsConverter {
     		ListOfComponents approvalChanges = convertToListOfComponents(olearningAgreement.getApprovedChanges());
         	learningAgreement.setApprovedChanges(approvalChanges);
 
-			if (olearningAgreement.getChangesProposal() != null && olearningAgreement.getChangesProposal().getApprovedProposal() == null) {
-				eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal ochangesProposal = olearningAgreement.getChangesProposal();
-				ChangesProposal changesProposal = convertToChangesProposal(ochangesProposal);
-				learningAgreement.setChangesProposal(changesProposal);
+			eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal ochangesProposal = olearningAgreement.getChangesProposal();
+			ChangesProposal changesProposal = convertToChangesProposal(ochangesProposal);
+			learningAgreement.setChangesProposal(changesProposal);
 
-			}else  if (olearningAgreement.getChangesProposal() != null) {
-				eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal ochangesProposal = olearningAgreement.getChangesProposal();
-				ChangesProposal changesProposal = convertToChangesProposal(ochangesProposal);
-
-				if (changesProposal != null) {
-					ListOfComponents firstVersion = new ListOfComponents();
-					firstVersion.setReceivingHeiSignature(changesProposal.getReceivingHeiSignature());
-					firstVersion.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
-					firstVersion.setStudentSignature(changesProposal.getStudentSignature());
-					firstVersion.setComponentsRecognized(changesProposal.getComponentsRecognized());
-					firstVersion.setBlendedMobilityComponents(changesProposal.getBlendedMobilityComponents());
-					firstVersion.setComponentsStudied(changesProposal.getComponentsStudied());
-					firstVersion.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
-					firstVersion.setVirtualComponents(changesProposal.getVirtualComponents());
-
-					learningAgreement.setFirstVersion(firstVersion);
-				}
-			}
+			ListOfComponents firstVersion = convertToListOfComponents(olearningAgreement.getFirstVersion());
+			learningAgreement.setApprovedChanges(firstVersion);
 
 			Calendar calendar = Calendar.getInstance();
 

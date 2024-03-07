@@ -215,11 +215,29 @@ public class OutgoingMobilityLearningAgreementsResource {
             em.flush();
 
             ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getApproveProposalV1().getChangesProposalId());
-            changesProposal.setApprovedProposal(appCmp);
+            OlearningAgreement omobility = changesProposal.getOlearningAgreement();
+
+            ListOfComponents cmp = new ListOfComponents();
+
+            cmp.setId(changesProposal.getId());
+            cmp.setBlendedMobilityComponents(changesProposal.getBlendedMobilityComponents());
+            cmp.setComponentsStudied(changesProposal.getComponentsStudied());
+            cmp.setComponentsRecognized(changesProposal.getComponentsRecognized());
+            cmp.setVirtualComponents(changesProposal.getVirtualComponents());
+            cmp.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
+            cmp.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
             if(appCmp.getSignature() != null){
-                changesProposal.setReceivingHeiSignature(appCmp.getSignature());
+                cmp.setReceivingHeiSignature(appCmp.getSignature());
             }
-            em.merge(changesProposal);
+            cmp.setStudentSignature(changesProposal.getStudentSignature());
+
+            omobility.setApprovedChanges(cmp);
+            omobility.setChangesProposal(null);
+
+            em.merge(omobility);
+            em.flush();
+
+            em.remove(changesProposal);
             em.flush();
 
         } else if (request.getCommentProposalV1() != null) {
@@ -523,7 +541,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
 
-        List<OlearningAgreement> mobilityList = em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHei", sendingHeiId).getResultList();
+        List<OlearningAgreement> mobilityList = em.createNamedQuery(OlearningAgreement.findBySendingHeiIdAndNonComment).setParameter("sendingHei", sendingHeiId).getResultList();
 
         if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
             mobilityList = mobilityList.stream().filter(omobility -> anyMatchReceivingAcademicYear.test(omobility, receiving_academic_year_id)).collect(Collectors.toList());
@@ -580,8 +598,6 @@ public class OutgoingMobilityLearningAgreementsResource {
             mobilityList.clear();
             mobilityList.addAll(mobilities);
         }
-
-        mobilityList = mobilityList.stream().filter(omobility -> omobility.getChangesProposal() == null || omobility.getChangesProposal().getCommentProposal() == null).collect(Collectors.toList());
 
         response.getOmobilityId().addAll(omobilityLasIds(mobilityList, receivingHeiIdList));
         //}
