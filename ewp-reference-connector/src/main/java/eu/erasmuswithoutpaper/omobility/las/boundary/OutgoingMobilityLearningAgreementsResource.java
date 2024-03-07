@@ -465,8 +465,9 @@ public class OutgoingMobilityLearningAgreementsResource {
             }
 
             //checking if caller covers the receiving HEI of this mobility,
-            omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId())).collect(Collectors.toList());
-
+            omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId()))
+                    .filter(omobility -> omobility.getChangesProposal() == null || omobility.getChangesProposal().getCommentProposal() == null)
+                    .collect(Collectors.toList());
             response.getLa().addAll(omobilitiesLas(omobilityLasList, mobilityIdList));
         }
 
@@ -580,6 +581,8 @@ public class OutgoingMobilityLearningAgreementsResource {
             mobilityList.clear();
             mobilityList.addAll(mobilities);
         }
+
+        mobilityList = mobilityList.stream().filter(omobility -> omobility.getChangesProposal() == null || omobility.getChangesProposal().getCommentProposal() == null).collect(Collectors.toList());
 
         response.getOmobilityId().addAll(omobilityLasIds(mobilityList, receivingHeiIdList));
         //}

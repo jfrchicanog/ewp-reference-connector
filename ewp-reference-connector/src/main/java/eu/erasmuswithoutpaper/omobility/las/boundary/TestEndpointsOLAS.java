@@ -1,9 +1,7 @@
 package eu.erasmuswithoutpaper.omobility.las.boundary;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ApproveProposalV1;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.*;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
@@ -15,6 +13,9 @@ import eu.erasmuswithoutpaper.iia.boundary.NotifyAux;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
+import eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution;
+import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
+import eu.erasmuswithoutpaper.omobility.las.entity.Student;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 
 import javax.ejb.Stateless;
@@ -107,7 +108,45 @@ public class TestEndpointsOLAS {
         ClientRequest clientRequest = new ClientRequest();
         if (heiId.startsWith("test")) {
             clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/update");
-        }else {
+        } else {
+            clientRequest.setUrl("https://ewp.uma.es/rest/omobilities/las/update");
+        }
+        clientRequest.setMethod(HttpMethodEnum.POST);
+        clientRequest.setHttpsec(true);
+        clientRequest.setXml(requestSend);
+
+        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
+
+        LOG.fine("UPDATE: response: " + response.getRawResponse());
+
+        return Response.ok(response).build();
+    }
+
+    @POST
+    @Path("update/reject")
+    @Consumes("application/json")
+    public Response update(@QueryParam("heiId") String heiId, CommentProposal request) {
+
+        LOG.fine("UPDATE: start");
+
+        OmobilityLasUpdateRequest requestSend = new OmobilityLasUpdateRequest();
+        CommentProposalV1 commentProposalV1 = new CommentProposalV1();
+        commentProposalV1.setChangesProposalId(request.getChangesProposalId());
+        commentProposalV1.setOmobilityId(request.getOmobilityId());
+        commentProposalV1.setComment(request.getComment());
+        eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature signature = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
+        signature.setSignerApp(request.getSignature().getSignerApp());
+        signature.setSignerEmail(request.getSignature().getSignerEmail());
+        signature.setSignerName(request.getSignature().getSignerName());
+        signature.setSignerPosition(request.getSignature().getSignerPosition());
+        commentProposalV1.setSignature(signature);
+        requestSend.setCommentProposalV1(commentProposalV1);
+        requestSend.setSendingHeiId(heiId);
+
+        ClientRequest clientRequest = new ClientRequest();
+        if (heiId.startsWith("test")) {
+            clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/update");
+        } else {
             clientRequest.setUrl("https://ewp.uma.es/rest/omobilities/las/update");
         }
         clientRequest.setMethod(HttpMethodEnum.POST);
