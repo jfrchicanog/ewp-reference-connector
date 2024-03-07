@@ -30,11 +30,11 @@ public class ApprovedProposal implements Serializable{
     
     private String changesProposalId;
     
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "APPROVED_PROPOSAL_SIGNATURE",referencedColumnName = "ID")
     private Signature signature;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "approvedProposal")
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "approvedProposal")
     private ChangesProposal changesProposal;
 
     public String getId() {
