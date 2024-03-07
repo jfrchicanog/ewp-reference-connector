@@ -215,7 +215,9 @@ public class OutgoingMobilityLearningAgreementsResource {
             em.flush();
 
             ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getApproveProposalV1().getChangesProposalId());
-            OlearningAgreement omobility = changesProposal.getOlearningAgreement();
+            String idLAS = changesProposal.getOlearningAgreement().getId();
+            OlearningAgreement omobility = em.find(OlearningAgreement.class, idLAS);
+            changesProposal = omobility.getChangesProposal();
 
             ListOfComponents cmp = new ListOfComponents();
 
@@ -234,10 +236,9 @@ public class OutgoingMobilityLearningAgreementsResource {
             omobility.setApprovedChanges(cmp);
             omobility.setChangesProposal(null);
 
-            em.merge(omobility);
-            em.flush();
-
             em.remove(changesProposal);
+
+            em.merge(omobility);
             em.flush();
 
         } else if (request.getCommentProposalV1() != null) {
