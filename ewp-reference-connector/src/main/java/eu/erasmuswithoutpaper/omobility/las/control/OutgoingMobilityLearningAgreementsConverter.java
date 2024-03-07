@@ -129,9 +129,6 @@ public class OutgoingMobilityLearningAgreementsConverter {
     	changesProposal.setStudentSignature(tmpChangesProposal.getStudentSignature());
     	changesProposal.setVirtualComponents(tmpChangesProposal.getVirtualComponents());
 
-		changesProposal.setSendingHeiSignature(tmpChangesProposal.getSendingHeiSignature());
-		changesProposal.setReceivingHeiSignature(tmpChangesProposal.getReceivingHeiSignature());
-    	
     	Student oStudent = ochangesProposal.getStudent();
     	eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Student student = convertToStudent(oStudent);
     	
@@ -186,7 +183,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
     	
     	approvalChanges.setReceivingHeiSignature(receivingHeiSig);
     	
-    	Signature localSendingHeiSig = olistOfCmp.getReceivingHeiSignature();
+    	Signature localSendingHeiSig = olistOfCmp.getSendingHeiSignature();
     	eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature sendingHeiSig = convertToSignature(localSendingHeiSig);
     	
     	approvalChanges.setSendingHeiSignature(sendingHeiSig);
