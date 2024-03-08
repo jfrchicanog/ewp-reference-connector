@@ -293,12 +293,22 @@ public class OutgoingMobilityLearningAgreementsResource {
             em.flush();
 
             ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getCommentProposalV1().getChangesProposalId());
-            changesProposal.setCommentProposal(updateComponentsStudied);
-            if (updateComponentsStudied.getSignature() != null) {
-                changesProposal.setReceivingHeiSignature(updateComponentsStudied.getSignature());
+            if (changesProposal.getOlearningAgreement().getFirstVersion() == null) {
+                changesProposal.setCommentProposal(updateComponentsStudied);
+                if (updateComponentsStudied.getSignature() != null) {
+                    changesProposal.setReceivingHeiSignature(updateComponentsStudied.getSignature());
+                }
+                em.merge(changesProposal);
+                em.flush();
+            } else {
+                em.remove(changesProposal);
+
+                OlearningAgreement omobility = em.find(OlearningAgreement.class, changesProposal.getOlearningAgreement().getId());
+                omobility.setChangesProposal(null);
+
+                em.merge(omobility);
+                em.flush();
             }
-            em.merge(changesProposal);
-            em.flush();
         }
 
         OmobilityLasUpdateResponse response = new OmobilityLasUpdateResponse();
