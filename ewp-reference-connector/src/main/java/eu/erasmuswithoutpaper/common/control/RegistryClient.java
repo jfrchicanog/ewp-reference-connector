@@ -167,13 +167,23 @@ public class RegistryClient {
     }
 
     public List<HeiEntry> getOmobilityLaCnrHeiUrlsWithUrls() {
-        List<HeiEntry> heis = getHeis(EwpConstants.OUTGOING_MOBILITIES_CNR_NAMESPACE, "omobility-la-cnr", EwpConstants.OUTGOING_MOBILITIES_CNR_CLIENT_VERSION);
+        List<HeiEntry> heis = getHeis(EwpConstants.OUTGOING_MOBILITIES_LA_CNR_NAMESPACE, "omobility-la-cnr", EwpConstants.OUTGOING_MOBILITIES_CNR_CLIENT_VERSION);
         heis.stream().forEach(hei -> hei.setUrls(getOmobilitiesCnrHeiUrls(hei.getId())));
         return heis;
     }
 
     public Map<String, String> getOmobilityLaCnrHeiUrls(String heiId) {
         return getHeiUrls(heiId, EwpConstants.OUTGOING_MOBILITIES_LA_CNR_NAMESPACE, "omobility-la-cnr", EwpConstants.OUTGOING_MOBILITIES_LA_CNR_CLIENT_VERSION);
+    }
+
+    public Map<String, String> getOmobilityLasHeiUrls(String heiId) {
+        return getHeiUrls(heiId, EwpConstants.OUTGOING_MOBILITIES_LAS_NAMESPACE, "omobility-las", EwpConstants.OUTGOING_MOBILITIES_LAS_VERSION);
+    }
+
+    public List<HeiEntry> getOmobilityLasHeiUrlsWithUrls() {
+        List<HeiEntry> heis = getHeis(EwpConstants.OUTGOING_MOBILITIES_LAS_NAMESPACE, "omobility-las", EwpConstants.OUTGOING_MOBILITIES_LAS_VERSION);
+        heis.stream().forEach(hei -> hei.setUrls(getOmobilitiesCnrHeiUrls(hei.getId())));
+        return heis;
     }
     
     public List<HeiEntry> getImobilitiesHeisWithUrls() {

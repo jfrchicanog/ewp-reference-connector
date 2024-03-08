@@ -12,7 +12,7 @@ public class EwpConstants {
     public static final String IIAS_APPROVAL_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/blob/stable-v1/manifest-entry.xsd";
     public static final String FACTSHEET_NAMESPACE = "https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-factsheet/v1.2.0/manifest-entry.xsd";
     public static final String OUTGOING_MOBILITIES_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/blob/v2.0.0/manifest-entry.xsd";
-    public static final String OUTGOING_MOBILITIES_LAS_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobilities-las/blob/v1.2.0/manifest-entry.xsd";
+    public static final String OUTGOING_MOBILITIES_LAS_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobility-las/blob/stable-v1/manifest-entry.xsd";
     public static final String OUTGOING_MOBILITIES_LA_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobility-la-cnr/blob/stable-v1/manifest-entry.xsd";
     public static final String OUTGOING_MOBILITIES_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobility-cnr/blob/stable-v1/manifest-entry.xsd";
     public static final String INCOMING_MOBILITIES_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-imobilities/blob/stable-v1/manifest-entry.xsd";

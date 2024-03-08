@@ -367,10 +367,10 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         LOG.info("Starting CNR for " + mobilityIdList.size() + " omobility learning agreements");
 
-        /*for (String mobilityId : mobilityIdList) {
+        for (String mobilityId : mobilityIdList) {
             CNROmobilitiesLa cnr = new CNROmobilitiesLa(sendingHeiId, mobilityId);
             cnr.start();
-        }*/
+        }
 
         Empty response = new Empty();
 
