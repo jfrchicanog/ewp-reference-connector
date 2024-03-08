@@ -543,13 +543,16 @@ public class OutgoingMobilityLearningAgreementsResource {
         if (sendingHeiId == null || sendingHeiId.trim().isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for get.", Response.Status.BAD_REQUEST);
         }
+        LOG.fine("sendingHeiId: " + sendingHeiId);
 
         if (mobilityIdList.size() > properties.getMaxOmobilitylasIds()) {
             throw new EwpWebApplicationException("Max number of omobility learning agreements id's has exceeded.", Response.Status.BAD_REQUEST);
         }
 
+        LOG.fine("mobilityIdList: " + mobilityIdList.toString());
+
         OmobilityLasGetResponse response = new OmobilityLasGetResponse();
-        List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiIdFilterd).setParameter("sendingHeiId", sendingHeiId).getResultList();
+        List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiIdFilterd).setParameter("sendingHei", sendingHeiId).getResultList();
 
         if (!omobilityLasList.isEmpty()) {
 
