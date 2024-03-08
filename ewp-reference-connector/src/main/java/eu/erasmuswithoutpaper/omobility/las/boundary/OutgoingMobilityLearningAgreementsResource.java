@@ -225,25 +225,62 @@ public class OutgoingMobilityLearningAgreementsResource {
             em.merge(omobility);
             em.flush();
 
-            ListOfComponents cmp = new ListOfComponents();
+            if (omobility.getFirstVersion() != null) {
 
-            cmp.setId(changesProposal.getId());
-            cmp.setBlendedMobilityComponents(changesProposal.getBlendedMobilityComponents());
-            cmp.setComponentsStudied(changesProposal.getComponentsStudied());
-            cmp.setComponentsRecognized(changesProposal.getComponentsRecognized());
-            cmp.setVirtualComponents(changesProposal.getVirtualComponents());
-            cmp.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
-            cmp.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
-            if (appCmp.getSignature() != null) {
-                cmp.setReceivingHeiSignature(appCmp.getSignature());
-            }
-            cmp.setStudentSignature(changesProposal.getStudentSignature());
+                if (omobility.getApprovedChanges() == null) {
+                    ListOfComponents cmp = getListOfComponents(changesProposal, appCmp);
 
-            em.persist(cmp);
+                    em.persist(cmp);
+                    omobility.setApprovedChanges(cmp);
 
-            if (omobility.getFirstVersion() != null){
-                omobility.setApprovedChanges(cmp);
+                } else {
+                    ListOfComponents cmpBD = omobility.getApprovedChanges();
+
+                    if (cmpBD.getBlendedMobilityComponents() == null || cmpBD.getBlendedMobilityComponents().isEmpty()) {
+                        cmpBD.setBlendedMobilityComponents(changesProposal.getBlendedMobilityComponents());
+                    } else {
+                        cmpBD.getBlendedMobilityComponents().addAll(changesProposal.getBlendedMobilityComponents());
+                    }
+
+                    if (cmpBD.getComponentsStudied() == null || cmpBD.getComponentsStudied().isEmpty()) {
+                        cmpBD.setComponentsStudied(changesProposal.getComponentsStudied());
+                    } else {
+                        cmpBD.getComponentsStudied().addAll(changesProposal.getComponentsStudied());
+                    }
+
+                    if (cmpBD.getComponentsRecognized() == null || cmpBD.getComponentsRecognized().isEmpty()) {
+                        cmpBD.setComponentsRecognized(changesProposal.getComponentsRecognized());
+                    } else {
+                        cmpBD.getComponentsRecognized().addAll(changesProposal.getComponentsRecognized());
+                    }
+
+                    if (cmpBD.getVirtualComponents() == null || cmpBD.getVirtualComponents().isEmpty()) {
+                        cmpBD.setVirtualComponents(changesProposal.getVirtualComponents());
+                    } else {
+                        cmpBD.getVirtualComponents().addAll(changesProposal.getVirtualComponents());
+                    }
+
+                    if (cmpBD.getShortTermDoctoralComponents() == null || cmpBD.getShortTermDoctoralComponents().isEmpty()) {
+                        cmpBD.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
+                    } else {
+                        cmpBD.getShortTermDoctoralComponents().addAll(changesProposal.getShortTermDoctoralComponents());
+                    }
+
+                    cmpBD.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
+                    if (appCmp.getSignature() != null) {
+                        cmpBD.setReceivingHeiSignature(appCmp.getSignature());
+                    }
+                    cmpBD.setStudentSignature(changesProposal.getStudentSignature());
+
+                    em.merge(cmpBD);
+                    em.flush();
+                }
+
             } else {
+                ListOfComponents cmp = getListOfComponents(changesProposal, appCmp);
+
+                em.persist(cmp);
+
                 omobility.setFirstVersion(cmp);
             }
 
@@ -271,6 +308,22 @@ public class OutgoingMobilityLearningAgreementsResource {
         response.getSuccessUserMessage().add(message);
 
         return javax.ws.rs.core.Response.ok(response).build();
+    }
+
+    private static ListOfComponents getListOfComponents(ChangesProposal changesProposal, ApprovedProposal appCmp) {
+        ListOfComponents cmp = new ListOfComponents();
+
+        cmp.setBlendedMobilityComponents(changesProposal.getBlendedMobilityComponents());
+        cmp.setComponentsStudied(changesProposal.getComponentsStudied());
+        cmp.setComponentsRecognized(changesProposal.getComponentsRecognized());
+        cmp.setVirtualComponents(changesProposal.getVirtualComponents());
+        cmp.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
+        cmp.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
+        if (appCmp.getSignature() != null) {
+            cmp.setReceivingHeiSignature(appCmp.getSignature());
+        }
+        cmp.setStudentSignature(changesProposal.getStudentSignature());
+        return cmp;
     }
 
     @GET
