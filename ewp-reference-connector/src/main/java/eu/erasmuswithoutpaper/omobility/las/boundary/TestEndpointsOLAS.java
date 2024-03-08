@@ -78,9 +78,8 @@ public class TestEndpointsOLAS {
             LOG.fine("CHANGE: changesProposal: " + changesProposal);
 
             em.persist(changesProposal);
-            em.flush();
 
-            LOG.fine("CHANGE: persist changesProposal: " + changesProposal.getId());
+            LOG.fine("CHANGE: changesProposal: " + changesProposal.getId());
 
             olearningAgreementDB.setChangesProposal(changesProposal);
             em.merge(olearningAgreementDB);
