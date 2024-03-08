@@ -63,6 +63,36 @@ public class TestEndpointsOLAS {
 
     }
 
+    @POST
+    @Path("change")
+    @Consumes("application/json")
+    public Response change(OlearningAgreement olearningAgreement) {
+        LOG.fine("CHANGE: start");
+
+        LOG.fine("CHANGE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
+
+        OlearningAgreement olearningAgreementDB = em.find(OlearningAgreement.class, olearningAgreement.getId());
+
+        if(olearningAgreementDB != null) {
+            ChangesProposal changesProposal = olearningAgreement.getChangesProposal();
+            LOG.fine("CHANGE: changesProposal: " + changesProposal);
+
+            em.persist(changesProposal);
+            em.flush();
+
+            LOG.fine("CHANGE: persist changesProposal: " + changesProposal.getId());
+
+            olearningAgreementDB.setChangesProposal(changesProposal);
+            em.merge(olearningAgreementDB);
+            em.flush();
+
+            LOG.fine("CHANGE: merge olearningAgreement: " + olearningAgreementDB.getId());
+
+            return Response.ok(olearningAgreementDB).build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
 
     @POST
     @Path("create")
