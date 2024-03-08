@@ -42,7 +42,7 @@ public class OmobilitiesLasAuxThread {
             return;
         }
 
-        String url = map.get("get");
+        String url = map.get("get-url");
 
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setUrl(url);

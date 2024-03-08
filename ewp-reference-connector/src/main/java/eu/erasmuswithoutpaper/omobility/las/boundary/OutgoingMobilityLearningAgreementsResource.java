@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
@@ -368,8 +369,11 @@ public class OutgoingMobilityLearningAgreementsResource {
         LOG.info("Starting CNR for " + mobilityIdList.size() + " omobility learning agreements");
 
         for (String mobilityId : mobilityIdList) {
-            CNROmobilitiesLa cnr = new CNROmobilitiesLa(sendingHeiId, mobilityId);
-            cnr.start();
+            CompletableFuture.runAsync(() -> {
+                ait.createLas(sendingHeiId, mobilityId);
+            });
+            //CNROmobilitiesLa cnr = new CNROmobilitiesLa(sendingHeiId, mobilityId);
+            //cnr.start();
         }
 
         Empty response = new Empty();
