@@ -105,6 +105,12 @@ public class TestEndpointsOLAS {
         em.persist(olearningAgreement);
         em.flush();
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         LOG.fine("NOTIFY: Send notification");
 
         List<ClientResponse> partnersResponseList = notifyPartner(olearningAgreement);
