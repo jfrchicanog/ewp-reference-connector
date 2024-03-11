@@ -105,11 +105,12 @@ public class TestEndpointsOLAS {
         em.persist(olearningAgreement);
         em.flush();
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        String localHeiId = "";
+        List<Institution> internalInstitution = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+
+        localHeiId = internalInstitution.get(0).getInstitutionId();
+
+        em.createNamedQuery(OlearningAgreement.findBySendingHeiIdFilterd).setParameter("sendingHei", localHeiId).getResultList();
 
         LOG.fine("NOTIFY: Send notification");
 
