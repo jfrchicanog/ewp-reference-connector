@@ -347,7 +347,27 @@ public class OmobilitiesLasAuxThread {
             return null;
         }
 
-        ChangesProposal changesProposal = (ChangesProposal) convertToListOfComponents((eu.erasmuswithoutpaper.api.omobilities.las.endpoints.ListOfComponents) cp);
+        ChangesProposal changesProposal = new ChangesProposal();
+
+        if (cp.getComponentsStudied() != null && cp.getComponentsStudied().getComponent() != null) {
+            changesProposal.setComponentsStudied(cp.getComponentsStudied().getComponent().stream().map(this::convertToComponent).collect(Collectors.toList()));
+        }
+        if (cp.getComponentsRecognized() != null && cp.getComponentsRecognized().getComponent() != null) {
+            changesProposal.setComponentsRecognized(cp.getComponentsRecognized().getComponent().stream().map(this::convertToComponent).collect(Collectors.toList()));
+        }
+        if (cp.getVirtualComponents() != null && cp.getVirtualComponents().getComponent() != null) {
+            changesProposal.setVirtualComponents(cp.getVirtualComponents().getComponent().stream().map(this::convertToComponent).collect(Collectors.toList()));
+        }
+        if (cp.getBlendedMobilityComponents() != null && cp.getBlendedMobilityComponents().getComponent() != null) {
+            changesProposal.setBlendedMobilityComponents(cp.getBlendedMobilityComponents().getComponent().stream().map(this::convertToComponent).collect(Collectors.toList()));
+        }
+        if (cp.getShortTermDoctoralComponents() != null && cp.getShortTermDoctoralComponents().getComponent() != null) {
+            changesProposal.setShortTermDoctoralComponents(cp.getShortTermDoctoralComponents().getComponent().stream().map(this::convertToComponent).collect(Collectors.toList()));
+        }
+
+        changesProposal.setStudentSignature(convertToSignature(cp.getStudentSignature()));
+        changesProposal.setSendingHeiSignature(convertToSignature(cp.getSendingHeiSignature()));
+        changesProposal.setReceivingHeiSignature(convertToSignature(cp.getReceivingHeiSignature()));
 
         changesProposal.setStudent(convertToStudent(cp.getStudent()));
 
