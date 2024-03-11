@@ -128,14 +128,22 @@ public class OmobilitiesLasAuxThread {
 
         ola.setOmobilityId(la.getOmobilityId());
         ola.setReceivingAcademicTermEwpId(la.getReceivingAcademicYearId());
-        ola.setStartDate(la.getStartDate().toGregorianCalendar().getTime());
-        ola.setStartYearMonth(YearMonth.from(la.getStartYearMonth().toGregorianCalendar().getTime().toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate()));
-        ola.setEndDate(la.getEndDate().toGregorianCalendar().getTime());
-        ola.setEndYearMonth(YearMonth.from(la.getEndYearMonth().toGregorianCalendar().getTime().toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate()));
+        if(la.getStartDate() != null) {
+            ola.setStartDate(la.getStartDate().toGregorianCalendar().getTime());
+        }
+        if(la.getStartYearMonth() != null) {
+            ola.setStartYearMonth(YearMonth.from(la.getStartYearMonth().toGregorianCalendar().getTime().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate()));
+        }
+        if(la.getEndDate() != null) {
+            ola.setEndDate(la.getEndDate().toGregorianCalendar().getTime());
+        }
+        if(la.getEndYearMonth() != null) {
+            ola.setEndYearMonth(YearMonth.from(la.getEndYearMonth().toGregorianCalendar().getTime().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate()));
+        }
         ola.setEqfLevelStudiedAtDeparture(la.getEqfLevelStudiedAtDeparture());
         ola.setIscedFCode(la.getIscedFCode());
         ola.setIscedClarification(la.getIscedClarification());
@@ -210,7 +218,9 @@ public class OmobilitiesLasAuxThread {
 
         student.setFamilyName(s.getFamilyName());
         student.setGivenNames(s.getGivenNames());
-        student.setBirthDate(s.getBirthDate().toGregorianCalendar().getTime());
+        if (s.getBirthDate() != null) {
+            student.setBirthDate(s.getBirthDate().toGregorianCalendar().getTime());
+        }
         student.setCitizenship(s.getCitizenship());
         student.setGender(s.getGender());
         student.setEmail(s.getEmail());
@@ -324,7 +334,9 @@ public class OmobilitiesLasAuxThread {
         signature.setSignerApp(s.getSignerApp());
         signature.setSignerName(s.getSignerName());
         signature.setSignerEmail(s.getSignerEmail());
-        signature.setTimestamp(s.getTimestamp().toGregorianCalendar().getTime());
+        if (s.getTimestamp() != null) {
+            signature.setTimestamp(s.getTimestamp().toGregorianCalendar().getTime());
+        }
         signature.setSignerPosition(s.getSignerPosition());
 
         return signature;
