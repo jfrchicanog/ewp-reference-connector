@@ -50,12 +50,16 @@ public class OmobilitiesLasAuxThread {
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
 
+        LOG.fine("OmobilitiesLasAuxThread: url: " + url);
+
         Map<String, List<String>> paramsMap = new HashMap<>();
         paramsMap.put("sending_hei_id", Collections.singletonList(heiId));
         paramsMap.put("omobility_id", Collections.singletonList(mobilityId));
         ParamsClass paramsClass = new ParamsClass();
         paramsClass.setUnknownFields(paramsMap);
         clientRequest.setParams(paramsClass);
+
+        LOG.fine("OmobilitiesLasAuxThread: params: " + paramsMap.toString());
 
         ClientResponse omobilityLasGetResponse = restClient.sendRequest(clientRequest, OmobilityLasGetResponse.class);
 
