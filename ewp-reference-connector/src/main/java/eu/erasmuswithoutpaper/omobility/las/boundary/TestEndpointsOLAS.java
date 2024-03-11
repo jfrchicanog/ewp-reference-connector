@@ -105,13 +105,6 @@ public class TestEndpointsOLAS {
         em.persist(olearningAgreement);
         em.flush();
 
-        String localHeiId = "";
-        List<Institution> internalInstitution = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-
-        localHeiId = internalInstitution.get(0).getInstitutionId();
-
-        em.createNamedQuery(OlearningAgreement.findBySendingHeiIdFilterd).setParameter("sendingHei", localHeiId).getResultList();
-
         LOG.fine("NOTIFY: Send notification");
 
         List<ClientResponse> partnersResponseList = notifyPartner(olearningAgreement);
