@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import eu.erasmuswithoutpaper.api.types.phonenumber.PhoneNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -265,9 +266,39 @@ public class OutgoingMobilityLearningAgreementsConverter {
         mobilityInst.setHeiId(mobilityInstitution.getHeiId());
         mobilityInst.setOunitId(mobilityInstitution.getOunitId());
         mobilityInst.setOunitName(mobilityInstitution.getOunitName());
+
+		mobilityInst.setContactPerson(convertToContactPerson(mobilityInstitution.getContactPerson()));
         
         return mobilityInst;
     }
+
+	private MobilityInstitution.ContactPerson convertToContactPerson(eu.erasmuswithoutpaper.omobility.las.entity.ContactPerson contactPerson) {
+		MobilityInstitution.ContactPerson contactPersonApi = new MobilityInstitution.ContactPerson();
+
+		if (contactPerson == null) {
+			return null;
+		}
+
+		contactPersonApi.setEmail(contactPerson.getEmail());
+		contactPersonApi.setFamilyName(contactPerson.getFamilyName());
+		contactPersonApi.setGivenNames(contactPerson.getGivenNames());
+		contactPersonApi.setPhoneNumber(convertToPhoneNumber(contactPerson.getPhoneNumber()));
+		return contactPersonApi;
+	}
+
+	private PhoneNumber convertToPhoneNumber(eu.erasmuswithoutpaper.omobility.las.entity.OmobilityPhoneNumber phoneNumber) {
+		PhoneNumber phoneNumberApi = new PhoneNumber();
+
+		if (phoneNumber == null) {
+			return null;
+		}
+
+		phoneNumberApi.setE164(phoneNumber.getE164());
+		phoneNumberApi.setExt(phoneNumber.getExtensionNumber());
+		phoneNumberApi.setOtherFormat(phoneNumber.getOtherFormat());
+
+		return phoneNumberApi;
+	}
 
 	public AcademicYearLaStats convertToLearningAgreementsStats(
 			eu.erasmuswithoutpaper.omobility.las.entity.AcademicYearLaStats m) {
