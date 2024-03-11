@@ -13,6 +13,7 @@ import eu.erasmuswithoutpaper.iia.boundary.NotifyAux;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
+import eu.erasmuswithoutpaper.omobility.las.entity.ListOfComponents;
 import eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution;
 import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
 import eu.erasmuswithoutpaper.omobility.las.entity.Student;
@@ -134,6 +135,82 @@ public class TestEndpointsOLAS {
         requestSend.setApproveProposalV1(approvedProposalV1);
         requestSend.setSendingHeiId(heiId);
 
+        em.persist(request);
+        em.flush();
+
+        ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getChangesProposalId());
+        String idLAS = changesProposal.getOlearningAgreement().getId();
+        OlearningAgreement omobility = em.find(OlearningAgreement.class, idLAS);
+        changesProposal = omobility.getChangesProposal();
+
+        omobility.setChangesProposal(null);
+        em.remove(changesProposal);
+
+        em.merge(omobility);
+        em.flush();
+
+        if (omobility.getFirstVersion() != null) {
+
+            if (omobility.getApprovedChanges() == null) {
+                ListOfComponents cmp = getListOfComponents(changesProposal, request);
+
+                em.persist(cmp);
+                omobility.setApprovedChanges(cmp);
+
+            } else {
+                ListOfComponents cmpBD = omobility.getApprovedChanges();
+
+                if (cmpBD.getBlendedMobilityComponents() == null || cmpBD.getBlendedMobilityComponents().isEmpty()) {
+                    cmpBD.setBlendedMobilityComponents(changesProposal.getBlendedMobilityComponents());
+                } else {
+                    cmpBD.getBlendedMobilityComponents().addAll(changesProposal.getBlendedMobilityComponents());
+                }
+
+                if (cmpBD.getComponentsStudied() == null || cmpBD.getComponentsStudied().isEmpty()) {
+                    cmpBD.setComponentsStudied(changesProposal.getComponentsStudied());
+                } else {
+                    cmpBD.getComponentsStudied().addAll(changesProposal.getComponentsStudied());
+                }
+
+                if (cmpBD.getComponentsRecognized() == null || cmpBD.getComponentsRecognized().isEmpty()) {
+                    cmpBD.setComponentsRecognized(changesProposal.getComponentsRecognized());
+                } else {
+                    cmpBD.getComponentsRecognized().addAll(changesProposal.getComponentsRecognized());
+                }
+
+                if (cmpBD.getVirtualComponents() == null || cmpBD.getVirtualComponents().isEmpty()) {
+                    cmpBD.setVirtualComponents(changesProposal.getVirtualComponents());
+                } else {
+                    cmpBD.getVirtualComponents().addAll(changesProposal.getVirtualComponents());
+                }
+
+                if (cmpBD.getShortTermDoctoralComponents() == null || cmpBD.getShortTermDoctoralComponents().isEmpty()) {
+                    cmpBD.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
+                } else {
+                    cmpBD.getShortTermDoctoralComponents().addAll(changesProposal.getShortTermDoctoralComponents());
+                }
+
+                cmpBD.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
+                if (request.getSignature() != null) {
+                    cmpBD.setReceivingHeiSignature(request.getSignature());
+                }
+                cmpBD.setStudentSignature(changesProposal.getStudentSignature());
+
+                em.merge(cmpBD);
+                em.flush();
+            }
+
+        } else {
+            ListOfComponents cmp = getListOfComponents(changesProposal, request);
+
+            em.persist(cmp);
+
+            omobility.setFirstVersion(cmp);
+        }
+
+        em.merge(omobility);
+        em.flush();
+
         ClientRequest clientRequest = new ClientRequest();
         if (heiId.startsWith("test")) {
             clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/update");
@@ -171,6 +248,27 @@ public class TestEndpointsOLAS {
         commentProposalV1.setSignature(signature);
         requestSend.setCommentProposalV1(commentProposalV1);
         requestSend.setSendingHeiId(heiId);
+
+        em.persist(request);
+        em.flush();
+
+        ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getChangesProposalId());
+        if (changesProposal.getOlearningAgreement().getFirstVersion() == null) {
+            changesProposal.setCommentProposal(request);
+            if (request.getSignature() != null) {
+                changesProposal.setReceivingHeiSignature(request.getSignature());
+            }
+            em.merge(changesProposal);
+            em.flush();
+        } else {
+            em.remove(changesProposal);
+
+            OlearningAgreement omobility = em.find(OlearningAgreement.class, changesProposal.getOlearningAgreement().getId());
+            omobility.setChangesProposal(null);
+
+            em.merge(omobility);
+            em.flush();
+        }
 
         ClientRequest clientRequest = new ClientRequest();
         if (heiId.startsWith("test")) {
@@ -292,6 +390,22 @@ public class TestEndpointsOLAS {
 
         return partnersResponseList;
 
+    }
+
+    private static ListOfComponents getListOfComponents(ChangesProposal changesProposal, ApprovedProposal appCmp) {
+        ListOfComponents cmp = new ListOfComponents();
+
+        cmp.setBlendedMobilityComponents(changesProposal.getBlendedMobilityComponents());
+        cmp.setComponentsStudied(changesProposal.getComponentsStudied());
+        cmp.setComponentsRecognized(changesProposal.getComponentsRecognized());
+        cmp.setVirtualComponents(changesProposal.getVirtualComponents());
+        cmp.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
+        cmp.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
+        if (appCmp.getSignature() != null) {
+            cmp.setReceivingHeiSignature(appCmp.getSignature());
+        }
+        cmp.setStudentSignature(changesProposal.getStudentSignature());
+        return cmp;
     }
 
     private List<LearningAgreement> omobilitiesLas(List<OlearningAgreement> omobilityLasList, List<String> omobilityLasIdList) {
