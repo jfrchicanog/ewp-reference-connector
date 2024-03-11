@@ -554,6 +554,8 @@ public class OutgoingMobilityLearningAgreementsResource {
         OmobilityLasGetResponse response = new OmobilityLasGetResponse();
         List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiIdFilterd).setParameter("sendingHei", sendingHeiId).getResultList();
 
+        LOG.fine("omobilityLasList: " + omobilityLasList.toString());
+
         if (!omobilityLasList.isEmpty()) {
 
             /*Collection<String> heisCoveredByCertificate;
