@@ -540,7 +540,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     }
 
     private javax.ws.rs.core.Response mobilityGet(String sendingHeiId, List<String> mobilityIdList) {
-        if (sendingHeiId == null || sendingHeiId.trim().isEmpty()) {
+        if (sendingHeiId == null || sendingHeiId.trim().isEmpty() || mobilityIdList == null || mobilityIdList.isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for get.", Response.Status.BAD_REQUEST);
         }
         LOG.fine("sendingHeiId: " + sendingHeiId);
