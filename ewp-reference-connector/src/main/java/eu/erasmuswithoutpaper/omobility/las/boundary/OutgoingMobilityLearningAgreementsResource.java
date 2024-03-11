@@ -556,15 +556,15 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         if (!omobilityLasList.isEmpty()) {
 
-            Collection<String> heisCoveredByCertificate;
+            /*Collection<String> heisCoveredByCertificate;
             if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
                 heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
             } else {
                 heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
-            }
+            }*/
 
             //checking if caller covers the receiving HEI of this mobility,
-            omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId())).collect(Collectors.toList());
+            //omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId())).collect(Collectors.toList());
             response.getLa().addAll(omobilitiesLas(omobilityLasList, mobilityIdList));
         }
 
