@@ -86,7 +86,7 @@ public class TestEndpointsOLAS {
             em.merge(olearningAgreementDB);
             em.flush();
 
-            notifyPartner(olearningAgreement);
+            notifyPartner(olearningAgreementDB);
 
             LOG.fine("CHANGE: merge olearningAgreement: " + olearningAgreementDB.getId());
 
