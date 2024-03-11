@@ -6,7 +6,7 @@ public class EwpConstants {
     public static final String ORGANIZATION_UNIT_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-ounits/blob/stable-v2/manifest-entry.xsd";
     public static final String COURSE_REPLICATION_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-course-replication/blob/stable-v1/manifest-entry.xsd";
     public static final String COURSES_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-courses/blob/stable-v1/manifest-entry.xsd";
-    public static final String IIAS_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iias/blob/stable-v6/manifest-entry.xsd";
+    public static final String IIAS_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iias/blob/stable-v7/manifest-entry.xsd";
     public static final String IIAS_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iia-cnr/blob/stable-v2/manifest-entry.xsd";
     public static final String IIAS_APPROVAL_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iias-approval/blob/stable-v1/manifest-entry.xsd";
     public static final String IIAS_APPROVAL_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/blob/stable-v1/manifest-entry.xsd";
@@ -33,7 +33,7 @@ public class EwpConstants {
     public static final String INCOMING_MOBILITY_CNR_VERSION = "0.1.0";
     public static final String INCOMING_MOBILITIES_TORS_VERSION = "0.7.0";
     public static final String INCOMING_MOBILITY_TORS_CNR_VERSION = "0.1.0";
-    public static final String IIAS_VERSION = "6.2.0";
+    public static final String IIAS_VERSION = "7.0.0";
     public static final String IIA_CNR_VERSION = "2.0.3";
     public static final String IIAS_APPROVAL_VERSION = "1.0.0";
     public static final String IIA_APPROVAL_CNR_VERSION = "1.0.0";

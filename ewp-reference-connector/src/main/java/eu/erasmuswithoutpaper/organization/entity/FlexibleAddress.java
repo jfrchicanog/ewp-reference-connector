@@ -15,7 +15,8 @@ public class FlexibleAddress implements Serializable {
     @Id
     @GeneratedValue(generator="system-uuid")
     String id;
-    
+
+    @ElementCollection
     private List<String> recipientName;
     
     @ElementCollection
@@ -26,6 +27,7 @@ public class FlexibleAddress implements Serializable {
     private String unit;
     private String floor;
     private String postOfficeBox;
+    @ElementCollection
     private List<String> deliveryPointCode;
     private String postalCode;
     private String locality;

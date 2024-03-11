@@ -1,106 +1,46 @@
 
 package eu.erasmuswithoutpaper.iia.entity;
 
-import eu.erasmuswithoutpaper.organization.entity.Contact;
+import eu.erasmuswithoutpaper.api.types.contact.Contact;
+import lombok.*;
+
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@Builder
 @Entity
-@NamedQueries({
+/*@NamedQueries({
     @NamedQuery(name = IiaPartner.findAll, query = "SELECT i FROM IiaPartner i"),
-})
-public class IiaPartner implements Serializable{
+})*/
+public class IiaPartner implements Serializable {
     
-    private static final String PREFIX = "eu.erasmuswithoutpaper.iia.entity.IiaPartner.";
-    public static final String findAll = PREFIX + "all";
+    /*private static final String PREFIX = "eu.erasmuswithoutpaper.iia.entity.IiaPartner.";
+    public static final String findAll = PREFIX + "all";*/
 
     @Id
-    @GeneratedValue(generator="system-uuid")
+    @GeneratedValue(generator = "system-uuid")
     String id;
-    
-    private String institutionId;
-    private String organizationUnitId;
-    
+
+    private String heiId;
+    private String ounitId;
     private String iiaId;
     private String iiaCode;
-    
-    @ManyToMany(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    @JoinTable(name = "IIA_PARTNER_CONTACTS")
-    private List<Contact> contacts;
-    
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "SINGING_CONTACT_PARTNER")
-    private Contact signingContact;
+    private IiaContact signingContact;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date signingDate;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<IiaContact> contact;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getInstitutionId() {
-        return institutionId;
-    }
-
-    public void setInstitutionId(String institutionId) {
-        this.institutionId = institutionId;
-    }
-
-    public String getOrganizationUnitId() {
-        return organizationUnitId;
-    }
-
-    public void setOrganizationUnitId(String organizationUnitId) {
-        this.organizationUnitId = organizationUnitId;
-    }
-
-    public List<Contact> getContacts() {
-        return contacts;
-    }
-
-    public void setContacts(List<Contact> contacts) {
-        this.contacts = contacts;
-    }
-
-    public Contact getSigningContact() {
-		return signingContact;
-	}
-
-	public void setSigningContact(Contact signingContact) {
-		this.signingContact = signingContact;
-	}
-
-	public String getIiaId() {
-		return iiaId;
-	}
-
-	public void setIiaId(String iiaId) {
-		this.iiaId = iiaId;
-	}
-
-	public String getIiaCode() {
-		return iiaCode;
-	}
-
-	public void setIiaCode(String iiaCode) {
-		this.iiaCode = iiaCode;
-	}
-
-	@Override
+    @Override
     public int hashCode() {
         int hash = 5;
         hash = 97 * hash + Objects.hashCode(this.id);
