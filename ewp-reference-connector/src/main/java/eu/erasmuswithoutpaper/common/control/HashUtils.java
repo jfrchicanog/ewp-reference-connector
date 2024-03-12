@@ -45,10 +45,10 @@ public class HashUtils {
         return bos.toByteArray();
     }
 
-    public byte[] convertObjectToByteArray(IiasGetResponse.Iia object) throws JAXBException, IOException {
+    public byte[] convertObjectToByteArray(IiasGetResponse object) throws JAXBException, IOException {
         HashUtils.LOG.fine("HASH UTILS: start iias object to byte array conversion");
         // Create JAXBContext
-        JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.class);
 
         // Create Marshaller
         Marshaller marshaller = jaxbContext.createMarshaller();
@@ -64,7 +64,7 @@ public class HashUtils {
         return xmlOutputStream.toByteArray();
     }
 
-    public String getXmlTransformed(IiasGetResponse.Iia iia) throws Exception {
+    public String getXmlTransformed(IiasGetResponse iia) throws Exception {
         LOG.fine("HASH UTILS: start transformation");
         byte[] xmlBytes = convertObjectToByteArray(iia);
         byte[] xsltBytes = readXMLFileToByteArray("META-INF/transform_version_7.xsl");
