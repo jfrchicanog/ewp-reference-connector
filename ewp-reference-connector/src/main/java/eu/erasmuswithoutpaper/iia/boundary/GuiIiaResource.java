@@ -199,6 +199,7 @@ public class GuiIiaResource {
 
         }catch (Exception e) {
             LOG.fine("Can't calculate sha256 adding new iia");
+            LOG.fine(e.getMessage());
         }
 
         try {
