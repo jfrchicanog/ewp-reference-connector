@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import eu.erasmuswithoutpaper.common.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -56,10 +57,6 @@ import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
-import eu.erasmuswithoutpaper.common.control.GlobalProperties;
-import eu.erasmuswithoutpaper.common.control.HeiEntry;
-import eu.erasmuswithoutpaper.common.control.RegistryClient;
-import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
@@ -101,6 +98,9 @@ public class GuiIiaResource {
 
     @Inject
     SendMonitoringService sendMonitoringService;
+
+    @Inject
+    HashUtils hashUtils;
 
     private static final Logger logger = LoggerFactory.getLogger(GuiIiaResource.class);
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(AuxIiaThread.class.getCanonicalName());
@@ -195,6 +195,13 @@ public class GuiIiaResource {
         convertToIia(iia, iiaInternal);
 
         try {
+            LOG.fine(hashUtils.getXmlTransformed(iia));
+
+        }catch (Exception e) {
+            LOG.fine("Can't calculate sha256 adding new iia");
+        }
+
+        try {
 
             JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
@@ -249,7 +256,7 @@ public class GuiIiaResource {
 
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
-        List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
+        //List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
 
         LOG.fine("ADD: Notification send");
 
