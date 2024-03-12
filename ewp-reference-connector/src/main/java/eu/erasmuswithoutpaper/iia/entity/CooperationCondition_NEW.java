@@ -7,21 +7,21 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-import lombok.*;
-@Getter
+//import lombok.*;
+/*@Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @Builder
 @Entity
-/*@NamedQueries({
+@NamedQueries({
     @NamedQuery(name = CooperationCondition.findAll, query = "SELECT c FROM CooperationCondition c"),
 })*/
 public class CooperationCondition_NEW implements Serializable{
     
     /*private static final String PREFIX = "eu.erasmuswithoutpaper.iia.entity.CooperationCondition.";
-    public static final String findAll = PREFIX + "all";*/
+    public static final String findAll = PREFIX + "all";
     
     @Id
     @GeneratedValue(generator="system-uuid")
@@ -61,5 +61,5 @@ public class CooperationCondition_NEW implements Serializable{
         }
         return true;
     }
-
+*/
 }

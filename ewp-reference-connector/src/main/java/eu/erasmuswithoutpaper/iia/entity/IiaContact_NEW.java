@@ -2,7 +2,7 @@ package eu.erasmuswithoutpaper.iia.entity;
 
 import eu.erasmuswithoutpaper.organization.entity.FlexibleAddress;
 import eu.erasmuswithoutpaper.organization.entity.PhoneNumber;
-import lombok.*;
+//import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,15 +10,15 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 
-@Getter
+/*@Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @Builder
-@Entity
+@Entity*/
 public class IiaContact_NEW implements Serializable {
-
+/*
     @Id
     @GeneratedValue(generator = "system-uuid")
     String id;
@@ -66,5 +66,5 @@ public class IiaContact_NEW implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
+    }*/
 }

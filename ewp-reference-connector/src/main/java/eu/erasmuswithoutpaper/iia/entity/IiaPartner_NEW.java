@@ -2,7 +2,7 @@
 package eu.erasmuswithoutpaper.iia.entity;
 
 import eu.erasmuswithoutpaper.internal.StandardDateConverter;
-import lombok.*;
+//import lombok.*;
 import org.apache.johnzon.mapper.JohnzonConverter;
 
 import java.io.Serializable;
@@ -11,20 +11,20 @@ import java.util.List;
 import java.util.Objects;
 import javax.persistence.*;
 
-@Getter
+/*@Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @Builder
 @Entity
-/*@NamedQueries({
+@NamedQueries({
     @NamedQuery(name = IiaPartner.findAll, query = "SELECT i FROM IiaPartner i"),
 })*/
 public class IiaPartner_NEW implements Serializable {
     
     /*private static final String PREFIX = "eu.erasmuswithoutpaper.iia.entity.IiaPartner.";
-    public static final String findAll = PREFIX + "all";*/
+    public static final String findAll = PREFIX + "all";
 
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -71,5 +71,5 @@ public class IiaPartner_NEW implements Serializable {
             return false;
         }
         return true;
-    }
+    }*/
 }

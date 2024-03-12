@@ -6,9 +6,9 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-import lombok.*;
+//import lombok.*;
 
-@Getter @Setter
+/*@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -17,9 +17,9 @@ import lombok.*;
 @NamedQueries({
     @NamedQuery(name = Iia_NEW.findAll, query = "SELECT i FROM Iia_NEW i"),
     @NamedQuery(name = Iia_NEW.findById, query = "SELECT i FROM Iia_NEW i WHERE i.id = :id"),
-})
+})*/
 public class Iia_NEW implements Serializable {
-
+/*
     private static final String PREFIX = "eu.erasmuswithoutpaper.iia.entity.Iia.";
     public static final String findAll = PREFIX + "all";
     public static final String findById = PREFIX + "byId";
@@ -61,5 +61,5 @@ public class Iia_NEW implements Serializable {
         }
         return true;
     }
-
+*/
 }
