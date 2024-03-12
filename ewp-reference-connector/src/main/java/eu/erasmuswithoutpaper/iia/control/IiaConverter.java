@@ -243,6 +243,7 @@ public class IiaConverter {
         }
 
         if(cc.getReceivingAcademicYearId() != null && !cc.getReceivingAcademicYearId().isEmpty()) {
+            cc.getReceivingAcademicYearId().sort(Comparator.naturalOrder());
             conv.setReceivingFirstAcademicYearId(cc.getReceivingAcademicYearId().get(0));
             if(cc.getReceivingAcademicYearId().size() > 1) {
                 conv.setReceivingLastAcademicYearId(cc.getReceivingAcademicYearId().get(1));
