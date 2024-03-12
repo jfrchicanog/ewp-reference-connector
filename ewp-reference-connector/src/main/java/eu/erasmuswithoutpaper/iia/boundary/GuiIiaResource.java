@@ -194,13 +194,15 @@ public class GuiIiaResource {
 
         convertToIia(iia, iiaInternal);
 
+        LOG.fine("ADD: CALC HASH");
         try {
-            LOG.fine(hashUtils.getXmlTransformed(iia));
+            LOG.fine("ADD: HASH:\n\n\n"+hashUtils.getXmlTransformed(iia)+"\n\n\n");
 
         }catch (Exception e) {
-            LOG.fine("Can't calculate sha256 adding new iia");
+            LOG.fine("ADD: HASH ERROR, Can't calculate sha256 adding new iia");
             LOG.fine(e.getMessage());
         }
+        LOG.fine("ADD: AFTER HASH");
 
         try {
 
