@@ -19,7 +19,7 @@ import javax.persistence.OneToOne;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = IiaPartner.findAll, query = "SELECT i FROM IiaPartner_NEW i"),
+    @NamedQuery(name = IiaPartner.findAll, query = "SELECT i FROM IiaPartner i"),
 })
 public class IiaPartner implements Serializable{
 
