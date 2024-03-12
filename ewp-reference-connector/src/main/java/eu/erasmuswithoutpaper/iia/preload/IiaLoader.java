@@ -1,12 +1,7 @@
 
 package eu.erasmuswithoutpaper.iia.preload;
 
-import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
-import eu.erasmuswithoutpaper.iia.control.IiaConverter;
-import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
-import eu.erasmuswithoutpaper.iia.entity.Iia;
-import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
-import eu.erasmuswithoutpaper.iia.entity.MobilityType;
+import eu.erasmuswithoutpaper.iia.entity.*;
 import eu.erasmuswithoutpaper.internal.AbstractStartupLoader;
 import eu.erasmuswithoutpaper.internal.JsonHelper;
 import eu.erasmuswithoutpaper.organization.entity.Contact;
@@ -14,7 +9,6 @@ import eu.erasmuswithoutpaper.organization.entity.OrganizationUnit;
 import eu.erasmuswithoutpaper.organization.preload.InstitutionLoader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.persistence.Query;
 

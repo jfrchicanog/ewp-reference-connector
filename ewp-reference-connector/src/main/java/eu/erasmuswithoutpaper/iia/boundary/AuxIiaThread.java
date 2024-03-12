@@ -8,6 +8,7 @@ import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
 import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
+import eu.erasmuswithoutpaper.api.iias.endpoints.RecommendedLanguageSkill;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
@@ -23,7 +24,6 @@ import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
-import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
@@ -202,7 +202,7 @@ public class AuxIiaThread {
             }
 
             LOG.fine("AuxIiaThread_ADDEDIT: After setting partner id");
-            newIia.setHashPartner(sendIia.getConditionsHash());
+            newIia.setHashPartner(sendIia.getIiaHash());
 
             LOG.fine("AuxIiaThread_ADDEDIT: Iia hash calculated: " + newIia.getConditionsHash());
 
@@ -284,8 +284,8 @@ public class AuxIiaThread {
                         condition.getReceivingPartner().setIiaId(iiaId);
                     }
                 }
-                LOG.fine("AuxIiaThread_ADDEDIT: Partners hash set to: " + sendIia.getConditionsHash());
-                localIia.setHashPartner(sendIia.getConditionsHash());
+                LOG.fine("AuxIiaThread_ADDEDIT: Partners hash set to: " + sendIia.getIiaHash());
+                localIia.setHashPartner(sendIia.getIiaHash());
                 em.merge(localIia);
                 em.flush();
                 LOG.fine("AuxIiaThread_ADDEDIT: Merged");
@@ -589,8 +589,8 @@ public class AuxIiaThread {
 
     private void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal) {
 
-        if (iia.getConditionsHash() != null) {
-            iiaInternal.setConditionsHash(iia.getConditionsHash());
+        if (iia.getIiaHash() != null) {
+            iiaInternal.setConditionsHash(iia.getIiaHash());
         }
 
         iiaInternal.setInEfect(iia.isInEffect());
@@ -795,7 +795,7 @@ public class AuxIiaThread {
     }
 
     private CooperationCondition convertFromStudentToCooperationCondition(MobilityType mobType,
-                                                                          StudentMobilitySpecification studentStudies) {
+                                                                              StudentMobilitySpecification studentStudies) {
         CooperationCondition cc = new CooperationCondition();
 
         cc.setMobilityType(mobType);
@@ -818,7 +818,7 @@ public class AuxIiaThread {
     }
 
     private CooperationCondition convertFromStaffToCooperationCondition(MobilityType mobType,
-                                                                        StaffMobilitySpecification staffTeacher) {
+                                                                            StaffMobilitySpecification staffTeacher) {
         CooperationCondition cc = new CooperationCondition();
 
         cc.setMobilityType(mobType);
@@ -835,8 +835,8 @@ public class AuxIiaThread {
         List<eu.erasmuswithoutpaper.iia.entity.LanguageSkill> langskills = new ArrayList<>();
 
         if (mobilitySpec.getRecommendedLanguageSkill() != null) {
-            List<MobilitySpecification.RecommendedLanguageSkill> recommendedSkills = mobilitySpec.getRecommendedLanguageSkill();
-            for (MobilitySpecification.RecommendedLanguageSkill recommendedSkill : recommendedSkills) {
+            List<RecommendedLanguageSkill> recommendedSkills = mobilitySpec.getRecommendedLanguageSkill();
+            for (RecommendedLanguageSkill recommendedSkill : recommendedSkills) {
                 eu.erasmuswithoutpaper.iia.entity.LanguageSkill langskill = new eu.erasmuswithoutpaper.iia.entity.LanguageSkill();
 
                 if (recommendedSkill.getCefrLevel() != null) {
@@ -848,7 +848,9 @@ public class AuxIiaThread {
                 if (recommendedSkill.getSubjectArea() != null) {
                     SubjectArea subjectArea = new SubjectArea();
                     subjectArea.setIscedClarification(recommendedSkill.getSubjectArea().getIscedClarification());
-                    subjectArea.setIscedFCode(recommendedSkill.getSubjectArea().getIscedFCode());
+                    if(recommendedSkill.getSubjectArea().getIscedFCode() != null) {
+                        subjectArea.setIscedFCode(recommendedSkill.getSubjectArea().getIscedFCode().getValue());
+                    }
                     langskill.setSubjectArea(subjectArea);
                 }
 
@@ -864,7 +866,8 @@ public class AuxIiaThread {
         if (cc.getReceivingAcademicYearId() == null) {
             cc.setReceivingAcademicYearId(new ArrayList<>());
         }
-        cc.getReceivingAcademicYearId().addAll(mobilitySpec.getReceivingAcademicYearId());
+        cc.getReceivingAcademicYearId().add(mobilitySpec.getReceivingFirstAcademicYearId());
+        cc.getReceivingAcademicYearId().add(mobilitySpec.getReceivingLastAcademicYearId());
 
         //Require academic years to be ordered and without gaps
         cc.getReceivingAcademicYearId().sort((c1, c2) -> {
@@ -897,7 +900,11 @@ public class AuxIiaThread {
 
         if (mobilitySpec.getMobilitiesPerYear() != null) {
             MobilityNumber mobNumber = new MobilityNumber();
-            mobNumber.setNumber(mobilitySpec.getMobilitiesPerYear().intValue());
+            if(mobilitySpec.getMobilitiesPerYear().isNotYetDefined() == null || !mobilitySpec.getMobilitiesPerYear().isNotYetDefined()) {
+                if(mobilitySpec.getMobilitiesPerYear().getValue() != null) {
+                    mobNumber.setNumber(mobilitySpec.getMobilitiesPerYear().getValue().intValue());
+                }
+            }
             cc.setMobilityNumber(mobNumber);
         }
 
@@ -909,7 +916,9 @@ public class AuxIiaThread {
             if (subjectArea.getIscedClarification() != null) {
                 subjectAreaInt.setIscedClarification(subjectArea.getIscedClarification());
             }
-            subjectAreaInt.setIscedFCode(subjectArea.getIscedFCode());
+            if(subjectArea.getIscedFCode() != null) {
+                subjectAreaInt.setIscedFCode(subjectArea.getIscedFCode().getValue());
+            }
 
             subjectAreasInt.add(subjectAreaInt);
         }

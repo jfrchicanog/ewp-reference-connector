@@ -1,44 +1,5 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
-import eu.erasmuswithoutpaper.api.architecture.Empty;
-import eu.erasmuswithoutpaper.api.iias.cnr.ObjectFactory;
-import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
-import eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse;
-import eu.erasmuswithoutpaper.api.iias.endpoints.IiasStatsResponse;
-import eu.erasmuswithoutpaper.common.control.GlobalProperties;
-import eu.erasmuswithoutpaper.common.control.RegistryClient;
-import eu.erasmuswithoutpaper.common.control.RestClient;
-import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
-import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
-import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
-import eu.erasmuswithoutpaper.iia.control.IiaConverter;
-import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
-import eu.erasmuswithoutpaper.iia.entity.Iia;
-import eu.erasmuswithoutpaper.notification.entity.Notification;
-import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
-import eu.erasmuswithoutpaper.organization.entity.Institution;
-import eu.erasmuswithoutpaper.security.EwpAuthenticate;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.math.BigInteger;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.function.BiPredicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 //@Stateless
 //@Path("iias")
 public class IiaResource_OLD {

@@ -1,23 +1,30 @@
 package eu.erasmuswithoutpaper.iia.entity;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.Lob;
+import javax.persistence.*;
 import java.math.BigDecimal;
 
-@Getter
+/*@Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @Builder
-@Entity
-public class StudentMobilitySpecification extends MobilitySpecification {
+@Entity*/
+public class StudentMobilitySpecification /*extends MobilitySpecification */{
 
-    private BigDecimal totalMonthsPerYear;
+    /*private BigDecimal totalMonthsPerYear;
     private Boolean blended;
-    @Lob()
+    @Lob
     private Byte[] eqfLevel;
+
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @JoinColumn(name = "STUDENSTUDIES_CC_ID", referencedColumnName = "ID")
+    private CooperationCondition
+    _NEW studentStudiesMobilitySpecCC;
+
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @JoinColumn(name = "STUDENTTRAINEESHIP_CC_ID", referencedColumnName = "ID")
+    private CooperationCondition_NEW studentTraineeshipMobilitySpecCC;*/
 }

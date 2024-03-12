@@ -30,7 +30,6 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -45,7 +44,7 @@ import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.CooperationConditions;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.Partner;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
-import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification.RecommendedLanguageSkill;
+import eu.erasmuswithoutpaper.api.iias.endpoints.RecommendedLanguageSkill;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTeacherMobilitySpec;
 import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTrainingMobilitySpec;
@@ -73,7 +72,6 @@ import eu.erasmuswithoutpaper.iia.entity.MobilityNumber;
 import eu.erasmuswithoutpaper.iia.entity.MobilityNumberVariants;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
 import eu.erasmuswithoutpaper.iia.entity.SubjectArea;
-import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.organization.entity.ContactDetails;
 import eu.erasmuswithoutpaper.organization.entity.FlexibleAddress;
@@ -81,8 +79,6 @@ import eu.erasmuswithoutpaper.organization.entity.Gender;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.organization.entity.Person;
 import eu.erasmuswithoutpaper.security.InternalAuthenticate;
-
-import java.util.logging.Level;
 
 @Stateless
 @Path("iia")
@@ -264,8 +260,8 @@ public class GuiIiaResource {
 
     private void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal) {
 
-        if (iia.getConditionsHash() != null) {
-            iiaInternal.setConditionsHash(iia.getConditionsHash());
+        if (iia.getIiaHash() != null) {
+            iiaInternal.setConditionsHash(iia.getIiaHash());
         }
 
         iiaInternal.setInEfect(iia.isInEffect());
@@ -470,7 +466,7 @@ public class GuiIiaResource {
     }
 
     private CooperationCondition convertFromStudentToCooperationCondition(MobilityType mobType,
-                                                                          StudentMobilitySpecification studentStudies) {
+                                                                              StudentMobilitySpecification studentStudies) {
         CooperationCondition cc = new CooperationCondition();
 
         cc.setMobilityType(mobType);
@@ -493,7 +489,7 @@ public class GuiIiaResource {
     }
 
     private CooperationCondition convertFromStaffToCooperationCondition(MobilityType mobType,
-                                                                        StaffMobilitySpecification staffTeacher) {
+                                                                            StaffMobilitySpecification staffTeacher) {
         CooperationCondition cc = new CooperationCondition();
 
         cc.setMobilityType(mobType);
@@ -523,7 +519,9 @@ public class GuiIiaResource {
                 if (recommendedSkill.getSubjectArea() != null) {
                     SubjectArea subjectArea = new SubjectArea();
                     subjectArea.setIscedClarification(recommendedSkill.getSubjectArea().getIscedClarification());
-                    subjectArea.setIscedFCode(recommendedSkill.getSubjectArea().getIscedFCode());
+                    if(recommendedSkill.getSubjectArea().getIscedFCode() != null) {
+                        subjectArea.setIscedFCode(recommendedSkill.getSubjectArea().getIscedFCode().getValue());
+                    }
                     langskill.setSubjectArea(subjectArea);
                 }
 
@@ -539,7 +537,8 @@ public class GuiIiaResource {
         if (cc.getReceivingAcademicYearId() == null) {
             cc.setReceivingAcademicYearId(new ArrayList<>());
         }
-        cc.getReceivingAcademicYearId().addAll(mobilitySpec.getReceivingAcademicYearId());
+        cc.getReceivingAcademicYearId().add(mobilitySpec.getReceivingFirstAcademicYearId());
+        cc.getReceivingAcademicYearId().add(mobilitySpec.getReceivingLastAcademicYearId());
 
         //Require academic years to be ordered and without gaps
         cc.getReceivingAcademicYearId().sort((c1, c2) -> {
@@ -572,7 +571,11 @@ public class GuiIiaResource {
 
         if (mobilitySpec.getMobilitiesPerYear() != null) {
             MobilityNumber mobNumber = new MobilityNumber();
-            mobNumber.setNumber(mobilitySpec.getMobilitiesPerYear().intValue());
+            if(mobilitySpec.getMobilitiesPerYear().isNotYetDefined() == null || !mobilitySpec.getMobilitiesPerYear().isNotYetDefined()) {
+                if(mobilitySpec.getMobilitiesPerYear().getValue() != null) {
+                    mobNumber.setNumber(mobilitySpec.getMobilitiesPerYear().getValue().intValue());
+                }
+            }
             cc.setMobilityNumber(mobNumber);
         }
 
@@ -584,7 +587,9 @@ public class GuiIiaResource {
             if (subjectArea.getIscedClarification() != null) {
                 subjectAreaInt.setIscedClarification(subjectArea.getIscedClarification());
             }
-            subjectAreaInt.setIscedFCode(subjectArea.getIscedFCode());
+            if(subjectArea.getIscedFCode() != null) {
+                subjectAreaInt.setIscedFCode(subjectArea.getIscedFCode().getValue());
+            }
 
             subjectAreasInt.add(subjectAreaInt);
         }

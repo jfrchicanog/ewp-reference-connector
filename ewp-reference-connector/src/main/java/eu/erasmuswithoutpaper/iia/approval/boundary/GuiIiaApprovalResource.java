@@ -27,6 +27,8 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import eu.erasmuswithoutpaper.iia.control.IiaConverter;
+import eu.erasmuswithoutpaper.iia.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -48,10 +50,6 @@ import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.iia.approval.control.IiaApprovalConverter;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
-import eu.erasmuswithoutpaper.iia.control.IiaConverter;
-import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
-import eu.erasmuswithoutpaper.iia.entity.Iia;
-import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 
 @Stateless
@@ -72,7 +70,7 @@ public class GuiIiaApprovalResource {
     IiaApprovalConverter converter;
     
     @Inject
-    IiaConverter iiaConverter;
+	IiaConverter iiaConverter;
 
     @GET
     @Path("get_all")
@@ -126,7 +124,7 @@ public class GuiIiaApprovalResource {
         	Iia iia = em.find(Iia.class, iiaId);
         	
         	eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia iiaresponse = new IiasGetResponse.Iia();
-        	iiaresponse.setCooperationConditions(iiaConverter.convertToCooperationConditions(iia.getCooperationConditions()));
+        	iiaresponse.setCooperationConditions(iiaConverter.convertToCooperationConditions(iia.getCooperationConditions(), iia.getConditionsTerminatedAsAWhole()));
         	
         	try {
         		

@@ -1,15 +1,11 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
 import java.math.BigInteger;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPublicKey;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -40,12 +36,14 @@ import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
+import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
 import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 
 import java.util.logging.Level;
+import java.util.stream.Stream;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
@@ -350,49 +348,22 @@ public class IiaResource {
         @Override
         public boolean test(Iia iia, String receiving_academic_year_id) {
 
-            if(iia.getCooperationConditions() != null) {
-                if(iia.getCooperationConditions().getStudentStudiesMobilitySpec() != null &&
-                        iia.getCooperationConditions().getStudentStudiesMobilitySpec().stream().anyMatch(ssms -> {
-                            int beginYear = Integer.parseInt(receiving_academic_year_id.substring(0, 4));
-                            int endYear = Integer.parseInt(receiving_academic_year_id.substring(5, 9));
-                            int beginYearIia = Integer.parseInt(ssms.getReceivingFirstAcademicYearId().substring(0, 4));
-                            int endYearIia = Integer.parseInt(ssms.getReceivingLastAcademicYearId().substring(5, 9));
-                            return (beginYear >= beginYearIia && endYear <= endYearIia);
-                        })) {
-                    return true;
+            List<CooperationCondition> cConditions = iia.getCooperationConditions();
+
+            Stream<CooperationCondition> stream = cConditions.stream().filter(c -> {
+                if (c.getReceivingAcademicYearId() != null) {
+                    if(c.getReceivingAcademicYearId().isEmpty() || c.getReceivingAcademicYearId().size() <= 1){
+                        return false;
+                    }
+                    String firtsYear = c.getReceivingAcademicYearId().get(0).split("/")[0];
+                    String lastYear = c.getReceivingAcademicYearId().get(0).split("/")[1];
+
+                    return (receiving_academic_year_id.compareTo(firtsYear) >= 0 && receiving_academic_year_id.compareTo(lastYear) <= 0);
                 }
-                if(iia.getCooperationConditions().getStudentTraineeshipMobilitySpec() != null &&
-                        iia.getCooperationConditions().getStudentTraineeshipMobilitySpec().stream().anyMatch(ssms -> {
-                            int beginYear = Integer.parseInt(receiving_academic_year_id.substring(0, 4));
-                            int endYear = Integer.parseInt(receiving_academic_year_id.substring(5, 9));
-                            int beginYearIia = Integer.parseInt(ssms.getReceivingFirstAcademicYearId().substring(0, 4));
-                            int endYearIia = Integer.parseInt(ssms.getReceivingLastAcademicYearId().substring(5, 9));
-                            return (beginYear >= beginYearIia && endYear <= endYearIia);
-                        })) {
-                    return true;
-                }
-                if(iia.getCooperationConditions().getStaffTeacherMobilitySpec() != null &&
-                        iia.getCooperationConditions().getStaffTeacherMobilitySpec().stream().anyMatch(ssms -> {
-                            int beginYear = Integer.parseInt(receiving_academic_year_id.substring(0, 4));
-                            int endYear = Integer.parseInt(receiving_academic_year_id.substring(5, 9));
-                            int beginYearIia = Integer.parseInt(ssms.getReceivingFirstAcademicYearId().substring(0, 4));
-                            int endYearIia = Integer.parseInt(ssms.getReceivingLastAcademicYearId().substring(5, 9));
-                            return (beginYear >= beginYearIia && endYear <= endYearIia);
-                        })) {
-                    return true;
-                }
-                if(iia.getCooperationConditions().getStaffTrainingMobilitySpec() != null &&
-                        iia.getCooperationConditions().getStaffTrainingMobilitySpec().stream().anyMatch(ssms -> {
-                            int beginYear = Integer.parseInt(receiving_academic_year_id.substring(0, 4));
-                            int endYear = Integer.parseInt(receiving_academic_year_id.substring(5, 9));
-                            int beginYearIia = Integer.parseInt(ssms.getReceivingFirstAcademicYearId().substring(0, 4));
-                            int endYearIia = Integer.parseInt(ssms.getReceivingLastAcademicYearId().substring(5, 9));
-                            return (beginYear >= beginYearIia && endYear <= endYearIia);
-                        })) {
-                    return true;
-                }
-            }
-            return false;
+                return false;
+            });
+
+            return !stream.collect(Collectors.toList()).isEmpty();
         }
     };
 

@@ -28,6 +28,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
+import eu.erasmuswithoutpaper.iia.entity.Iia;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +43,6 @@ import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.iia.approval.control.IiaApprovalConverter;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
-import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
-import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
 import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;

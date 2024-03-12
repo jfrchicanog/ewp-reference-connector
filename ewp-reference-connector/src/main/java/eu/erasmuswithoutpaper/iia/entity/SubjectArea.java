@@ -2,10 +2,7 @@ package eu.erasmuswithoutpaper.iia.entity;
 
 import java.io.Serializable;
 import java.util.Objects;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 
 @Entity(name="SubjectArea")
 @NamedQuery(name = SubjectArea.findAll, query = "SELECT s FROM SubjectArea s")
