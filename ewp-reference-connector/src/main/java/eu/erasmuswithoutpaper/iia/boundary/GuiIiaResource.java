@@ -188,7 +188,7 @@ public class GuiIiaResource {
     @InternalAuthenticate
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response add(IiasGetResponse.Iia iia) {
+    public Response add(IiasGetResponse.Iia iia) throws Exception {
         LOG.fine("ADD: Add start");
         Iia iiaInternal = new Iia();
 
@@ -201,6 +201,7 @@ public class GuiIiaResource {
         }catch (Exception e) {
             LOG.fine("ADD: HASH ERROR, Can't calculate sha256 adding new iia");
             LOG.fine(e.getMessage());
+            throw e;
         }
         LOG.fine("ADD: AFTER HASH");
 

@@ -48,7 +48,7 @@ public class HashUtils {
     public byte[] convertObjectToByteArray(IiasGetResponse.Iia object) throws JAXBException, IOException {
         HashUtils.LOG.fine("HASH UTILS: start iias object to byte array conversion");
         // Create JAXBContext
-        JAXBContext jaxbContext = JAXBContext.newInstance(object.getClass());
+        JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.class);
 
         // Create Marshaller
         Marshaller marshaller = jaxbContext.createMarshaller();
