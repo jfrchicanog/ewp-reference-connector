@@ -1,8 +1,12 @@
 package eu.erasmuswithoutpaper.common.control;
 
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
-import org.w3c.dom.Document;
 
+import java.io.*;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import javax.ejb.Singleton;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -14,11 +18,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.*;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import org.w3c.dom.Document;
 
 @Singleton
 public class HashUtils {
@@ -70,6 +70,8 @@ public class HashUtils {
     }
 
     public String getXmlTransformed(IiasGetResponse iia) throws Exception {
+        System.setProperty(
+                "javax.xml.transform.TransformerFactory","net.sf.saxon.TransformerFactoryImpl");
         LOG.fine("HASH UTILS: start transformation");
         byte[] xmlBytes = convertObjectToByteArray(iia);
         byte[] xsltBytes = Files.readAllBytes(Paths.get(HashUtils.class.getClassLoader().getResource("META-INF/transform_version_7.xsl").toURI()));
