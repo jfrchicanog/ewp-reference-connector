@@ -1,7 +1,6 @@
 package eu.erasmuswithoutpaper.common.control;
 
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
-import eu.erasmuswithoutpaper.iia.boundary.AuxIiaThread;
 import org.w3c.dom.Document;
 
 import javax.ejb.Singleton;
@@ -18,6 +17,8 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Singleton
 public class HashUtils {
@@ -71,7 +72,7 @@ public class HashUtils {
     public String getXmlTransformed(IiasGetResponse iia) throws Exception {
         LOG.fine("HASH UTILS: start transformation");
         byte[] xmlBytes = convertObjectToByteArray(iia);
-        byte[] xsltBytes = readXMLFileToByteArray("META-INF/transform_version_7.xsl");
+        byte[] xsltBytes = Files.readAllBytes(Paths.get(HashUtils.class.getClassLoader().getResource("META-INF/transform_version_7.xsl").toURI()));
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
 
