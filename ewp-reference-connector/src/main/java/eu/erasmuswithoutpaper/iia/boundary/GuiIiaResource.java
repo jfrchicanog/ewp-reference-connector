@@ -191,16 +191,6 @@ public class GuiIiaResource {
 
         convertToIia(iia, iiaInternal);
 
-        LOG.fine("ADD: CALC HASH");
-        try {
-            iiaInternal.setConditionsHash(HashCalculationUtility.calculateSha256(iia));
-        }catch (Exception e) {
-            LOG.fine("ADD: HASH ERROR, Can't calculate sha256 adding new iia");
-            LOG.fine(e.getMessage());
-            throw e;
-        }
-        LOG.fine("ADD: AFTER HASH");
-
         /*try {
 
             JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
@@ -251,6 +241,18 @@ public class GuiIiaResource {
                 condition.getReceivingPartner().setIiaId(iiaInternal.getId());
             }
         }
+
+        LOG.fine("ADD: CALC HASH");
+        try {
+            IiasGetResponse.Iia iiaResponse = new IiasGetResponse.Iia();
+            convertToIia(iiaResponse, iiaInternal);
+            iiaInternal.setConditionsHash(HashCalculationUtility.calculateSha256(iiaResponse));
+        }catch (Exception e) {
+            LOG.fine("ADD: HASH ERROR, Can't calculate sha256 adding new iia");
+            LOG.fine(e.getMessage());
+            throw e;
+        }
+        LOG.fine("ADD: AFTER HASH");
 
         em.merge(iiaInternal);
 

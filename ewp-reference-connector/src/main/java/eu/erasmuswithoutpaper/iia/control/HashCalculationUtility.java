@@ -73,6 +73,8 @@ public class HashCalculationUtility {
 
 		String xmlString = getXmlTransformed(iiasGetResponse);
 
+		LOG.fine("HASH UTILS: XML transformed: " + xmlString);
+
 		JAXBContext jaxbContext = JAXBContext.newInstance(HashClass.class);
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 		StringReader reader = new StringReader(xmlString);
