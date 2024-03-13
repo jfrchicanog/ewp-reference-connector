@@ -191,6 +191,8 @@ public class GuiIiaResource {
 
         convertToIia(iia, iiaInternal);
 
+        iiaInternal.setModifyDate(new Date());
+
         em.persist(iiaInternal);
         em.flush();
 
