@@ -213,11 +213,7 @@ public class GuiIiaResource {
 
         LOG.fine("ADD: CALC HASH");
         try {
-            String finalLocalHeiId = localHeiId;
-            iia.getPartner().stream().filter(p -> finalLocalHeiId.equals(p.getHeiId())).forEach(p -> {
-                p.setIiaId(iiaIdGenerated);
-            });
-            iiaInternal.setConditionsHash(HashCalculationUtility.calculateSha256(iia));
+            iiaInternal.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(em.find(Iia.class, iiaIdGenerated))).get(0)));
         }catch (Exception e) {
             LOG.fine("ADD: HASH ERROR, Can't calculate sha256 adding new iia");
             LOG.fine(e.getMessage());
