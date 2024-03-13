@@ -99,9 +99,6 @@ public class GuiIiaResource {
     @Inject
     SendMonitoringService sendMonitoringService;
 
-    @Inject
-    HashUtils hashUtils;
-
     private static final Logger logger = LoggerFactory.getLogger(GuiIiaResource.class);
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
@@ -196,10 +193,7 @@ public class GuiIiaResource {
 
         LOG.fine("ADD: CALC HASH");
         try {
-            IiasGetResponse response = new IiasGetResponse();
-            response.getIia().add(iia);
-            LOG.fine("ADD: HASH:\n\n\n"+hashUtils.getXmlTransformed(response)+"\n\n\n");
-
+            iiaInternal.setConditionsHash(HashCalculationUtility.calculateSha256(iia));
         }catch (Exception e) {
             LOG.fine("ADD: HASH ERROR, Can't calculate sha256 adding new iia");
             LOG.fine(e.getMessage());
@@ -207,7 +201,7 @@ public class GuiIiaResource {
         }
         LOG.fine("ADD: AFTER HASH");
 
-        try {
+        /*try {
 
             JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
@@ -236,7 +230,7 @@ public class GuiIiaResource {
         } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
                  | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
             logger.error("Can't calculate sha256 adding new iia", e);
-        }
+        }*/
 
         em.persist(iiaInternal);
         em.flush();
