@@ -33,7 +33,7 @@ public class HashUtils {
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         // Marshal the object to XML and write to file
-        marshaller.marshal(iia, new File(HashUtils.class.getClassLoader().getResource("IIAS/"+id+".xml").toURI()));
+        marshaller.marshal(iia, new File(HashUtils.class.getClassLoader().getResource("IIAS").toURI().getPath()+"/"+id+".xml"));
     }
 
     public static void deleteFile(String id) {
