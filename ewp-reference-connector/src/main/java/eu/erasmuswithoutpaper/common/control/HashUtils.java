@@ -17,36 +17,31 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 
 @Singleton
 public class HashUtils {
 
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(HashUtils.class.getCanonicalName());
 
-    public byte[] readXMLFileToByteArray(String filePath) throws IOException, URISyntaxException {
-        LOG.fine("HASH UTILS: start reading file to byte array");
-        File file = new File(getClass().getClassLoader().getResource(filePath).toURI());
-        LOG.fine("HASH UTILS: file path: " + file.getAbsolutePath());
-        FileInputStream fis = new FileInputStream(file);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int bytesRead;
+    public static void createXMLFile(IiasGetResponse iia, String id) throws JAXBException, URISyntaxException {
+        // Create JAXBContext
+        JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.class);
 
-        try {
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                bos.write(buffer, 0, bytesRead);
-            }
-        } finally {
-            fis.close();
-            bos.close();
-        }
+        // Create Marshaller
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        LOG.fine("HASH UTILS: file to byte array conversion finished");
-
-        return bos.toByteArray();
+        // Marshal the object to XML and write to file
+        marshaller.marshal(iia, new File(HashUtils.class.getClassLoader().getResource("IIAS/"+id+".xml").toURI()));
     }
 
-    public byte[] convertObjectToByteArray(IiasGetResponse object) throws JAXBException, IOException {
+    public static void deleteFile(String id) {
+        File file = new File(HashUtils.class.getClassLoader().getResource("IIAS/"+id+".xml").getFile());
+        file.delete();
+    }
+
+    public byte[] convertObjectToByteArray(IiasGetResponse object, String id) throws JAXBException, IOException {
         HashUtils.LOG.fine("HASH UTILS: start iias object to byte array conversion");
         // Create JAXBContext
         JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.class);
@@ -65,10 +60,12 @@ public class HashUtils {
         return xmlOutputStream.toByteArray();
     }
 
-    public String getXmlTransformed(IiasGetResponse iia) throws Exception {
+    public String getXmlTransformed(IiasGetResponse iia, String id) throws Exception {
         LOG.fine("HASH UTILS: start transformation");
-        byte[] xmlBytes = convertObjectToByteArray(iia);
-        byte[] xsltBytes = readXMLFileToByteArray("META-INF/transform_version_7.xsl");
+        createXMLFile(iia, id);
+        byte[] xmlBytes = Files.readAllBytes(new File(HashUtils.class.getClassLoader().getResource("IIAS/"+id+".xml").toURI()).toPath());
+        byte[] xsltBytes = Files.readAllBytes(new File(HashUtils.class.getClassLoader().getResource("META-INF/transform_version_7.xsl").toURI()).toPath());
+        deleteFile(id);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
 
