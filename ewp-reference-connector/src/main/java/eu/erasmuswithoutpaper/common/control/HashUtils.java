@@ -16,15 +16,16 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.net.URISyntaxException;
 
 @Singleton
 public class HashUtils {
 
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(HashUtils.class.getCanonicalName());
 
-    public byte[] readXMLFileToByteArray(String filePath) throws IOException {
+    public byte[] readXMLFileToByteArray(String filePath) throws IOException, URISyntaxException {
         LOG.fine("HASH UTILS: start reading file to byte array");
-        File file = new File(filePath);
+        File file = new File(getClass().getClassLoader().getResource(filePath).toURI());
         LOG.fine("HASH UTILS: file path: " + file.getAbsolutePath());
         FileInputStream fis = new FileInputStream(file);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -67,7 +68,7 @@ public class HashUtils {
     public String getXmlTransformed(IiasGetResponse iia) throws Exception {
         LOG.fine("HASH UTILS: start transformation");
         byte[] xmlBytes = convertObjectToByteArray(iia);
-        byte[] xsltBytes = readXMLFileToByteArray("src/main/resources/META-INF/transform_version_7.xsl");
+        byte[] xsltBytes = readXMLFileToByteArray("transform_version_7.xsl");
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
 
