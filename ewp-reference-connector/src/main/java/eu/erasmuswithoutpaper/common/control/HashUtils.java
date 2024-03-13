@@ -68,7 +68,7 @@ public class HashUtils {
     public String getXmlTransformed(IiasGetResponse iia) throws Exception {
         LOG.fine("HASH UTILS: start transformation");
         byte[] xmlBytes = convertObjectToByteArray(iia);
-        byte[] xsltBytes = readXMLFileToByteArray("transform_version_7.xsl");
+        byte[] xsltBytes = readXMLFileToByteArray("META-INF/transform_version_7.xsl");
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
 
