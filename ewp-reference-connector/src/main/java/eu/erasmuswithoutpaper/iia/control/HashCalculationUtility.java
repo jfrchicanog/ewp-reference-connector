@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -28,6 +29,7 @@ import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaResponse;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.logging.Log;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -80,6 +82,8 @@ public class HashCalculationUtility {
 		StringReader reader = new StringReader(xmlString);
 		HashClass iias = (HashClass) unmarshaller.unmarshal(reader);
 
+		LOG.fine("HASH UTILS: text to hash: " + iias.getIia().getTextToHash());
+		LOG.fine("HASH UTILS: text to hash byte array: " + Arrays.toString(iias.getIia().getTextToHash().getBytes(StandardCharsets.UTF_8)));
 		return getSHA256(iias.getIia().getTextToHash().getBytes(StandardCharsets.UTF_8));
 	}
 
