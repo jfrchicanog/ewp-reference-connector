@@ -191,37 +191,6 @@ public class GuiIiaResource {
 
         convertToIia(iia, iiaInternal);
 
-        /*try {
-
-            JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            StringWriter sw = new StringWriter();
-
-            //Create a copy off CooperationConditions to be used in calculateSha256 function
-            CooperationConditions cc = new CooperationConditions();
-            cc.getStaffTeacherMobilitySpec().addAll(iia.getCooperationConditions().getStaffTeacherMobilitySpec());
-            cc.getStaffTrainingMobilitySpec().addAll(iia.getCooperationConditions().getStaffTrainingMobilitySpec());
-            cc.getStudentStudiesMobilitySpec().addAll(iia.getCooperationConditions().getStudentStudiesMobilitySpec());
-            cc.getStudentTraineeshipMobilitySpec().addAll(iia.getCooperationConditions().getStudentTraineeshipMobilitySpec());
-
-            cc = iiaConverter.removeContactInfo(cc);
-
-            QName qName = new QName("cooperation_conditions");
-            JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
-
-            jaxbMarshaller.marshal(root, sw);
-            String xmlString = sw.toString();
-
-            String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
-
-            iiaInternal.setConditionsHash(calculatedHash);
-        } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
-                 | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
-            logger.error("Can't calculate sha256 adding new iia", e);
-        }*/
-
         em.persist(iiaInternal);
         em.flush();
 
@@ -244,9 +213,11 @@ public class GuiIiaResource {
 
         LOG.fine("ADD: CALC HASH");
         try {
-            IiasGetResponse.Iia iiaResponse = new IiasGetResponse.Iia();
-            convertToIia(iiaResponse, iiaInternal);
-            iiaInternal.setConditionsHash(HashCalculationUtility.calculateSha256(iiaResponse));
+            String finalLocalHeiId = localHeiId;
+            iia.getPartner().stream().filter(p -> finalLocalHeiId.equals(p.getHeiId())).forEach(p -> {
+                p.setIiaId(iiaIdGenerated);
+            });
+            iiaInternal.setConditionsHash(HashCalculationUtility.calculateSha256(iia));
         }catch (Exception e) {
             LOG.fine("ADD: HASH ERROR, Can't calculate sha256 adding new iia");
             LOG.fine(e.getMessage());
