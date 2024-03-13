@@ -198,7 +198,7 @@ public class GuiIiaResource {
         try {
             IiasGetResponse response = new IiasGetResponse();
             response.getIia().add(iia);
-            LOG.fine("ADD: HASH:\n\n\n"+hashUtils.getXmlTransformed(response, "id")+"\n\n\n");
+            LOG.fine("ADD: HASH:\n\n\n"+hashUtils.getXmlTransformed(response)+"\n\n\n");
 
         }catch (Exception e) {
             LOG.fine("ADD: HASH ERROR, Can't calculate sha256 adding new iia");
