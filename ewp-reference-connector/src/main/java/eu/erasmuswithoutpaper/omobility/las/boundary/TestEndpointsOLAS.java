@@ -115,9 +115,27 @@ public class TestEndpointsOLAS {
     @POST
     @Path("update/approve")
     @Consumes("application/json")
-    public Response update(@QueryParam("heiId") String heiId, ApprovedProposal request) {
+    public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, ApprovedProposal request) {
 
         LOG.fine("UPDATE: start");
+        if(id != null && !id.isEmpty()) {
+            OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
+            ApproveProposalV1 ownApprove = new ApproveProposalV1();
+            OlearningAgreement olearningAgreement = learningAgreementEJB.findById(id);
+            ownApprove.setChangesProposalId(olearningAgreement.getChangesProposal().getId());
+            ownApprove.setOmobilityId(id);
+            eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature ownSignature = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
+            ownSignature.setSignerApp(request.getSignature().getSignerApp());
+            ownSignature.setSignerEmail(request.getSignature().getSignerEmail());
+            ownSignature.setSignerName(request.getSignature().getSignerName());
+            ownSignature.setSignerPosition(request.getSignature().getSignerPosition());
+            ownApprove.setSignature(ownSignature);
+            ownUpdate.setApproveProposalV1(ownApprove);
+            ownUpdate.setSendingHeiId(heiId);
+
+            learningAgreementEJB.approveChangesProposal(ownUpdate);
+        }
+
 
         OmobilityLasUpdateRequest requestSend = new OmobilityLasUpdateRequest();
         ApproveProposalV1 approvedProposalV1 = new ApproveProposalV1();
@@ -142,8 +160,6 @@ public class TestEndpointsOLAS {
         clientRequest.setHttpsec(true);
         clientRequest.setXml(requestSend);
 
-        learningAgreementEJB.approveChangesProposal(requestSend);
-
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
 
         LOG.fine("UPDATE: response: " + response.getRawResponse());
@@ -154,9 +170,27 @@ public class TestEndpointsOLAS {
     @POST
     @Path("update/reject")
     @Consumes("application/json")
-    public Response update(@QueryParam("heiId") String heiId, CommentProposal request) {
+    public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, CommentProposal request) {
 
         LOG.fine("UPDATE: start");
+        if(id != null && !id.isEmpty()) {
+            OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
+            CommentProposalV1 ownComment = new CommentProposalV1();
+            OlearningAgreement olearningAgreement = learningAgreementEJB.findById(id);
+            ownComment.setChangesProposalId(olearningAgreement.getChangesProposal().getId());
+            ownComment.setOmobilityId(id);
+            ownComment.setComment(request.getComment());
+            eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature ownSignature = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
+            ownSignature.setSignerApp(request.getSignature().getSignerApp());
+            ownSignature.setSignerEmail(request.getSignature().getSignerEmail());
+            ownSignature.setSignerName(request.getSignature().getSignerName());
+            ownSignature.setSignerPosition(request.getSignature().getSignerPosition());
+            ownComment.setSignature(ownSignature);
+            ownUpdate.setCommentProposalV1(ownComment);
+            ownUpdate.setSendingHeiId(heiId);
+
+            learningAgreementEJB.rejectChangesProposal(ownUpdate);
+        }
 
         OmobilityLasUpdateRequest requestSend = new OmobilityLasUpdateRequest();
         CommentProposalV1 commentProposalV1 = new CommentProposalV1();
@@ -181,8 +215,6 @@ public class TestEndpointsOLAS {
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
         clientRequest.setXml(requestSend);
-
-        learningAgreementEJB.rejectChangesProposal(requestSend);
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
 
