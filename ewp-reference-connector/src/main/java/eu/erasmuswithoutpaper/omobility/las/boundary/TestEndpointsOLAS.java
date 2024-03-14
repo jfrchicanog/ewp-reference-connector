@@ -19,6 +19,8 @@ import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
 import eu.erasmuswithoutpaper.omobility.las.entity.Student;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 
+import javax.annotation.Resource;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -36,8 +38,8 @@ public class TestEndpointsOLAS {
     @PersistenceContext(unitName = "connector")
     EntityManager em;
 
-    @Inject
-    UserTransaction utx;
+    @Resource
+    SessionContext sessionContext;
 
     @Inject
     OutgoingMobilityLearningAgreementsConverter converter;
@@ -109,6 +111,7 @@ public class TestEndpointsOLAS {
 
         LOG.fine("CREATE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
 
+        UserTransaction utx = sessionContext.getUserTransaction();
         try {
             utx.begin();
             em.persist(olearningAgreement);
