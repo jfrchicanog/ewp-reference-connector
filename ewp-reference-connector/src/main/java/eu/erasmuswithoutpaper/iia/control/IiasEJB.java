@@ -195,7 +195,7 @@ public class IiasEJB {
         em.flush();
     }
 
-    public void updateIia(Iia iiaInternal, Iia foundIia) {
+    public void updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
         foundIia.setModifyDate(new Date());
         em.merge(foundIia);
 
@@ -264,6 +264,13 @@ public class IiasEJB {
 
         em.merge(foundIia);
         em.flush();
+
+        if (partnerHash != null) {
+            LOG.fine("UPDATE *ESPECIAL*: PARTNER HASH SET TO: " + partnerHash);
+            foundIia.setHashPartner(partnerHash);
+            em.merge(foundIia);
+            em.flush();
+        }
     }
 
 
