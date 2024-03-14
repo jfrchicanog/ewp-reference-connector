@@ -82,13 +82,15 @@ public class TestEndpointsOLAS {
 
             learningAgreementEJB.update(olearningAgreement, olearningAgreementDB);
 
-            notifyPartner(olearningAgreementDB);
+            OlearningAgreement olearningAgreementDB2 = learningAgreementEJB.findById(olearningAgreement.getId());
 
-            LOG.fine("CHANGE: merge olearningAgreement: " + olearningAgreementDB.getId());
+            notifyPartner(olearningAgreementDB2);
+
+            LOG.fine("CHANGE: merge olearningAgreement: " + olearningAgreementDB2.getId());
 
 
             OmobilityLasGetResponse response = new OmobilityLasGetResponse();
-            response.getLa().add(converter.convertToLearningAgreements(olearningAgreementDB));
+            response.getLa().add(converter.convertToLearningAgreements(olearningAgreementDB2));
             return Response.ok(response).build();
         }
 
