@@ -199,10 +199,10 @@ public class IiasEJB {
         foundIia.setModifyDate(new Date());
         em.merge(foundIia);
 
-        //localIia.setConditionsHash(iiaInternal.getConditionsHash());
+        //foundIia.setConditionsHash(iiaInternal.getConditionsHash());
         foundIia.setInEfect(iiaInternal.isInEfect());
         foundIia.setHashPartner(iiaInternal.getHashPartner());
-        //localIia.setIiaCode(iiaInternal.getIiaCode());
+        foundIia.setIiaCode(iiaInternal.getIiaCode());
 
         List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
         List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
@@ -229,6 +229,7 @@ public class IiasEJB {
                         sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
                         sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
                         sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
+                        sendingPartnerC.setIiaId(sendingPartner.getIiaId());
 
                         IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
                         IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
@@ -236,6 +237,8 @@ public class IiasEJB {
                         receivingPartnerC.setContacts(receivingPartner.getContacts());
                         receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
                         receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
+                        receivingPartnerC.setIiaCode(receivingPartner.getIiaCode());
+                        receivingPartnerC.setIiaId(receivingPartner.getIiaId());
 
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
