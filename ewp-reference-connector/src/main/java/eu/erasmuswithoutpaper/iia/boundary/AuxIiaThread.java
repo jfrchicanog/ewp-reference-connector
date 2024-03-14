@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
@@ -162,38 +163,20 @@ public class AuxIiaThread {
 
             LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
 
-            map = registryClient.getIiaCnrHeiUrls(heiId);
-
-            if (map == null) {
-                return;
-            }
-
-            LOG.fine("AuxIiaThread_ADDEDIT: MAP 2 ENCONTRADO");
-
-            url = (new ArrayList<>(map.values())).get(0);
-            if (url == null) {
-                return;
-            }
-
             LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
 
-            ClientRequest cnrRequest = new ClientRequest();
-            cnrRequest.setUrl(url);
-            cnrRequest.setHeiId(heiId);
-            cnrRequest.setMethod(HttpMethodEnum.POST);
-            cnrRequest.setHttpsec(true);
+            CompletableFuture.runAsync(() -> {
 
-            Map<String, List<String>> paramsMapCNR = new HashMap<>();
-            paramsMapCNR.put("notifier_hei_id", Arrays.asList(localHeiId));
-            paramsMapCNR.put("iia_id", Arrays.asList(newIia.getId()));
-            ParamsClass paramsClassCNR = new ParamsClass();
-            paramsClassCNR.setUnknownFields(paramsMapCNR);
-            cnrRequest.setParams(paramsClassCNR);
+                try {
+                    Thread.sleep(5000);
+                }catch (InterruptedException e) {
+                    LOG.fine("AuxIiaThread_ADDEDIT: Error sleeping");
+                }
 
-            ClientResponse cnrResponse = restClient.sendRequest(cnrRequest, Empty.class);
+                ClientResponse cnrResponse = notifyPartner(heiId, newIia.getId());
 
-            LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + cnrResponse.getStatusCode());
-
+                LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse!= null?cnrResponse.getStatusCode():"NULL"));
+            });
         } else {
             LOG.fine("AuxIiaThread_ADDEDIT: Found existing iia");
             if (localIia.getHashPartner() == null) {
@@ -216,37 +199,22 @@ public class AuxIiaThread {
 
                 if (!beforeHash.equals(localIia.getConditionsHash())) {
 
-                    map = registryClient.getIiaCnrHeiUrls(heiId);
-
-                    if (map == null) {
-                        return;
-                    }
-
-                    LOG.fine("AuxIiaThread_ADDEDIT: MAP CNR ENCONTRADO");
-
-                    url = (new ArrayList<>(map.values())).get(0);
-                    if (url == null) {
-                        return;
-                    }
-
                     LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
 
-                    ClientRequest cnrRequest = new ClientRequest();
-                    cnrRequest.setUrl(url);
-                    cnrRequest.setHeiId(heiId);
-                    cnrRequest.setMethod(HttpMethodEnum.POST);
-                    cnrRequest.setHttpsec(true);
+                    String localId = localIia.getId();
+                    CompletableFuture.runAsync(() -> {
 
-                    Map<String, List<String>> paramsMapCNR = new HashMap<>();
-                    paramsMapCNR.put("notifier_hei_id", Arrays.asList(localHeiId));
-                    paramsMapCNR.put("iia_id", Arrays.asList(localIia.getId()));
-                    ParamsClass paramsClassCNR = new ParamsClass();
-                    paramsClassCNR.setUnknownFields(paramsMapCNR);
-                    cnrRequest.setParams(paramsClassCNR);
+                        try {
+                            Thread.sleep(5000);
+                        }catch (InterruptedException e) {
+                            LOG.fine("AuxIiaThread_ADDEDIT: Error sleeping");
+                        }
 
-                    ClientResponse cnrResponse = restClient.sendRequest(cnrRequest, Empty.class);
+                        ClientResponse cnrResponse = notifyPartner(heiId, localId);
 
-                    LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + cnrResponse.getStatusCode());
+                        LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse!= null?cnrResponse.getStatusCode():"NULL"));
+                    });
+
                 }
             }
         }
@@ -314,13 +282,44 @@ public class AuxIiaThread {
 
 
         LOG.fine("AuxIiaThread_APROVALS: Busqueda en bbdd " + (localIia != null));
-        LOG.fine("AuxIiaThread_APROVALS: Found HASH: " + (localIia != null ? localIia.getConditionsHash(): ""));
+        LOG.fine("AuxIiaThread_APROVALS: Found HASH: " + (localIia != null ? localIia.getConditionsHash() : ""));
         LOG.fine("AuxIiaThread_APROVALS: Send HASH: " + iiaApproval.getConditionsHash());
         if (localIia != null && localIia.getConditionsHash().equals(iiaApproval.getConditionsHash())) {
             LOG.fine("AuxIiaThread_APROVALS: Found existing iia and hash is the same");
             //localIia.setInEfect(iiaApproval.isApproved());
             iiasEJB.merge(localIia);
         }
+    }
+
+    private ClientResponse notifyPartner(String heiId, String iiaId) {
+        String localHeiId = iiasEJB.getHeiId();
+        Map<String, String> map = registryClient.getIiaCnrHeiUrls(heiId);
+
+        if (map == null) {
+            return null;
+        }
+
+        LOG.fine("AuxIiaThread_ADDEDIT: MAP 2 ENCONTRADO");
+
+        String url = (new ArrayList<>(map.values())).get(0);
+        if (url == null) {
+            return null;
+        }
+
+        ClientRequest cnrRequest = new ClientRequest();
+        cnrRequest.setUrl(url);
+        cnrRequest.setHeiId(heiId);
+        cnrRequest.setMethod(HttpMethodEnum.POST);
+        cnrRequest.setHttpsec(true);
+
+        Map<String, List<String>> paramsMapCNR = new HashMap<>();
+        paramsMapCNR.put("notifier_hei_id", Arrays.asList(localHeiId));
+        paramsMapCNR.put("iia_id", Arrays.asList(iiaId));
+        ParamsClass paramsClassCNR = new ParamsClass();
+        paramsClassCNR.setUnknownFields(paramsMapCNR);
+        cnrRequest.setParams(paramsClassCNR);
+
+        return restClient.sendRequest(cnrRequest, Empty.class);
     }
 
     private void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal) {
@@ -531,7 +530,7 @@ public class AuxIiaThread {
     }
 
     private CooperationCondition convertFromStudentToCooperationCondition(MobilityType mobType,
-                                                                              StudentMobilitySpecification studentStudies) {
+                                                                          StudentMobilitySpecification studentStudies) {
         CooperationCondition cc = new CooperationCondition();
 
         cc.setMobilityType(mobType);
@@ -554,7 +553,7 @@ public class AuxIiaThread {
     }
 
     private CooperationCondition convertFromStaffToCooperationCondition(MobilityType mobType,
-                                                                            StaffMobilitySpecification staffTeacher) {
+                                                                        StaffMobilitySpecification staffTeacher) {
         CooperationCondition cc = new CooperationCondition();
 
         cc.setMobilityType(mobType);
@@ -584,7 +583,7 @@ public class AuxIiaThread {
                 if (recommendedSkill.getSubjectArea() != null) {
                     SubjectArea subjectArea = new SubjectArea();
                     subjectArea.setIscedClarification(recommendedSkill.getSubjectArea().getIscedClarification());
-                    if(recommendedSkill.getSubjectArea().getIscedFCode() != null) {
+                    if (recommendedSkill.getSubjectArea().getIscedFCode() != null) {
                         subjectArea.setIscedFCode(recommendedSkill.getSubjectArea().getIscedFCode().getValue());
                     }
                     langskill.setSubjectArea(subjectArea);
@@ -636,8 +635,8 @@ public class AuxIiaThread {
 
         if (mobilitySpec.getMobilitiesPerYear() != null) {
             MobilityNumber mobNumber = new MobilityNumber();
-            if(mobilitySpec.getMobilitiesPerYear().isNotYetDefined() == null || !mobilitySpec.getMobilitiesPerYear().isNotYetDefined()) {
-                if(mobilitySpec.getMobilitiesPerYear().getValue() != null) {
+            if (mobilitySpec.getMobilitiesPerYear().isNotYetDefined() == null || !mobilitySpec.getMobilitiesPerYear().isNotYetDefined()) {
+                if (mobilitySpec.getMobilitiesPerYear().getValue() != null) {
                     mobNumber.setNumber(mobilitySpec.getMobilitiesPerYear().getValue().intValue());
                 }
             }
@@ -652,7 +651,7 @@ public class AuxIiaThread {
             if (subjectArea.getIscedClarification() != null) {
                 subjectAreaInt.setIscedClarification(subjectArea.getIscedClarification());
             }
-            if(subjectArea.getIscedFCode() != null) {
+            if (subjectArea.getIscedFCode() != null) {
                 subjectAreaInt.setIscedFCode(subjectArea.getIscedFCode().getValue());
             }
 
