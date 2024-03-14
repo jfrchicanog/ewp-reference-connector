@@ -321,12 +321,6 @@ public class IiaResource {
         execNotificationToAlgoria(iiaId, notifierHeiId);
         CompletableFuture.runAsync(() -> {
             try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            LOG.fine("TEST: START THREAD");
-            try {
                 ait.addEditIia(notifierHeiId, iiaId);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

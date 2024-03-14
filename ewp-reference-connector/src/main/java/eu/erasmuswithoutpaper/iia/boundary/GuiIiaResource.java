@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -197,7 +198,14 @@ public class GuiIiaResource {
 
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
-        List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            notifyPartner(iiaInternal);
+        });
 
         LOG.fine("ADD: Notification send");
 
@@ -704,8 +712,15 @@ public class GuiIiaResource {
 
         iiasEJB.updateIia(iiaInternal, foundIia);
 
-        //Notify the partner about the modification using the API GUI IIA CNR 
-        List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
+        //Notify the partner about the modification using the API GUI IIA CNR
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            notifyPartner(iiaInternal);
+        });
 
         //ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
         IiaResponse response = new IiaResponse(foundIia.getId(), foundIia.getConditionsHash());

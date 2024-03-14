@@ -209,28 +209,15 @@ public class AuxIiaThread {
             }
             if (!containOtherId) {
                 LOG.fine("AuxIiaThread_ADDEDIT: Not containing other ID");
-                String otherIiaCode = sendIia.getPartner().stream().filter(p -> p.getHeiId().equals(heiId)).map(IiasGetResponse.Iia.Partner::getIiaCode).findFirst().orElse(null);
-                for (CooperationCondition condition : localIia.getCooperationConditions()) {
-                    if (condition.getSendingPartner().getInstitutionId().equals(heiId)) {
-                        LOG.fine("AuxIiaThread_ADDEDIT: Partner " + condition.getSendingPartner().getInstitutionId() + " ID set to: " + iiaId);
-                        condition.getSendingPartner().setIiaId(iiaId);
-                        condition.getSendingPartner().setIiaCode(otherIiaCode);
-                    }
-
-                    if (condition.getReceivingPartner().getInstitutionId().equals(heiId)) {
-                        LOG.fine("AuxIiaThread_ADDEDIT: Partner " + condition.getReceivingPartner().getInstitutionId() + " ID set to: " + iiaId);
-                        condition.getReceivingPartner().setIiaId(iiaId);
-                        condition.getReceivingPartner().setIiaCode(otherIiaCode);
-                    }
-                }
-                LOG.fine("AuxIiaThread_ADDEDIT: Partners hash set to: " + sendIia.getIiaHash());
-                iiasEJB.updateWithPartnerIDs(localIia, sendIia);
+                iiasEJB.updateWithPartnerIDs(localIia, sendIia, heiId, iiaId);
                 LOG.fine("AuxIiaThread_ADDEDIT: Merged");
             } else {
                 String beforeHash = localIia.getConditionsHash();
                 LOG.fine("AuxIiaThread_ADDEDIT: Before hash: " + beforeHash);
                 Iia modifIia = new Iia();
                 convertToIia(sendIia, modifIia);
+
+                localIia.setHashPartner(sendIia.getIiaHash());
 
                 iiasEJB.updateIia(modifIia, localIia);
 

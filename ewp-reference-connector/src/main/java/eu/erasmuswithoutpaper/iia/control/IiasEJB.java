@@ -161,7 +161,22 @@ public class IiasEJB {
         em.flush();
     }
 
-    public void updateWithPartnerIDs(Iia localIia, IiasGetResponse.Iia sendIia) {
+    public void updateWithPartnerIDs(Iia localIia, IiasGetResponse.Iia sendIia, String iiaId, String heiId) {
+        String otherIiaCode = sendIia.getPartner().stream().filter(p -> p.getHeiId().equals(heiId)).map(IiasGetResponse.Iia.Partner::getIiaCode).findFirst().orElse(null);
+        for (CooperationCondition condition : localIia.getCooperationConditions()) {
+            if (condition.getSendingPartner().getInstitutionId().equals(heiId)) {
+                LOG.fine("AuxIiaThread_ADDEDIT: Partner " + condition.getSendingPartner().getInstitutionId() + " ID set to: " + iiaId);
+                condition.getSendingPartner().setIiaId(iiaId);
+                condition.getSendingPartner().setIiaCode(otherIiaCode);
+            }
+
+            if (condition.getReceivingPartner().getInstitutionId().equals(heiId)) {
+                LOG.fine("AuxIiaThread_ADDEDIT: Partner " + condition.getReceivingPartner().getInstitutionId() + " ID set to: " + iiaId);
+                condition.getReceivingPartner().setIiaId(iiaId);
+                condition.getReceivingPartner().setIiaCode(otherIiaCode);
+            }
+        }
+        LOG.fine("AuxIiaThread_ADDEDIT: Partners hash set to: " + sendIia.getIiaHash());
         localIia.setHashPartner(sendIia.getIiaHash());
         em.merge(localIia);
         em.flush();
@@ -181,6 +196,7 @@ public class IiasEJB {
     }
 
     public void updateIia(Iia iiaInternal, Iia foundIia) {
+        foundIia.setModifyDate(new Date());
         em.merge(foundIia);
 
         //localIia.setConditionsHash(iiaInternal.getConditionsHash());
