@@ -370,11 +370,11 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         for (String mobilityId : mobilityIdList) {
             CompletableFuture.runAsync(() -> {
-                try {
+                /*try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
-                }
+                }*/
                 ait.createLas(sendingHeiId, mobilityId);
             });
             //CNROmobilitiesLa cnr = new CNROmobilitiesLa(sendingHeiId, mobilityId);
