@@ -76,11 +76,10 @@ public class TestEndpointsOLAS {
 
         LOG.fine("CHANGE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
 
-        OlearningAgreement olearningAgreementDB = learningAgreementEJB.findById(olearningAgreement.getId());
 
-        if(olearningAgreementDB != null) {
+        if(learningAgreementEJB.findById(olearningAgreement.getId()) != null) {
 
-            learningAgreementEJB.update(olearningAgreement, olearningAgreementDB);
+            learningAgreementEJB.update(olearningAgreement);
 
             OlearningAgreement olearningAgreementDB2 = learningAgreementEJB.findById(olearningAgreement.getId());
 

@@ -29,7 +29,8 @@ public class LearningAgreementEJB {
         em.flush();
     }
 
-    public void update(OlearningAgreement olearningAgreement, OlearningAgreement olearningAgreementDB) {
+    public void update(OlearningAgreement olearningAgreement) {
+        OlearningAgreement olearningAgreementDB = em.find(OlearningAgreement.class, olearningAgreement.getId());
         ChangesProposal changesProposal = olearningAgreement.getChangesProposal();
         LOG.fine("CHANGE: changesProposal: " + changesProposal);
 
