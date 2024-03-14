@@ -87,7 +87,9 @@ public class TestEndpointsOLAS {
             LOG.fine("CHANGE: merge olearningAgreement: " + olearningAgreementDB.getId());
 
 
-            return Response.ok(converter.convertToLearningAgreements(olearningAgreementDB)).build();
+            OmobilityLasGetResponse response = new OmobilityLasGetResponse();
+            response.getLa().add(converter.convertToLearningAgreements(olearningAgreementDB));
+            return Response.ok(response).build();
         }
 
         return Response.status(Response.Status.NOT_FOUND).build();
@@ -110,7 +112,9 @@ public class TestEndpointsOLAS {
 
         LOG.fine("NOTIFY: notification sent");
 
-        return Response.ok(converter.convertToLearningAgreements(learningAgreementEJB.findById(id))).build();
+        OmobilityLasGetResponse response = new OmobilityLasGetResponse();
+        response.getLa().add(converter.convertToLearningAgreements(learningAgreementEJB.findById(id)));
+        return Response.ok(response).build();
     }
 
     @POST
