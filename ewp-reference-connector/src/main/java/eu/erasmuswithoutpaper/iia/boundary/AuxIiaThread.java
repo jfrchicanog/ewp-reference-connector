@@ -196,19 +196,8 @@ public class AuxIiaThread {
 
         } else {
             LOG.fine("AuxIiaThread_ADDEDIT: Found existing iia");
-            boolean containOtherId = false;
-            for (CooperationCondition cc : localIia.getCooperationConditions()) {
-                LOG.fine("AuxIiaThread_ADDEDIT: Sending HeiId" + cc.getSendingPartner().getInstitutionId());
-                LOG.fine("AuxIiaThread_ADDEDIT: Reciving HeiId" + cc.getReceivingPartner().getInstitutionId());
-                if (heiId.equals(cc.getSendingPartner().getInstitutionId())) {
-                    containOtherId = cc.getSendingPartner().getIiaId() != null;
-                }
-                if (heiId.equals(cc.getReceivingPartner().getInstitutionId())) {
-                    containOtherId = cc.getReceivingPartner().getIiaId() != null;
-                }
-            }
-            if (!containOtherId) {
-                LOG.fine("AuxIiaThread_ADDEDIT: Not containing other ID");
+            if (localIia.getHashPartner() == null) {
+                LOG.fine("AuxIiaThread_ADDEDIT: Not containing other HASH");
                 iiasEJB.updateWithPartnerIDs(localIia, sendIia, heiId, iiaId);
                 LOG.fine("AuxIiaThread_ADDEDIT: Merged");
             } else {
