@@ -31,6 +31,7 @@ import javax.transaction.UserTransaction;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiPredicate;
 
 @Path("omobilities/las/test")
@@ -81,7 +82,14 @@ public class TestEndpointsOLAS {
         if(id != null) {
             OlearningAgreement olearningAgreementDB2 = learningAgreementEJB.findById(olearningAgreement.getId());
 
-            notifyPartner(olearningAgreementDB2);
+            CompletableFuture.runAsync(() -> {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                notifyPartner(olearningAgreementDB2);
+            });
 
             LOG.fine("CHANGE: merge olearningAgreement: " + olearningAgreementDB2.getId());
 
@@ -107,7 +115,14 @@ public class TestEndpointsOLAS {
 
         LOG.fine("NOTIFY: Send notification");
 
-        List<ClientResponse> partnersResponseList = notifyPartner(olearningAgreement);
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            notifyPartner(olearningAgreement);
+        });
 
         LOG.fine("NOTIFY: notification sent");
 
