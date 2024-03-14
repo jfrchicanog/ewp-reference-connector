@@ -29,8 +29,11 @@ public class LearningAgreementEJB {
         em.flush();
     }
 
-    public void update(OlearningAgreement olearningAgreement) {
+    public String update(OlearningAgreement olearningAgreement) {
         OlearningAgreement olearningAgreementDB = em.find(OlearningAgreement.class, olearningAgreement.getId());
+        if (olearningAgreementDB == null) {
+            return null;
+        }
         ChangesProposal changesProposal = olearningAgreement.getChangesProposal();
         LOG.fine("CHANGE: changesProposal: " + changesProposal);
 
@@ -42,6 +45,8 @@ public class LearningAgreementEJB {
         olearningAgreementDB.setChangesProposal(changesProposal);
         em.merge(olearningAgreementDB);
         em.flush();
+
+        return olearningAgreementDB.getId();
     }
 
     public List<OlearningAgreement> findAll() {
