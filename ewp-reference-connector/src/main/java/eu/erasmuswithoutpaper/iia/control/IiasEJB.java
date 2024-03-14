@@ -127,6 +127,8 @@ public class IiasEJB {
         LOG.fine("AuxIiaThread_ADDEDIT: After setting partner id");
         newIia.setHashPartner(sendIia.getIiaHash());
 
+        newIia.setModifyDate(new Date());
+
         em.persist(newIia);
         em.flush();
 
@@ -156,6 +158,25 @@ public class IiasEJB {
         LOG.fine("AuxIiaThread_ADDEDIT: After hash");
 
         em.merge(newIia);
+        em.flush();
+    }
+
+    public void updateWithPartnerIDs(Iia localIia, IiasGetResponse.Iia sendIia) {
+        localIia.setHashPartner(sendIia.getIiaHash());
+        em.merge(localIia);
+        em.flush();
+
+        String localHeiId = getHeiId();
+
+        LOG.fine("UPDATE: CALC HASH");
+        try {
+            localIia.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(em.find(Iia.class, localIia.getId()))).get(0)));
+        } catch (Exception e) {
+            LOG.fine("UPDATE: HASH ERROR, Can't calculate sha256 updating iia");
+            LOG.fine(e.getMessage());
+        }
+
+        em.merge(localIia);
         em.flush();
     }
 
