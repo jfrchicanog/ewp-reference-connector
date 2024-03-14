@@ -34,6 +34,7 @@ public class LearningAgreementEJB {
         LOG.fine("CHANGE: changesProposal: " + changesProposal);
 
         em.persist(changesProposal);
+        em.flush();
 
         LOG.fine("CHANGE: changesProposal: " + changesProposal.getId());
 
