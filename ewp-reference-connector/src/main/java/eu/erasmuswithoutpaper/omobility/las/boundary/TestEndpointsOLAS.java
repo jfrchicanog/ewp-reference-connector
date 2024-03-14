@@ -33,7 +33,6 @@ import javax.ws.rs.core.Response;
 import java.util.*;
 import java.util.function.BiPredicate;
 
-@Stateless
 @Path("omobilities/las/test")
 public class TestEndpointsOLAS {
 
