@@ -1,6 +1,5 @@
 package eu.erasmuswithoutpaper.omobility.las.boundary;
 
-import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
 import eu.erasmuswithoutpaper.api.types.phonenumber.PhoneNumber;
@@ -10,12 +9,11 @@ import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.omobility.las.control.LearningAgreementEJB;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
 
-import javax.ejb.Stateless;
+import javax.ejb.EJB;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.ws.rs.core.Response;
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -25,11 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Stateless
 public class OmobilitiesLasAuxThread {
 
-    @PersistenceContext(unitName = "connector")
-    EntityManager em;
+    @EJB
+    LearningAgreementEJB learningAgreementEJB;
 
     @Inject
     RegistryClient registryClient;
@@ -96,7 +93,7 @@ public class OmobilitiesLasAuxThread {
 
         LearningAgreement learningAgreement = response.getLa().get(0);
 
-        List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHei", heiId).getResultList();
+        List<OlearningAgreement> omobilityLasList = learningAgreementEJB.findBySendingHeiId(heiId);
 
         omobilityLasList = omobilityLasList.stream().filter(ola -> ola.getOmobilityId().equals(learningAgreement.getOmobilityId())).collect(Collectors.toList());
         if (omobilityLasList.isEmpty()) {
@@ -110,13 +107,13 @@ public class OmobilitiesLasAuxThread {
 
     private void createOlearningAgreement(LearningAgreement la) {
         OlearningAgreement ola = convertToOlearningAgreement(la);
-        em.persist(ola);
+        learningAgreementEJB.insert(ola);
     }
 
     private void updateOlearningAgreement(LearningAgreement la, OlearningAgreement ola) {
         OlearningAgreement updatedOla = convertToOlearningAgreement(la);
         updatedOla.setId(ola.getId());
-        em.merge(updatedOla);
+        learningAgreementEJB.merge(updatedOla);
     }
 
     private OlearningAgreement convertToOlearningAgreement(LearningAgreement la) {
