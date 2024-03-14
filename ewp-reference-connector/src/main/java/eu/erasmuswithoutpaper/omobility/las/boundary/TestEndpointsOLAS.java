@@ -142,6 +142,8 @@ public class TestEndpointsOLAS {
         clientRequest.setHttpsec(true);
         clientRequest.setXml(requestSend);
 
+        learningAgreementEJB.approveChangesProposal(requestSend);
+
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
 
         LOG.fine("UPDATE: response: " + response.getRawResponse());
@@ -179,6 +181,8 @@ public class TestEndpointsOLAS {
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
         clientRequest.setXml(requestSend);
+
+        learningAgreementEJB.rejectChangesProposal(requestSend);
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
 
