@@ -160,7 +160,7 @@ public class AuxIiaThread {
 
             iiasEJB.insertReceivedIia(sendIia, newIia);
 
-            LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
+            /*LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
 
             map = registryClient.getIiaCnrHeiUrls(heiId);
 
@@ -192,7 +192,7 @@ public class AuxIiaThread {
 
             ClientResponse cnrResponse = restClient.sendRequest(cnrRequest, Empty.class);
 
-            LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + cnrResponse.getStatusCode());
+            LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + cnrResponse.getStatusCode());*/
 
         } else {
             LOG.fine("AuxIiaThread_ADDEDIT: Found existing iia");

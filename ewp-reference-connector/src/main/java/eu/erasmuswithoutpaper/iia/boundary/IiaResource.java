@@ -3,6 +3,7 @@ package eu.erasmuswithoutpaper.iia.boundary;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiPredicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -318,10 +319,19 @@ public class IiaResource {
 
         //Register and execute Algoria notification
         execNotificationToAlgoria(iiaId, notifierHeiId);
-
-        LOG.fine("TEST: START THREAD");
-        CNRGetFirst getThread = new CNRGetFirst(notifierHeiId, iiaId);
-        getThread.start();
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            LOG.fine("TEST: START THREAD");
+            try {
+                ait.addEditIia(notifierHeiId, iiaId);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build();
     }

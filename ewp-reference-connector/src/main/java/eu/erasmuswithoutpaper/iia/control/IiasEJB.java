@@ -29,6 +29,7 @@ import java.io.StringWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Stateless
@@ -80,6 +81,8 @@ public class IiasEJB {
     }
 
     public void insertIia(Iia iiaInternal) throws Exception {
+        iiaInternal.setModifyDate(new Date());
+
         em.persist(iiaInternal);
         em.flush();
 

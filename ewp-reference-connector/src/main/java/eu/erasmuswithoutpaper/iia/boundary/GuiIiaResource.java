@@ -193,8 +193,6 @@ public class GuiIiaResource {
 
         convertToIia(iia, iiaInternal);
 
-        iiaInternal.setModifyDate(new Date());
-
         iiasEJB.insertIia(iiaInternal);
 
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
