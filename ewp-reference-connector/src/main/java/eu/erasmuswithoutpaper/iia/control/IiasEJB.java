@@ -103,7 +103,7 @@ public class IiasEJB {
         LOG.fine("ADD: CALC HASH");
         try {
             iiaInternal.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(em.find(Iia.class, iiaIdGenerated))).get(0)));
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOG.fine("ADD: HASH ERROR, Can't calculate sha256 adding new iia");
             LOG.fine(e.getMessage());
             throw e;
@@ -127,8 +127,6 @@ public class IiasEJB {
         LOG.fine("AuxIiaThread_ADDEDIT: After setting partner id");
         newIia.setHashPartner(sendIia.getIiaHash());
 
-        LOG.fine("AuxIiaThread_ADDEDIT: Iia hash calculated: " + newIia.getConditionsHash());
-
         em.persist(newIia);
         em.flush();
 
@@ -150,7 +148,8 @@ public class IiasEJB {
         LOG.fine("AuxIiaThread_ADDEDIT: Calculate hash");
         try {
             newIia.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(em.find(Iia.class, newIia.getId()))).get(0)));
-        }catch (Exception e) {
+            LOG.fine("AuxIiaThread_ADDEDIT: HASH CALCULATED: " + newIia.getConditionsHash());
+        } catch (Exception e) {
             LOG.fine("AuxIiaThread_ADDEDIT: HASH ERROR, Can't calculate sha256 adding new iia");
             LOG.fine(e.getMessage());
         }
@@ -218,7 +217,7 @@ public class IiasEJB {
         LOG.fine("UPDATE: CALC HASH");
         try {
             foundIia.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(em.find(Iia.class, foundIia.getId()))).get(0)));
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOG.fine("UPDATE: HASH ERROR, Can't calculate sha256 updating iia");
             LOG.fine(e.getMessage());
         }
@@ -226,7 +225,6 @@ public class IiasEJB {
         em.merge(foundIia);
         em.flush();
     }
-
 
 
     public List<Institution> findAllInstitutions() {
