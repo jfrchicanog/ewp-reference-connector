@@ -21,6 +21,7 @@ import eu.erasmuswithoutpaper.omobility.las.entity.Student;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 
 import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -36,7 +37,7 @@ import java.util.function.BiPredicate;
 @Path("omobilities/las/test")
 public class TestEndpointsOLAS {
 
-    @Resource
+    @EJB
     LearningAgreementEJB learningAgreementEJB;
 
     @Inject
