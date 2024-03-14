@@ -23,6 +23,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.UserTransaction;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.*;
@@ -34,6 +35,9 @@ public class TestEndpointsOLAS {
 
     @PersistenceContext(unitName = "connector")
     EntityManager em;
+
+    @Inject
+    UserTransaction utx;
 
     @Inject
     OutgoingMobilityLearningAgreementsConverter converter;
@@ -105,8 +109,14 @@ public class TestEndpointsOLAS {
 
         LOG.fine("CREATE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
 
-        em.persist(olearningAgreement);
-        em.flush();
+        try {
+            utx.begin();
+            em.persist(olearningAgreement);
+            utx.commit();
+        } catch (Exception e) {
+            LOG.severe("CREATE: Error creating olearningAgreement: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
 
         LOG.fine("NOTIFY: Send notification");
 
