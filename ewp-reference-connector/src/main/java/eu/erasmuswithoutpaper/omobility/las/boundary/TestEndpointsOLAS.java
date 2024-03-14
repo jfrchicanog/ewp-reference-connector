@@ -11,6 +11,7 @@ import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.iia.boundary.NotifyAux;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
+import eu.erasmuswithoutpaper.omobility.las.control.LearningAgreementEJB;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
 import eu.erasmuswithoutpaper.omobility.las.entity.ListOfComponents;
@@ -35,11 +36,8 @@ import java.util.function.BiPredicate;
 @Path("omobilities/las/test")
 public class TestEndpointsOLAS {
 
-    @PersistenceContext(unitName = "connector")
-    EntityManager em;
-
     @Resource
-    SessionContext sessionContext;
+    LearningAgreementEJB learningAgreementEJB;
 
     @Inject
     OutgoingMobilityLearningAgreementsConverter converter;
@@ -59,7 +57,7 @@ public class TestEndpointsOLAS {
     @Path("")
     public Response hello(@QueryParam("sending_hei_id") String sendingHeiId, @QueryParam("omobility_id") List<String> mobilityIdList) {
         OmobilityLasGetResponse response = new OmobilityLasGetResponse();
-        List<OlearningAgreement> omobilityLasList = em.createNamedQuery(OlearningAgreement.findBySendingHeiIdFilterd).setParameter("sendingHei", sendingHeiId).getResultList();
+        List<OlearningAgreement> omobilityLasList = learningAgreementEJB.findBySendingHeiIdFilterd(sendingHeiId);
 
         if (!omobilityLasList.isEmpty()) {
 
@@ -78,19 +76,11 @@ public class TestEndpointsOLAS {
 
         LOG.fine("CHANGE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
 
-        OlearningAgreement olearningAgreementDB = em.find(OlearningAgreement.class, olearningAgreement.getId());
+        OlearningAgreement olearningAgreementDB = learningAgreementEJB.findById(olearningAgreement.getId());
 
         if(olearningAgreementDB != null) {
-            ChangesProposal changesProposal = olearningAgreement.getChangesProposal();
-            LOG.fine("CHANGE: changesProposal: " + changesProposal);
 
-            em.persist(changesProposal);
-
-            LOG.fine("CHANGE: changesProposal: " + changesProposal.getId());
-
-            olearningAgreementDB.setChangesProposal(changesProposal);
-            em.merge(olearningAgreementDB);
-            em.flush();
+            learningAgreementEJB.update(olearningAgreement, olearningAgreementDB);
 
             notifyPartner(olearningAgreementDB);
 
@@ -111,15 +101,7 @@ public class TestEndpointsOLAS {
 
         LOG.fine("CREATE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
 
-        UserTransaction utx = sessionContext.getUserTransaction();
-        try {
-            utx.begin();
-            em.persist(olearningAgreement);
-            utx.commit();
-        } catch (Exception e) {
-            LOG.severe("CREATE: Error creating olearningAgreement: " + e.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
+        String id = learningAgreementEJB.insert(olearningAgreement);
 
         LOG.fine("NOTIFY: Send notification");
 
@@ -127,7 +109,7 @@ public class TestEndpointsOLAS {
 
         LOG.fine("NOTIFY: notification sent");
 
-        return Response.ok(em.find(OlearningAgreement.class, olearningAgreement.getId())).build();
+        return Response.ok(learningAgreementEJB.findById(id)).build();
     }
 
     @POST
@@ -227,16 +209,12 @@ public class TestEndpointsOLAS {
     private List<ClientResponse> notifyPartner(OlearningAgreement olearningAgreement) {
         LOG.fine("NOTIFY: Send notification");
 
-        String localHeiId = "";
-        List<Institution> internalInstitution = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-
-        localHeiId = internalInstitution.get(0).getInstitutionId();
+        String localHeiId = learningAgreementEJB.getHeiId();
 
         List<ClientResponse> partnersResponseList = new ArrayList<>();
 
         Set<NotifyAux> cnrUrls = new HashSet<>();
 
-        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
         MobilityInstitution partnerSending = olearningAgreement.getSendingHei();
         MobilityInstitution partnerReceiving = olearningAgreement.getReceivingHei();
 
