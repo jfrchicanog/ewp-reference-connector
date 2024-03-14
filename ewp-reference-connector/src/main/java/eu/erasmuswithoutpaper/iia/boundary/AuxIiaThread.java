@@ -181,7 +181,7 @@ public class AuxIiaThread {
             LOG.fine("AuxIiaThread_ADDEDIT: Found existing iia");
             if (localIia.getHashPartner() == null) {
                 LOG.fine("AuxIiaThread_ADDEDIT: Not containing other HASH");
-                iiasEJB.updateWithPartnerIDs(localIia, sendIia, heiId, iiaId);
+                iiasEJB.updateWithPartnerIDs(localIia, sendIia, iiaId, heiId);
                 LOG.fine("AuxIiaThread_ADDEDIT: Merged");
             } else {
                 String beforeHash = localIia.getConditionsHash();
