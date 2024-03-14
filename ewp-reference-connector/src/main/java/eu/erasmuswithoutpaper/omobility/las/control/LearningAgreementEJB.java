@@ -16,7 +16,7 @@ public class LearningAgreementEJB {
     @PersistenceContext(unitName = "connector")
     EntityManager em;
 
-    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(TestEndpointsOLAS.class.getCanonicalName());
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(LearningAgreementEJB.class.getCanonicalName());
 
     public String insert(OlearningAgreement olearningAgreement) {
         em.persist(olearningAgreement);

@@ -26,6 +26,7 @@ import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
+import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Duration;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
@@ -45,6 +46,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -63,17 +65,13 @@ import org.xml.sax.SAXException;
 /**
  * @author Moritz Baader
  */
-@Stateless
 public class AuxIiaThread {
 
-    @PersistenceContext(unitName = "connector")
-    EntityManager em;
+    @EJB
+    IiasEJB iiasEJB;
 
     @Inject
     RegistryClient registryClient;
-
-    @Inject
-    IiaConverter iiaConverter;
 
     @Inject
     RestClient restClient;
@@ -81,10 +79,7 @@ public class AuxIiaThread {
     private static final Logger LOG = Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
     public void addEditIia(String heiId, String iiaId) throws InterruptedException {
-        String localHeiId = "";
-        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-
-        localHeiId = institutions.get(0).getInstitutionId();
+        String localHeiId = iiasEJB.getHeiId();
 
         LOG.fine("AuxIiaThread_ADDEDIT: Empezando GET tras CNR");
         Map<String, String> map = registryClient.getIiaHeiUrls(heiId);
@@ -145,7 +140,7 @@ public class AuxIiaThread {
             if (localHeiId.equals(partner.getHeiId())) {
                 LOG.fine("AuxIiaThread_ADDEDIT: Own localeId found: " + (partner.getIiaId() == null ? "" : partner.getIiaId()));
                 if (partner.getIiaId() != null) {
-                    List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", partner.getIiaId()).getResultList();
+                    List<Iia> iia = iiasEJB.findByIdList(partner.getIiaId());
                     LOG.fine("AuxIiaThread_ADDEDIT: Find local iias: " + (iia == null ? "0" : iia.size()));
                     if (iia != null && !iia.isEmpty()) {
                         localIia = iia.get(0);
@@ -163,66 +158,7 @@ public class AuxIiaThread {
 
             LOG.fine("AuxIiaThread_ADDEDIT: Iia convertsed with conditions: " + newIia.getCooperationConditions().size());
 
-            try {
-
-                JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
-                Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-                jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-                StringWriter sw = new StringWriter();
-
-                //Create a copy off CooperationConditions to be used in calculateSha256 function
-                IiasGetResponse.Iia.CooperationConditions cc = new IiasGetResponse.Iia.CooperationConditions();
-                cc.getStaffTeacherMobilitySpec().addAll(sendIia.getCooperationConditions().getStaffTeacherMobilitySpec());
-                cc.getStaffTrainingMobilitySpec().addAll(sendIia.getCooperationConditions().getStaffTrainingMobilitySpec());
-                cc.getStudentStudiesMobilitySpec().addAll(sendIia.getCooperationConditions().getStudentStudiesMobilitySpec());
-                cc.getStudentTraineeshipMobilitySpec().addAll(sendIia.getCooperationConditions().getStudentTraineeshipMobilitySpec());
-
-                cc = iiaConverter.removeContactInfo(cc);
-
-                QName qName = new QName("cooperation_conditions");
-                JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
-
-                jaxbMarshaller.marshal(root, sw);
-                String xmlString = sw.toString();
-
-                String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
-
-                newIia.setConditionsHash(calculatedHash);
-            } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
-                     | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
-            }
-            for (CooperationCondition cc : newIia.getCooperationConditions()) {
-                for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
-                    if (!partner.getHeiId().equals(localHeiId)) {
-                        cc.getSendingPartner().setIiaCode(partner.getIiaCode());
-                        cc.getSendingPartner().setIiaId(partner.getIiaId());
-                    }
-                }
-            }
-
-            LOG.fine("AuxIiaThread_ADDEDIT: After setting partner id");
-            newIia.setHashPartner(sendIia.getIiaHash());
-
-            LOG.fine("AuxIiaThread_ADDEDIT: Iia hash calculated: " + newIia.getConditionsHash());
-
-            em.persist(newIia);
-            em.flush();
-
-            LOG.fine("AuxIiaThread_ADDEDIT: Iia persisted: " + newIia.getId());
-
-            for (CooperationCondition condition : newIia.getCooperationConditions()) {
-                if (condition.getSendingPartner().getInstitutionId().equals(localHeiId)) {
-                    condition.getSendingPartner().setIiaId(newIia.getId());
-                }
-
-                if (condition.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
-                    condition.getReceivingPartner().setIiaId(newIia.getId());
-                }
-            }
-
-            em.merge(newIia);
-            em.flush();
+            iiasEJB.insertReceivedIia(sendIia, newIia);
 
             LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
 
@@ -286,8 +222,7 @@ public class AuxIiaThread {
                 }
                 LOG.fine("AuxIiaThread_ADDEDIT: Partners hash set to: " + sendIia.getIiaHash());
                 localIia.setHashPartner(sendIia.getIiaHash());
-                em.merge(localIia);
-                em.flush();
+                iiasEJB.merge(localIia);
                 LOG.fine("AuxIiaThread_ADDEDIT: Merged");
             } else {
                 String beforeHash = localIia.getConditionsHash();
@@ -295,91 +230,7 @@ public class AuxIiaThread {
                 Iia modifIia = new Iia();
                 convertToIia(sendIia, modifIia);
 
-                /*try {
-
-                    JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
-                    Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-                    jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-                    StringWriter sw = new StringWriter();
-
-                    //Create a copy off CooperationConditions to be used in calculateSha256 function
-                    IiasGetResponse.Iia.CooperationConditions cc = new IiasGetResponse.Iia.CooperationConditions();
-                    cc.getStaffTeacherMobilitySpec().addAll(sendIia.getCooperationConditions().getStaffTeacherMobilitySpec());
-                    cc.getStaffTrainingMobilitySpec().addAll(sendIia.getCooperationConditions().getStaffTrainingMobilitySpec());
-                    cc.getStudentStudiesMobilitySpec().addAll(sendIia.getCooperationConditions().getStudentStudiesMobilitySpec());
-                    cc.getStudentTraineeshipMobilitySpec().addAll(sendIia.getCooperationConditions().getStudentTraineeshipMobilitySpec());
-
-                    cc = iiaConverter.removeContactInfo(cc);
-
-                    QName qName = new QName("cooperation_conditions");
-                    JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
-
-                    jaxbMarshaller.marshal(root, sw);
-                    String xmlString = sw.toString();
-
-                    LOG.fine("AuxIiaThread_ADDEDIT: recalculate hash from: " + xmlString);
-
-                    String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
-
-                    localIia.setConditionsHash(calculatedHash);
-                    LOG.fine("AuxIiaThread_ADDEDIT: New hash: " + localIia.getConditionsHash());
-                } catch (InvalidCanonicalizerException | CanonicalizationException | NoSuchAlgorithmException | SAXException
-                        | IOException | ParserConfigurationException | TransformerException | JAXBException e) {
-                }
-
-                //localIia.setConditionsHash(iiaInternal.getConditionsHash());
-                localIia.setInEfect(modifIia.isInEfect());
-                localIia.setHashPartner(sendIia.getConditionsHash());
-                //localIia.setIiaCode(iiaInternal.getIiaCode());
-
-                List<CooperationCondition> cooperationConditions = modifIia.getCooperationConditions();
-                List<CooperationCondition> cooperationConditionsCurrent = localIia.getCooperationConditions();//cc in database
-                for (CooperationCondition cc : cooperationConditions) {
-                    for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
-                        if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
-                            if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
-                                ccCurrent.setBlended(cc.isBlended());
-                                ccCurrent.setDuration(cc.getDuration());
-                                ccCurrent.setEndDate(cc.getEndDate());
-                                ccCurrent.setEqfLevel(cc.getEqfLevel());
-                                ccCurrent.setMobilityNumber(cc.getMobilityNumber());
-                                ccCurrent.setMobilityType(cc.getMobilityType());
-                                ccCurrent.setOtherInfoTerms(cc.getOtherInfoTerms());
-                                ccCurrent.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
-                                ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill());
-                                ccCurrent.setStartDate(cc.getStartDate());
-                                ccCurrent.setSubjectAreas(cc.getSubjectAreas());
-
-                                IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
-                                IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
-
-                                sendingPartnerC.setContacts(sendingPartner.getContacts());
-                                sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
-                                sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
-                                //sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
-
-                                IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
-                                IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
-
-                                receivingPartnerC.setContacts(receivingPartner.getContacts());
-                                receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
-                                receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
-
-                                ccCurrent.setSendingPartner(sendingPartnerC);
-                                ccCurrent.setReceivingPartner(receivingPartnerC);
-                            }
-                        }
-                    }
-                }
-
-                localIia.setCooperationConditions(cooperationConditionsCurrent);
-                System.err.println("Iia to be updated: " + localIia.getId() + "; " + localIia.getConditionsHash());
-
-                em.merge(localIia);
-                em.flush();*/
-
-                updateIia(modifIia, localIia);
+                iiasEJB.updateIia(modifIia, localIia);
 
                 LOG.fine("AuxIiaThread_ADDEDIT: After merging changes");
 
@@ -476,7 +327,7 @@ public class AuxIiaThread {
         IiasApprovalResponse.Approval iiaApproval = responseEnity.getApproval().get(0);
 
         Iia localIia = null;
-        List<Iia> iia = em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", iiaApproval.getIiaId()).getResultList();
+        List<Iia> iia = iiasEJB.findByIdList(iiaId);
         LOG.fine("AuxIiaThread_APROVALS: Find local iias: " + (iia == null ? "0" : iia.size()));
         if (iia != null && !iia.isEmpty()) {
             localIia = iia.get(0);
@@ -490,101 +341,8 @@ public class AuxIiaThread {
         if (localIia != null && localIia.getConditionsHash().equals(iiaApproval.getConditionsHash())) {
             LOG.fine("AuxIiaThread_APROVALS: Found existing iia and hash is the same");
             //localIia.setInEfect(iiaApproval.isApproved());
-            em.merge(localIia);
-            em.flush();
+            iiasEJB.merge(localIia);
         }
-    }
-
-    private void updateIia(Iia iiaInternal, Iia foundIia) {
-        em.merge(foundIia);
-
-        //localIia.setConditionsHash(iiaInternal.getConditionsHash());
-        foundIia.setInEfect(iiaInternal.isInEfect());
-        foundIia.setHashPartner(iiaInternal.getHashPartner());
-        //localIia.setIiaCode(iiaInternal.getIiaCode());
-
-        List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
-        List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
-        for (CooperationCondition cc : cooperationConditions) {
-            for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
-                if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
-                    if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
-                        ccCurrent.setBlended(cc.isBlended());
-                        ccCurrent.setDuration(cc.getDuration());
-                        ccCurrent.setEndDate(cc.getEndDate());
-                        ccCurrent.setEqfLevel(cc.getEqfLevel());
-                        ccCurrent.setMobilityNumber(cc.getMobilityNumber());
-                        ccCurrent.setMobilityType(cc.getMobilityType());
-                        ccCurrent.setOtherInfoTerms(cc.getOtherInfoTerms());
-                        ccCurrent.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
-                        ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill());
-                        ccCurrent.setStartDate(cc.getStartDate());
-                        ccCurrent.setSubjectAreas(cc.getSubjectAreas());
-
-                        IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
-                        IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
-
-                        sendingPartnerC.setContacts(sendingPartner.getContacts());
-                        sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
-                        sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
-                        //sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
-
-                        IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
-                        IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
-
-                        receivingPartnerC.setContacts(receivingPartner.getContacts());
-                        receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
-                        receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
-
-                        ccCurrent.setSendingPartner(sendingPartnerC);
-                        ccCurrent.setReceivingPartner(receivingPartnerC);
-                    }
-                }
-            }
-        }
-
-        foundIia.setCooperationConditions(cooperationConditionsCurrent);
-
-        String localHeiId = "";
-        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-        localHeiId = institutions.get(0).getInstitutionId();
-
-        IiasGetResponse.Iia iiaX = iiaConverter.convertToIias(localHeiId, Collections.singletonList(foundIia)).get(0);
-
-        try {
-
-            JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            StringWriter sw = new StringWriter();
-
-            //Create a copy off CooperationConditions to be used in calculateSha256 function
-            IiasGetResponse.Iia.CooperationConditions cc = new IiasGetResponse.Iia.CooperationConditions();
-            cc.getStaffTeacherMobilitySpec().addAll(iiaX.getCooperationConditions().getStaffTeacherMobilitySpec());
-            cc.getStaffTrainingMobilitySpec().addAll(iiaX.getCooperationConditions().getStaffTrainingMobilitySpec());
-            cc.getStudentStudiesMobilitySpec().addAll(iiaX.getCooperationConditions().getStudentStudiesMobilitySpec());
-            cc.getStudentTraineeshipMobilitySpec().addAll(iiaX.getCooperationConditions().getStudentTraineeshipMobilitySpec());
-
-            cc = iiaConverter.removeContactInfo(cc);
-
-            QName qName = new QName("cooperation_conditions");
-            JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
-
-            jaxbMarshaller.marshal(root, sw);
-            String xmlString = sw.toString();
-
-            LOG.fine("UPDATE: Used conditions for hash:\n" + xmlString);
-
-            String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
-            LOG.fine("UPDATE: Calculated hash: " + calculatedHash);
-            foundIia.setConditionsHash(calculatedHash);
-
-        } catch (Exception e) {
-        }
-
-        em.merge(foundIia);
-
     }
 
     private void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal) {
@@ -597,7 +355,7 @@ public class AuxIiaThread {
 
         List<CooperationCondition> iiaIternalCooperationConditions = getCooperationConditions(iia.getCooperationConditions());
 
-        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+        List<Institution> institutions = iiasEJB.findAllInstitutions();
         iia.getPartner().stream().forEach((IiasGetResponse.Iia.Partner partner) -> {
 
             IiaPartner partnerInternal = new IiaPartner();

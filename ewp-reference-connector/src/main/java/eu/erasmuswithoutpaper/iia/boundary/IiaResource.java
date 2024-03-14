@@ -7,6 +7,7 @@ import java.util.function.BiPredicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -34,6 +35,7 @@ import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
+import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
@@ -53,26 +55,17 @@ public class IiaResource {
 
     private static final Logger LOG = Logger.getLogger(IiaResource.class.getCanonicalName());
 
-    @PersistenceContext(unitName = "connector")
-    EntityManager em;
+    @EJB
+    IiasEJB iiasEjb;
 
     @Inject
     GlobalProperties properties;
-
-    @Inject
-    RegistryClient registryClient;
 
     @Inject
     IiaConverter iiaConverter;
 
     @Context
     HttpServletRequest httpRequest;
-
-    @Inject
-    GlobalProperties globalProperties;
-
-    @Inject
-    RestClient restClient;
 
     @Inject
     AuxIiaThread ait;
@@ -117,7 +110,7 @@ public class IiaResource {
         }
 
         IiasIndexResponse response = new IiasIndexResponse();
-        List<Iia> filteredIiaList = em.createNamedQuery(Iia.findAll).getResultList();
+        List<Iia> filteredIiaList = iiasEjb.findAll();
 
         LOG.fine("Filtered:" + filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
 
@@ -213,16 +206,13 @@ public class IiaResource {
         IiasGetResponse response = new IiasGetResponse();
 
         List<Iia> iiaList = iiaIdList.stream()
-                .map(id -> em.find(Iia.class, id))
+                .map(id -> iiasEjb.findById(id))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         LOG.fine("GET: iiaList.isEmpty(): " + iiaList.isEmpty());
         if (!iiaList.isEmpty()) {
-            String localHeiId = "";
-            List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-
-            localHeiId = institutions.get(0).getInstitutionId();
+            String localHeiId = iiasEjb.getHeiId();
 
             response.getIia().addAll(iiaConverter.convertToIias(localHeiId, iiaList));
         }
@@ -279,14 +269,14 @@ public class IiaResource {
         };
 
         //filtrar las iia de la institucion enviada por parametro
-        List<Iia> localIias = em.createNamedQuery(Iia.findAll, Iia.class).getResultList();
+        List<Iia> localIias = iiasEjb.findAll();
         int iiaFetchable = localIias.size();
 
-        List<Notification> iiaApprovalNotifications = em.createNamedQuery(Notification.findAll, Notification.class).getResultList().stream().filter(n -> (n.getType().equals(NotificationTypes.IIAAPPROVAL))).collect(Collectors.toList());
+        List<Notification> iiaApprovalNotifications = iiasEjb.findNotifications().stream().filter(n -> (n.getType().equals(NotificationTypes.IIAAPPROVAL))).collect(Collectors.toList());
         List<Iia> localNotApprovedByPartner = localIias.stream().filter(iia -> conditionNotApproved.test(iia, iiaApprovalNotifications)).collect(Collectors.toList());
         int iiaPartnerUnapproved = localNotApprovedByPartner.size();
 
-        List<IiaApproval> localIiasApproval = em.createNamedQuery(IiaApproval.findAll, IiaApproval.class).getResultList().stream().filter(iiaapproval -> {
+        List<IiaApproval> localIiasApproval = iiasEjb.findIiaApprovals().stream().filter(iiaapproval -> {
             for (Iia iia : localIias) {
                 if (iia.getId().equals(iiaapproval.getId())) {//De todas las aprobadas solo obtener las que sean de la insitucion enviada por parametro
                     return true;
@@ -324,7 +314,7 @@ public class IiaResource {
         notification.setHeiId(notifierHeiId);
         notification.setChangedElementIds(iiaId);
         notification.setNotificationDate(new Date());
-        em.persist(notification);
+        iiasEjb.insertNotification(notification);
 
         //Register and execute Algoria notification
         execNotificationToAlgoria(iiaId, notifierHeiId);

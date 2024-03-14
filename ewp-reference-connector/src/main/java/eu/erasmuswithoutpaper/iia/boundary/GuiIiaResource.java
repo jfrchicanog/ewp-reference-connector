@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -32,6 +33,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import eu.erasmuswithoutpaper.common.control.*;
+import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -78,12 +80,11 @@ import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.organization.entity.Person;
 import eu.erasmuswithoutpaper.security.InternalAuthenticate;
 
-@Stateless
 @Path("iia")
 public class GuiIiaResource {
 
-    @PersistenceContext(unitName = "connector")
-    EntityManager em;
+    @EJB
+    IiasEJB iiasEJB;
 
     @Inject
     RegistryClient registryClient;
@@ -108,7 +109,7 @@ public class GuiIiaResource {
     @InternalAuthenticate
     // TODO: fix the default value
     public Response getAll(@QueryParam("hei_id") @DefaultValue("uma.es") String hei_id) {
-        List<Iia> iiaList = em.createNamedQuery(Iia.findAll).getResultList();
+        List<Iia> iiaList = iiasEJB.findAll();
         List<IiasGetResponse.Iia> result = iiaConverter.convertToIias(hei_id, iiaList);//It was required to use IiaConverter to avoid a recursive problem when the iia object was converted to json
 
         GenericEntity<List<IiasGetResponse.Iia>> entity = new GenericEntity<List<IiasGetResponse.Iia>>(result) {
@@ -121,7 +122,7 @@ public class GuiIiaResource {
     @Path("get_heiid")
     @InternalAuthenticate
     public Response getHei(@QueryParam("hei_id") String heiId) {
-        List<Iia> iiaList = em.createNamedQuery(Iia.findAll).getResultList();
+        List<Iia> iiaList = iiasEJB.findAll();
 
         Predicate<Iia> condition = new Predicate<Iia>() {
             @Override
@@ -152,7 +153,7 @@ public class GuiIiaResource {
     @Path("mobility_types")
     @InternalAuthenticate
     public Response getMobilityTypes() {
-        List<MobilityType> mobilityTypeList = em.createNamedQuery(MobilityType.findAll).getResultList();
+        List<MobilityType> mobilityTypeList = iiasEJB.findMobilityTypes();
         GenericEntity<List<MobilityType>> entity = new GenericEntity<List<MobilityType>>(mobilityTypeList) {
         };
 
@@ -194,41 +195,11 @@ public class GuiIiaResource {
 
         iiaInternal.setModifyDate(new Date());
 
-        em.persist(iiaInternal);
-        em.flush();
-
-        //Update generated iiaId for the partner owner of the iia
-        String localHeiId = "";
-        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-
-        localHeiId = institutions.get(0).getInstitutionId();
-
-        String iiaIdGenerated = iiaInternal.getId();
-        for (CooperationCondition condition : iiaInternal.getCooperationConditions()) {
-            if (condition.getSendingPartner().getInstitutionId().equals(localHeiId)) {
-                condition.getSendingPartner().setIiaId(iiaInternal.getId());
-            }
-
-            if (condition.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
-                condition.getReceivingPartner().setIiaId(iiaInternal.getId());
-            }
-        }
-
-        LOG.fine("ADD: CALC HASH");
-        try {
-            iiaInternal.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(em.find(Iia.class, iiaIdGenerated))).get(0)));
-        }catch (Exception e) {
-            LOG.fine("ADD: HASH ERROR, Can't calculate sha256 adding new iia");
-            LOG.fine(e.getMessage());
-            throw e;
-        }
-        LOG.fine("ADD: AFTER HASH");
-
-        em.merge(iiaInternal);
+        iiasEJB.insertIia(iiaInternal);
 
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
-        //List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
+        List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
 
         LOG.fine("ADD: Notification send");
 
@@ -247,7 +218,7 @@ public class GuiIiaResource {
 
         List<CooperationCondition> iiaIternalCooperationConditions = getCooperationConditions(iia.getCooperationConditions());
 
-        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+        List<Institution> institutions = iiasEJB.findAllInstitutions();
         iia.getPartner().stream().forEach((Partner partner) -> {
 
             IiaPartner partnerInternal = new IiaPartner();
@@ -697,14 +668,14 @@ public class GuiIiaResource {
         convertToIia(iia, iiaInternal);
 
         //Find the iia by code
-        List<Iia> foundIias = em.createNamedQuery(Iia.findByIiaCode).setParameter("iiaCode", iiaInternal.getIiaCode()).getResultList();
+        List<Iia> foundIias = iiasEJB.findByIiaCode(iiaInternal.getIiaCode());
 
         Iia foundIia = (foundIias != null && !foundIias.isEmpty()) ? foundIias.get(0) : null;
 
         //Check if the iia exists
         if (foundIia == null) {
             //Find the iia by id
-            foundIias = em.createNamedQuery(Iia.findById).setParameter("id", iiaInternal.getId()).getResultList();
+            foundIias = iiasEJB.findByIdList(iiaInternal.getId());
 
             foundIia = (foundIias != null && !foundIias.isEmpty()) ? foundIias.get(0) : null;
 
@@ -732,111 +703,8 @@ public class GuiIiaResource {
             System.err.println("Update Algoria: Invalids Cooperation Conditions");
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
-/*
-        //foundIia.setConditionsHash(iiaInternal.getConditionsHash());
-        foundIia.setInEfect(iiaInternal.isInEfect());
-        foundIia.setHashPartner(iiaInternal.getHashPartner());
-        //foundIia.setIiaCode(iiaInternal.getIiaCode());
 
-        List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
-        List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
-        List<CooperationCondition> newCooperationConditions = new ArrayList<>();
-        for (CooperationCondition cc : cooperationConditions) {
-            for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
-                if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
-                    if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
-                        CooperationCondition newCC = new CooperationCondition();
-                        newCC.setId(ccCurrent.getId());
-                        newCC.setBlended(cc.isBlended());
-                        newCC.setDuration(cc.getDuration());
-                        newCC.setEndDate(cc.getEndDate());
-                        newCC.setEqfLevel(cc.getEqfLevel());
-                        newCC.setMobilityNumber(cc.getMobilityNumber());
-                        newCC.setMobilityType(cc.getMobilityType());
-                        newCC.setOtherInfoTerms(cc.getOtherInfoTerms());
-                        newCC.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
-                        newCC.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill());
-                        newCC.setStartDate(cc.getStartDate());
-                        newCC.setSubjectAreas(cc.getSubjectAreas());
-
-                        IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
-                        IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
-                        IiaPartner newSendingPartner = new IiaPartner();
-
-                        newSendingPartner.setInstitutionId(sendingPartnerC.getInstitutionId());
-                        newSendingPartner.setIiaId(sendingPartnerC.getIiaId());
-
-                        newSendingPartner.setContacts(sendingPartner.getContacts());
-                        newSendingPartner.setSigningContact(sendingPartner.getSigningContact());
-                        newSendingPartner.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
-                        newSendingPartner.setIiaCode(sendingPartner.getIiaCode());
-
-                        IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
-                        IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
-                        IiaPartner newReceivingPartner = new IiaPartner();
-
-                        newReceivingPartner.setInstitutionId(receivingPartnerC.getInstitutionId());
-                        newReceivingPartner.setIiaId(receivingPartnerC.getIiaId());
-
-                        newReceivingPartner.setContacts(receivingPartner.getContacts());
-                        newReceivingPartner.setSigningContact(receivingPartner.getSigningContact());
-                        newReceivingPartner.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
-                        newReceivingPartner.setIiaCode(receivingPartner.getIiaCode());
-
-                        newCC.setSendingPartner(newSendingPartner);
-                        newCC.setReceivingPartner(newReceivingPartner);
-
-                        newCooperationConditions.add(newCC);
-                    }
-                }
-            }
-        }
-
-        foundIia.setCooperationConditions(newCooperationConditions);
-        System.err.println("Iia to be updated: " + foundIia.getId() + "; " + foundIia.getConditionsHash());
-
-        String localHeiId = "";
-        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-        localHeiId = institutions.get(0).getInstitutionId();
-
-        IiasGetResponse.Iia iiaX = iiaConverter.convertToIias(localHeiId, Collections.singletonList(foundIia)).get(0);
-
-        try {
-
-            JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            StringWriter sw = new StringWriter();
-
-            //Create a copy off CooperationConditions to be used in calculateSha256 function
-            CooperationConditions cc = new CooperationConditions();
-            cc.getStaffTeacherMobilitySpec().addAll(iiaX.getCooperationConditions().getStaffTeacherMobilitySpec());
-            cc.getStaffTrainingMobilitySpec().addAll(iiaX.getCooperationConditions().getStaffTrainingMobilitySpec());
-            cc.getStudentStudiesMobilitySpec().addAll(iiaX.getCooperationConditions().getStudentStudiesMobilitySpec());
-            cc.getStudentTraineeshipMobilitySpec().addAll(iiaX.getCooperationConditions().getStudentTraineeshipMobilitySpec());
-
-            cc = iiaConverter.removeContactInfo(cc);
-
-            QName qName = new QName("cooperation_conditions");
-            JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
-
-            jaxbMarshaller.marshal(root, sw);
-            String xmlString = sw.toString();
-
-            LOG.fine("UPDATE: Used conditions for hash:\n" + xmlString);
-
-            String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
-            LOG.fine("UPDATE: Calculated hash: " + calculatedHash);
-            foundIia.setConditionsHash(calculatedHash);
-
-        } catch (Exception e) {
-            logger.error("Can't calculate sha256 adding new iia", e);
-        }
-
-        em.merge(foundIia);*/
-
-        updateIia(iiaInternal, foundIia);
+        iiasEJB.updateIia(iiaInternal, foundIia);
 
         //Notify the partner about the modification using the API GUI IIA CNR 
         List<ClientResponse> iiasResponse = notifyPartner(iiaInternal);
@@ -846,106 +714,10 @@ public class GuiIiaResource {
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
-    private void updateIia(Iia iiaInternal, Iia foundIia) {
-        em.merge(foundIia);
-
-        //localIia.setConditionsHash(iiaInternal.getConditionsHash());
-        foundIia.setInEfect(iiaInternal.isInEfect());
-        foundIia.setHashPartner(iiaInternal.getHashPartner());
-        //localIia.setIiaCode(iiaInternal.getIiaCode());
-
-        List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
-        List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
-        for (CooperationCondition cc : cooperationConditions) {
-            for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
-                if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
-                    if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
-                        ccCurrent.setBlended(cc.isBlended());
-                        ccCurrent.setDuration(cc.getDuration());
-                        ccCurrent.setEndDate(cc.getEndDate());
-                        ccCurrent.setEqfLevel(cc.getEqfLevel());
-                        ccCurrent.setMobilityNumber(cc.getMobilityNumber());
-                        ccCurrent.setMobilityType(cc.getMobilityType());
-                        ccCurrent.setOtherInfoTerms(cc.getOtherInfoTerms());
-                        ccCurrent.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
-                        ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill());
-                        ccCurrent.setStartDate(cc.getStartDate());
-                        ccCurrent.setSubjectAreas(cc.getSubjectAreas());
-
-                        IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
-                        IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
-
-                        sendingPartnerC.setContacts(sendingPartner.getContacts());
-                        sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
-                        sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
-                        //sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
-
-                        IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
-                        IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
-
-                        receivingPartnerC.setContacts(receivingPartner.getContacts());
-                        receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
-                        receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
-
-                        ccCurrent.setSendingPartner(sendingPartnerC);
-                        ccCurrent.setReceivingPartner(receivingPartnerC);
-                    }
-                }
-            }
-        }
-
-        foundIia.setCooperationConditions(cooperationConditionsCurrent);
-
-        String localHeiId = "";
-        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-        localHeiId = institutions.get(0).getInstitutionId();
-
-        IiasGetResponse.Iia iiaX = iiaConverter.convertToIias(localHeiId, Collections.singletonList(foundIia)).get(0);
-
-        try {
-
-            JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.Iia.CooperationConditions.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            StringWriter sw = new StringWriter();
-
-            //Create a copy off CooperationConditions to be used in calculateSha256 function
-            CooperationConditions cc = new CooperationConditions();
-            cc.getStaffTeacherMobilitySpec().addAll(iiaX.getCooperationConditions().getStaffTeacherMobilitySpec());
-            cc.getStaffTrainingMobilitySpec().addAll(iiaX.getCooperationConditions().getStaffTrainingMobilitySpec());
-            cc.getStudentStudiesMobilitySpec().addAll(iiaX.getCooperationConditions().getStudentStudiesMobilitySpec());
-            cc.getStudentTraineeshipMobilitySpec().addAll(iiaX.getCooperationConditions().getStudentTraineeshipMobilitySpec());
-
-            cc = iiaConverter.removeContactInfo(cc);
-
-            QName qName = new QName("cooperation_conditions");
-            JAXBElement<IiasGetResponse.Iia.CooperationConditions> root = new JAXBElement<IiasGetResponse.Iia.CooperationConditions>(qName, IiasGetResponse.Iia.CooperationConditions.class, cc);
-
-            jaxbMarshaller.marshal(root, sw);
-            String xmlString = sw.toString();
-
-            LOG.fine("UPDATE: Used conditions for hash:\n" + xmlString);
-
-            String calculatedHash = HashCalculationUtility.calculateSha256(xmlString);
-            LOG.fine("UPDATE: Calculated hash: " + calculatedHash);
-            foundIia.setConditionsHash(calculatedHash);
-
-        } catch (Exception e) {
-            logger.error("Can't calculate sha256 adding new iia", e);
-        }
-
-        em.merge(foundIia);
-
-    }
-
     private List<ClientResponse> notifyPartner(Iia iia) {
         LOG.fine("NOTIFY: Send notification");
 
-        String localHeiId = "";
-        List<Institution> internalInstitution = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
-
-        localHeiId = internalInstitution.get(0).getInstitutionId();
+        String localHeiId = iiasEJB.getHeiId();
 
         List<ClientResponse> partnersResponseList = new ArrayList<>();
 
@@ -955,7 +727,7 @@ public class GuiIiaResource {
 
         Set<NotifyAux> cnrUrls = new HashSet<>();
 
-        List<Institution> institutions = em.createNamedQuery(Institution.findAll, Institution.class).getResultList();
+        List<Institution> institutions = iiasEJB.findAllInstitutions();
         for (CooperationCondition condition : iia.getCooperationConditions()) {
             partnerSending = condition.getSendingPartner();
             partnerReceiving = condition.getReceivingPartner();
@@ -1041,7 +813,7 @@ public class GuiIiaResource {
         }
 
         //seek the iia by code and by the ouid of the sending institution
-        List<Iia> foundIia = em.createNamedQuery(Iia.findByIiaCode).setParameter("iiaCode", iiaCode).getResultList();
+        List<Iia> foundIia = iiasEJB.findByIiaCode(iiaCode);
 
         Predicate<Iia> condition = new Predicate<Iia>() {
             @Override
@@ -1113,7 +885,7 @@ public class GuiIiaResource {
 
         if (approval != null) {
             theIia.setInEfect(true);//it was approved
-            em.persist(theIia);
+            //em.persist(theIia); TODO: arreglar
         }
 
         //Get the url for notify the institute
