@@ -5,67 +5,67 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
+import eu.erasmuswithoutpaper.iia.entity.Iia;
 import org.apache.johnzon.mapper.JohnzonConverter;
 
 import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = IiaApproval.findAll, query = "SELECT i FROM IiaApproval i"),
-    @NamedQuery(name = IiaApproval.findById, query = "SELECT i FROM IiaApproval i WHERE i.id = :id"),
-    @NamedQuery(name = IiaApproval.findByIiaCode, query = "SELECT i FROM IiaApproval i WHERE i.iiaCode = :iiaCode")
+        @NamedQuery(name = IiaApproval.findAll, query = "SELECT i FROM IiaApproval i"),
+        @NamedQuery(name = IiaApproval.findById, query = "SELECT i FROM IiaApproval i WHERE i.id = :id"),
+        @NamedQuery(name = IiaApproval.findByIiaCode, query = "SELECT i FROM IiaApproval i WHERE i.iiaCode = :iiaCode"),
+        @NamedQuery(name = IiaApproval.findByIiaIdAndHeiId, query = "SELECT i FROM IiaApproval i JOIN i.iia ii WHERE i.heiId = :heiId AND ii.id = :iiaId"),
 })
-public class IiaApproval implements Serializable{
-    
+public class IiaApproval implements Serializable {
+
     private static final long serialVersionUID = 1L;
-	
-	private static final String PREFIX = "eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval.";
+
+    private static final String PREFIX = "eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval.";
     public static final String findAll = PREFIX + "all";
     public static final String findById = PREFIX + "byId";
     public static final String findByIiaCode = PREFIX + "byIiaCode";
-    
+    public static final String findByIiaIdAndHeiId = PREFIX + "byIiaIdAndHeiId";
+
     @Id
-    @GeneratedValue(generator="system-uuid")
+    @GeneratedValue(generator = "system-uuid")
     String id;
-    
+
     private String iiaCode;
-    
+
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
     private Date startDate;
-    
+
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
     private Date endDate;
-    
+
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.DATE)
     private Date modifyDate;
-        
+
     @Column(name = "CONDITIONS_HASH", nullable = true)
     private String conditionsHash;
-    
+
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @JoinColumn(name = "IIA_ID", referencedColumnName = "ID")
+    private Iia iia;
+
+    @Column(name = "HEI_ID", nullable = true)
+    private String heiId;
+
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "PDF", nullable = true)
     private byte[] pdf;
-    
-    public IiaApproval(){
+
+    public IiaApproval() {
     }
-    
-    public IiaApproval(String iiaCode){
+
+    public IiaApproval(String iiaCode) {
         this.iiaCode = iiaCode;
     }
 
@@ -110,22 +110,38 @@ public class IiaApproval implements Serializable{
     }
 
     public String getConditionsHash() {
-		return conditionsHash;
-	}
+        return conditionsHash;
+    }
 
-	public void setConditionsHash(String conditionsHash) {
-		this.conditionsHash = conditionsHash;
-	}
+    public void setConditionsHash(String conditionsHash) {
+        this.conditionsHash = conditionsHash;
+    }
 
-	public byte[] getPdf() {
-		return pdf;
-	}
+    public byte[] getPdf() {
+        return pdf;
+    }
 
-	public void setPdf(byte[] pdf) {
-		this.pdf = pdf;
-	}
+    public void setPdf(byte[] pdf) {
+        this.pdf = pdf;
+    }
 
-	@Override
+    public Iia getIia() {
+        return iia;
+    }
+
+    public void setIia(Iia iia) {
+        this.iia = iia;
+    }
+
+    public String getHeiId() {
+        return heiId;
+    }
+
+    public void setHeiId(String heiId) {
+        this.heiId = heiId;
+    }
+
+    @Override
     public int hashCode() {
         int hash = 7;
         hash = 53 * hash + Objects.hashCode(this.id);
@@ -149,5 +165,5 @@ public class IiaApproval implements Serializable{
         }
         return true;
     }
-    
+
 }

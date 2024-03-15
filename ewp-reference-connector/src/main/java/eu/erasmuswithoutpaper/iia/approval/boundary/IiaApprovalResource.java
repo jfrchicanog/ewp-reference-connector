@@ -174,9 +174,12 @@ public class IiaApprovalResource {
             if (iiaApproval != null && !iiaApproval.isEmpty()) {
                 iiaApproval.forEach(iia -> {
                     IiasApprovalResponse.Approval approval = new IiasApprovalResponse.Approval();
-                    approval.setIiaId(iia.getId());
-                    approval.setIiaHash(iia.getIiaCode());
-                    response.getApproval().add(approval);
+                    approval.setIiaId(iiaId);
+                    approval.setIiaHash(iia.getConditionsHash());
+
+                    if (iiasEJB.findIiaApproval(notifierHeiId, iiaId) != null) {
+                        response.getApproval().add(approval);
+                    }
                 });
             }
         });

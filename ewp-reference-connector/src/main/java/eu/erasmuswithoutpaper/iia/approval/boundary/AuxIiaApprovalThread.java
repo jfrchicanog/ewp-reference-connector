@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.iia.approval.boundary;
 
+import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
@@ -7,8 +8,10 @@ import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.boundary.AuxIiaThread;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
+import eu.erasmuswithoutpaper.iia.entity.Iia;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -71,7 +74,7 @@ public class AuxIiaApprovalThread {
             LOG.fine("\t\t\t\t" + key + ":" + value);
         });
 
-        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiaApprovalResource.class);
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasApprovalResponse.class);
 
         LOG.fine("AuxIiaApprovalThread: Respuesta del cliente " + clientResponse.getStatusCode());
 
@@ -82,7 +85,28 @@ public class AuxIiaApprovalThread {
 
         LOG.fine("AuxIiaApprovalThread: Respuesta raw: " + clientResponse.getRawResponse());
 
-        IiaApprovalResource responseEnity = (IiaApprovalResource) clientResponse.getResult();
+        IiasApprovalResponse responseEnity = (IiasApprovalResponse) clientResponse.getResult();
 
+        if (responseEnity == null) {
+            return;
+        }
+
+        if (responseEnity.getApproval() == null || responseEnity.getApproval().isEmpty()) {
+            return;
+        }
+
+        IiasApprovalResponse.Approval approval = responseEnity.getApproval().get(0);
+
+        Iia iia = iiasEJB.findById(approval.getIiaId());
+        if (!iia.getConditionsHash().equals(approval.getIiaHash())) {
+            return;
+        }
+
+        IiaApproval iiaApproval = new IiaApproval();
+        iiaApproval.setHeiId(heiId);
+        iiaApproval.setIia(iia);
+        iiaApproval.setConditionsHash(approval.getIiaHash());
+
+        iiasEJB.insertIiaApproval(iiaApproval);
     }
 }

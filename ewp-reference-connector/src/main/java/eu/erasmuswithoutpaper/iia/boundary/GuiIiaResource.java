@@ -34,6 +34,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import eu.erasmuswithoutpaper.common.control.*;
+import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -936,6 +937,14 @@ public class GuiIiaResource {
 
         LOG.fine("Iia found: " + theIia.getId());
 
+        IiaApproval approval = new IiaApproval();
+        approval.setIiaCode(iiaCode);
+        approval.setIia(theIia);
+        approval.setHeiId(heiId);
+        approval.setConditionsHash(theIia.getHashPartner());
+
+        iiasEJB.insertIiaApproval(approval);
+
         CompletableFuture.runAsync(() -> {
             try {
                 Thread.sleep(5000);
@@ -998,7 +1007,7 @@ public class GuiIiaResource {
 
         if (approval != null) {
             theIia.setInEfect(true);//it was approved
-            //em.persist(theIia); TODO: arreglar
+            //em.persist(theIia);
         }
 
         //Get the url for notify the institute

@@ -26,10 +26,10 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = Iia.findAll, query = "SELECT i FROM Iia i"),
-    @NamedQuery(name = Iia.findById, query = "SELECT i FROM Iia i WHERE i.id = :id"),
-    @NamedQuery(name = Iia.findByIiaCode, query = "SELECT i FROM Iia i WHERE i.iiaCode = :iiaCode"),
-    @NamedQuery(name = Iia.findByPartnerId, query = "SELECT i FROM Iia i WHERE i.idPartner = :idPartner"),
+        @NamedQuery(name = Iia.findAll, query = "SELECT i FROM Iia i"),
+        @NamedQuery(name = Iia.findById, query = "SELECT i FROM Iia i WHERE i.id = :id"),
+        @NamedQuery(name = Iia.findByIiaCode, query = "SELECT i FROM Iia i WHERE i.iiaCode = :iiaCode"),
+        @NamedQuery(name = Iia.findByPartnerId, query = "SELECT i FROM Iia i WHERE i.idPartner = :idPartner"),
         @NamedQuery(name = Iia.findByPartnerAndId, query = "SELECT DISTINCT i FROM Iia i " +
                 "JOIN i.cooperationConditions cc " +
                 "JOIN cc.sendingPartner sp " +

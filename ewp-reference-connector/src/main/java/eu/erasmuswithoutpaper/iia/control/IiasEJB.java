@@ -277,6 +277,16 @@ public class IiasEJB {
         return em.createNamedQuery(Iia.findByPartnerAndId).setParameter("heiId", heiId).setParameter("iiaId", partnerId).getResultList();
     }
 
+    public void insertIiaApproval(IiaApproval iiaApproval) {
+        em.persist(iiaApproval);
+        em.flush();
+    }
+
+    public IiaApproval findIiaApproval(String heiId, String iiaId) {
+        return em.createNamedQuery(IiaApproval.findByIiaIdAndHeiId, IiaApproval.class).setParameter("heiId", heiId).setParameter("iiaId", iiaId).getSingleResult();
+    }
+
+
     public List<Institution> findAllInstitutions() {
         return em.createNamedQuery(Institution.findAll).getResultList();
     }
