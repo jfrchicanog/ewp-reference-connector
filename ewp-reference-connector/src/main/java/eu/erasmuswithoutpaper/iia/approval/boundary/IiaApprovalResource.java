@@ -73,6 +73,9 @@ public class IiaApprovalResource {
     @Inject
     AuxIiaApprovalThread aipt;
 
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(IiaApprovalResource.class.getCanonicalName());
+
+
     @GET
     @Path("get")
     @EwpAuthenticate
@@ -177,7 +180,9 @@ public class IiaApprovalResource {
                     approval.setIiaId(iiaId);
                     approval.setIiaHash(iia.getConditionsHash());
 
-                    if (iiasEJB.findIiaApproval(notifierHeiId, iiaId) != null) {
+                    LOG.fine("GET: Sooking for aprovlas with parameters: " + notifierHeiId + " - " + iiaId);
+                    List<IiaApproval> iiaApprovals = iiasEJB.findIiaApproval(notifierHeiId, iiaId);
+                    if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
                         response.getApproval().add(approval);
                     }
                 });

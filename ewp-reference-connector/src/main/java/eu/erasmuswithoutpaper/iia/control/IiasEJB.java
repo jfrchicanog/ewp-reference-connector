@@ -282,8 +282,8 @@ public class IiasEJB {
         em.flush();
     }
 
-    public IiaApproval findIiaApproval(String heiId, String iiaId) {
-        return em.createNamedQuery(IiaApproval.findByIiaIdAndHeiId, IiaApproval.class).setParameter("heiId", heiId).setParameter("iiaId", iiaId).getSingleResult();
+    public List<IiaApproval> findIiaApproval(String heiId, String iiaId) {
+        return em.createNamedQuery(IiaApproval.findByIiaIdAndHeiId, IiaApproval.class).setParameter("heiId", heiId).setParameter("iiaId", iiaId).getResultList();
     }
 
 
