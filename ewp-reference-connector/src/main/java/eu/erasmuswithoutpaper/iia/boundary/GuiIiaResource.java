@@ -753,6 +753,7 @@ public class GuiIiaResource {
 
                     //Get the url for notify the institute not supported by our EWP
                     urls = registryClient.getIiaCnrHeiUrls(partnerSending.getInstitutionId());
+                    LOG.fine("NOTIFY: urls: " + urls);
 
                     if (urls != null) {
                         for (Map.Entry<String, String> entry : urls.entrySet()) {
@@ -764,6 +765,7 @@ public class GuiIiaResource {
 
                     //Get the url for notify the institute not supported by our EWP
                     urls = registryClient.getIiaCnrHeiUrls(partnerReceiving.getInstitutionId());
+                    LOG.fine("NOTIFY: urls: " + urls);
 
                     if (urls != null) {
                         for (Map.Entry<String, String> entry : urls.entrySet()) {
