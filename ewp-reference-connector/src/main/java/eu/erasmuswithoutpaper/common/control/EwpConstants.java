@@ -8,8 +8,8 @@ public class EwpConstants {
     public static final String COURSES_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-courses/blob/stable-v1/manifest-entry.xsd";
     public static final String IIAS_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iias/blob/stable-v7/manifest-entry.xsd";
     public static final String IIAS_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iia-cnr/blob/stable-v3/manifest-entry.xsd";
-    public static final String IIAS_APPROVAL_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iias-approval/blob/stable-v1/manifest-entry.xsd";
-    public static final String IIAS_APPROVAL_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/blob/stable-v1/manifest-entry.xsd";
+    public static final String IIAS_APPROVAL_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iias-approval/blob/stable-v2/manifest-entry.xsd";
+    public static final String IIAS_APPROVAL_CNR_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/blob/stable-v2/manifest-entry.xsd";
     public static final String FACTSHEET_NAMESPACE = "https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-factsheet/v1.2.0/manifest-entry.xsd";
     public static final String OUTGOING_MOBILITIES_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobilities/blob/v2.0.0/manifest-entry.xsd";
     public static final String OUTGOING_MOBILITIES_LAS_NAMESPACE = "https://github.com/erasmus-without-paper/ewp-specs-api-omobility-las/blob/stable-v1/manifest-entry.xsd";
@@ -35,8 +35,8 @@ public class EwpConstants {
     public static final String INCOMING_MOBILITY_TORS_CNR_VERSION = "0.1.0";
     public static final String IIAS_VERSION = "7.0.0";
     public static final String IIA_CNR_VERSION = "3.0.0";
-    public static final String IIAS_APPROVAL_VERSION = "1.0.0";
-    public static final String IIA_APPROVAL_CNR_VERSION = "1.0.0";
+    public static final String IIAS_APPROVAL_VERSION = "2.0.0";
+    public static final String IIA_APPROVAL_CNR_VERSION = "2.0.0";
     public static final String FACTSHEET_VERSION = "1.2.0";
 
     public static final String ECHO_CLIENT_VERSION = "2.0.1";
@@ -54,6 +54,6 @@ public class EwpConstants {
     public static final String INCOMING_MOBILITY_TORS_CNR_CLIENT_VERSION = "0.1.0";
     public static final String IIAS_CLIENT_VERSION = "7.0.0";
     public static final String IIA_CNR_CLIENT_VERSION = "3.0.0";
-    public static final String IIAS_APPROVAL_CLIENT_VERSION = "1.0.0";
-    public static final String IIAS_APPROVAL_CNR_CLIENT_VERSION = "1.0.0";
+    public static final String IIAS_APPROVAL_CLIENT_VERSION = "2.0.0";
+    public static final String IIAS_APPROVAL_CNR_CLIENT_VERSION = "2.0.0";
 }

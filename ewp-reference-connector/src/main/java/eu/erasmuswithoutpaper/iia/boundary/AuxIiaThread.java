@@ -294,8 +294,8 @@ public class AuxIiaThread {
 
         LOG.fine("AuxIiaThread_APROVALS: Busqueda en bbdd " + (localIia != null));
         LOG.fine("AuxIiaThread_APROVALS: Found HASH: " + (localIia != null ? localIia.getConditionsHash() : ""));
-        LOG.fine("AuxIiaThread_APROVALS: Send HASH: " + iiaApproval.getConditionsHash());
-        if (localIia != null && localIia.getConditionsHash().equals(iiaApproval.getConditionsHash())) {
+        LOG.fine("AuxIiaThread_APROVALS: Send HASH: " + iiaApproval.getIiaHash());
+        if (localIia != null && localIia.getConditionsHash().equals(iiaApproval.getIiaHash())) {
             LOG.fine("AuxIiaThread_APROVALS: Found existing iia and hash is the same");
             //localIia.setInEfect(iiaApproval.isApproved());
             iiasEJB.merge(localIia);

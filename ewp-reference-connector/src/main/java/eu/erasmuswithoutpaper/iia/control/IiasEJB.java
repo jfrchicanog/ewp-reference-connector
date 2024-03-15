@@ -273,6 +273,9 @@ public class IiasEJB {
         }
     }
 
+    public List<Iia> getByPartnerId(String heiId, String partnerId) {
+        return em.createNamedQuery(Iia.findByPartnerAndId).setParameter("heiId", heiId).setParameter("iiaId", partnerId).getResultList();
+    }
 
     public List<Institution> findAllInstitutions() {
         return em.createNamedQuery(Institution.findAll).getResultList();

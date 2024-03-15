@@ -13,11 +13,11 @@ public class IiaApprovalConverter {
     @PersistenceContext(unitName = "connector")
     EntityManager em;
 
-    public List<IiasApprovalResponse.Approval> convertToIiasApproval(String hei_id, List<IiaApproval> iiaApprovalList) {
+    public List<IiasApprovalResponse.Approval> convertToIiasApproval(List<IiaApproval> iiaApprovalList) {
     	return iiaApprovalList.stream().map(iiaApproval -> {
     		IiasApprovalResponse.Approval converted = new IiasApprovalResponse.Approval();
     		
-    		converted.setConditionsHash(iiaApproval.getConditionsHash());
+    		converted.setIiaHash(iiaApproval.getConditionsHash());
     		converted.setIiaId(iiaApproval.getIiaCode());
     		return converted;
     	}).collect(Collectors.toList());

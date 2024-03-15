@@ -86,22 +86,22 @@
     
     
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-iias-approval/v1.0.0/response.xsd"
-        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-iias-approval/tree/stable-v1"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-iias-approval/stable-v2/response.xsd"
+        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-iias-approval/tree/stable-v2"
     />
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-iias-approval/v1.0.0/manifest-entry.xsd"
-        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-iias-approval/blob/stable-v1/manifest-entry.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-iias-approval/stable-v2/manifest-entry.xsd"
+        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-iias-approval/blob/stable-v2/manifest-entry.xsd"
     />
     
     
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/v1.0.0/response.xsd"
-        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/tree/stable-v1"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/stable-v2/response.xsd"
+        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/tree/stable-v2"
     />
     <xs:import
-        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/v1.0.0/manifest-entry.xsd"
-        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/blob/stable-v1/manifest-entry.xsd"
+        schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/stable-v2/manifest-entry.xsd"
+        namespace="https://github.com/erasmus-without-paper/ewp-specs-api-iia-approval-cnr/blob/stable-v2/manifest-entry.xsd"
     />
     
     

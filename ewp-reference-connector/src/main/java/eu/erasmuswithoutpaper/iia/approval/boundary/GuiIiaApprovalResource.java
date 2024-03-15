@@ -77,7 +77,7 @@ public class GuiIiaApprovalResource {
     public Response getAll() {
         List<IiaApproval> iiaApprovalList = em.createNamedQuery(IiaApproval.findAll).getResultList();
         
-        List<Approval> approvals = converter.convertToIiasApproval(null, iiaApprovalList);
+        List<Approval> approvals = converter.convertToIiasApproval(iiaApprovalList);
         GenericEntity<List<Approval>> entity = new GenericEntity<List<Approval>>(approvals) {};
         
         return Response.ok(entity).build();
@@ -118,7 +118,7 @@ public class GuiIiaApprovalResource {
         
         List<Approval> correctIiaApproval = new ArrayList<>();
         for (Approval approval : iiaApprovals) {
-        	String hashCode = approval.getConditionsHash();
+        	String hashCode = approval.getIiaHash();
         	
         	String iiaId = approval.getIiaId();
         	Iia iia = em.find(Iia.class, iiaId);

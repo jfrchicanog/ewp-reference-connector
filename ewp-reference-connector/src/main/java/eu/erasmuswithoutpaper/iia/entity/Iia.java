@@ -29,7 +29,13 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
     @NamedQuery(name = Iia.findAll, query = "SELECT i FROM Iia i"),
     @NamedQuery(name = Iia.findById, query = "SELECT i FROM Iia i WHERE i.id = :id"),
     @NamedQuery(name = Iia.findByIiaCode, query = "SELECT i FROM Iia i WHERE i.iiaCode = :iiaCode"),
-    @NamedQuery(name = Iia.findByPartnerId, query = "SELECT i FROM Iia i WHERE i.idPartner = :idPartner"),})
+    @NamedQuery(name = Iia.findByPartnerId, query = "SELECT i FROM Iia i WHERE i.idPartner = :idPartner"),
+        @NamedQuery(name = Iia.findByPartnerAndId, query = "SELECT DISTINCT i FROM Iia i " +
+                "JOIN i.cooperationConditions cc " +
+                "JOIN cc.sendingPartner sp " +
+                "JOIN cc.receivingPartner rp " +
+                " WHERE (sp.institutionId = :heiId AND sp.iiaId = :iiaId) " +
+                "OR (rp.institutionId = :heiId AND rp.iiaId = :iiaId)"),})
 public class Iia implements Serializable {
 
     private static final String PREFIX = "eu.erasmuswithoutpaper.iia.entity.Iia.";
@@ -37,6 +43,7 @@ public class Iia implements Serializable {
     public static final String findById = PREFIX + "byId";
     public static final String findByIiaCode = PREFIX + "byIiaCode";
     public static final String findByPartnerId = PREFIX + "byPartnerId";
+    public static final String findByPartnerAndId = PREFIX + "byPartnerAndId";
 
     @Id
     @GeneratedValue(generator = "system-uuid")
