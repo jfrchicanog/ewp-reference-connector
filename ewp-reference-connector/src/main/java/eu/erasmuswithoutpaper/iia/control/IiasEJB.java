@@ -27,10 +27,7 @@ import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Stateless
 public class IiasEJB {
@@ -280,6 +277,23 @@ public class IiasEJB {
     public void insertIiaApproval(IiaApproval iiaApproval) {
         em.persist(iiaApproval);
         em.flush();
+
+        Iia iia = em.find(Iia.class, iiaApproval.getIia().getId());
+
+        List<String> heiIds = new ArrayList<>();
+        if (iia != null) {
+            heiIds.addAll(iia.getCooperationConditions().stream().map(c -> c.getSendingPartner().getInstitutionId()).collect(java.util.stream.Collectors.toList()));
+            heiIds.addAll(iia.getCooperationConditions().stream().map(c -> c.getReceivingPartner().getInstitutionId()).collect(java.util.stream.Collectors.toList()));
+
+            if (heiIds.stream().allMatch(heiId -> {
+                List<IiaApproval> list = findIiaApproval(heiId, iiaApproval.getIia().getId());
+                return (list != null && !list.isEmpty());
+            })) {
+                iia.setInEfect(true);
+                em.merge(iia);
+                em.flush();
+            }
+        }
     }
 
     public List<IiaApproval> findIiaApproval(String heiId, String iiaId) {
