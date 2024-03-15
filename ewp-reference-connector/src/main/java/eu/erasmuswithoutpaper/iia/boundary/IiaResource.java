@@ -1,6 +1,8 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
 import java.math.BigInteger;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -70,6 +72,9 @@ public class IiaResource {
 
     @Inject
     AuxIiaThread ait;
+
+    @Inject
+    RegistryClient registryClient;
 
     @GET
     @Path("index")
@@ -303,14 +308,22 @@ public class IiaResource {
     @Path("cnr")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public javax.ws.rs.core.Response cnrPost(@FormParam("notifier_hei_id") String notifierHeiId, @FormParam("iia_id") String iiaId) {
+    public javax.ws.rs.core.Response cnrPost(@FormParam("iia_id") String iiaId) {
         LOG.fine("TEST: START CNR");
-        if (notifierHeiId == null || notifierHeiId.isEmpty() || iiaId == null || iiaId.isEmpty()) {
+        if (iiaId == null || iiaId.isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for notification.", Response.Status.BAD_REQUEST);
         }
 
-        Notification notification = new Notification();
+        Collection<String> heisCoveredByCertificate;
+        if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+        } else {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+        }
+
+        LOG.fine("TEST: HEI COVERED BY CERTIFICATE: " + heisCoveredByCertificate);
+
+        /*Notification notification = new Notification();
         notification.setType(NotificationTypes.IIA);
         notification.setHeiId(notifierHeiId);
         notification.setChangedElementIds(iiaId);
@@ -318,14 +331,14 @@ public class IiaResource {
         iiasEjb.insertNotification(notification);
 
         //Register and execute Algoria notification
-        execNotificationToAlgoria(iiaId, notifierHeiId);
-        CompletableFuture.runAsync(() -> {
+        execNotificationToAlgoria(iiaId, notifierHeiId);*/
+        /*CompletableFuture.runAsync(() -> {
             try {
                 ait.addEditIia(notifierHeiId, iiaId);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        });
+        });*/
 
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build();
     }

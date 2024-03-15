@@ -326,7 +326,6 @@ public class AuxIiaThread {
         cnrRequest.setHttpsec(true);
 
         Map<String, List<String>> paramsMapCNR = new HashMap<>();
-        paramsMapCNR.put("notifier_hei_id", Arrays.asList(localHeiId));
         paramsMapCNR.put("iia_id", Arrays.asList(iiaId));
         ParamsClass paramsClassCNR = new ParamsClass();
         paramsClassCNR.setUnknownFields(paramsMapCNR);

@@ -730,8 +730,6 @@ public class GuiIiaResource {
     private List<ClientResponse> notifyPartner(Iia iia) {
         LOG.fine("NOTIFY: Send notification");
 
-        String localHeiId = iiasEJB.getHeiId();
-
         List<ClientResponse> partnersResponseList = new ArrayList<>();
 
         //Getting agreement partners
@@ -778,7 +776,6 @@ public class GuiIiaResource {
             }
         }
 
-        String finalLocalHeiId = localHeiId;
         cnrUrls.forEach(url -> {
             LOG.fine("NOTIFY: url: " + url.getUrl());
             LOG.fine("NOTIFY: heiId: " + url.getHeiId());
@@ -790,7 +787,6 @@ public class GuiIiaResource {
             clientRequest.setHttpsec(true);
 
             Map<String, List<String>> paramsMap = new HashMap<>();
-            paramsMap.put("notifier_hei_id", Collections.singletonList(finalLocalHeiId));
             paramsMap.put("iia_id", Collections.singletonList(iia.getId()));
             ParamsClass paramsClass = new ParamsClass();
             paramsClass.setUnknownFields(paramsMap);
@@ -814,6 +810,91 @@ public class GuiIiaResource {
         return partnersResponseList;
 
     }
+
+    private List<ClientResponse> notifyPartnerApproval(Iia iia) {
+        LOG.fine("NOTIFY: Send notification");
+
+        List<ClientResponse> partnersResponseList = new ArrayList<>();
+
+        //Getting agreement partners
+        IiaPartner partnerSending = null;
+        IiaPartner partnerReceiving = null;
+
+        Set<NotifyAux> cnrUrls = new HashSet<>();
+
+        List<Institution> institutions = iiasEJB.findAllInstitutions();
+        for (CooperationCondition condition : iia.getCooperationConditions()) {
+            partnerSending = condition.getSendingPartner();
+            partnerReceiving = condition.getReceivingPartner();
+
+            LOG.fine("NOTIFY: partnerSending: " + partnerSending.getInstitutionId());
+            LOG.fine("NOTIFY: partnerReceiving: " + partnerReceiving.getInstitutionId());
+
+            Map<String, String> urls = null;
+            for (Institution institution : institutions) {
+
+                if (!institution.getInstitutionId().equals(partnerSending.getInstitutionId())) {
+
+                    //Get the url for notify the institute not supported by our EWP
+                    urls = registryClient.getIiaApprovalCnrHeiUrls(partnerSending.getInstitutionId());
+
+                    if (urls != null) {
+                        for (Map.Entry<String, String> entry : urls.entrySet()) {
+                            cnrUrls.add(new NotifyAux(partnerSending.getInstitutionId(), entry.getValue()));
+                        }
+                    }
+
+                } else if (!institution.getInstitutionId().equals(partnerReceiving.getInstitutionId())) {
+
+                    //Get the url for notify the institute not supported by our EWP
+                    urls = registryClient.getIiaApprovalCnrHeiUrls(partnerReceiving.getInstitutionId());
+
+                    if (urls != null) {
+                        for (Map.Entry<String, String> entry : urls.entrySet()) {
+                            cnrUrls.add(new NotifyAux(partnerReceiving.getInstitutionId(), entry.getValue()));
+                        }
+
+                    }
+                }
+
+            }
+        }
+
+        cnrUrls.forEach(url -> {
+            LOG.fine("NOTIFY: url: " + url.getUrl());
+            LOG.fine("NOTIFY: heiId: " + url.getHeiId());
+            //Notify the other institution about the modification
+            ClientRequest clientRequest = new ClientRequest();
+            clientRequest.setUrl(url.getUrl());//get the first and only one url
+            clientRequest.setHeiId(url.getHeiId());
+            clientRequest.setMethod(HttpMethodEnum.POST);
+            clientRequest.setHttpsec(true);
+
+            Map<String, List<String>> paramsMap = new HashMap<>();
+            paramsMap.put("iia_id", Collections.singletonList(iia.getId()));
+            ParamsClass paramsClass = new ParamsClass();
+            paramsClass.setUnknownFields(paramsMap);
+            clientRequest.setParams(paramsClass);
+
+            ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
+
+            try {
+                if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
+                    sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iia-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), null);
+                } else if (iiaResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                    sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iia-cnr", null, Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), "Error");
+                }
+            } catch (Exception e) {
+
+            }
+
+            partnersResponseList.add(iiaResponse);
+        });
+
+        return partnersResponseList;
+
+    }
+
 
     @POST
     @Path("iias-approve")
@@ -847,6 +928,17 @@ public class GuiIiaResource {
         //get the first one found
         Iia theIia = foundIia.get(0);
 
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            notifyPartnerApproval(theIia);
+        });
+
+        return javax.ws.rs.core.Response.ok().build();
+        /*
         //Getting agreement partners
         IiaPartner partnerReceiving = null;
 
@@ -934,7 +1026,7 @@ public class GuiIiaResource {
 
         }
 
-        return javax.ws.rs.core.Response.ok(iiaResponse).build();
+        return javax.ws.rs.core.Response.ok(iiaResponse).build();*/
     }
 
     private boolean validateConditions(List<CooperationCondition> conditions) {
