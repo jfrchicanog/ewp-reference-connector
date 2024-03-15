@@ -840,6 +840,8 @@ public class GuiIiaResource {
                     //Get the url for notify the institute not supported by our EWP
                     urls = registryClient.getIiaApprovalCnrHeiUrls(partnerSending.getInstitutionId());
 
+                    LOG.fine("NOTIFY: urls: " + urls);
+
                     if (urls != null) {
                         for (Map.Entry<String, String> entry : urls.entrySet()) {
                             cnrUrls.add(new NotifyAux(partnerSending.getInstitutionId(), entry.getValue()));
@@ -850,6 +852,8 @@ public class GuiIiaResource {
 
                     //Get the url for notify the institute not supported by our EWP
                     urls = registryClient.getIiaApprovalCnrHeiUrls(partnerReceiving.getInstitutionId());
+
+                    LOG.fine("NOTIFY: urls: " + urls);
 
                     if (urls != null) {
                         for (Map.Entry<String, String> entry : urls.entrySet()) {
@@ -929,6 +933,8 @@ public class GuiIiaResource {
 
         //get the first one found
         Iia theIia = foundIia.get(0);
+
+        LOG.fine("Iia found: " + theIia.getId());
 
         CompletableFuture.runAsync(() -> {
             try {
