@@ -180,8 +180,7 @@ public class IiaApprovalResource {
                     approval.setIiaId(iiaId);
                     approval.setIiaHash(iia.getConditionsHash());
 
-                    LOG.fine("GET: Sooking for aprovlas with parameters: " + notifierHeiId + " - " + iiaId);
-                    List<IiaApproval> iiaApprovals = iiasEJB.findIiaApproval(notifierHeiId, iiaId);
+                    List<IiaApproval> iiaApprovals = iiasEJB.findIiaApproval(iiasEJB.getHeiId(), iia.getId());
                     if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
                         response.getApproval().add(approval);
                     }
