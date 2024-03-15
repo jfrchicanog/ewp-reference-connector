@@ -3,10 +3,17 @@ package eu.erasmuswithoutpaper.iia.boundary;
 public class NotifyAux {
     private String heiId;
     private String url;
+    private String iiaId;
 
     public NotifyAux(String heiId, String url) {
         this.heiId = heiId;
         this.url = url;
+    }
+
+    public NotifyAux(String heiId, String url, String iiaId) {
+        this.heiId = heiId;
+        this.url = url;
+        this.iiaId = iiaId;
     }
 
     public String getHeiId() {
@@ -23,6 +30,14 @@ public class NotifyAux {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getIiaId() {
+        return iiaId;
+    }
+
+    public void setIiaId(String iiaId) {
+        this.iiaId = iiaId;
     }
 
     @Override

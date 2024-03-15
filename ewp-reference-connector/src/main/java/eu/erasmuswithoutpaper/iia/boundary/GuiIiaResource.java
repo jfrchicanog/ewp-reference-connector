@@ -844,7 +844,7 @@ public class GuiIiaResource {
 
                     if (urls != null) {
                         for (Map.Entry<String, String> entry : urls.entrySet()) {
-                            cnrUrls.add(new NotifyAux(partnerSending.getInstitutionId(), entry.getValue()));
+                            cnrUrls.add(new NotifyAux(partnerSending.getInstitutionId(), entry.getValue(), partnerSending.getIiaId()));
                         }
                     }
 
@@ -857,7 +857,7 @@ public class GuiIiaResource {
 
                     if (urls != null) {
                         for (Map.Entry<String, String> entry : urls.entrySet()) {
-                            cnrUrls.add(new NotifyAux(partnerReceiving.getInstitutionId(), entry.getValue()));
+                            cnrUrls.add(new NotifyAux(partnerReceiving.getInstitutionId(), entry.getValue(), partnerReceiving.getIiaId()));
                         }
 
                     }
@@ -877,7 +877,7 @@ public class GuiIiaResource {
             clientRequest.setHttpsec(true);
 
             Map<String, List<String>> paramsMap = new HashMap<>();
-            paramsMap.put("iia_id", Collections.singletonList(iia.getId()));
+            paramsMap.put("iia_id", Collections.singletonList(url.getIiaId()));
             ParamsClass paramsClass = new ParamsClass();
             paramsClass.setUnknownFields(paramsMap);
             clientRequest.setParams(paramsClass);
