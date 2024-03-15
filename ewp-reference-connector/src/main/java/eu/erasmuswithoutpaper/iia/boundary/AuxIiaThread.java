@@ -163,8 +163,6 @@ public class AuxIiaThread {
 
             LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
 
-            LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
-
             CompletableFuture.runAsync(() -> {
 
                 try {
@@ -183,6 +181,21 @@ public class AuxIiaThread {
                 LOG.fine("AuxIiaThread_ADDEDIT: Not containing other HASH");
                 iiasEJB.updateWithPartnerIDs(localIia, sendIia, iiaId, heiId);
                 LOG.fine("AuxIiaThread_ADDEDIT: Merged");
+
+                String localId = localIia.getId();
+                CompletableFuture.runAsync(() -> {
+
+                    try {
+                        Thread.sleep(5000);
+                    }catch (InterruptedException e) {
+                        LOG.fine("AuxIiaThread_ADDEDIT: Error sleeping");
+                    }
+
+                    ClientResponse cnrResponse = notifyPartner(heiId, localId);
+
+                    LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse!= null?cnrResponse.getStatusCode():"NULL"));
+                });
+
             } else {
                 String beforeHash = localIia.getConditionsHash();
                 LOG.fine("AuxIiaThread_ADDEDIT: Before hash: " + beforeHash);
@@ -303,6 +316,8 @@ public class AuxIiaThread {
         if (url == null) {
             return null;
         }
+
+        LOG.fine("AuxIiaThread_ADDEDIT: Url CNR encontrada: " + url);
 
         ClientRequest cnrRequest = new ClientRequest();
         cnrRequest.setUrl(url);
