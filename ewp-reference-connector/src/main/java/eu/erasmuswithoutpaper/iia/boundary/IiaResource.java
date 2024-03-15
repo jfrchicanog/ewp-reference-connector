@@ -321,9 +321,12 @@ public class IiaResource {
             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
         }
 
-        LOG.fine("TEST: HEI COVERED BY CERTIFICATE: " + heisCoveredByCertificate);
+        if (heisCoveredByCertificate.isEmpty()) {
+            throw new EwpWebApplicationException("No HEIs covered by this certificate.", Response.Status.FORBIDDEN);
+        }
 
-        /*Notification notification = new Notification();
+        String notifierHeiId = heisCoveredByCertificate.iterator().next();
+        Notification notification = new Notification();
         notification.setType(NotificationTypes.IIA);
         notification.setHeiId(notifierHeiId);
         notification.setChangedElementIds(iiaId);
@@ -331,14 +334,14 @@ public class IiaResource {
         iiasEjb.insertNotification(notification);
 
         //Register and execute Algoria notification
-        execNotificationToAlgoria(iiaId, notifierHeiId);*/
-        /*CompletableFuture.runAsync(() -> {
+        execNotificationToAlgoria(iiaId, notifierHeiId);
+        CompletableFuture.runAsync(() -> {
             try {
                 ait.addEditIia(notifierHeiId, iiaId);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        });*/
+        });
 
         return javax.ws.rs.core.Response.ok(new ObjectFactory().createIiaCnrResponse(new Empty())).build();
     }
