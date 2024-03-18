@@ -189,8 +189,6 @@ public class IiasEJB {
         foundIia.setHashPartner(iiaInternal.getHashPartner());
         foundIia.setIiaCode(iiaInternal.getIiaCode());
 
-        List<CooperationCondition> newCooperationConditions = new ArrayList<>();
-
         List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
         List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
         for (CooperationCondition cc : cooperationConditions) {
@@ -234,7 +232,7 @@ public class IiasEJB {
             }
         }
 
-        foundIia.setCooperationConditions(newCooperationConditions);
+        foundIia.setCooperationConditions(cooperationConditionsCurrent);
 
         //em.merge(foundIia);
         //em.flush();
