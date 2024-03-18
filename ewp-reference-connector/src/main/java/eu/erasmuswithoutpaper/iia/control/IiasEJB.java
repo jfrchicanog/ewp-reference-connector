@@ -195,12 +195,8 @@ public class IiasEJB {
             for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
                 if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
                     if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
-                        LOG.fine("UPDATE: FOUND COOPERATION CONDITION");
                         ccCurrent.setBlended(cc.isBlended());
-                        LOG.fine("UPDATE: BEFORE: " + cc.getDuration().getNumber());
                         ccCurrent.setDuration(cc.getDuration()); //
-                        LOG.fine("UPDATE: DURATION: " + cc.getDuration().getNumber());
-                        LOG.fine("UPDATE: DURATION: " + ccCurrent.getDuration().getNumber());
                         ccCurrent.setEndDate(cc.getEndDate());
                         ccCurrent.setEqfLevel(cc.getEqfLevel());
                         ccCurrent.setMobilityNumber(cc.getMobilityNumber()); //
@@ -219,7 +215,6 @@ public class IiasEJB {
                         sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
                         sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
                         sendingPartnerC.setIiaId(sendingPartner.getIiaId());
-                        em.merge(sendingPartnerC);
 
                         IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
                         IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
@@ -229,13 +224,9 @@ public class IiasEJB {
                         receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
                         receivingPartnerC.setIiaCode(receivingPartner.getIiaCode());
                         receivingPartnerC.setIiaId(receivingPartner.getIiaId());
-                        em.merge(receivingPartnerC);
 
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
-
-                        em.merge(ccCurrent);
-                        em.flush();
                     }
                 }
             }
