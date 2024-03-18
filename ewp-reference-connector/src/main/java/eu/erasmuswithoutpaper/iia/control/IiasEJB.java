@@ -179,8 +179,8 @@ public class IiasEJB {
     }
 
     public void updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
-        foundIia.setModifyDate(new Date());
-        em.merge(foundIia);
+        //foundIia.setModifyDate(new Date());
+        //em.merge(foundIia);
 
         //foundIia.setConditionsHash(iiaInternal.getConditionsHash());
         foundIia.setInEfect(iiaInternal.isInEfect());
@@ -230,7 +230,7 @@ public class IiasEJB {
             }
         }
 
-        //foundIia.setCooperationConditions(cooperationConditionsCurrent);
+        foundIia.setCooperationConditions(cooperationConditionsCurrent);
 
         em.merge(foundIia);
         em.flush();
