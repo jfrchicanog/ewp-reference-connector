@@ -179,7 +179,6 @@ public class IiasEJB {
     }
 
     public void updateIia(Iia iiaInternal, String iiaId, String partnerHash) {
-        em.getTransaction().begin();
         Iia foundIia = em.find(Iia.class, iiaId);
 
         foundIia.setModifyDate(new Date());
@@ -217,6 +216,7 @@ public class IiasEJB {
                         sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
                         sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
                         sendingPartnerC.setIiaId(sendingPartner.getIiaId());
+                        em.merge(sendingPartnerC);
 
                         IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
                         IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
@@ -226,9 +226,13 @@ public class IiasEJB {
                         receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
                         receivingPartnerC.setIiaCode(receivingPartner.getIiaCode());
                         receivingPartnerC.setIiaId(receivingPartner.getIiaId());
+                        em.merge(receivingPartnerC);
 
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
+
+                        em.merge(ccCurrent);
+                        em.flush();
                     }
                 }
             }
@@ -258,7 +262,9 @@ public class IiasEJB {
             //em.merge(foundIia);
             //em.flush();
         }
-        em.getTransaction().commit();
+
+        em.merge(foundIia);
+        em.flush();
     }
 
     public List<Iia> getByPartnerId(String heiId, String partnerId) {
