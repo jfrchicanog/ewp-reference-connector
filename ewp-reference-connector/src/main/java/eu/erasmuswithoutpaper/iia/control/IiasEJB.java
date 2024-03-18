@@ -198,6 +198,8 @@ public class IiasEJB {
                         LOG.fine("UPDATE: FOUND COOPERATION CONDITION");
                         ccCurrent.setBlended(cc.isBlended());
                         ccCurrent.setDuration(cc.getDuration()); //
+                        LOG.fine("UPDATE: DURATION: " + cc.getDuration());
+                        LOG.fine("UPDATE: DURATION: " + ccCurrent.getDuration());
                         ccCurrent.setEndDate(cc.getEndDate());
                         ccCurrent.setEqfLevel(cc.getEqfLevel());
                         ccCurrent.setMobilityNumber(cc.getMobilityNumber()); //
