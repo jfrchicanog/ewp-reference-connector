@@ -179,13 +179,15 @@ public class IiasEJB {
     }
 
     public void updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
-        //foundIia.setModifyDate(new Date());
-        //em.merge(foundIia);
+        foundIia.setModifyDate(new Date());
+        em.merge(foundIia);
 
         //foundIia.setConditionsHash(iiaInternal.getConditionsHash());
         foundIia.setInEfect(iiaInternal.isInEfect());
         foundIia.setHashPartner(iiaInternal.getHashPartner());
         foundIia.setIiaCode(iiaInternal.getIiaCode());
+
+        List<CooperationCondition> newCooperationConditions = new ArrayList<>();
 
         List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
         List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
@@ -225,12 +227,15 @@ public class IiasEJB {
 
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
+
+                        em.detach(ccCurrent);
+                        newCooperationConditions.add(ccCurrent);
                     }
                 }
             }
         }
 
-        foundIia.setCooperationConditions(cooperationConditionsCurrent);
+        foundIia.setCooperationConditions(newCooperationConditions);
 
         em.merge(foundIia);
         em.flush();
