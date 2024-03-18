@@ -716,7 +716,7 @@ public class GuiIiaResource {
         //Notify the partner about the modification using the API GUI IIA CNR
         CompletableFuture.runAsync(() -> {
             try {
-                Thread.sleep(5000);
+                Thread.sleep(7000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

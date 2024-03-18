@@ -1,7 +1,5 @@
 package eu.erasmuswithoutpaper.iia.control;
 
-import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
-import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
@@ -9,24 +7,12 @@ import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
-import eu.erasmuswithoutpaper.omobility.las.boundary.TestEndpointsOLAS;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
-import org.xml.sax.SAXException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 @Stateless
