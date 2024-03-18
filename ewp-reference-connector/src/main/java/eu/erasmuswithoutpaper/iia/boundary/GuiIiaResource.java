@@ -674,6 +674,8 @@ public class GuiIiaResource {
 
         convertToIia(iia, iiaInternal);
 
+        LOG.fine("UPDATE: Iia Code: " + iiaInternal.getCooperationConditions().stream().map(c -> c.getDuration().getNumber().toString()).collect(Collectors.joining(", ")));
+
         //Find the iia by code
         List<Iia> foundIias = iiasEJB.findByIiaCode(iiaInternal.getIiaCode());
 
@@ -716,14 +718,13 @@ public class GuiIiaResource {
         //Notify the partner about the modification using the API GUI IIA CNR
         CompletableFuture.runAsync(() -> {
             try {
-                Thread.sleep(7000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             notifyPartner(iiaInternal);
         });
 
-        //ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
         IiaResponse response = new IiaResponse(foundIia.getId(), foundIia.getConditionsHash());
         return javax.ws.rs.core.Response.ok(response).build();
     }
