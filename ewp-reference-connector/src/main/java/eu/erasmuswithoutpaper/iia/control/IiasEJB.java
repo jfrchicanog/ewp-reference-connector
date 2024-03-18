@@ -179,6 +179,7 @@ public class IiasEJB {
     }
 
     public void updateIia(Iia iiaInternal, String iiaId, String partnerHash) {
+        em.getTransaction().begin();
         Iia foundIia = em.find(Iia.class, iiaId);
 
         foundIia.setModifyDate(new Date());
@@ -195,6 +196,7 @@ public class IiasEJB {
             for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
                 if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
                     if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
+                        LOG.fine("UPDATE: FOUND COOPERATION CONDITION");
                         ccCurrent.setBlended(cc.isBlended());
                         ccCurrent.setDuration(cc.getDuration()); //
                         ccCurrent.setEndDate(cc.getEndDate());
@@ -256,6 +258,7 @@ public class IiasEJB {
             //em.merge(foundIia);
             //em.flush();
         }
+        em.getTransaction().commit();
     }
 
     public List<Iia> getByPartnerId(String heiId, String partnerId) {
