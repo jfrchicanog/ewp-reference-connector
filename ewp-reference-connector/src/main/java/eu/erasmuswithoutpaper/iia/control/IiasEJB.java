@@ -194,16 +194,16 @@ public class IiasEJB {
                 if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
                     if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
                         ccCurrent.setBlended(cc.isBlended());
-                        ccCurrent.setDuration(cc.getDuration());
+                        ccCurrent.setDuration(cc.getDuration()); //
                         ccCurrent.setEndDate(cc.getEndDate());
                         ccCurrent.setEqfLevel(cc.getEqfLevel());
-                        ccCurrent.setMobilityNumber(cc.getMobilityNumber());
-                        ccCurrent.setMobilityType(cc.getMobilityType());
+                        ccCurrent.setMobilityNumber(cc.getMobilityNumber()); //
+                        ccCurrent.setMobilityType(cc.getMobilityType()); //
                         ccCurrent.setOtherInfoTerms(cc.getOtherInfoTerms());
                         ccCurrent.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
-                        ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill());
+                        ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill()); //
                         ccCurrent.setStartDate(cc.getStartDate());
-                        ccCurrent.setSubjectAreas(cc.getSubjectAreas());
+                        ccCurrent.setSubjectAreas(cc.getSubjectAreas()); //
 
                         IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
                         IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
@@ -230,7 +230,7 @@ public class IiasEJB {
             }
         }
 
-        foundIia.setCooperationConditions(cooperationConditionsCurrent);
+        //foundIia.setCooperationConditions(cooperationConditionsCurrent);
 
         em.merge(foundIia);
         em.flush();
