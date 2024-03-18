@@ -197,9 +197,10 @@ public class IiasEJB {
                     if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
                         LOG.fine("UPDATE: FOUND COOPERATION CONDITION");
                         ccCurrent.setBlended(cc.isBlended());
+                        LOG.fine("UPDATE: BEFORE: " + cc.getDuration().getNumber());
                         ccCurrent.setDuration(cc.getDuration()); //
-                        LOG.fine("UPDATE: DURATION: " + cc.getDuration());
-                        LOG.fine("UPDATE: DURATION: " + ccCurrent.getDuration());
+                        LOG.fine("UPDATE: DURATION: " + cc.getDuration().getNumber());
+                        LOG.fine("UPDATE: DURATION: " + ccCurrent.getDuration().getNumber());
                         ccCurrent.setEndDate(cc.getEndDate());
                         ccCurrent.setEqfLevel(cc.getEqfLevel());
                         ccCurrent.setMobilityNumber(cc.getMobilityNumber()); //
