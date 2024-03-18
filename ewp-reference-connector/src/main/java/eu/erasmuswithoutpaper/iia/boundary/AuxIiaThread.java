@@ -202,7 +202,7 @@ public class AuxIiaThread {
                 Iia modifIia = new Iia();
                 convertToIia(sendIia, modifIia);
 
-                iiasEJB.updateIia(modifIia, localIia, sendIia.getIiaHash());
+                iiasEJB.updateIia(modifIia, localIia.getId(), sendIia.getIiaHash());
 
                 LOG.fine("AuxIiaThread_ADDEDIT: After merging changes");
 

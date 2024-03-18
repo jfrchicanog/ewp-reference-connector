@@ -713,7 +713,7 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        iiasEJB.updateIia(iiaInternal, foundIia, null);
+        iiasEJB.updateIia(iiaInternal, foundIia.getId(), null);
 
         //Notify the partner about the modification using the API GUI IIA CNR
         CompletableFuture.runAsync(() -> {

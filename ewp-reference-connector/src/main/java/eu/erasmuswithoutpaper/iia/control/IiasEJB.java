@@ -178,9 +178,11 @@ public class IiasEJB {
         em.flush();
     }
 
-    public void updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
+    public void updateIia(Iia iiaInternal, String iiaId, String partnerHash) {
+        Iia foundIia = em.find(Iia.class, iiaId);
+
         foundIia.setModifyDate(new Date());
-        em.merge(foundIia);
+        //em.merge(foundIia);
 
         //foundIia.setConditionsHash(iiaInternal.getConditionsHash());
         foundIia.setInEfect(iiaInternal.isInEfect());
@@ -227,9 +229,6 @@ public class IiasEJB {
 
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
-
-                        em.detach(ccCurrent);
-                        newCooperationConditions.add(ccCurrent);
                     }
                 }
             }
@@ -237,8 +236,8 @@ public class IiasEJB {
 
         foundIia.setCooperationConditions(newCooperationConditions);
 
-        em.merge(foundIia);
-        em.flush();
+        //em.merge(foundIia);
+        //em.flush();
 
         String localHeiId = getHeiId();
 
@@ -250,14 +249,14 @@ public class IiasEJB {
             LOG.fine(e.getMessage());
         }
 
-        em.merge(foundIia);
-        em.flush();
+        //em.merge(foundIia);
+        //em.flush();
 
         if (partnerHash != null) {
             LOG.fine("UPDATE *ESPECIAL*: PARTNER HASH SET TO: " + partnerHash);
             foundIia.setHashPartner(partnerHash);
-            em.merge(foundIia);
-            em.flush();
+            //em.merge(foundIia);
+            //em.flush();
         }
     }
 
