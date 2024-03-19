@@ -192,9 +192,10 @@ public class IiasEJB {
         List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
         List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
         for (CooperationCondition cc : cooperationConditions) {
-            for (CooperationCondition ccCurrent : cooperationConditionsCurrent) {//cc in database
-                if (cc.getSendingPartner().getInstitutionId().equals(ccCurrent.getSendingPartner().getInstitutionId())) {
-                    if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrent.getReceivingPartner().getInstitutionId())) {
+            for (CooperationCondition ccCurrentB : cooperationConditionsCurrent) {//cc in database
+                if (cc.getSendingPartner().getInstitutionId().equals(ccCurrentB.getSendingPartner().getInstitutionId())) {
+                    if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrentB.getReceivingPartner().getInstitutionId())) {
+                        CooperationCondition ccCurrent = em.find(CooperationCondition.class, ccCurrentB.getId());
                         ccCurrent.setBlended(cc.isBlended());
                         ccCurrent.setDuration(cc.getDuration()); //
                         ccCurrent.setEndDate(cc.getEndDate());
