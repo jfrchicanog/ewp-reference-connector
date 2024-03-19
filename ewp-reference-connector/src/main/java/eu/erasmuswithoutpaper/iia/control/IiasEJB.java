@@ -2,10 +2,7 @@ package eu.erasmuswithoutpaper.iia.control;
 
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
-import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
-import eu.erasmuswithoutpaper.iia.entity.Iia;
-import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
-import eu.erasmuswithoutpaper.iia.entity.MobilityType;
+import eu.erasmuswithoutpaper.iia.entity.*;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 
@@ -197,11 +194,56 @@ public class IiasEJB {
                     if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrentB.getReceivingPartner().getInstitutionId())) {
                         CooperationCondition ccCurrent = em.find(CooperationCondition.class, ccCurrentB.getId());
                         ccCurrent.setBlended(cc.isBlended());
-                        ccCurrent.setDuration(cc.getDuration()); //
+                        if(cc.getDuration() != null) {
+                            if (ccCurrent.getDuration() != null) {
+                                Duration duration = em.find(Duration.class, ccCurrent.getDuration().getId());
+                                duration.setUnit(cc.getDuration().getUnit());
+                                duration.setUnit(cc.getDuration().getUnit());
+
+                                ccCurrent.setDuration(duration);
+                            }else {
+                                em.persist(cc.getDuration());
+                                em.flush();
+
+                                ccCurrent.setDuration(cc.getDuration());
+                            }
+                        }else {
+                            ccCurrent.setDuration(null);
+                        }
                         ccCurrent.setEndDate(cc.getEndDate());
                         ccCurrent.setEqfLevel(cc.getEqfLevel());
-                        ccCurrent.setMobilityNumber(cc.getMobilityNumber()); //
-                        ccCurrent.setMobilityType(cc.getMobilityType()); //
+                        if (cc.getMobilityNumber() != null) {
+                            if (ccCurrent.getMobilityNumber() != null) {
+                                MobilityNumber mobilityNumber = em.find(MobilityNumber.class, ccCurrent.getMobilityNumber().getId());
+                                mobilityNumber.setNumber(cc.getMobilityNumber().getNumber());
+                                mobilityNumber.setVariant(cc.getMobilityNumber().getVariant());
+
+                                ccCurrent.setMobilityNumber(mobilityNumber);
+                            } else {
+                                em.persist(cc.getMobilityNumber());
+                                em.flush();
+
+                                ccCurrent.setMobilityNumber(cc.getMobilityNumber());
+                            }
+                        } else {
+                            ccCurrent.setMobilityNumber(null);
+                        }
+                        if(cc.getMobilityType() != null) {
+                            if (ccCurrent.getMobilityType() != null) {
+                                MobilityType mobilityType = em.find(MobilityType.class, ccCurrent.getMobilityType().getId());
+                                mobilityType.setMobilityCategory(cc.getMobilityType().getMobilityCategory());
+                                mobilityType.setMobilityGroup(cc.getMobilityType().getMobilityGroup());
+
+                                ccCurrent.setMobilityType(mobilityType);
+                            } else {
+                                em.persist(cc.getMobilityType());
+                                em.flush();
+
+                                ccCurrent.setMobilityType(cc.getMobilityType());
+                            }
+                        } else {
+                            ccCurrent.setMobilityType(null);
+                        }
                         ccCurrent.setOtherInfoTerms(cc.getOtherInfoTerms());
                         ccCurrent.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
                         ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill()); //
