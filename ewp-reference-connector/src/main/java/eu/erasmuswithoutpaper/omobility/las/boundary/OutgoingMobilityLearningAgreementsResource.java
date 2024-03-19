@@ -260,7 +260,11 @@ public class OutgoingMobilityLearningAgreementsResource {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }*/
-                ait.createLas(sendingHeiId, mobilityId);
+                try {
+                    ait.createLas(sendingHeiId, mobilityId);
+                } catch (Exception e) {
+                    LOG.fine("Error in AuxIiaApprovalThread: " + e.getMessage());
+                }
             });
             //CNROmobilitiesLa cnr = new CNROmobilitiesLa(sendingHeiId, mobilityId);
             //cnr.start();

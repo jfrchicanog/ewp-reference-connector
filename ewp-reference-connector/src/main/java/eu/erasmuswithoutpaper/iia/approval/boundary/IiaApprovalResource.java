@@ -133,7 +133,11 @@ public class IiaApprovalResource {
         //Register and execute Algoria notification
         execNotificationToAlgoria(iiaApprovalId, notifierHeiId);
         CompletableFuture.runAsync(() -> {
-            aipt.getApprovedIias(notifierHeiId, iiaApprovalId);
+            try {
+                aipt.getApprovedIias(notifierHeiId, iiaApprovalId);
+            } catch (Exception e) {
+                LOG.fine("Error in AuxIiaApprovalThread: " + e.getMessage());
+            }
         });
 
 

@@ -12,6 +12,7 @@ import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.boundary.AuxIiaThread;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
+import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -32,10 +33,13 @@ public class AuxIiaApprovalThread {
     @Inject
     RestClient restClient;
 
+    @Inject
+    SendMonitoringService sendMonitoringService;
+
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(AuxIiaApprovalThread.class.getCanonicalName());
 
 
-    public void getApprovedIias(String heiId, String iiaId) {
+    public void getApprovedIias(String heiId, String iiaId) throws Exception {
 
         LOG.fine("AuxIiaApprovalThread: start getApprovedIias");
 
@@ -79,7 +83,11 @@ public class AuxIiaApprovalThread {
         LOG.fine("AuxIiaApprovalThread: Respuesta del cliente " + clientResponse.getStatusCode());
 
         if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
-            //TODO: Handle error, notify monitoring
+            if (clientResponse.getStatusCode() <= 599 && clientResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias-approval", null, Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), null);
+            } else if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias-approval", null, Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), "Error");
+            }
             return;
         }
 

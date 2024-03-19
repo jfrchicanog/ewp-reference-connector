@@ -187,12 +187,14 @@ public class IiasEJB {
         foundIia.setIiaCode(iiaInternal.getIiaCode());
 
         List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
-        List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
+        //List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
         for (CooperationCondition cc : cooperationConditions) {
-            for (CooperationCondition ccCurrentB : cooperationConditionsCurrent) {//cc in database
+            String ccId = foundIia.getCooperationConditions().stream().filter(c -> c.getSendingPartner().getInstitutionId().equals(cc.getSendingPartner().getInstitutionId()) && c.getReceivingPartner().getInstitutionId().equals(cc.getReceivingPartner().getInstitutionId())).map(CooperationCondition::getId).findFirst().orElse(null);
+            /*for (CooperationCondition ccCurrentB : cooperationConditionsCurrent) {//cc in database
                 if (cc.getSendingPartner().getInstitutionId().equals(ccCurrentB.getSendingPartner().getInstitutionId())) {
                     if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrentB.getReceivingPartner().getInstitutionId())) {
-                        CooperationCondition ccCurrent = em.find(CooperationCondition.class, ccCurrentB.getId());
+                        String ccId = ccCurrentB.getId();*/
+                        CooperationCondition ccCurrent = em.find(CooperationCondition.class, ccId);
                         ccCurrent.setBlended(cc.isBlended());
                         if(cc.getDuration() != null) {
                             if (ccCurrent.getDuration() != null) {
@@ -271,9 +273,9 @@ public class IiasEJB {
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
                         em.merge(ccCurrent);
-                    }
+                    /*}
                 }
-            }
+            }*/
         }
 
         //foundIia.setCooperationConditions(cooperationConditionsCurrent);

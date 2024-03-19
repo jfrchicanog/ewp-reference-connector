@@ -338,7 +338,7 @@ public class IiaResource {
         CompletableFuture.runAsync(() -> {
             try {
                 ait.addEditIia(notifierHeiId, iiaId);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });

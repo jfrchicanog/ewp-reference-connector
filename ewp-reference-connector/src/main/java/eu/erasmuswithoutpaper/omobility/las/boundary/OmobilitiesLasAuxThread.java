@@ -9,6 +9,7 @@ import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.omobility.las.control.LearningAgreementEJB;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
 
@@ -34,9 +35,12 @@ public class OmobilitiesLasAuxThread {
     @Inject
     RestClient restClient;
 
+    @Inject
+    SendMonitoringService sendMonitoringService;
+
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(OmobilitiesLasAuxThread.class.getCanonicalName());
 
-    public void createLas(String heiId, String mobilityId) {
+    public void createLas(String heiId, String mobilityId) throws Exception {
         LOG.fine("OmobilitiesLasAuxThread: Start auxiliary thread to create LAS for mobility " + mobilityId);
 
         Map<String, String> map = registryClient.getOmobilityLasHeiUrls(heiId);
@@ -70,7 +74,11 @@ public class OmobilitiesLasAuxThread {
         LOG.fine("NOTIFY: response: " + omobilityLasGetResponse.getRawResponse());
 
         if (omobilityLasGetResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
-            //TODO: Handle error, notify monitoring
+            if (omobilityLasGetResponse.getStatusCode() <= 599 && omobilityLasGetResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "omobility-las", "get", Integer.toString(omobilityLasGetResponse.getStatusCode()), omobilityLasGetResponse.getErrorMessage(), null);
+            } else if (omobilityLasGetResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "omobility-las", "get", Integer.toString(omobilityLasGetResponse.getStatusCode()), omobilityLasGetResponse.getErrorMessage(), "Error");
+            }
             return;
         }
 

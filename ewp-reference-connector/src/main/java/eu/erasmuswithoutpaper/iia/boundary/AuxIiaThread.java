@@ -34,6 +34,7 @@ import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
 import eu.erasmuswithoutpaper.iia.entity.MobilityNumber;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
 import eu.erasmuswithoutpaper.iia.entity.SubjectArea;
+import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.organization.entity.ContactDetails;
 import eu.erasmuswithoutpaper.organization.entity.FlexibleAddress;
 import eu.erasmuswithoutpaper.organization.entity.Gender;
@@ -77,9 +78,12 @@ public class AuxIiaThread {
     @Inject
     RestClient restClient;
 
+    @Inject
+    SendMonitoringService sendMonitoringService;
+
     private static final Logger LOG = Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
-    public void addEditIia(String heiId, String iiaId) throws InterruptedException {
+    public void addEditIia(String heiId, String iiaId) throws Exception {
         String localHeiId = iiasEJB.getHeiId();
 
         LOG.fine("AuxIiaThread_ADDEDIT: Empezando GET tras CNR");
@@ -120,7 +124,11 @@ public class AuxIiaThread {
         LOG.fine("AuxIiaThread_ADDEDIT: Respuesta del cliente " + clientResponse.getStatusCode());
 
         if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
-            //TODO: Handle error, notify monitoring
+            if (clientResponse.getStatusCode() <= 599 && clientResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), null);
+            } else if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), "Error");
+            }
             return;
         }
 
@@ -233,77 +241,7 @@ public class AuxIiaThread {
         }
 
     }
-
-    public void aprovals(String approving_heiId, String owner_heiId, String iiaId) {
-        LOG.fine("AuxIiaThread_APROVALS: Sending aproval request");
-        Map<String, String> map = registryClient.getIiaApprovalHeiUrls(approving_heiId);
-        if (map == null) {
-            return;
-        }
-
-        LOG.fine("AuxIiaThread_APROVALS: MAP ENCONTRADO");
-
-        String url = map.get("get-url");
-        if (url == null) {
-            return;
-        }
-
-        LOG.fine("AuxIiaThread_APROVALS: Url encontrada: " + url);
-
-        ClientRequest clientRequest = new ClientRequest();
-        clientRequest.setHeiId(approving_heiId);
-        clientRequest.setHttpsec(true);
-        clientRequest.setMethod(HttpMethodEnum.GET);
-        clientRequest.setUrl(url);
-
-        Map<String, List<String>> paramsMap = new HashMap<>();
-        paramsMap.put("approving_hei", Arrays.asList(approving_heiId));
-        paramsMap.put("owner_hei", Arrays.asList(owner_heiId));
-        paramsMap.put("iia_id", Arrays.asList(iiaId));
-        ParamsClass params = new ParamsClass();
-        params.setUnknownFields(paramsMap);
-        clientRequest.setParams(params);
-
-        LOG.fine("AuxIiaThread_APROVALS: Parametros encontrados: ");
-
-        paramsMap.forEach((key, value) -> {
-            LOG.fine("\t\t\t\t" + key + ":" + value);
-        });
-
-        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasApprovalResponse.class);
-
-        LOG.fine("AuxIiaThread_APROVALS: Respuesta del cliente " + clientResponse.getStatusCode());
-
-        if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
-            //TODO: Handle error, notify monitoring
-            return;
-        }
-
-        LOG.fine("AuxIiaThread_APROVALS: Respuesta raw: " + clientResponse.getRawResponse());
-
-        IiasApprovalResponse responseEnity = (IiasApprovalResponse) clientResponse.getResult();
-
-        IiasApprovalResponse.Approval iiaApproval = responseEnity.getApproval().get(0);
-
-        Iia localIia = null;
-        List<Iia> iia = iiasEJB.findByIdList(iiaId);
-        LOG.fine("AuxIiaThread_APROVALS: Find local iias: " + (iia == null ? "0" : iia.size()));
-        if (iia != null && !iia.isEmpty()) {
-            localIia = iia.get(0);
-            LOG.fine("AuxIiaThread_APROVALS: Found local iia: " + localIia.getId());
-        }
-
-
-        LOG.fine("AuxIiaThread_APROVALS: Busqueda en bbdd " + (localIia != null));
-        LOG.fine("AuxIiaThread_APROVALS: Found HASH: " + (localIia != null ? localIia.getConditionsHash() : ""));
-        LOG.fine("AuxIiaThread_APROVALS: Send HASH: " + iiaApproval.getIiaHash());
-        if (localIia != null && localIia.getConditionsHash().equals(iiaApproval.getIiaHash())) {
-            LOG.fine("AuxIiaThread_APROVALS: Found existing iia and hash is the same");
-            //localIia.setInEfect(iiaApproval.isApproved());
-            iiasEJB.merge(localIia);
-        }
-    }
-
+    
     private ClientResponse notifyPartner(String heiId, String iiaId) {
         String localHeiId = iiasEJB.getHeiId();
         Map<String, String> map = registryClient.getIiaCnrHeiUrls(heiId);
