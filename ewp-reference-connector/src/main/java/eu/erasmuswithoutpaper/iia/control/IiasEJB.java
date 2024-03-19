@@ -175,7 +175,7 @@ public class IiasEJB {
         em.flush();
     }
 
-    public void updateIia(Iia iiaInternal, String iiaId, String partnerHash) {
+    public String updateIia(Iia iiaInternal, String iiaId, String partnerHash) {
         Iia foundIia = em.find(Iia.class, iiaId);
 
         foundIia.setModifyDate(new Date());
@@ -303,6 +303,8 @@ public class IiasEJB {
 
         em.merge(foundIia);
         em.flush();
+
+        return foundIia.getConditionsHash();
     }
 
     public List<Iia> getByPartnerId(String heiId, String partnerId) {

@@ -202,13 +202,13 @@ public class AuxIiaThread {
                 Iia modifIia = new Iia();
                 convertToIia(sendIia, modifIia);
 
-                iiasEJB.updateIia(modifIia, localIia.getId(), sendIia.getIiaHash());
+                String afterHash = iiasEJB.updateIia(modifIia, localIia.getId(), sendIia.getIiaHash());
 
                 LOG.fine("AuxIiaThread_ADDEDIT: After merging changes");
 
-                LOG.fine("AuxIiaThread_ADDEDIT: Compare hashes: " + beforeHash + " " + localIia.getConditionsHash());
+                LOG.fine("AuxIiaThread_ADDEDIT: Compare hashes: " + beforeHash + " " + afterHash);
 
-                if (!beforeHash.equals(localIia.getConditionsHash())) {
+                if (!beforeHash.equals(afterHash)) {
 
                     LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
 
