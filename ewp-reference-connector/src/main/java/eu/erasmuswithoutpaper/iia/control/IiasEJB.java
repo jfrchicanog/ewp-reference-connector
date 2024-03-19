@@ -203,7 +203,6 @@ public class IiasEJB {
                                 duration.setUnit(cc.getDuration().getUnit());
 
                                 ccCurrent.setDuration(duration);
-                                em.merge(duration);
                             }else {
                                 em.persist(cc.getDuration());
                                 em.flush();
@@ -222,7 +221,6 @@ public class IiasEJB {
                                 mobilityNumber.setVariant(cc.getMobilityNumber().getVariant());
 
                                 ccCurrent.setMobilityNumber(mobilityNumber);
-                                em.merge(mobilityNumber);
                             } else {
                                 em.persist(cc.getMobilityNumber());
                                 em.flush();
@@ -239,7 +237,6 @@ public class IiasEJB {
                                 mobilityType.setMobilityGroup(cc.getMobilityType().getMobilityGroup());
 
                                 ccCurrent.setMobilityType(mobilityType);
-                                em.merge(mobilityType);
                             } else {
                                 em.persist(cc.getMobilityType());
                                 em.flush();
