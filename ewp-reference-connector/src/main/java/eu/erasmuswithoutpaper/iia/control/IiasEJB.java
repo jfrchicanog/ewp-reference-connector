@@ -228,12 +228,13 @@ public class IiasEJB {
 
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
+                        em.merge(ccCurrent);
                     }
                 }
             }
         }
 
-        foundIia.setCooperationConditions(cooperationConditionsCurrent);
+        //foundIia.setCooperationConditions(cooperationConditionsCurrent);
 
         //em.merge(foundIia);
         //em.flush();
