@@ -17,6 +17,7 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
         @NamedQuery(name = IiaApproval.findAll, query = "SELECT i FROM IiaApproval i"),
         @NamedQuery(name = IiaApproval.findById, query = "SELECT i FROM IiaApproval i WHERE i.id = :id"),
         @NamedQuery(name = IiaApproval.findByIiaCode, query = "SELECT i FROM IiaApproval i WHERE i.iiaCode = :iiaCode"),
+        @NamedQuery(name = IiaApproval.findByIiaId, query = "SELECT i FROM IiaApproval i JOIN i.iia ii WHERE ii.id = :iiaId"),
         @NamedQuery(name = IiaApproval.findByIiaIdAndHeiId, query = "SELECT i FROM IiaApproval i JOIN i.iia ii WHERE i.heiId = :heiId AND ii.id = :iiaId"),
 })
 public class IiaApproval implements Serializable {
@@ -27,6 +28,7 @@ public class IiaApproval implements Serializable {
     public static final String findAll = PREFIX + "all";
     public static final String findById = PREFIX + "byId";
     public static final String findByIiaCode = PREFIX + "byIiaCode";
+    public static final String findByIiaId = PREFIX + "byIiaId";
     public static final String findByIiaIdAndHeiId = PREFIX + "byIiaIdAndHeiId";
 
     @Id

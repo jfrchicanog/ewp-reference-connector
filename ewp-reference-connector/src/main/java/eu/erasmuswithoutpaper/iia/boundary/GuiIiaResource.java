@@ -712,8 +712,12 @@ public class GuiIiaResource {
             System.err.println("Update Algoria: Invalids Cooperation Conditions");
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
+        String oldHash = foundIia.getConditionsHash();
+        String newHash = iiasEJB.updateIia(iiaInternal, foundIia.getId(), null);
 
-        iiasEJB.updateIia(iiaInternal, foundIia.getId(), null);
+        if (!oldHash.equals(newHash)) {
+            iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());
+        }
 
         //Notify the partner about the modification using the API GUI IIA CNR
         CompletableFuture.runAsync(() -> {

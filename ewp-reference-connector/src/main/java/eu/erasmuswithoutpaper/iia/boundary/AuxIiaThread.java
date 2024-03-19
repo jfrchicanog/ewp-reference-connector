@@ -210,6 +210,8 @@ public class AuxIiaThread {
 
                 if (!beforeHash.equals(afterHash)) {
 
+                    iiasEJB.deleteAssociatedIiaApprovals(localIia.getId());
+
                     LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
 
                     String localId = localIia.getId();
