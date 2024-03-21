@@ -352,7 +352,7 @@ public class IiaConverter {
             return;
         }
         //conv.setAvgDays(BigInteger.ONE);
-        if (cc.getDuration() != null) {
+        if (cc.getDuration() != null && cc.getDuration().getNumber() != null) {
             conv.setTotalDaysPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
         }
 
