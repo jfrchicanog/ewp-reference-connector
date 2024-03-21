@@ -38,8 +38,8 @@ public class IiaConverter {
             }
 
 
-             // The value of `hei-id` of the first `partner` MUST match the value
-             // passed in the `hei_id` request parameter,
+            // The value of `hei-id` of the first `partner` MUST match the value
+            // passed in the `hei_id` request parameter,
 
             Comparator<? super IiasGetResponse.Iia.Partner> heiIdComparator = new Comparator<IiasGetResponse.Iia.Partner>() {
                 //     return 1 if rhs should be before lhs
@@ -68,7 +68,7 @@ public class IiaConverter {
 
             //    StringWriter sw = new StringWriter();
 
-                //Create a copy off CooperationConditions to be used in calculateSha256 function
+            //Create a copy off CooperationConditions to be used in calculateSha256 function
             //   CooperationConditions cc = new CooperationConditions();
             //    cc.getStaffTeacherMobilitySpec().addAll(converted.getCooperationConditions().getStaffTeacherMobilitySpec());
             //    cc.getStaffTrainingMobilitySpec().addAll(converted.getCooperationConditions().getStaffTrainingMobilitySpec());
@@ -194,7 +194,7 @@ public class IiaConverter {
 
     private StaffTeacherMobilitySpec convertToStaffTeacherMobilitySpec(CooperationCondition cc) {
         StaffTeacherMobilitySpec conv = new StaffTeacherMobilitySpec();
-        if(cc == null) {
+        if (cc == null) {
             return conv;
         }
         addToStaffMobilitySpecification(conv, cc);
@@ -254,10 +254,10 @@ public class IiaConverter {
             conv.getRecommendedLanguageSkill().addAll(recommendedSkills);
         }
 
-        if(cc.getReceivingAcademicYearId() != null && !cc.getReceivingAcademicYearId().isEmpty()) {
+        if (cc.getReceivingAcademicYearId() != null && !cc.getReceivingAcademicYearId().isEmpty()) {
             cc.getReceivingAcademicYearId().sort(Comparator.naturalOrder());
             conv.setReceivingFirstAcademicYearId(cc.getReceivingAcademicYearId().get(0));
-            if(cc.getReceivingAcademicYearId().size() > 1) {
+            if (cc.getReceivingAcademicYearId().size() > 1) {
                 conv.setReceivingLastAcademicYearId(cc.getReceivingAcademicYearId().get(1));
             }
         }
@@ -316,9 +316,9 @@ public class IiaConverter {
         }
 
         MobilitySpecification.MobilitiesPerYear mobilitiesPerYear = new MobilitySpecification.MobilitiesPerYear();
-        if(cc.getMobilityNumber() != null) {
+        if (cc.getMobilityNumber() != null) {
             mobilitiesPerYear.setValue(BigInteger.valueOf(cc.getMobilityNumber().getNumber()));
-        }else {
+        } else {
             mobilitiesPerYear.setNotYetDefined(true);
         }
         conv.setMobilitiesPerYear(mobilitiesPerYear);
@@ -345,14 +345,16 @@ public class IiaConverter {
     }
 
     private void addToStaffMobilitySpecification(StaffMobilitySpecification conv, CooperationCondition cc) {
-        if(conv == null) {
+        if (conv == null) {
             return;
         }
-        if(cc == null) {
+        if (cc == null) {
             return;
         }
         //conv.setAvgDays(BigInteger.ONE);
-        conv.setTotalDaysPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
+        if (cc.getDuration() != null) {
+            conv.setTotalDaysPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
+        }
 
         addToMobilitySpecification(conv, cc);
     }
