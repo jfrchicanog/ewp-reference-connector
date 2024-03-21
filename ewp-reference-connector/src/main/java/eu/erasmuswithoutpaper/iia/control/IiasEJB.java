@@ -190,6 +190,7 @@ public class IiasEJB {
 
         if(foundIia.getCooperationConditions() != null) {
             for (CooperationCondition cc : foundIia.getCooperationConditions()) {
+                em.merge(cc);
                 em.remove(cc);
                 em.flush();
             }
