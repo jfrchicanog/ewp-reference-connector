@@ -136,6 +136,49 @@ public class GuiIiaResource {
     }
 
     @GET
+    @Path("get_other")
+    @InternalAuthenticate
+    public Response getOther(@QueryParam("iia_id") String iiaId, @QueryParam("hei_id") String heiId) {
+        LOG.fine("AuxIiaThread_ADDEDIT: Empezando GET tras CNR");
+        Map<String, String> map = registryClient.getIiaHeiUrls(heiId);
+        if (map == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        LOG.fine("AuxIiaThread_ADDEDIT: MAP ENCONTRADO");
+
+        String url = map.get("get-url");
+        if (url == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        LOG.fine("AuxIiaThread_ADDEDIT: Url encontrada: " + url);
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(heiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(url);
+
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("iia_id", Arrays.asList(iiaId));
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+
+        LOG.fine("AuxIiaThread_ADDEDIT: Parametros encontrados: ");
+
+        paramsMap.forEach((key, value) -> {
+            LOG.fine("\t\t\t\t" + key + ":" + value);
+        });
+
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasGetResponse.class);
+
+        Response response = Response.status(clientResponse.getStatusCode()).entity(clientResponse.getResult()).build();
+        return response;
+    }
+
+    @GET
     @Path("get_all")
     @InternalAuthenticate
     // TODO: fix the default value
