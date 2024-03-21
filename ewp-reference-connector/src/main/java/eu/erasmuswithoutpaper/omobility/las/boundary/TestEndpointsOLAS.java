@@ -169,12 +169,11 @@ public class TestEndpointsOLAS {
         requestSend.setApproveProposalV1(approvedProposalV1);
         requestSend.setSendingHeiId(heiId);
 
+        Map<String, String> map = registryClient.getOmobilityLasHeiUrls(heiId);
+        String url = map.get("update-url");
+
         ClientRequest clientRequest = new ClientRequest();
-        if (heiId.startsWith("test")) {
-            clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/update");
-        } else {
-            clientRequest.setUrl("https://ewp.uma.es/rest/omobilities/las/update");
-        }
+        clientRequest.setUrl(url);
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
         clientRequest.setXml(requestSend);
@@ -225,12 +224,11 @@ public class TestEndpointsOLAS {
         requestSend.setCommentProposalV1(commentProposalV1);
         requestSend.setSendingHeiId(heiId);
 
+        Map<String, String> map = registryClient.getOmobilityLasHeiUrls(heiId);
+        String url = map.get("update-url");
+
         ClientRequest clientRequest = new ClientRequest();
-        if (heiId.startsWith("test")) {
-            clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/update");
-        } else {
-            clientRequest.setUrl("https://ewp.uma.es/rest/omobilities/las/update");
-        }
+        clientRequest.setUrl(url);
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
         clientRequest.setXml(requestSend);

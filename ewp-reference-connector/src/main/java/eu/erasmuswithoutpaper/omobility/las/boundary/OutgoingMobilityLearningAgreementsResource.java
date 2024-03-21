@@ -601,24 +601,4 @@ public class OutgoingMobilityLearningAgreementsResource {
             return false;
         }
     };
-
-    private class CNROmobilitiesLa extends Thread {
-
-        private String heiId;
-        private String mobilityId;
-
-        public CNROmobilitiesLa(String heiId, String mobilityId) {
-            this.heiId = heiId;
-            this.mobilityId = mobilityId;
-        }
-
-        @Override
-        public void run() {
-            try {
-                ait.createLas(heiId, mobilityId);
-            } catch (Exception e) {
-
-            }
-        }
-    }
 }

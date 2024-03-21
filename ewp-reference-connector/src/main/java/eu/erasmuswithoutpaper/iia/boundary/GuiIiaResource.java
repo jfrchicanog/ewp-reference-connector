@@ -106,6 +106,35 @@ public class GuiIiaResource {
     private static final Logger logger = LoggerFactory.getLogger(GuiIiaResource.class);
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
+
+    @GET
+    @Path("get")
+    @InternalAuthenticate
+    public Response get(@QueryParam("iia_id") String iiaId, @QueryParam("partner_id") String partnerId) {
+        if (iiaId != null) {
+            Iia iia = iiasEJB.findById(iiaId);
+            if (iia != null) {
+                String heiId = iiasEJB.getHeiId();
+                List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
+                return Response.ok(iiaResponse).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        } else if (partnerId != null) {
+            List<Iia> iiaList = iiasEJB.findByPartnerId(partnerId);
+            if (iiaList != null && !iiaList.isEmpty()) {
+                List<IiasGetResponse.Iia> iiaResponseList = iiaConverter.convertToIias(partnerId, iiaList);
+                GenericEntity<List<IiasGetResponse.Iia>> entity = new GenericEntity<List<IiasGetResponse.Iia>>(iiaResponseList) {
+                };
+                return Response.ok(entity).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
     @GET
     @Path("get_all")
     @InternalAuthenticate
@@ -674,7 +703,7 @@ public class GuiIiaResource {
 
         convertToIia(iia, iiaInternal);
 
-        LOG.fine("UPDATE: Iia Code: " + iiaInternal.getCooperationConditions().stream().map(c -> c.getDuration().getNumber().toString()).collect(Collectors.joining(", ")));
+        //LOG.fine("UPDATE: Iia Code: " + iiaInternal.getCooperationConditions().stream().map(c -> c.getDuration().getNumber().toString()).collect(Collectors.joining(", ")));
 
         //Find the iia by code
         List<Iia> foundIias = iiasEJB.findByIiaCode(iiaInternal.getIiaCode());
@@ -713,7 +742,7 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
         String oldHash = foundIia.getConditionsHash();
-        String newHash = iiasEJB.updateIia(iiaInternal, foundIia.getId(), null);
+        String newHash = iiasEJB.updateIia(iiaInternal, foundIia, null);
 
         if (!oldHash.equals(newHash)) {
             iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());

@@ -39,6 +39,10 @@ public class IiasEJB {
         return em.createNamedQuery(Iia.findByIiaCode, Iia.class).setParameter("iiaCode", iiaCode).getResultList();
     }
 
+    public List<Iia> findByPartnerId(String id) {
+        return em.createNamedQuery(Iia.findByPartnerId).setParameter("iiaId", id).getResultList();
+    }
+
     public void merge(Iia iia) {
         em.merge(iia);
         em.flush();
@@ -175,9 +179,7 @@ public class IiasEJB {
         em.flush();
     }
 
-    public String updateIia(Iia iiaInternal, String iiaId, String partnerHash) {
-        Iia foundIia = em.find(Iia.class, iiaId);
-
+    public String updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
         foundIia.setModifyDate(new Date());
         //em.merge(foundIia);
 

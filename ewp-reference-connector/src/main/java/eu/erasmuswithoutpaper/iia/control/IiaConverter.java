@@ -194,24 +194,36 @@ public class IiaConverter {
 
     private StaffTeacherMobilitySpec convertToStaffTeacherMobilitySpec(CooperationCondition cc) {
         StaffTeacherMobilitySpec conv = new StaffTeacherMobilitySpec();
+        if(cc == null) {
+            return conv;
+        }
         addToStaffMobilitySpecification(conv, cc);
         return conv;
     }
 
     private StaffTrainingMobilitySpec convertToStaffTrainingMobilitySpec(CooperationCondition cc) {
         StaffTrainingMobilitySpec conv = new StaffTrainingMobilitySpec();
+        if (cc == null) {
+            return conv;
+        }
         addToStaffMobilitySpecification(conv, cc);
         return conv;
     }
 
     private StudentStudiesMobilitySpec convertToStudentStudiesMobilitySpec(CooperationCondition cc) {
         StudentStudiesMobilitySpec conv = new StudentStudiesMobilitySpec();
+        if (cc == null) {
+            return conv;
+        }
         addToStudentMobilitySpecification(conv, cc);
         return conv;
     }
 
     private StudentTraineeshipMobilitySpec convertToStudentTraineeshipMobilitySpec(CooperationCondition cc) {
         StudentTraineeshipMobilitySpec conv = new StudentTraineeshipMobilitySpec();
+        if (cc == null) {
+            return conv;
+        }
         addToStudentMobilitySpecification(conv, cc);
         return conv;
     }
@@ -333,6 +345,12 @@ public class IiaConverter {
     }
 
     private void addToStaffMobilitySpecification(StaffMobilitySpecification conv, CooperationCondition cc) {
+        if(conv == null) {
+            return;
+        }
+        if(cc == null) {
+            return;
+        }
         //conv.setAvgDays(BigInteger.ONE);
         conv.setTotalDaysPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
 
