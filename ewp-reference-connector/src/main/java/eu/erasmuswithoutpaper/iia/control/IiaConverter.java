@@ -329,7 +329,15 @@ public class IiaConverter {
 
     private void addToStudentMobilitySpecification(StudentMobilitySpecification conv, CooperationCondition cc) {
         //conv.setAvgMonths(BigInteger.ONE);
-        conv.setTotalMonthsPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
+        if (conv == null) {
+            return;
+        }
+        if (cc == null) {
+            return;
+        }
+        if (cc.getDuration() != null && cc.getDuration().getNumber() != null) {
+            conv.setTotalMonthsPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
+        }
 
         List<Byte> eqfLevels = new ArrayList<Byte>();
         byte[] arrEqfLevel = cc.getEqfLevel();
