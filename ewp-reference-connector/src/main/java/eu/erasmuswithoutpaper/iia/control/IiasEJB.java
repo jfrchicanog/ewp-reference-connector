@@ -188,14 +188,33 @@ public class IiasEJB {
         foundIia.setHashPartner(iiaInternal.getHashPartner());
         foundIia.setIiaCode(iiaInternal.getIiaCode());
 
+        if(foundIia.getCooperationConditions() != null) {
+            for (CooperationCondition cc : foundIia.getCooperationConditions()) {
+                em.remove(cc);
+                em.flush();
+            }
+        }
+        foundIia.setCooperationConditions(new ArrayList<>());
+        em.merge(foundIia);
+        em.flush();
+
+        if (iiaInternal.getCooperationConditions() != null) {
+            for (CooperationCondition cc : iiaInternal.getCooperationConditions()) {
+                em.persist(cc);
+                em.flush();
+                foundIia.getCooperationConditions().add(cc);
+            }
+        }
+
+/*
         List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
         //List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
         for (CooperationCondition cc : cooperationConditions) {
             String ccId = foundIia.getCooperationConditions().stream().filter(c -> c.getSendingPartner().getInstitutionId().equals(cc.getSendingPartner().getInstitutionId()) && c.getReceivingPartner().getInstitutionId().equals(cc.getReceivingPartner().getInstitutionId())).map(CooperationCondition::getId).findFirst().orElse(null);
-            /*for (CooperationCondition ccCurrentB : cooperationConditionsCurrent) {//cc in database
-                if (cc.getSendingPartner().getInstitutionId().equals(ccCurrentB.getSendingPartner().getInstitutionId())) {
-                    if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrentB.getReceivingPartner().getInstitutionId())) {
-                        String ccId = ccCurrentB.getId();*/
+            //for (CooperationCondition ccCurrentB : cooperationConditionsCurrent) {//cc in database
+                //if (cc.getSendingPartner().getInstitutionId().equals(ccCurrentB.getSendingPartner().getInstitutionId())) {
+                    //if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrentB.getReceivingPartner().getInstitutionId())) {
+                        //String ccId = ccCurrentB.getId();
                         CooperationCondition ccCurrent = em.find(CooperationCondition.class, ccId);
                         ccCurrent.setBlended(cc.isBlended());
                         if(cc.getDuration() != null) {
@@ -275,10 +294,10 @@ public class IiasEJB {
                         ccCurrent.setSendingPartner(sendingPartnerC);
                         ccCurrent.setReceivingPartner(receivingPartnerC);
                         em.merge(ccCurrent);
-                    /*}
-                }
-            }*/
-        }
+                    //}
+                //}
+            //}
+        }*/
 
         //foundIia.setCooperationConditions(cooperationConditionsCurrent);
 
