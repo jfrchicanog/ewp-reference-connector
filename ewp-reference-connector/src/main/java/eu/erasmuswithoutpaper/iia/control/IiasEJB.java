@@ -188,7 +188,7 @@ public class IiasEJB {
         foundIia.setHashPartner(iiaInternal.getHashPartner());
         foundIia.setIiaCode(iiaInternal.getIiaCode());
 
-        if(foundIia.getCooperationConditions() != null) {
+        /*if(foundIia.getCooperationConditions() != null) {
             for (CooperationCondition cc : foundIia.getCooperationConditions()) {
                 em.merge(cc);
                 em.remove(cc);
@@ -205,9 +205,9 @@ public class IiasEJB {
                 em.flush();
                 foundIia.getCooperationConditions().add(cc);
             }
-        }
+        }*/
 
-/*
+
         List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
         //List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
         for (CooperationCondition cc : cooperationConditions) {
@@ -298,7 +298,7 @@ public class IiasEJB {
                     //}
                 //}
             //}
-        }*/
+        }
 
         //foundIia.setCooperationConditions(cooperationConditionsCurrent);
 
