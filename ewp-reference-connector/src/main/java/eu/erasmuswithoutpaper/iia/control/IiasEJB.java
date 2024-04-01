@@ -179,28 +179,6 @@ public class IiasEJB {
         em.flush();
     }
 
-    public String deletCC(Iia iiaInternal, Iia foundIia, String partnerHash) {
-        foundIia.setModifyDate(new Date());
-        //em.merge(foundIia);
-
-        foundIia.setInEfect(iiaInternal.isInEfect());
-        foundIia.setHashPartner(iiaInternal.getHashPartner());
-        foundIia.setIiaCode(iiaInternal.getIiaCode());
-
-        foundIia.setCooperationConditions(new ArrayList<>());
-        em.merge(foundIia);
-        em.flush();
-
-        if(foundIia.getCooperationConditions() != null) {
-            for (CooperationCondition cc : foundIia.getCooperationConditions()) {
-                CooperationCondition ccFound = em.find(CooperationCondition.class, cc.getId());
-                em.remove(ccFound);
-                em.flush();
-            }
-        }
-        return "";
-    }
-
     public String updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
         foundIia.setModifyDate(new Date());
         //em.merge(foundIia);
