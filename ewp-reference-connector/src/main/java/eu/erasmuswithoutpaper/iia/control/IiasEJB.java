@@ -51,6 +51,11 @@ public class IiasEJB {
     }
 
     public void deleteAllIias() {
+        // delete all iia approvals
+        List<IiaApproval> iiaApprovals = findIiaApprovals();
+        for (IiaApproval iiaApproval : iiaApprovals) {
+            em.remove(iiaApproval);
+        }
         List<Iia> iias = findAll();
         for (Iia iia : iias) {
             em.remove(iia);
