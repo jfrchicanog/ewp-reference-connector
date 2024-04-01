@@ -159,6 +159,36 @@ public class IiasEJB {
         em.flush();
     }
 
+    public Iia saveApprovedVersion(Iia originalIia) {
+        // clone IIA
+        Iia approvedIia = new Iia();
+        approvedIia.setModifyDate(originalIia.getModifyDate());
+
+        approvedIia.setInEfect(originalIia.isInEfect());
+        approvedIia.setHashPartner(originalIia.getHashPartner());
+        approvedIia.setIiaCode(originalIia.getIiaCode());
+        approvedIia.setStartDate(originalIia.getStartDate());
+        approvedIia.setEndDate(originalIia.getEndDate());
+        approvedIia.setSigningDate(originalIia.getSigningDate());
+
+        if (originalIia.getCooperationConditions() != null) {
+            approvedIia.setCooperationConditions(new ArrayList<>());
+
+            for (CooperationCondition cc : originalIia.getCooperationConditions()) {
+                approvedIia.getCooperationConditions().add(cc);
+            }
+        }
+        approvedIia.setConditionsHash(originalIia.getConditionsHash());
+        approvedIia.setHashPartner(originalIia.getHashPartner());
+
+
+        em.persist(approvedIia);
+        em.flush();
+
+        return approvedIia;
+
+    }
+
     public void updateWithPartnerIDs(Iia localIia, IiasGetResponse.Iia sendIia, String iiaId, String heiId) {
         String otherIiaCode = sendIia.getPartner().stream().filter(p -> p.getHeiId().equals(heiId)).map(IiasGetResponse.Iia.Partner::getIiaCode).findFirst().orElse(null);
         for (CooperationCondition condition : localIia.getCooperationConditions()) {
@@ -200,6 +230,9 @@ public class IiasEJB {
         foundIia.setInEfect(iiaInternal.isInEfect());
         foundIia.setHashPartner(iiaInternal.getHashPartner());
         foundIia.setIiaCode(iiaInternal.getIiaCode());
+        foundIia.setStartDate(iiaInternal.getStartDate());
+        foundIia.setEndDate(iiaInternal.getEndDate());
+        foundIia.setSigningDate(iiaInternal.getSigningDate());
 
         foundIia.setCooperationConditions(new ArrayList<>());
         em.merge(foundIia);

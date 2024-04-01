@@ -1160,4 +1160,24 @@ public class GuiIiaResource {
         return wrongConditions.isEmpty();
     }
 
+    @GET
+    @Path("clone")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response clone(@QueryParam("iia_id") String iiaId) {
+        if (iiaId == null || iiaId.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        Iia iia = iiasEJB.findById(iiaId);
+
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        Iia clonedIia = iiasEJB.saveApprovedVersion(iia);
+
+        return javax.ws.rs.core.Response.ok(clonedIia).build();
+    }
+
 }
