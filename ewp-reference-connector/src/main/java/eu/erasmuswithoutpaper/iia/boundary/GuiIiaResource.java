@@ -779,7 +779,7 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
         String oldHash = foundIia.getConditionsHash();
-        String newHash = iiasEJB.updateIia(iiaInternal, foundIia, null);
+        String newHash = iiasEJB.deletCC(iiaInternal, foundIia, null);
 
         if (!oldHash.equals(newHash)) {
             //iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());
