@@ -765,12 +765,6 @@ public class GuiIiaResource {
             }
         }
 
-        //check if the iia is a draft or proposal
-        if (foundIia.isInEfect()) {
-            System.out.println("Is draft");
-            //return javax.ws.rs.core.Response.status(Response.Status.NOT_MODIFIED).build();
-        }
-
         if (iiaInternal.getIiaCode() == null || iiaInternal.getIiaCode().isEmpty()) {
             System.err.println("Update Algoria: Mising iiaCode");
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
