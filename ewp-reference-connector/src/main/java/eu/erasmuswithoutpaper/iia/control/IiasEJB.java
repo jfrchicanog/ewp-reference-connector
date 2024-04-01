@@ -44,8 +44,9 @@ public class IiasEJB {
     }
 
     public void deleteIia(Iia iia) {
-        if (iia != null) {
-            em.remove(iia);
+        Iia iiaInternal = em.find(Iia.class, iia.getId());
+        if (iiaInternal != null) {
+            em.remove(iiaInternal);
         }
     }
 
