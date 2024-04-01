@@ -43,9 +43,10 @@ public class IiasEJB {
         return em.createNamedQuery(Iia.findByPartnerId).setParameter("iiaId", id).getResultList();
     }
 
-    public void merge(Iia iia) {
-        em.merge(iia);
-        em.flush();
+    public void deleteIia(Iia iia) {
+        if (iia != null) {
+            em.remove(iia);
+        }
     }
 
     public List<Notification> findNotifications() {
@@ -207,104 +208,6 @@ public class IiasEJB {
             }
         }
 
-
-        /*List<CooperationCondition> cooperationConditions = iiaInternal.getCooperationConditions();
-        //List<CooperationCondition> cooperationConditionsCurrent = foundIia.getCooperationConditions();//cc in database
-        for (CooperationCondition cc : cooperationConditions) {
-            String ccId = foundIia.getCooperationConditions().stream().filter(c -> c.getSendingPartner().getInstitutionId().equals(cc.getSendingPartner().getInstitutionId()) && c.getReceivingPartner().getInstitutionId().equals(cc.getReceivingPartner().getInstitutionId())).map(CooperationCondition::getId).findFirst().orElse(null);
-            //for (CooperationCondition ccCurrentB : cooperationConditionsCurrent) {//cc in database
-                //if (cc.getSendingPartner().getInstitutionId().equals(ccCurrentB.getSendingPartner().getInstitutionId())) {
-                    //if (cc.getReceivingPartner().getInstitutionId().equals(ccCurrentB.getReceivingPartner().getInstitutionId())) {
-                        //String ccId = ccCurrentB.getId();
-                        CooperationCondition ccCurrent = em.find(CooperationCondition.class, ccId);
-                        ccCurrent.setBlended(cc.isBlended());
-                        if(cc.getDuration() != null) {
-                            if (ccCurrent.getDuration() != null) {
-                                Duration duration = em.find(Duration.class, ccCurrent.getDuration().getId());
-                                duration.setUnit(cc.getDuration().getUnit());
-                                duration.setUnit(cc.getDuration().getUnit());
-
-                                ccCurrent.setDuration(duration);
-                            }else {
-                                em.persist(cc.getDuration());
-                                em.flush();
-
-                                ccCurrent.setDuration(cc.getDuration());
-                            }
-                        }else {
-                            ccCurrent.setDuration(null);
-                        }
-                        ccCurrent.setEndDate(cc.getEndDate());
-                        ccCurrent.setEqfLevel(cc.getEqfLevel());
-                        if (cc.getMobilityNumber() != null) {
-                            if (ccCurrent.getMobilityNumber() != null) {
-                                MobilityNumber mobilityNumber = em.find(MobilityNumber.class, ccCurrent.getMobilityNumber().getId());
-                                mobilityNumber.setNumber(cc.getMobilityNumber().getNumber());
-                                mobilityNumber.setVariant(cc.getMobilityNumber().getVariant());
-
-                                ccCurrent.setMobilityNumber(mobilityNumber);
-                            } else {
-                                em.persist(cc.getMobilityNumber());
-                                em.flush();
-
-                                ccCurrent.setMobilityNumber(cc.getMobilityNumber());
-                            }
-                        } else {
-                            ccCurrent.setMobilityNumber(null);
-                        }
-                        if(cc.getMobilityType() != null) {
-                            if (ccCurrent.getMobilityType() != null) {
-                                MobilityType mobilityType = em.find(MobilityType.class, ccCurrent.getMobilityType().getId());
-                                mobilityType.setMobilityCategory(cc.getMobilityType().getMobilityCategory());
-                                mobilityType.setMobilityGroup(cc.getMobilityType().getMobilityGroup());
-
-                                ccCurrent.setMobilityType(mobilityType);
-                            } else {
-                                em.persist(cc.getMobilityType());
-                                em.flush();
-
-                                ccCurrent.setMobilityType(cc.getMobilityType());
-                            }
-                        } else {
-                            ccCurrent.setMobilityType(null);
-                        }
-                        ccCurrent.setOtherInfoTerms(cc.getOtherInfoTerms());
-                        ccCurrent.setReceivingAcademicYearId(cc.getReceivingAcademicYearId());
-                        ccCurrent.setRecommendedLanguageSkill(cc.getRecommendedLanguageSkill()); //
-                        ccCurrent.setStartDate(cc.getStartDate());
-                        ccCurrent.setSubjectAreas(cc.getSubjectAreas()); //
-
-                        IiaPartner sendingPartnerC = ccCurrent.getSendingPartner();//partner in database
-                        IiaPartner sendingPartner = cc.getSendingPartner();//updated partner
-
-                        sendingPartnerC.setContacts(sendingPartner.getContacts());
-                        sendingPartnerC.setSigningContact(sendingPartner.getSigningContact());
-                        sendingPartnerC.setOrganizationUnitId(sendingPartner.getOrganizationUnitId());
-                        sendingPartnerC.setIiaCode(sendingPartner.getIiaCode());
-                        sendingPartnerC.setIiaId(sendingPartner.getIiaId());
-
-                        IiaPartner receivingPartnerC = ccCurrent.getReceivingPartner();//partner in database
-                        IiaPartner receivingPartner = cc.getReceivingPartner();//updated partner
-
-                        receivingPartnerC.setContacts(receivingPartner.getContacts());
-                        receivingPartnerC.setSigningContact(receivingPartner.getSigningContact());
-                        receivingPartnerC.setOrganizationUnitId(receivingPartner.getOrganizationUnitId());
-                        receivingPartnerC.setIiaCode(receivingPartner.getIiaCode());
-                        receivingPartnerC.setIiaId(receivingPartner.getIiaId());
-
-                        ccCurrent.setSendingPartner(sendingPartnerC);
-                        ccCurrent.setReceivingPartner(receivingPartnerC);
-                        em.merge(ccCurrent);
-                    //}
-                //}
-            //}
-        }*/
-
-        //foundIia.setCooperationConditions(cooperationConditionsCurrent);
-
-        //em.merge(foundIia);
-        //em.flush();
-
         String localHeiId = getHeiId();
 
         LOG.fine("UPDATE: CALC HASH");
@@ -315,14 +218,9 @@ public class IiasEJB {
             LOG.fine(e.getMessage());
         }
 
-        //em.merge(foundIia);
-        //em.flush();
-
         if (partnerHash != null) {
             LOG.fine("UPDATE *ESPECIAL*: PARTNER HASH SET TO: " + partnerHash);
             foundIia.setHashPartner(partnerHash);
-            //em.merge(foundIia);
-            //em.flush();
         }
 
         em.merge(foundIia);

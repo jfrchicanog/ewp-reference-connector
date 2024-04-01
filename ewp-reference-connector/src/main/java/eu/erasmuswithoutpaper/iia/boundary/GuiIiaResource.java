@@ -14,14 +14,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.UserTransaction;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -1115,6 +1108,25 @@ public class GuiIiaResource {
         }
 
         return javax.ws.rs.core.Response.ok(iiaResponse).build();*/
+    }
+    @DELETE
+    @Path("delete")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response delete(@FormParam("iia_id") String iiaId) {
+        if (iiaId == null || iiaId.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        Iia iia = iiasEJB.findById(iiaId);
+
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        iiasEJB.deleteIia(iia);
+
+        return javax.ws.rs.core.Response.ok().build();
     }
 
     private boolean validateConditions(List<CooperationCondition> conditions) {
