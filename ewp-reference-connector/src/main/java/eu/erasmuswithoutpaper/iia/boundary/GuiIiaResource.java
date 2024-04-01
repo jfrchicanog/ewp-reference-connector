@@ -1175,7 +1175,13 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        Iia clonedIia = iiasEJB.saveApprovedVersion(iia);
+        String heiId = iiasEJB.getHeiId();
+
+        List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
+        Iia newIia = new Iia();
+        convertToIia(iiaResponse.get(0), newIia);
+
+        Iia clonedIia = iiasEJB.saveApprovedVersion(newIia);
 
         return javax.ws.rs.core.Response.ok(clonedIia).build();
     }
