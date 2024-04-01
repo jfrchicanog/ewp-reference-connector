@@ -50,6 +50,13 @@ public class IiasEJB {
         }
     }
 
+    public void deleteAllIias() {
+        List<Iia> iias = findAll();
+        for (Iia iia : iias) {
+            em.remove(iia);
+        }
+    }
+
     public List<Notification> findNotifications() {
         return em.createNamedQuery(Notification.findAll).getResultList();
     }

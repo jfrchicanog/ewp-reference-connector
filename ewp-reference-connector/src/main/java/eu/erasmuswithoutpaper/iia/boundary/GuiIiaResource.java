@@ -1129,6 +1129,16 @@ public class GuiIiaResource {
         return javax.ws.rs.core.Response.ok().build();
     }
 
+    @DELETE
+    @Path("delete/all")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response deleteAll() {
+        iiasEJB.deleteAllIias();
+
+        return javax.ws.rs.core.Response.ok().build();
+    }
+
     private boolean validateConditions(List<CooperationCondition> conditions) {
 
         Predicate<CooperationCondition> condition = new Predicate<CooperationCondition>() {
