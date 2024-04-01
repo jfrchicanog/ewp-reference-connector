@@ -782,18 +782,18 @@ public class GuiIiaResource {
         String newHash = iiasEJB.updateIia(iiaInternal, foundIia, null);
 
         if (!oldHash.equals(newHash)) {
-            iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());
+            //iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());
         }
 
         //Notify the partner about the modification using the API GUI IIA CNR
-        CompletableFuture.runAsync(() -> {
+        /*CompletableFuture.runAsync(() -> {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             notifyPartner(iiaInternal);
-        });
+        });*/
 
         IiaResponse response = new IiaResponse(foundIia.getId(), foundIia.getConditionsHash());
         return javax.ws.rs.core.Response.ok(response).build();
