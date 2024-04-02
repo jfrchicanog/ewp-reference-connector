@@ -307,7 +307,7 @@ public class IiasEJB {
 
                 Iia clonedIia = saveApprovedVersion(newIia, iia.getModifyDate(), iia.getHashPartner());
 
-                List<IiaApproval> list = findIiaApproval(heiId, iiaApproval.getIia().getId());
+                List<IiaApproval> list = findIiaApproval(iiaApproval.getIia().getId());
                 if (list != null && !list.isEmpty()) {
                     for (IiaApproval approval : list) {
                         IiaApproval newApproval = new IiaApproval();
