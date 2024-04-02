@@ -176,9 +176,12 @@ public class IiaApprovalResource {
 
         IiasApprovalResponse response = new IiasApprovalResponse();
 
+        LOG.fine("iiaIdList: " + iiaIdList);
+
         iiaIdList.forEach(iiaId -> {
             List<Iia> iiaApproval = iiasEJB.getByPartnerId(notifierHeiId, iiaId);
             if (iiaApproval != null && !iiaApproval.isEmpty()) {
+                LOG.fine("iiaApproval: " + iiaApproval.size());
                 iiaApproval.forEach(iia -> {
                     IiasApprovalResponse.Approval approval = new IiasApprovalResponse.Approval();
                     approval.setIiaId(iiaId);
@@ -186,6 +189,7 @@ public class IiaApprovalResource {
 
                     List<IiaApproval> iiaApprovals = iiasEJB.findIiaApproval(iiasEJB.getHeiId(), iia.getId());
                     if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
+                        LOG.fine("iiaApprovals: " + iiaApprovals.size());
                         response.getApproval().add(approval);
                     }
                 });
