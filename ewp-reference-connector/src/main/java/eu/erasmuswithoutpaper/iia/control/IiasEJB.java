@@ -306,6 +306,12 @@ public class IiasEJB {
                 iiaConverter.convertToIia(iiaResponse.get(0), newIia, findAllInstitutions());
 
                 Iia clonedIia = saveApprovedVersion(newIia, iia.getModifyDate(), iia.getHashPartner());
+
+                List<IiaApproval> list = findIiaApproval(heiId, iiaApproval.getIia().getId());
+                for (IiaApproval approval : list) {
+                    approval.setIia(clonedIia);
+                    em.merge(approval);
+                }
             }
         }
     }
