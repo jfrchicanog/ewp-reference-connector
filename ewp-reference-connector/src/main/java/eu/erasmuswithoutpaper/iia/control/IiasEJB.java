@@ -332,6 +332,10 @@ public class IiasEJB {
         return em.createNamedQuery(IiaApproval.findByIiaIdAndHeiId, IiaApproval.class).setParameter("heiId", heiId).setParameter("iiaId", iiaId).getResultList();
     }
 
+    public List<IiaApproval> findIiaApproval(String iiaId) {
+        return em.createNamedQuery(IiaApproval.findByIiaId, IiaApproval.class).setParameter("iiaId", iiaId).getResultList();
+    }
+
     public void deleteAssociatedIiaApprovals(String iiaId) {
         List<IiaApproval> iiaApprovals = em.createNamedQuery(IiaApproval.findByIiaId, IiaApproval.class).setParameter("iiaId", iiaId).getResultList();
         for (IiaApproval iiaApproval : iiaApprovals) {
