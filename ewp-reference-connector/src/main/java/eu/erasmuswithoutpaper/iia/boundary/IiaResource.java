@@ -390,24 +390,4 @@ public class IiaResource {
             return calendarModify.after(calendarModifySince);
         }
     };
-
-    private class CNRGetFirst extends Thread {
-
-        private String heiId;
-        private String iiaId;
-
-        public CNRGetFirst(String heiId, String iiaId) {
-            this.heiId = heiId;
-            this.iiaId = iiaId;
-        }
-
-        @Override
-        public void run() {
-            try {
-                ait.addEditIia(heiId, iiaId);
-            } catch (Exception e) {
-
-            }
-        }
-    }
 }

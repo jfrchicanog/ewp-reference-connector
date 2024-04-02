@@ -17,10 +17,7 @@ import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AuxIiaApprovalThread {
 
@@ -116,5 +113,6 @@ public class AuxIiaApprovalThread {
         iiaApproval.setConditionsHash(approval.getIiaHash());
 
         iiasEJB.insertIiaApproval(iiaApproval);
+
     }
 }

@@ -5,20 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import org.apache.johnzon.mapper.JohnzonConverter;
 
@@ -88,6 +75,10 @@ public class Iia implements Serializable {
 
     @Column(name = "CONDITIONS_TERMINATED_AS_A_WHOLE", nullable = true)
     private Boolean conditionsTerminatedAsAWhole;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ORIGINAL_IIA")
+    private Iia original;
 
     public Iia() {
     }
@@ -198,6 +189,14 @@ public class Iia implements Serializable {
 
     public void setConditionsTerminatedAsAWhole(Boolean conditionsTerminatedAsAWhole) {
         this.conditionsTerminatedAsAWhole = conditionsTerminatedAsAWhole;
+    }
+
+    public Iia getOriginal() {
+        return original;
+    }
+
+    public void setOriginal(Iia original) {
+        this.original = original;
     }
 
     @Override

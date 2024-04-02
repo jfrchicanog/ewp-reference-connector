@@ -159,17 +159,18 @@ public class IiasEJB {
         em.flush();
     }
 
-    public Iia saveApprovedVersion(Iia originalIia) {
+    public Iia saveApprovedVersion(Iia originalIia, Date modifyDate, String hashPartner) {
         // clone IIA
         Iia approvedIia = new Iia();
-        approvedIia.setModifyDate(originalIia.getModifyDate());
+        approvedIia.setModifyDate(modifyDate);
 
         approvedIia.setInEfect(originalIia.isInEfect());
-        approvedIia.setHashPartner(originalIia.getHashPartner());
+        approvedIia.setHashPartner(hashPartner);
         approvedIia.setIiaCode(originalIia.getIiaCode());
         approvedIia.setStartDate(originalIia.getStartDate());
         approvedIia.setEndDate(originalIia.getEndDate());
         approvedIia.setSigningDate(originalIia.getSigningDate());
+        approvedIia.setOriginal(originalIia);
 
         if (originalIia.getCooperationConditions() != null) {
             approvedIia.setCooperationConditions(new ArrayList<>());
@@ -297,6 +298,14 @@ public class IiasEJB {
                 iia.setInEfect(true);
                 em.merge(iia);
                 em.flush();
+
+                String heiId = getHeiId();
+
+                List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
+                Iia newIia = new Iia();
+                iiaConverter.convertToIia(iiaResponse.get(0), newIia, findAllInstitutions());
+
+                Iia clonedIia = saveApprovedVersion(newIia, iia.getModifyDate(), iia.getHashPartner());
             }
         }
     }

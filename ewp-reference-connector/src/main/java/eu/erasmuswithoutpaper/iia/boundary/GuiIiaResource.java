@@ -258,7 +258,7 @@ public class GuiIiaResource {
         LOG.fine("ADD: Add start");
         Iia iiaInternal = new Iia();
 
-        convertToIia(iia, iiaInternal);
+        iiaConverter.convertToIia(iia, iiaInternal, iiasEJB.findAllInstitutions());
 
         iiasEJB.insertIia(iiaInternal);
 
@@ -737,7 +737,7 @@ public class GuiIiaResource {
         LOG.fine("UPDATE: Start Update");
         Iia iiaInternal = new Iia();
 
-        convertToIia(iia, iiaInternal);
+        iiaConverter.convertToIia(iia, iiaInternal, iiasEJB.findAllInstitutions());
 
         //LOG.fine("UPDATE: Iia Code: " + iiaInternal.getCooperationConditions().stream().map(c -> c.getDuration().getNumber().toString()).collect(Collectors.joining(", ")));
 
@@ -1179,9 +1179,9 @@ public class GuiIiaResource {
 
         List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
         Iia newIia = new Iia();
-        convertToIia(iiaResponse.get(0), newIia);
+        iiaConverter.convertToIia(iiaResponse.get(0), newIia, iiasEJB.findAllInstitutions());
 
-        Iia clonedIia = iiasEJB.saveApprovedVersion(newIia);
+        Iia clonedIia = iiasEJB.saveApprovedVersion(newIia, iia.getModifyDate(), iia.getHashPartner());
 
         return javax.ws.rs.core.Response.ok(clonedIia).build();
     }
