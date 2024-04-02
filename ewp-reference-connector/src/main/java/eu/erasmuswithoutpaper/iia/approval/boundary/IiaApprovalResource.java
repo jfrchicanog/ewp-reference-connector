@@ -181,7 +181,6 @@ public class IiaApprovalResource {
         iiaIdList.forEach(iiaId -> {
             List<Iia> iiaApproval = iiasEJB.getByPartnerId(notifierHeiId, iiaId);
             if (iiaApproval != null && !iiaApproval.isEmpty()) {
-                iiaApproval = iiaApproval.stream().distinct().collect(Collectors.toList());
                 LOG.fine("iiaApproval: " + iiaApproval.size());
                 iiaApproval.forEach(iia -> {
                     IiasApprovalResponse.Approval approval = new IiasApprovalResponse.Approval();

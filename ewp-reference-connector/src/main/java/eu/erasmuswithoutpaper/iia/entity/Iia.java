@@ -22,7 +22,8 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
                 "JOIN cc.sendingPartner sp " +
                 "JOIN cc.receivingPartner rp " +
                 " WHERE (sp.institutionId = :heiId AND sp.iiaId = :iiaId) " +
-                "OR (rp.institutionId = :heiId AND rp.iiaId = :iiaId)"),})
+                "OR (rp.institutionId = :heiId AND rp.iiaId = :iiaId) " +
+                "AND i.original is null"),})
 public class Iia implements Serializable {
 
     private static final String PREFIX = "eu.erasmuswithoutpaper.iia.entity.Iia.";
