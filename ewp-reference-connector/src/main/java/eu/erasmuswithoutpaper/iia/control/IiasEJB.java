@@ -308,9 +308,21 @@ public class IiasEJB {
                 Iia clonedIia = saveApprovedVersion(newIia, iia.getModifyDate(), iia.getHashPartner());
 
                 List<IiaApproval> list = findIiaApproval(heiId, iiaApproval.getIia().getId());
-                for (IiaApproval approval : list) {
-                    approval.setIia(clonedIia);
-                    em.merge(approval);
+                if (list != null && !list.isEmpty()) {
+                    for (IiaApproval approval : list) {
+                        IiaApproval newApproval = new IiaApproval();
+                        newApproval.setIiaCode(approval.getIiaCode());
+                        newApproval.setStartDate(approval.getStartDate());
+                        newApproval.setEndDate(approval.getEndDate());
+                        newApproval.setModifyDate(approval.getModifyDate());
+                        newApproval.setConditionsHash(approval.getConditionsHash());
+                        newApproval.setPdf(approval.getPdf());
+                        newApproval.setHeiId(heiId);
+
+                        newApproval.setIia(clonedIia);
+
+                        em.persist(newApproval);
+                    }
                 }
             }
         }
