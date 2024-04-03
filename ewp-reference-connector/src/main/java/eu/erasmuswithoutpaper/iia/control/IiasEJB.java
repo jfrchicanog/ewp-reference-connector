@@ -256,10 +256,12 @@ public class IiasEJB {
         }
 
         String localHeiId = getHeiId();
+        String newHash = "";
 
         LOG.fine("UPDATE: CALC HASH");
         try {
-            foundIia.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(em.find(Iia.class, foundIia.getId()))).get(0)));
+            newHash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(foundIia)).get(0));
+            foundIia.setConditionsHash(newHash);
         } catch (Exception e) {
             LOG.fine("UPDATE: HASH ERROR, Can't calculate sha256 updating iia");
             LOG.fine(e.getMessage());
@@ -273,7 +275,7 @@ public class IiasEJB {
         em.merge(foundIia);
         em.flush();
 
-        return foundIia.getConditionsHash();
+        return newHash;
     }
 
     public List<Iia> getByPartnerId(String heiId, String partnerId) {

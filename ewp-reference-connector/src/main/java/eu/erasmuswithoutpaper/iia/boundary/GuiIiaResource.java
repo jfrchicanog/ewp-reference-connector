@@ -384,6 +384,7 @@ public class GuiIiaResource {
             System.err.println("Update Algoria: Invalids Cooperation Conditions");
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
+        LOG.fine("OLODOLD Hash: " + foundIia.getConditionsHash());
         String oldHash = foundIia.getConditionsHash();
         String newHash = iiasEJB.updateIia(iiaInternal, foundIia, null);
 
