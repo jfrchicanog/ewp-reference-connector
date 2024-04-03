@@ -12,6 +12,7 @@ import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
@@ -206,11 +207,95 @@ public class AuxIiaThread {
 
     }
 
-    public void modify(String heiId, String iiaId, Iia approvedVersion) {
+    public void modify(String heiId, String iiaId, Iia approvedVersion) throws Exception {
+        String localHeiId = iiasEJB.getHeiId();
+
         LOG.fine("AuxIiaThread_MODIFY: Empezando GET tras CNR");
-        LOG.fine("AuxIiaThread_MODIFY: IIA ID: " + iiaId);
-        LOG.fine("AuxIiaThread_MODIFY: HEI ID: " + heiId);
-        LOG.fine("AuxIiaThread_MODIFY: APPROVED_IIA ID: " + approvedVersion.getId());
+        Map<String, String> map = registryClient.getIiaHeiUrls(heiId);
+        if (map == null) {
+            return;
+        }
+
+        LOG.fine("AuxIiaThread_MODIFY: MAP ENCONTRADO");
+
+        String url = map.get("get-url");
+        if (url == null) {
+            return;
+        }
+
+        LOG.fine("AuxIiaThread_MODIFY: Url encontrada: " + url);
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(heiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(url);
+
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("iia_id", Arrays.asList(iiaId));
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+
+        LOG.fine("AuxIiaThread_MODIFY: Parametros encontrados: ");
+
+        paramsMap.forEach((key, value) -> {
+            LOG.fine("\t\t\t\t" + key + ":" + value);
+        });
+
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasGetResponse.class);
+
+        LOG.fine("AuxIiaThread_MODIFY: Respuesta del cliente " + clientResponse.getStatusCode());
+
+        if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+            if (clientResponse.getStatusCode() <= 599 && clientResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), null);
+            } else if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), "Error");
+            }
+            return;
+        }
+
+        LOG.fine("AuxIiaThread_MODIFY: Respuesta raw: " + clientResponse.getRawResponse());
+
+        IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
+
+        Iia localIia = null;
+
+        IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
+
+        LOG.fine("AuxIiaThread_MODIFY: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId() == null ? "" : p.getHeiId())).collect(Collectors.toList()));
+        LOG.fine("AuxIiaThread_MODIFY: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId() == null ? "" : p.getIiaId())).collect(Collectors.toList()));
+
+        for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
+            LOG.fine("AuxIiaThread_MODIFY: Partner heiID: " + partner.getHeiId());
+            LOG.fine("AuxIiaThread_MODIFY: Partner ID: " + partner.getIiaId());
+            if (localHeiId.equals(partner.getHeiId())) {
+                LOG.fine("AuxIiaThread_MODIFY: Own localeId found: " + (partner.getIiaId() == null ? "" : partner.getIiaId()));
+                if (partner.getIiaId() != null) {
+                    List<Iia> iia = iiasEJB.findByIdList(partner.getIiaId());
+                    LOG.fine("AuxIiaThread_MODIFY: Find local iias: " + (iia == null ? "0" : iia.size()));
+                    if (iia != null && !iia.isEmpty()) {
+                        localIia = iia.get(0);
+                        LOG.fine("AuxIiaThread_MODIFY: Foind local iia: " + localIia.getId());
+                        break;
+                    }
+                }
+            }
+        }
+
+        LOG.fine("AuxIiaThread_MODIFY: Busqueda en bbdd " + (localIia != null));
+        if(localIia == null) {
+            return;
+        }
+
+        Iia modifIia = new Iia();
+        iiaConverter.convertToIia(sendIia, modifIia, iiasEJB.findAllInstitutions());
+
+        String sendHash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(modifIia)).get(0));
+        LOG.fine("AuxIiaThread_MODIFY: Send hash: " + sendHash);
+        localIia.getConditionsHash();
+        LOG.fine("AuxIiaThread_MODIFY: Local hash: " + localIia.getConditionsHash());
     }
     
     private ClientResponse notifyPartner(String heiId, String iiaId) {
