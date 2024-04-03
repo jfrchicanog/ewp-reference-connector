@@ -45,7 +45,7 @@ public class IiasEJB {
     }
 
     public List<Iia> findByPartnerId(String id) {
-        return em.createNamedQuery(Iia.findByPartnerId).setParameter("iiaId", id).getResultList();
+        return em.createNamedQuery(Iia.findByPartnerId, Iia.class).setParameter("iiaId", id).getResultList();
     }
 
     public void deleteIia(Iia iia) {

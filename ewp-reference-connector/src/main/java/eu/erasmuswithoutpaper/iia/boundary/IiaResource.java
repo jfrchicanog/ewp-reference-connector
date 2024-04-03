@@ -330,14 +330,19 @@ public class IiaResource {
         execNotificationToAlgoria(iiaId, notifierHeiId);
         CompletableFuture.runAsync(() -> {
             try {
-                LOG.fine("APPROVED VERSION SEARCHED WITH ID: " + iiaId);
-                Iia approvedVersion = iiasEjb.findApprovedVersion(iiaId);
-                LOG.fine("APPROVED VERSION: " + (approvedVersion==null?"NULL":approvedVersion.getId()));
-                if (approvedVersion != null) {
-                    ait.modify(notifierHeiId, iiaId, approvedVersion);
+                List<Iia> iiaList = iiasEjb.findByPartnerId(iiaId);
+                if (iiaList != null && !iiaList.isEmpty()) {
+                    iiaList = iiaList.stream().filter(iia -> iia.getOriginal() != null).collect(Collectors.toList());
+                    if (!iiaList.isEmpty()) {
+                        ait.modify(notifierHeiId, iiaId, iiaList.get(0));
+                    }else {
+                        ait.addEditIiaBeforeApproval(notifierHeiId, iiaId);
+                    }
                 }else {
                     ait.addEditIiaBeforeApproval(notifierHeiId, iiaId);
                 }
+
+
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
