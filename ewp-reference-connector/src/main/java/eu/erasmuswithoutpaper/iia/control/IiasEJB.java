@@ -317,7 +317,7 @@ public class IiasEJB {
                         newApproval.setModifyDate(approval.getModifyDate());
                         newApproval.setConditionsHash(approval.getConditionsHash());
                         newApproval.setPdf(approval.getPdf());
-                        newApproval.setHeiId(heiId);
+                        newApproval.setHeiId(approval.getHeiId());
 
                         newApproval.setIia(clonedIia);
 
