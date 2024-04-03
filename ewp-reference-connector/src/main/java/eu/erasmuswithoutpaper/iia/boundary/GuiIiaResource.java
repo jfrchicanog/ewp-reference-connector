@@ -388,7 +388,7 @@ public class GuiIiaResource {
         String newHash = iiasEJB.updateIia(iiaInternal, foundIia, null);
 
         if (!oldHash.equals(newHash)) {
-            //iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());
+            iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());
         }
 
         //Notify the partner about the modification using the API GUI IIA CNR
