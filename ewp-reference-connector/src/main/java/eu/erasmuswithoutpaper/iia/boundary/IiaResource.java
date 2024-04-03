@@ -330,7 +330,9 @@ public class IiaResource {
         execNotificationToAlgoria(iiaId, notifierHeiId);
         CompletableFuture.runAsync(() -> {
             try {
+                LOG.fine("APPROVED VERSION SEARCHED WITH ID: " + iiaId);
                 Iia approvedVersion = iiasEjb.findApprovedVersion(iiaId);
+                LOG.fine("APPROVED VERSION: " + (approvedVersion==null?"NULL":approvedVersion.getId()));
                 if (approvedVersion != null) {
                     ait.modify(notifierHeiId, iiaId, approvedVersion);
                 }else {
