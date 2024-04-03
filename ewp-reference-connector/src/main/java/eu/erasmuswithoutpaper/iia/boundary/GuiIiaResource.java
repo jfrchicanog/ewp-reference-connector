@@ -387,6 +387,8 @@ public class GuiIiaResource {
         String oldHash = foundIia.getConditionsHash();
         String newHash = iiasEJB.updateIia(iiaInternal, foundIia, null);
 
+        LOG.fine("OLD HASH: " + oldHash);
+        LOG.fine("NEW HASH: " + newHash);
         if (!oldHash.equals(newHash)) {
             iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());
         }
