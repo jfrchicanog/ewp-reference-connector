@@ -22,7 +22,9 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
                 "JOIN cc.sendingPartner sp " +
                 "JOIN cc.receivingPartner rp " +
                 " WHERE ((sp.institutionId = :heiId AND sp.iiaId = :iiaId) OR (rp.institutionId = :heiId AND rp.iiaId = :iiaId)) " +
-                "AND i.original is null"),})
+                "AND i.original is null"),
+        @NamedQuery(name = Iia.findByOriginalIiaId, query = "SELECT i FROM Iia i JOIN i.original oi WHERE oi.id = :iiaId"),
+})
 public class Iia implements Serializable {
 
     private static final String PREFIX = "eu.erasmuswithoutpaper.iia.entity.Iia.";
@@ -31,6 +33,8 @@ public class Iia implements Serializable {
     public static final String findByIiaCode = PREFIX + "byIiaCode";
     public static final String findByPartnerId = PREFIX + "byPartnerId";
     public static final String findByPartnerAndId = PREFIX + "byPartnerAndId";
+
+    public static final String findByOriginalIiaId = PREFIX + "byPartnerAndId";
 
     @Id
     @GeneratedValue(generator = "system-uuid")

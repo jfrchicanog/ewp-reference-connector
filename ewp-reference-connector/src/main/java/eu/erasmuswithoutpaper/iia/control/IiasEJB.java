@@ -359,4 +359,12 @@ public class IiasEJB {
         List<Institution> institutions = em.createNamedQuery(Institution.findAll).getResultList();
         return institutions.get(0).getInstitutionId();
     }
+
+    public Iia findApprovedVersion(String iiaId) {
+        List<Iia> iiaApprovals = em.createNamedQuery(Iia.findByOriginalIiaId, Iia.class).setParameter("iiaId", iiaId).getResultList();
+        if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
+            return iiaApprovals.get(0);
+        }
+        return null;
+    }
 }

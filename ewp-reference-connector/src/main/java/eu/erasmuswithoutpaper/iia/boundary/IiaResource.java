@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -33,7 +31,6 @@ import eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasStatsResponse;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
-import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
@@ -41,16 +38,12 @@ import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
-import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
 import eu.erasmuswithoutpaper.notification.entity.NotificationTypes;
-import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 
 import java.util.logging.Level;
 import java.util.stream.Stream;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 
 @Stateless
 @Path("iias")
@@ -337,7 +330,12 @@ public class IiaResource {
         execNotificationToAlgoria(iiaId, notifierHeiId);
         CompletableFuture.runAsync(() -> {
             try {
-                ait.addEditIia(notifierHeiId, iiaId);
+                Iia approvedVersion = iiasEjb.findApprovedVersion(iiaId);
+                if (approvedVersion != null) {
+                    ait.modify(notifierHeiId, iiaId, approvedVersion);
+                }else {
+                    ait.addEditIiaBeforeApproval(notifierHeiId, iiaId);
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
