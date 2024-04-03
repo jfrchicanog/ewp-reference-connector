@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Stateless
 public class IiasEJB {
@@ -36,7 +37,11 @@ public class IiasEJB {
     }
 
     public List<Iia> findByIiaCode(String iiaCode) {
-        return em.createNamedQuery(Iia.findByIiaCode, Iia.class).setParameter("iiaCode", iiaCode).getResultList();
+        List<Iia> iias = em.createNamedQuery(Iia.findByIiaCode).setParameter("iiaCode", iiaCode).getResultList();
+        if (iias != null && !iias.isEmpty()) {
+            iias = iias.stream().filter(iia -> iia.getOriginal() == null).collect(Collectors.toList());
+        }
+        return iias;
     }
 
     public List<Iia> findByPartnerId(String id) {
