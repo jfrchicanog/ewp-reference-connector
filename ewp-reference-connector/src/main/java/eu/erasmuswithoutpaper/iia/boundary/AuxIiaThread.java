@@ -293,9 +293,12 @@ public class AuxIiaThread {
         iiaConverter.convertToIia(sendIia, modifIia, iiasEJB.findAllInstitutions());
 
         String sendHash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(modifIia)).get(0));
-        LOG.fine("AuxIiaThread_MODIFY: Send hash: " + sendHash);
-        localIia.getConditionsHash();
-        LOG.fine("AuxIiaThread_MODIFY: Local hash: " + localIia.getConditionsHash());
+        if(sendHash.equals(localIia.getConditionsHash())) {
+            LOG.fine("AuxIiaThread_MODIFY: Hashes are equal");
+            return;
+        }
+        // TODO: notify algoria
+        LOG.fine("AuxIiaThread_MODIFY: notify algoria");
     }
     
     private ClientResponse notifyPartner(String heiId, String iiaId) {
