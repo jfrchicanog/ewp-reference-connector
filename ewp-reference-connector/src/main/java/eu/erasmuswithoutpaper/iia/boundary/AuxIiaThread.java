@@ -292,6 +292,10 @@ public class AuxIiaThread {
         Iia modifIia = new Iia();
         iiaConverter.convertToIia(sendIia, modifIia, iiasEJB.findAllInstitutions());
 
+        modifIia.getCooperationConditions().sort((cc1, cc2) ->  cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
+
+        modifIia.getCooperationConditions().forEach(cc -> System.out.println(cc.getSendingPartner().getInstitutionId() + " " + cc.getReceivingPartner().getInstitutionId()));
+
         String sendHash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(modifIia)).get(0));
         if(sendHash.equals(localIia.getConditionsHash())) {
             LOG.fine("AuxIiaThread_MODIFY: Hashes are equal");
