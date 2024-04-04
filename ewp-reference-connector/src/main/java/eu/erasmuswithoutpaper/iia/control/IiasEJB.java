@@ -195,6 +195,13 @@ public class IiasEJB {
 
     }
 
+    public void updateHashPartner(String iiaId, String hashPartner) {
+        Iia iia = em.find(Iia.class, iiaId);
+        iia.setHashPartner(hashPartner);
+        em.merge(iia);
+        em.flush();
+    }
+
     public void updateWithPartnerIDs(Iia localIia, IiasGetResponse.Iia sendIia, String iiaId, String heiId) {
         String otherIiaCode = sendIia.getPartner().stream().filter(p -> p.getHeiId().equals(heiId)).map(IiasGetResponse.Iia.Partner::getIiaCode).findFirst().orElse(null);
         for (CooperationCondition condition : localIia.getCooperationConditions()) {

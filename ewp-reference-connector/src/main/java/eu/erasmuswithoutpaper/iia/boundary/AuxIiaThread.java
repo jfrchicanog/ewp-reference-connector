@@ -289,6 +289,8 @@ public class AuxIiaThread {
             return;
         }
 
+        iiasEJB.updateHashPartner(localIia.getId(), sendIia.getIiaHash());
+
         Iia modifIia = new Iia();
         iiaConverter.convertToIia(sendIia, modifIia, iiasEJB.findAllInstitutions());
 
@@ -303,6 +305,7 @@ public class AuxIiaThread {
         }
         // TODO: notify algoria
         LOG.fine("AuxIiaThread_MODIFY: notify algoria");
+        iiasEJB.updateWithPartnerIDs(localIia, sendIia, iiaId, heiId);
     }
     
     private ClientResponse notifyPartner(String heiId, String iiaId) {
