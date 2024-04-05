@@ -300,6 +300,7 @@ public class IiasEJB {
 
         Iia iia = em.find(Iia.class, iiaApproval.getIia().getId());
         String hashPartner = iia.getHashPartner();
+        LOG.fine("IIAEJP: hash partner: "+hashPartner);
         List<String> heiIds = new ArrayList<>();
         if (iia != null) {
             heiIds.addAll(iia.getCooperationConditions().stream().map(c -> c.getSendingPartner().getInstitutionId()).collect(java.util.stream.Collectors.toList()));
