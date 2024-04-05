@@ -299,7 +299,7 @@ public class IiasEJB {
         em.flush();
 
         Iia iia = em.find(Iia.class, iiaApproval.getIia().getId());
-
+        String hashPartner = iia.getHashPartner();
         List<String> heiIds = new ArrayList<>();
         if (iia != null) {
             heiIds.addAll(iia.getCooperationConditions().stream().map(c -> c.getSendingPartner().getInstitutionId()).collect(java.util.stream.Collectors.toList()));
@@ -319,7 +319,7 @@ public class IiasEJB {
                 Iia newIia = new Iia();
                 iiaConverter.convertToIia(iiaResponse.get(0), newIia, findAllInstitutions());
 
-                Iia clonedIia = saveApprovedVersion(newIia, iia.getModifyDate(), iia.getHashPartner());
+                Iia clonedIia = saveApprovedVersion(newIia, iia.getModifyDate(), hashPartner);
 
                 List<IiaApproval> list = findIiaApproval(iiaApproval.getIia().getId());
                 if (list != null && !list.isEmpty()) {
