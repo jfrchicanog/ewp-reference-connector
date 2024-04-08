@@ -831,7 +831,10 @@ public class GuiIiaResource {
             return false;
         }
 
-        return sendIia.getIiaHash().equals(iia.getConditionsHash());
+        LOG.fine("GuiIiaRecource: SendHash: " + sendIia.getIiaHash());
+        LOG.fine("GuiIiaRecource: LocalPartnerHash: " + iia.getHashPartner());
+
+        return sendIia.getIiaHash().equals(iia.getHashPartner());
 
     }
 
