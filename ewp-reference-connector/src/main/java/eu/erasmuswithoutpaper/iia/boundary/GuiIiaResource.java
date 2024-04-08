@@ -386,7 +386,7 @@ public class GuiIiaResource {
         }
         LOG.fine("OLODOLD Hash: " + foundIia.getConditionsHash());
         String oldHash = foundIia.getConditionsHash();
-        String newHash = iiasEJB.updateIia(iiaInternal, foundIia, null);
+        String newHash = iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
 
         LOG.fine("OLD HASH: " + oldHash);
         LOG.fine("NEW HASH: " + newHash);
