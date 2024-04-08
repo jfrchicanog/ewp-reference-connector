@@ -165,6 +165,14 @@ public class IiasEJB {
     }
 
     public Iia saveApprovedVersion(Iia originalIia, Date modifyDate, String hashPartner) {
+        List<Iia> iiaApprovals = em.createNamedQuery(Iia.findByOriginalIiaId, Iia.class).setParameter("iiaId", originalIia.getId()).getResultList();
+        if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
+            for (Iia iiaApproval : iiaApprovals) {
+                deleteAssociatedIiaApprovals(iiaApproval.getId());
+                em.remove(iiaApproval);
+            }
+        }
+
         // clone IIA
         Iia approvedIia = new Iia();
         approvedIia.setModifyDate(modifyDate);
