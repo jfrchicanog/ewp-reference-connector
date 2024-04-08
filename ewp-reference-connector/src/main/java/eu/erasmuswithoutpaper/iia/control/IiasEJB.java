@@ -235,6 +235,7 @@ public class IiasEJB {
     }
 
     public String updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
+        String localHeiId = getHeiId();
         foundIia.setModifyDate(new Date());
         //em.merge(foundIia);
 
@@ -263,9 +264,10 @@ public class IiasEJB {
                 em.flush();
                 foundIia.getCooperationConditions().add(cc);
             }
+
+            foundIia.getCooperationConditions().sort((cc1, cc2) ->  cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
         }
 
-        String localHeiId = getHeiId();
         String newHash = "";
 
         LOG.fine("UPDATE: CALC HASH");
