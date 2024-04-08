@@ -615,6 +615,10 @@ public class GuiIiaResource {
         //get the first one found
         Iia theIia = foundIia.get(0);
 
+        if(!hashSitEquals(theIia)) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
         LOG.fine("Iia found: " + theIia.getId());
 
         IiaApproval approval = new IiaApproval();
@@ -800,6 +804,89 @@ public class GuiIiaResource {
         Iia clonedIia = iiasEJB.saveApprovedVersion(newIia, iia.getModifyDate(), iia.getHashPartner());
 
         return javax.ws.rs.core.Response.ok(clonedIia).build();
+    }
+
+    private boolean hashSitEquals(Iia iia) {
+        String localHeiId = iiasEJB.getHeiId();
+        if(iia.getCooperationConditions() == null || iia.getCooperationConditions().isEmpty()) {
+            return false;
+        }
+        String partnerHeiId = null;
+        String partnerIiaId = null;
+        if(localHeiId.equals(iia.getCooperationConditions().get(0).getSendingPartner().getInstitutionId())) {
+            partnerHeiId = iia.getCooperationConditions().get(0).getReceivingPartner().getInstitutionId();
+            partnerIiaId = iia.getCooperationConditions().get(0).getReceivingPartner().getIiaId();
+        }
+        if (localHeiId.equals(iia.getCooperationConditions().get(0).getReceivingPartner().getInstitutionId())) {
+            partnerHeiId = iia.getCooperationConditions().get(0).getSendingPartner().getInstitutionId();
+            partnerIiaId = iia.getCooperationConditions().get(0).getSendingPartner().getIiaId();
+        }
+        IiasGetResponse.Iia sendIia = null;
+        try {
+            sendIia = sendGet(partnerHeiId, partnerIiaId);
+        } catch (Exception e) {
+
+        }
+        if (sendIia == null || sendIia.getIiaHash() == null) {
+            return false;
+        }
+
+        return sendIia.getIiaHash().equals(iia.getConditionsHash());
+
+    }
+
+    private IiasGetResponse.Iia sendGet(String heiId, String iiaId) throws Exception {
+        LOG.fine("GuiIiaRecource: Empezando GET tras CNR");
+        Map<String, String> map = registryClient.getIiaHeiUrls(heiId);
+        if (map == null) {
+            return null;
+        }
+
+        LOG.fine("GuiIiaRecource: MAP ENCONTRADO");
+
+        String url = map.get("get-url");
+        if (url == null) {
+            return null;
+        }
+
+        LOG.fine("GuiIiaRecource: Url encontrada: " + url);
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(heiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(url);
+
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("iia_id", Arrays.asList(iiaId));
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+
+        LOG.fine("GuiIiaRecource: Parametros encontrados: ");
+
+        paramsMap.forEach((key, value) -> {
+            LOG.fine("\t\t\t\t" + key + ":" + value);
+        });
+
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasGetResponse.class);
+
+        LOG.fine("GuiIiaRecource: Respuesta del cliente " + clientResponse.getStatusCode());
+
+        if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+            if (clientResponse.getStatusCode() <= 599 && clientResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), null);
+            } else if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), "Error");
+            }
+            return null;
+        }
+
+        LOG.fine("GuiIiaRecource: Respuesta raw: " + clientResponse.getRawResponse());
+
+        IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
+
+        return responseEnity.getIia().get(0);
     }
 
 }
