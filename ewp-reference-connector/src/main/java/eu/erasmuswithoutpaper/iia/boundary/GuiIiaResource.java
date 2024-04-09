@@ -829,7 +829,7 @@ public class GuiIiaResource {
 
         iiasEJB.revertIia(iia.getId(), clonedIia.getId());
 
-        return javax.ws.rs.core.Response.ok(clonedIia).build();
+        return javax.ws.rs.core.Response.ok().build();
     }
 
     private boolean hashSitEquals(Iia iia) {

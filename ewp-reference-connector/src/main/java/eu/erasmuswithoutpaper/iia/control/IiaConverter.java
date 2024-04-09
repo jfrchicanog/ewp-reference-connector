@@ -344,6 +344,9 @@ public class IiaConverter {
 
         List<Byte> eqfLevels = new ArrayList<Byte>();
         byte[] arrEqfLevel = cc.getEqfLevel();
+        if (arrEqfLevel == null) {
+            arrEqfLevel = new byte[0];
+        }
         for (int i = 0; i < arrEqfLevel.length; i++) {
             eqfLevels.add(new Byte(arrEqfLevel[i]));
         }
