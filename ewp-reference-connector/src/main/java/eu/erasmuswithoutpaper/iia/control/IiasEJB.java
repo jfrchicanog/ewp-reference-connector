@@ -399,7 +399,14 @@ public class IiasEJB {
 
     public void revertIia(String iiaId, String approvedId) {
         List<IiaApproval> iiaApprovals = em.createNamedQuery(IiaApproval.findByIiaId, IiaApproval.class).setParameter("iiaId", approvedId).getResultList();
+        Map<String, List<String>> recYer = new HashMap<>();
+        em.find(Iia.class, approvedId).getCooperationConditions().forEach(cc -> {
+            recYer.put(cc.getId(), cc.getReceivingAcademicYearId());
+        });
         Iia iia = removeIiaAndApprovedVersion(iiaId, approvedId);
+        iia.getCooperationConditions().forEach(cc -> {
+            cc.setReceivingAcademicYearId(recYer.getOrDefault(cc.getId(), new ArrayList<>()));
+        });
         em.persist(iia);
         em.flush();
         iiaApprovals.forEach(approval->{
