@@ -383,6 +383,7 @@ public class IiasEJB {
     }
 
     public void revertIia(String iiaId, String approvedId) {
+        deleteAssociatedIiaApprovals(approvedId);
         Iia approvedIia = em.find(Iia.class, approvedId);
         em.remove(approvedIia);
         em.flush();
