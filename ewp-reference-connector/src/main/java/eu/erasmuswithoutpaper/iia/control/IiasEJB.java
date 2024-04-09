@@ -398,8 +398,14 @@ public class IiasEJB {
     }
 
     public void revertIia(String iiaId, String approvedId) {
+        List<IiaApproval> iiaApprovals = em.createNamedQuery(IiaApproval.findByIiaId, IiaApproval.class).setParameter("iiaId", iiaId).getResultList();
         Iia iia = removeIiaAndApprovedVersion(iiaId, approvedId);
         em.persist(iia);
+        em.flush();
+        iiaApprovals.forEach(approval->{
+                approval.setIia(iia);
+                em.persist(approval);
+        });
         em.flush();
     }
 }
