@@ -52,6 +52,7 @@ public class IiasEJB {
         Iia iiaInternal = em.find(Iia.class, iia.getId());
         if (iiaInternal != null) {
             em.remove(iiaInternal);
+            em.flush();
         }
     }
 
