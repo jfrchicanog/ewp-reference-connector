@@ -398,7 +398,7 @@ public class IiasEJB {
     }
 
     public void revertIia(String iiaId, String approvedId) {
-        List<IiaApproval> iiaApprovals = em.createNamedQuery(IiaApproval.findByIiaId, IiaApproval.class).setParameter("iiaId", iiaId).getResultList();
+        List<IiaApproval> iiaApprovals = em.createNamedQuery(IiaApproval.findByIiaId, IiaApproval.class).setParameter("iiaId", approvedId).getResultList();
         Iia iia = removeIiaAndApprovedVersion(iiaId, approvedId);
         em.persist(iia);
         em.flush();
