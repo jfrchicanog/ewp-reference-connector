@@ -383,7 +383,7 @@ public class IiasEJB {
         return null;
     }
 
-    public void revertIia(String iiaId, String approvedId) {
+    public Iia removeIiaAndApprovedVersion(String iiaId, String approvedId) {
         deleteAssociatedIiaApprovals(approvedId);
         Iia approvedIia = em.find(Iia.class, approvedId);
         em.remove(approvedIia);
@@ -391,10 +391,15 @@ public class IiasEJB {
 
         deleteAssociatedIiaApprovals(iiaId);
         deleteIia(em.find(Iia.class, iiaId));
+        em.flush();
 
         approvedIia.setId(iiaId);
+        return approvedIia;
+    }
 
-        em.persist(approvedIia);
+    public void revertIia(String iiaId, String approvedId) {
+        Iia iia = removeIiaAndApprovedVersion(iiaId, approvedId);
+        em.persist(iia);
         em.flush();
     }
 }
