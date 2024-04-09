@@ -381,4 +381,18 @@ public class IiasEJB {
         }
         return null;
     }
+
+    public void revertIia(String iiaId, String approvedId) {
+        Iia approvedIia = em.find(Iia.class, approvedId);
+        em.remove(approvedIia);
+        em.flush();
+
+        deleteAssociatedIiaApprovals(iiaId);
+        deleteIia(em.find(Iia.class, iiaId));
+
+        approvedIia.setId(iiaId);
+
+        em.persist(approvedIia);
+        em.flush();
+    }
 }

@@ -806,6 +806,32 @@ public class GuiIiaResource {
         return javax.ws.rs.core.Response.ok(clonedIia).build();
     }
 
+    @GET
+    @Path("revert")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response revert(@QueryParam("iia_id") String iiaId) {
+        if (iiaId == null || iiaId.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        Iia iia = iiasEJB.findById(iiaId);
+
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        Iia clonedIia = iiasEJB.findApprovedVersion(iiaId);
+
+        if (clonedIia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        iiasEJB.revertIia(iia.getId(), clonedIia.getId());
+
+        return javax.ws.rs.core.Response.ok(clonedIia).build();
+    }
+
     private boolean hashSitEquals(Iia iia) {
         String localHeiId = iiasEJB.getHeiId();
         if(iia.getCooperationConditions() == null || iia.getCooperationConditions().isEmpty()) {
