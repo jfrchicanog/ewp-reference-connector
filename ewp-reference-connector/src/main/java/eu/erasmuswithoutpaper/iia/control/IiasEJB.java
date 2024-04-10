@@ -403,7 +403,9 @@ public class IiasEJB {
         em.find(Iia.class, approvedId).getCooperationConditions().forEach(cc -> {
             recYer.put(cc.getId(), cc.getReceivingAcademicYearId());
         });
+        LOG.fine("Map: " + recYer.toString());
         Iia iia = removeIiaAndApprovedVersion(iiaId, approvedId);
+        LOG.fine("Map2: " + recYer.toString());
         iia.getCooperationConditions().forEach(cc -> {
             cc.setReceivingAcademicYearId(recYer.getOrDefault(cc.getId(), new ArrayList<>()));
         });
