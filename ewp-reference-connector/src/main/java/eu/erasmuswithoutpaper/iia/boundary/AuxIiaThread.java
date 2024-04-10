@@ -289,6 +289,12 @@ public class AuxIiaThread {
             return;
         }
 
+        if(sendIia.getIiaHash().equals(approvedVersion.getConditionsHash())){
+            LOG.fine("AuxIiaThread_MODIFY: Revert detected");
+            iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
+            return;
+        }
+
         iiasEJB.updateHashPartner(localIia.getId(), sendIia.getIiaHash());
 
         Iia modifIia = new Iia();
@@ -338,5 +344,13 @@ public class AuxIiaThread {
         cnrRequest.setParams(paramsClassCNR);
 
         return restClient.sendRequest(cnrRequest, Empty.class);
+    }
+
+    private boolean isRevert(String iiaId, String hash) {
+        Iia iia = iiasEJB.findApprovedVersion(iiaId);
+        if(iia == null) {
+            return false;
+        }
+        return iia.getConditionsHash().equals(hash);
     }
 }

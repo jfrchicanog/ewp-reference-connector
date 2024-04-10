@@ -829,6 +829,15 @@ public class GuiIiaResource {
 
         iiasEJB.revertIia(iia.getId(), clonedIia.getId());
 
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            notifyPartner(iia);
+        });
+
         return javax.ws.rs.core.Response.ok().build();
     }
 
