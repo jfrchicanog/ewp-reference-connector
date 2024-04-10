@@ -49,6 +49,13 @@ public class IiasEJB {
     }
 
     public void deleteIia(Iia iia) {
+        List<IiaApproval> iiaApprovals = findIiaApproval(iia.getId());
+        if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
+            for (IiaApproval iiaApproval : iiaApprovals) {
+                em.remove(iiaApproval);
+            }
+        }
+
         Iia iiaInternal = em.find(Iia.class, iia.getId());
         if (iiaInternal != null) {
             em.remove(iiaInternal);
@@ -59,12 +66,16 @@ public class IiasEJB {
     public void deleteAllIias() {
         // delete all iia approvals
         List<IiaApproval> iiaApprovals = findIiaApprovals();
-        for (IiaApproval iiaApproval : iiaApprovals) {
-            em.remove(iiaApproval);
+        if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
+            for (IiaApproval iiaApproval : iiaApprovals) {
+                em.remove(iiaApproval);
+            }
         }
         List<Iia> iias = findAll();
-        for (Iia iia : iias) {
-            em.remove(iia);
+        if (iias != null && !iias.isEmpty()) {
+            for (Iia iia : iias) {
+                em.remove(iia);
+            }
         }
     }
 
