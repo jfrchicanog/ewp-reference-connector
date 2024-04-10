@@ -145,13 +145,13 @@ public class AuxIiaThread {
 
                 try {
                     Thread.sleep(5000);
-                }catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     LOG.fine("AuxIiaThread_ADDEDIT: Error sleeping");
                 }
 
                 ClientResponse cnrResponse = notifyPartner(heiId, newIia.getId());
 
-                LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse!= null?cnrResponse.getStatusCode():"NULL"));
+                LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse != null ? cnrResponse.getStatusCode() : "NULL"));
             });
         } else {
             LOG.fine("AuxIiaThread_ADDEDIT: Found existing iia");
@@ -165,13 +165,13 @@ public class AuxIiaThread {
 
                     try {
                         Thread.sleep(5000);
-                    }catch (InterruptedException e) {
+                    } catch (InterruptedException e) {
                         LOG.fine("AuxIiaThread_ADDEDIT: Error sleeping");
                     }
 
                     ClientResponse cnrResponse = notifyPartner(heiId, localId);
 
-                    LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse!= null?cnrResponse.getStatusCode():"NULL"));
+                    LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse != null ? cnrResponse.getStatusCode() : "NULL"));
                 });
 
             } else {
@@ -197,13 +197,13 @@ public class AuxIiaThread {
 
                         try {
                             Thread.sleep(5000);
-                        }catch (InterruptedException e) {
+                        } catch (InterruptedException e) {
                             LOG.fine("AuxIiaThread_ADDEDIT: Error sleeping");
                         }
 
                         ClientResponse cnrResponse = notifyPartner(heiId, localId);
 
-                        LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse!= null?cnrResponse.getStatusCode():"NULL"));
+                        LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse != null ? cnrResponse.getStatusCode() : "NULL"));
                     });
 
                 }
@@ -290,11 +290,11 @@ public class AuxIiaThread {
         }
 
         LOG.fine("AuxIiaThread_MODIFY: Busqueda en bbdd " + (localIia != null));
-        if(localIia == null) {
+        if (localIia == null) {
             return;
         }
 
-        if(sendIia.getIiaHash().equals(approvedVersion.getHashPartner())){
+        if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())) {
             LOG.fine("AuxIiaThread_MODIFY: Revert detected");
             iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
             return;
@@ -305,12 +305,12 @@ public class AuxIiaThread {
         Iia modifIia = new Iia();
         iiaConverter.convertToIia(sendIia, modifIia, iiasEJB.findAllInstitutions());
 
-        modifIia.getCooperationConditions().sort((cc1, cc2) ->  cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
+        modifIia.getCooperationConditions().sort((cc1, cc2) -> cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
 
         modifIia.getCooperationConditions().forEach(cc -> System.out.println(cc.getSendingPartner().getInstitutionId() + " " + cc.getReceivingPartner().getInstitutionId()));
 
         String sendHash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(modifIia)).get(0));
-        if(sendHash.equals(localIia.getConditionsHash())) {
+        if (sendHash.equals(localIia.getConditionsHash())) {
             LOG.fine("AuxIiaThread_MODIFY: Hashes are equal");
             return;
         }
@@ -318,7 +318,7 @@ public class AuxIiaThread {
         LOG.fine("AuxIiaThread_MODIFY: notify algoria");
 
     }
-    
+
     private ClientResponse notifyPartner(String heiId, String iiaId) {
         String localHeiId = iiasEJB.getHeiId();
         Map<String, String> map = registryClient.getIiaCnrHeiUrls(heiId);
@@ -353,21 +353,30 @@ public class AuxIiaThread {
 
     public void delete(String heiId, String localHeiId, String iiaId) {
         List<Iia> iias = iiasEJB.getByPartnerId(heiId, iiaId);
-        if(iias == null || iias.isEmpty()) {
+        if (iias == null || iias.isEmpty()) {
             LOG.fine("AuxIiaThread_ADDEDIT: No iia found to delete");
             return;
         }
         String iiaIdToDelete = iias.get(0).getId();
         iiasEJB.deleteIia(iias.get(0));
 
-        ClientResponse cnrResponse = notifyPartner(heiId, iiaIdToDelete);
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                LOG.fine("AuxIiaThread_ADDEDIT: Error sleeping");
+            }
 
-        LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse!= null?cnrResponse.getStatusCode():"NULL"));
+            ClientResponse cnrResponse = notifyPartner(heiId, iiaIdToDelete);
+
+            LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse != null ? cnrResponse.getStatusCode() : "NULL"));
+        });
+
     }
 
     private boolean isRevert(String iiaId, String hash) {
         Iia iia = iiasEJB.findApprovedVersion(iiaId);
-        if(iia == null) {
+        if (iia == null) {
             return false;
         }
         return iia.getConditionsHash().equals(hash);
