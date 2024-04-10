@@ -101,6 +101,11 @@ public class AuxIiaThread {
 
         IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
 
+        if (responseEnity.getIia() == null || responseEnity.getIia().isEmpty()) {
+            delete(heiId, localHeiId, iiaId);
+            return;
+        }
+
         Iia localIia = null;
 
         IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
@@ -344,6 +349,20 @@ public class AuxIiaThread {
         cnrRequest.setParams(paramsClassCNR);
 
         return restClient.sendRequest(cnrRequest, Empty.class);
+    }
+
+    public void delete(String heiId, String localHeiId, String iiaId) {
+        List<Iia> iias = iiasEJB.getByPartnerId(heiId, iiaId);
+        if(iias == null || iias.isEmpty()) {
+            LOG.fine("AuxIiaThread_ADDEDIT: No iia found to delete");
+            return;
+        }
+        String iiaIdToDelete = iias.get(0).getId();
+        iiasEJB.deleteIia(iias.get(0));
+
+        ClientResponse cnrResponse = notifyPartner(heiId, iiaIdToDelete);
+
+        LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse!= null?cnrResponse.getStatusCode():"NULL"));
     }
 
     private boolean isRevert(String iiaId, String hash) {

@@ -744,7 +744,21 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
+        if(iiasEJB.findApprovedVersion(iiaId) != null) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity("The IIA is approved").build();
+        }
+
         iiasEJB.deleteIia(iia);
+
+        // Notify the partner about the deletion
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            notifyPartner(iia);
+        });
 
         return javax.ws.rs.core.Response.ok().build();
     }
