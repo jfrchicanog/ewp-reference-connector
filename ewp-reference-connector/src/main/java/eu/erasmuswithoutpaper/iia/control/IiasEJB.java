@@ -87,11 +87,11 @@ public class IiasEJB {
     public void insertIia(Iia iiaInternal) throws Exception {
         iiaInternal.setModifyDate(new Date());
 
+        String localHeiId = getHeiId();
+        iiaInternal.getCooperationConditions().sort((cc1, cc2) ->  cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
+
         em.persist(iiaInternal);
         em.flush();
-
-        //Update generated iiaId for the partner owner of the iia
-        String localHeiId = getHeiId();
 
         String iiaIdGenerated = iiaInternal.getId();
         for (CooperationCondition condition : iiaInternal.getCooperationConditions()) {
@@ -407,6 +407,8 @@ public class IiasEJB {
         iia.getCooperationConditions().forEach(cc -> {
             cc.setReceivingAcademicYearId(recYer.getOrDefault(cc.getId(), new ArrayList<>()));
         });
+        String localHeiId = getHeiId();
+        iia.getCooperationConditions().sort((cc1, cc2) ->  cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
         em.persist(iia);
         em.flush();
         iiaApprovals.forEach(approval->{
