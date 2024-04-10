@@ -289,7 +289,7 @@ public class AuxIiaThread {
             return;
         }
 
-        if(sendIia.getIiaHash().equals(approvedVersion.getConditionsHash())){
+        if(sendIia.getIiaHash().equals(approvedVersion.getHashPartner())){
             LOG.fine("AuxIiaThread_MODIFY: Revert detected");
             iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
             return;
