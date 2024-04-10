@@ -401,7 +401,10 @@ public class IiasEJB {
         List<IiaApproval> iiaApprovals = em.createNamedQuery(IiaApproval.findByIiaId, IiaApproval.class).setParameter("iiaId", approvedId).getResultList();
         Map<String, List<String>> recYer = new HashMap<>();
         em.find(Iia.class, approvedId).getCooperationConditions().forEach(cc -> {
-            recYer.put(cc.getId(), cc.getReceivingAcademicYearId());
+            if (cc.getReceivingAcademicYearId() != null && !cc.getReceivingAcademicYearId().isEmpty()){
+                LOG.fine("ReceivingAcademicYearId: " + cc.getReceivingAcademicYearId().toString());
+                recYer.put(cc.getId(), new ArrayList<>(cc.getReceivingAcademicYearId()));
+            }
         });
         LOG.fine("Map: " + recYer.toString());
         Iia iia = removeIiaAndApprovedVersion(iiaId, approvedId);
