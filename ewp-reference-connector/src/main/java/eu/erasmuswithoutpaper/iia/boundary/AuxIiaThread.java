@@ -300,7 +300,7 @@ public class AuxIiaThread {
             return;
         }
 
-        /*if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null && sendIia.getCooperationConditions().isTerminatedAsAWhole()) {
+        if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null && sendIia.getCooperationConditions().isTerminatedAsAWhole()) {
             LOG.fine("AuxIiaThread_MODIFY: CNR for termination");
             if (localIia.getConditionsTerminatedAsAWhole() != null && localIia.getConditionsTerminatedAsAWhole()) {
                 LOG.fine("AuxIiaThread_MODIFY: Already terminated");
@@ -332,7 +332,7 @@ public class AuxIiaThread {
         }else if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null) {
             sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), "Terminated attribute is false", null);
             return;
-        }*/
+        }
 
         if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())) {
             if (sendIia.getIiaHash().equals(localIia.getHashPartner())) {
