@@ -335,7 +335,7 @@ public class AuxIiaThread {
         }
 
         if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())) {
-            if (sendIia.getIiaHash().equals(localIia.getHashPartner())) {
+            if (sendIia.getIiaHash().equals(localIia.getHashPartner()) && localIia.getConditionsTerminatedAsAWhole() == null) {
                 LOG.fine("AuxIiaThread_MODIFY: Hashes are equal");
                 return;
             }
