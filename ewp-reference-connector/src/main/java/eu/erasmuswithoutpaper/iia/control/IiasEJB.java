@@ -460,6 +460,8 @@ public class IiasEJB {
                 em.persist(newApproval);
             }
         }
+
+        em.flush();
     }
 
     public void terminateIia(String iiaId) {
