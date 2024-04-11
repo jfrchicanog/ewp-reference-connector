@@ -386,6 +386,7 @@ public class GuiIiaResource {
         }
         LOG.fine("OLODOLD Hash: " + foundIia.getConditionsHash());
         String oldHash = foundIia.getConditionsHash();
+
         String newHash = iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
 
         LOG.fine("OLD HASH: " + oldHash);
@@ -854,6 +855,41 @@ public class GuiIiaResource {
 
         return javax.ws.rs.core.Response.ok().build();
     }
+
+    @GET
+    @Path("terminate")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response terminate(@QueryParam("iia_id") String iiaId) {
+        if (iiaId == null || iiaId.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        Iia iia = iiasEJB.findById(iiaId);
+
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        if(iiasEJB.findApprovedVersion(iiaId) == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity("The IIA is not approved").build();
+        }
+
+        iiasEJB.terminateIia(iia.getId());
+
+        // Notify the partner about the deletion
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            notifyPartner(iia);
+        });
+
+        return javax.ws.rs.core.Response.ok().build();
+    }
+
 
     private boolean hashSitEquals(Iia iia) {
         String localHeiId = iiasEJB.getHeiId();

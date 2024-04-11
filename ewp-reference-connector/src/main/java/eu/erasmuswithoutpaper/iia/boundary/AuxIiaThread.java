@@ -110,6 +110,12 @@ public class AuxIiaThread {
 
         IiasGetResponse.Iia sendIia = responseEnity.getIia().get(0);
 
+        if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null) {
+            sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), "Terminated before approval", null);
+
+            return;
+        }
+
         LOG.fine("AuxIiaThread_ADDEDIT: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId() == null ? "" : p.getHeiId())).collect(Collectors.toList()));
         LOG.fine("AuxIiaThread_ADDEDIT: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId() == null ? "" : p.getIiaId())).collect(Collectors.toList()));
 
@@ -297,6 +303,28 @@ public class AuxIiaThread {
         if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())) {
             LOG.fine("AuxIiaThread_MODIFY: Revert detected");
             iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
+            return;
+        }
+
+        if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null && sendIia.getCooperationConditions().isTerminatedAsAWhole()) {
+            iiasEJB.terminateIia(localIia.getId());
+
+            Iia finalLocalIia = localIia;
+            CompletableFuture.runAsync(() -> {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    LOG.fine("AuxIiaThread_ADDEDIT: Error sleeping");
+                }
+
+                ClientResponse cnrResponse = notifyPartner(heiId, finalLocalIia.getId());
+
+                LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse != null ? cnrResponse.getStatusCode() : "NULL"));
+            });
+
+            return;
+        }else if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null) {
+            sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), "Terminated attribute is false", null);
             return;
         }
 

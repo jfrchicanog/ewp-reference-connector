@@ -266,6 +266,8 @@ public class IiasEJB {
         foundIia.setEndDate(iiaInternal.getEndDate());
         foundIia.setSigningDate(iiaInternal.getSigningDate());
 
+        foundIia.setConditionsTerminatedAsAWhole(null);
+
         foundIia.setCooperationConditions(new ArrayList<>());
         em.merge(foundIia);
         em.flush();
@@ -431,6 +433,14 @@ public class IiasEJB {
                 approval.setIia(iia);
                 em.persist(approval);
         });
+        em.flush();
+    }
+
+    public void terminateIia(String iiaId) {
+        Iia iia = em.find(Iia.class, iiaId);
+        iia.setConditionsTerminatedAsAWhole(null);
+        iia.setInEfect(false);
+        em.merge(iia);
         em.flush();
     }
 }
