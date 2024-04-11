@@ -877,6 +877,8 @@ public class GuiIiaResource {
 
         LOG.fine("GuiIiaRecource: Terminating IIA: " + iia.getId());
 
+        LOG.fine("GuiIiaRecource: Before hash: " + iia.getConditionsHash());
+
         iiasEJB.terminateIia(iia.getId());
 
         // Notify the partner about the deletion
@@ -886,7 +888,7 @@ public class GuiIiaResource {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            notifyPartner(iia);
+            //notifyPartner(iia);
         });
 
         return javax.ws.rs.core.Response.ok().build();

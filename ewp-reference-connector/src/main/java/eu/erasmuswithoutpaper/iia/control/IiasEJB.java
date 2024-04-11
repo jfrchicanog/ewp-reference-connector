@@ -99,7 +99,7 @@ public class IiasEJB {
         iiaInternal.setModifyDate(new Date());
 
         String localHeiId = getHeiId();
-        iiaInternal.getCooperationConditions().sort((cc1, cc2) ->  cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
+        iiaInternal.getCooperationConditions().sort((cc1, cc2) -> cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
 
         em.persist(iiaInternal);
         em.flush();
@@ -272,7 +272,7 @@ public class IiasEJB {
         em.merge(foundIia);
         em.flush();
 
-        if(foundIia.getCooperationConditions() != null) {
+        if (foundIia.getCooperationConditions() != null) {
             for (CooperationCondition cc : foundIia.getCooperationConditions()) {
                 CooperationCondition ccFound = em.find(CooperationCondition.class, cc.getId());
                 em.remove(ccFound);
@@ -287,7 +287,7 @@ public class IiasEJB {
                 foundIia.getCooperationConditions().add(cc);
             }
 
-            foundIia.getCooperationConditions().sort((cc1, cc2) ->  cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
+            foundIia.getCooperationConditions().sort((cc1, cc2) -> cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
         }
 
         String newHash = "";
@@ -414,7 +414,7 @@ public class IiasEJB {
         List<IiaApproval> iiaApprovals = em.createNamedQuery(IiaApproval.findByIiaId, IiaApproval.class).setParameter("iiaId", approvedId).getResultList();
         Map<String, List<String>> recYer = new HashMap<>();
         em.find(Iia.class, approvedId).getCooperationConditions().forEach(cc -> {
-            if (cc.getReceivingAcademicYearId() != null && !cc.getReceivingAcademicYearId().isEmpty()){
+            if (cc.getReceivingAcademicYearId() != null && !cc.getReceivingAcademicYearId().isEmpty()) {
                 LOG.fine("ReceivingAcademicYearId: " + cc.getReceivingAcademicYearId().toString());
                 recYer.put(cc.getId(), new ArrayList<>(cc.getReceivingAcademicYearId()));
             }
@@ -426,12 +426,12 @@ public class IiasEJB {
             cc.setReceivingAcademicYearId(recYer.getOrDefault(cc.getId(), new ArrayList<>()));
         });
         String localHeiId = getHeiId();
-        iia.getCooperationConditions().sort((cc1, cc2) ->  cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
+        iia.getCooperationConditions().sort((cc1, cc2) -> cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
         em.persist(iia);
         em.flush();
-        iiaApprovals.forEach(approval->{
-                approval.setIia(iia);
-                em.persist(approval);
+        iiaApprovals.forEach(approval -> {
+            approval.setIia(iia);
+            em.persist(approval);
         });
         em.flush();
     }
@@ -440,6 +440,19 @@ public class IiasEJB {
         Iia iia = em.find(Iia.class, iiaId);
         iia.setConditionsTerminatedAsAWhole(null);
         iia.setInEfect(false);
+        em.merge(iia);
+        em.flush();
+
+        LOG.fine("UPDATE: CALC HASH");
+        try {
+            iia.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(getHeiId(), Arrays.asList(iia)).get(0)));
+        } catch (Exception e) {
+            LOG.fine("UPDATE: HASH ERROR, Can't calculate sha256 updating iia");
+            LOG.fine(e.getMessage());
+        }
+
+        LOG.fine("UPDATE: AFTER HASH " + iia.getConditionsHash());
+
         em.merge(iia);
         em.flush();
     }
