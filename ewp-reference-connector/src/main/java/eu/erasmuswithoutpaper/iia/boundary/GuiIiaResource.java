@@ -875,6 +875,8 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity("The IIA is not approved").build();
         }
 
+        LOG.fine("GuiIiaRecource: Terminating IIA: " + iia.getId());
+
         iiasEJB.terminateIia(iia.getId());
 
         // Notify the partner about the deletion

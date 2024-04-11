@@ -307,6 +307,13 @@ public class AuxIiaThread {
         }
 
         if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null && sendIia.getCooperationConditions().isTerminatedAsAWhole()) {
+            LOG.fine("AuxIiaThread_MODIFY: CNR for termination");
+            if (localIia.getConditionsTerminatedAsAWhole() != null && localIia.getConditionsTerminatedAsAWhole()) {
+                LOG.fine("AuxIiaThread_MODIFY: Already terminated");
+                return;
+            }
+
+            LOG.fine("AuxIiaThread_MODIFY: Terminating");
             iiasEJB.terminateIia(localIia.getId());
 
             Iia finalLocalIia = localIia;
