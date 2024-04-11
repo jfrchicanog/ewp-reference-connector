@@ -335,11 +335,15 @@ public class AuxIiaThread {
         }*/
 
         if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())) {
+            if (sendIia.getIiaHash().equals(localIia.getHashPartner())) {
+                LOG.fine("AuxIiaThread_MODIFY: Hashes are equal");
+                return;
+            }
 
             LOG.fine("AuxIiaThread_MODIFY: Revert detected");
             iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
 
-            /*Iia finalLocalIia = localIia;
+            Iia finalLocalIia = localIia;
             CompletableFuture.runAsync(() -> {
                 try {
                     Thread.sleep(3000);
@@ -350,7 +354,7 @@ public class AuxIiaThread {
                 ClientResponse cnrResponse = notifyPartner(heiId, finalLocalIia.getId());
 
                 LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse != null ? cnrResponse.getStatusCode() : "NULL"));
-            });*/
+            });
 
             return;
         }
