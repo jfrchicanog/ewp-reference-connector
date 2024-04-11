@@ -434,6 +434,32 @@ public class IiasEJB {
             em.persist(approval);
         });
         em.flush();
+
+        String heiId = getHeiId();
+
+        List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
+        Iia newIia = new Iia();
+        iiaConverter.convertToIia(iiaResponse.get(0), newIia, findAllInstitutions());
+
+        Iia clonedIia = saveApprovedVersion(newIia, iia.getModifyDate(), iia.getHashPartner());
+
+        List<IiaApproval> list = findIiaApproval(iiaId);
+        if (list != null && !list.isEmpty()) {
+            for (IiaApproval approval : list) {
+                IiaApproval newApproval = new IiaApproval();
+                newApproval.setIiaCode(approval.getIiaCode());
+                newApproval.setStartDate(approval.getStartDate());
+                newApproval.setEndDate(approval.getEndDate());
+                newApproval.setModifyDate(approval.getModifyDate());
+                newApproval.setConditionsHash(approval.getConditionsHash());
+                newApproval.setPdf(approval.getPdf());
+                newApproval.setHeiId(approval.getHeiId());
+
+                newApproval.setIia(clonedIia);
+
+                em.persist(newApproval);
+            }
+        }
     }
 
     public void terminateIia(String iiaId) {
