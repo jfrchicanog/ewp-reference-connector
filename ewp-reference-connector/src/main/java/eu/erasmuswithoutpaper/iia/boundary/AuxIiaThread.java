@@ -300,17 +300,16 @@ public class AuxIiaThread {
             return;
         }
 
-        if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())) {
-            LOG.fine("AuxIiaThread_MODIFY: Revert detected");
-            iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
-            return;
-        }
-
-        if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null && sendIia.getCooperationConditions().isTerminatedAsAWhole()) {
+        /*if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null && sendIia.getCooperationConditions().isTerminatedAsAWhole()) {
             LOG.fine("AuxIiaThread_MODIFY: CNR for termination");
             if (localIia.getConditionsTerminatedAsAWhole() != null && localIia.getConditionsTerminatedAsAWhole()) {
                 LOG.fine("AuxIiaThread_MODIFY: Already terminated");
                 return;
+            }
+
+            if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())) {
+                LOG.fine("AuxIiaThread_MODIFY: Revert before termination");
+                iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
             }
 
             LOG.fine("AuxIiaThread_MODIFY: Terminating");
@@ -332,6 +331,27 @@ public class AuxIiaThread {
             return;
         }else if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null) {
             sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), "Terminated attribute is false", null);
+            return;
+        }*/
+
+        if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())) {
+
+            LOG.fine("AuxIiaThread_MODIFY: Revert detected");
+            iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
+
+            /*Iia finalLocalIia = localIia;
+            CompletableFuture.runAsync(() -> {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    LOG.fine("AuxIiaThread_ADDEDIT: Error sleeping");
+                }
+
+                ClientResponse cnrResponse = notifyPartner(heiId, finalLocalIia.getId());
+
+                LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse != null ? cnrResponse.getStatusCode() : "NULL"));
+            });*/
+
             return;
         }
 

@@ -888,7 +888,7 @@ public class GuiIiaResource {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            //notifyPartner(iia);
+            notifyPartner(iia);
         });
 
         return javax.ws.rs.core.Response.ok().build();

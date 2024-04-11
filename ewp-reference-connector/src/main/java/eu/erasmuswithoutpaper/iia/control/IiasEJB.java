@@ -437,22 +437,11 @@ public class IiasEJB {
     }
 
     public void terminateIia(String iiaId) {
+        deleteAssociatedIiaApprovals(iiaId);
+
         Iia iia = em.find(Iia.class, iiaId);
-        iia.setConditionsTerminatedAsAWhole(null);
+        iia.setConditionsTerminatedAsAWhole(true);
         iia.setInEfect(false);
-        em.merge(iia);
-        em.flush();
-
-        LOG.fine("UPDATE: CALC HASH");
-        try {
-            iia.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(getHeiId(), Arrays.asList(iia)).get(0)));
-        } catch (Exception e) {
-            LOG.fine("UPDATE: HASH ERROR, Can't calculate sha256 updating iia");
-            LOG.fine(e.getMessage());
-        }
-
-        LOG.fine("UPDATE: AFTER HASH " + iia.getConditionsHash());
-
         em.merge(iia);
         em.flush();
     }
