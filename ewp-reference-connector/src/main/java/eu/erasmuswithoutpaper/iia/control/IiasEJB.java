@@ -196,6 +196,9 @@ public class IiasEJB {
         approvedIia.setEndDate(originalIia.getEndDate());
         approvedIia.setSigningDate(originalIia.getSigningDate());
         approvedIia.setOriginal(originalIia);
+        if (originalIia.getConditionsTerminatedAsAWhole() != null && originalIia.getConditionsTerminatedAsAWhole()) {
+            approvedIia.setConditionsTerminatedAsAWhole(true);
+        }
 
         if (originalIia.getCooperationConditions() != null) {
             approvedIia.setCooperationConditions(new ArrayList<>());
@@ -472,5 +475,10 @@ public class IiasEJB {
         iia.setInEfect(false);
         em.merge(iia);
         em.flush();
+    }
+
+    public void revertIiaAndTerminate(String iiaId, String approvedId) {
+        revertIia(iiaId, approvedId);
+        terminateIia(iiaId);
     }
 }

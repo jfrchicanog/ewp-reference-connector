@@ -309,11 +309,11 @@ public class AuxIiaThread {
 
             if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())) {
                 LOG.fine("AuxIiaThread_MODIFY: Revert before termination");
-                iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
+                iiasEJB.revertIiaAndTerminate(localIia.getId(), approvedVersion.getId());
+            } else {
+                LOG.fine("AuxIiaThread_MODIFY: Terminate");
+                iiasEJB.terminateIia(localIia.getId());
             }
-
-            LOG.fine("AuxIiaThread_MODIFY: Terminating");
-            iiasEJB.terminateIia(localIia.getId());
 
             Iia finalLocalIia = localIia;
             CompletableFuture.runAsync(() -> {
@@ -329,7 +329,7 @@ public class AuxIiaThread {
             });
 
             return;
-        }else if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null) {
+        } else if (sendIia.getCooperationConditions().isTerminatedAsAWhole() != null) {
             sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), "Terminated attribute is false", null);
             return;
         }
