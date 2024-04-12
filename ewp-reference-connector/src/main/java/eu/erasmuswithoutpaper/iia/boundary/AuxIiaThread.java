@@ -307,9 +307,10 @@ public class AuxIiaThread {
                 return;
             }
 
-            if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())) {
+            if (sendIia.getIiaHash().equals(approvedVersion.getHashPartner())
+                    && sendIia.getCooperationConditions().isTerminatedAsAWhole() == approvedVersion.getConditionsTerminatedAsAWhole()) {
                 LOG.fine("AuxIiaThread_MODIFY: Revert before termination");
-                iiasEJB.revertIiaAndTerminate(localIia.getId(), approvedVersion.getId());
+                iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
             } else {
                 LOG.fine("AuxIiaThread_MODIFY: Terminate");
                 iiasEJB.terminateIia(localIia.getId());
