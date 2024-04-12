@@ -381,6 +381,9 @@ public class IiaConverter {
         }
 
         iiaInternal.setInEfect(iia.isInEffect());
+        if (iia.getCooperationConditions() != null) {
+            iiaInternal.setConditionsTerminatedAsAWhole(iia.getCooperationConditions().isTerminatedAsAWhole());
+        }
 
         List<CooperationCondition> iiaIternalCooperationConditions = getCooperationConditions(iia.getCooperationConditions());
 
