@@ -149,6 +149,7 @@ public class AuxIiaThread {
             LOG.fine("AuxIiaThread_ADDEDIT: Iia convertsed with conditions: " + newIia.getCooperationConditions().size());
 
             iiasEJB.insertReceivedIia(sendIia, newIia);
+            execNotificationToAlgoria(newIia.getId(), heiId, IiaTaskEnum.UPDATED, "Created");
 
             LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
 
@@ -169,6 +170,7 @@ public class AuxIiaThread {
             if (localIia.getHashPartner() == null) {
                 LOG.fine("AuxIiaThread_ADDEDIT: Not containing other HASH");
                 iiasEJB.updateWithPartnerIDs(localIia, sendIia, iiaId, heiId);
+                execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.UPDATED, "Updated hash y id del partner");
                 LOG.fine("AuxIiaThread_ADDEDIT: Merged");
 
                 String localId = localIia.getId();
@@ -200,6 +202,7 @@ public class AuxIiaThread {
                 if (!beforeHash.equals(afterHash)) {
 
                     iiasEJB.deleteAssociatedIiaApprovals(localIia.getId());
+                    execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.UPDATED, "Update");
 
                     LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
 
