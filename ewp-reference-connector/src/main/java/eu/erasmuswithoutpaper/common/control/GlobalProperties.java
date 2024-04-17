@@ -31,7 +31,7 @@ public class GlobalProperties {
     String defaultAlgoriaRevertURL = "http://relacionesi-test.uma.es/algoria/ewp_revert_agreement_notifications/";
     String defaultAlgoriaTerminateURL = "http://relacionesi-test.uma.es/algoria/ewp_terminated_agreement_notifications/";
     //String defaultAlgoriaAuthorizationToken = "Token d6cd15f2e78e02148c11f4e12a286aead4dbdf10";
-    String defaultAlgoriaAuthorizationToken = "Token 675701176db0293a8cac23814481f8e50b320fbd";
+    String defaultAlgoriaAuthorizationToken = "Token ab1a997c0f38eddbfb64c24b9e0162d366832f29";
 
     public GlobalProperties() {
         loadProperties();
