@@ -108,6 +108,7 @@ public class AuxIiaThread {
 
         if (responseEnity.getIia() == null || responseEnity.getIia().isEmpty()) {
             delete(heiId, localHeiId, iiaId);
+            execNotificationToAlgoria(iiaId, heiId, IiaTaskEnum.DELETED, "Deleted");
             return;
         }
 
