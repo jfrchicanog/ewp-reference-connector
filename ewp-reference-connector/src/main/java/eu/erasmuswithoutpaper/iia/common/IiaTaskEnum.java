@@ -6,4 +6,5 @@ public enum IiaTaskEnum {
     MODIFY,
     DELETED,
     REVERTED,
+    TERMINATED
 }

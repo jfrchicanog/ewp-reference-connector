@@ -27,7 +27,11 @@ public class GlobalProperties {
     //String defaultAlgoriaApprovalURL = "https://relacionesi.uma.es/algoria/ewp_approved_agreement_notifications/";
     String defaultAlgoriaApprovalURL = "http://relacionesi-test.uma.es/algoria/ewp_approved_agreement_notifications/";
     String defaultAlgoriaModifyURL = "http://relacionesi-test.uma.es/algoria/ewp_modified_agreement_notifications/";
-    String defaultAlgoriaAuthorizationToken = "Token d6cd15f2e78e02148c11f4e12a286aead4dbdf10";
+    String defaultAlgoriaDeleteURL = "http://relacionesi-test.uma.es/algoria/ewp_deleted_agreement_notifications/";
+    String defaultAlgoriaRevertURL = "http://relacionesi-test.uma.es/algoria/ewp_revert_agreement_notifications/";
+    String defaultAlgoriaTerminateURL = "http://relacionesi-test.uma.es/algoria/ewp_terminated_agreement_notifications/";
+    //String defaultAlgoriaAuthorizationToken = "Token d6cd15f2e78e02148c11f4e12a286aead4dbdf10";
+    String defaultAlgoriaAuthorizationToken = "Token 675701176db0293a8cac23814481f8e50b320fbd";
 
     public GlobalProperties() {
         loadProperties();
@@ -170,6 +174,18 @@ public class GlobalProperties {
     
     public String getAlgoriaModifyURL() {
     	return getProperty("algoria.modify.url", defaultAlgoriaModifyURL);
+    }
+
+    public String getAlgoriaDeleteURL() {
+        return getProperty("algoria.delete.url", defaultAlgoriaDeleteURL);
+    }
+
+    public String getAlgoriaRevertURL() {
+        return getProperty("algoria.revert.url", defaultAlgoriaRevertURL);
+    }
+
+    public String getAlgoriaTerminateURL() {
+        return getProperty("algoria.terminate.url", defaultAlgoriaTerminateURL);
     }
     
     public String getAlgoriaAuthotizationToken() {

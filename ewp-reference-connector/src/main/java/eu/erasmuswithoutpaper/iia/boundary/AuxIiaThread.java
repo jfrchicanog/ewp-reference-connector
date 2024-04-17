@@ -316,9 +316,11 @@ public class AuxIiaThread {
                     && sendIia.getCooperationConditions().isTerminatedAsAWhole() == approvedVersion.getConditionsTerminatedAsAWhole()) {
                 LOG.fine("AuxIiaThread_MODIFY: Revert before termination");
                 iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
+                execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.REVERTED, "Revert");
             } else {
                 LOG.fine("AuxIiaThread_MODIFY: Terminate");
                 iiasEJB.terminateIia(localIia.getId());
+                execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.TERMINATED, "Terminated");
             }
 
             Iia finalLocalIia = localIia;
@@ -348,6 +350,7 @@ public class AuxIiaThread {
 
             LOG.fine("AuxIiaThread_MODIFY: Revert detected");
             iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
+            execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.REVERTED, "Revert");
 
             Iia finalLocalIia = localIia;
             CompletableFuture.runAsync(() -> {
@@ -379,7 +382,6 @@ public class AuxIiaThread {
             LOG.fine("AuxIiaThread_MODIFY: Hashes are equal");
             return;
         }
-        // TODO: notify algoria
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(modifIia);
         execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.MODIFY, json);

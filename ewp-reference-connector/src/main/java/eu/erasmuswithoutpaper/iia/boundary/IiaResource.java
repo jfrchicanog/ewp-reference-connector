@@ -328,7 +328,7 @@ public class IiaResource {
         iiasEjb.insertNotification(notification);
 
         //Register and execute Algoria notification
-        execNotificationToAlgoria(iiaId, notifierHeiId);
+        //execNotificationToAlgoria(iiaId, notifierHeiId);
         CompletableFuture.runAsync(() -> {
             try {
                 List<Iia> iiaList = iiasEjb.findByPartnerId(iiaId);

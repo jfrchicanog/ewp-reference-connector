@@ -105,6 +105,15 @@ public class IiaTaskService {
                 case APPROVED:
                     url = globalProperties.getAlgoriaApprovalURL();
                     break;
+                case DELETED:
+                    url = globalProperties.getAlgoriaDeleteURL();
+                    break;
+                case REVERTED:
+                    url = globalProperties.getAlgoriaRevertURL();
+                    break;
+                case TERMINATED:
+                    url = globalProperties.getAlgoriaTerminateURL();
+                    break;
                 default:
                     break;
             }
