@@ -30,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
@@ -146,7 +147,7 @@ public class IiaApprovalResource {
 
     private void execNotificationToAlgoria(String iiaApprovalId, String approvingHeiId) {
 
-        Callable<String> callableTask = IiaTaskService.createTask(iiaApprovalId, IiaTaskService.APPROVED, approvingHeiId);
+        Callable<String> callableTask = IiaTaskService.createTask(iiaApprovalId, IiaTaskEnum.APPROVED, approvingHeiId);
 
         //Put the task in the queue
         IiaTaskService.addTask(callableTask);

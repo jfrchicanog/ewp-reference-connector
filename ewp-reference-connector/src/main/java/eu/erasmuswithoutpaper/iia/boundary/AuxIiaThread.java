@@ -4,6 +4,8 @@
  */
 package eu.erasmuswithoutpaper.iia.boundary;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
@@ -12,6 +14,8 @@ import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
+import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
@@ -19,6 +23,7 @@ import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -375,6 +380,9 @@ public class AuxIiaThread {
             return;
         }
         // TODO: notify algoria
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String json = ow.writeValueAsString(modifIia);
+        execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.MODIFY, json);
         LOG.fine("AuxIiaThread_MODIFY: notify algoria");
 
     }
@@ -434,11 +442,11 @@ public class AuxIiaThread {
 
     }
 
-    private boolean isRevert(String iiaId, String hash) {
-        Iia iia = iiasEJB.findApprovedVersion(iiaId);
-        if (iia == null) {
-            return false;
-        }
-        return iia.getConditionsHash().equals(hash);
+    private void execNotificationToAlgoria(String iiaId, String notifierHeiId, IiaTaskEnum iiaTaskService, String description) {
+
+        Callable<String> callableTask = IiaTaskService.createTask(iiaId, iiaTaskService, notifierHeiId, description);
+
+        //Put the task in the queue
+        IiaTaskService.addTask(callableTask);
     }
 }

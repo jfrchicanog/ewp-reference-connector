@@ -64,6 +64,10 @@ public class IiaTaskService {
         checkNextResult();
     }
 
+    public static Callable<String> createTask(String iiaId, IiaTaskEnum mode, String approvingHeiId) {
+        return createTask(iiaId, mode, approvingHeiId, "Approved Agreement");
+    }
+
     /**
      * Create a task for sending a notification to Algoria in other moment
      *
@@ -72,7 +76,7 @@ public class IiaTaskService {
      * for modification
      * @return
      */
-    public static Callable<String> createTask(String iiaId, String mode, String approvingHeiId) {
+    public static Callable<String> createTask(String iiaId, IiaTaskEnum mode, String approvingHeiId, String description) {
 
         //Create the task
         Callable<String> callableTask = () -> {
@@ -83,7 +87,7 @@ public class IiaTaskService {
             ObjectNode node = mapper.createObjectNode();
             node.put("agreement_uuid", iiaId);
             node.put("hei_id", approvingHeiId);
-            node.put("description", "Approved Agreement");
+            node.put("description", description);
 
             String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
 
@@ -92,10 +96,17 @@ public class IiaTaskService {
             String token = globalProperties.getAlgoriaAuthotizationToken();
 
             String url = null;
-            if (APPROVED.equals(mode)) {
-                url = globalProperties.getAlgoriaApprovalURL();
-            } else {
-                url = globalProperties.getAlgoriaModifyURL();
+            //switch case to evaluate the mode
+            switch (mode) {
+                case UPDATED:
+                case MODIFY:
+                    url = globalProperties.getAlgoriaModifyURL();
+                    break;
+                case APPROVED:
+                    url = globalProperties.getAlgoriaApprovalURL();
+                    break;
+                default:
+                    break;
             }
 
             //Invoke the method to execute the request
@@ -104,7 +115,7 @@ public class IiaTaskService {
             ObjectNode nodeRes = mapper.createObjectNode();
             nodeRes.put("agreement_uuid", iiaId);
             nodeRes.put("approvingHeiId", approvingHeiId);
-            nodeRes.put("mode", mode);
+            nodeRes.put("mode", mode.toString());
             nodeRes.put("statusCode", result.getStatusInfo().getStatusCode());
 
             if (result.getEntity() instanceof String) {
@@ -147,6 +158,7 @@ public class IiaTaskService {
                 int statusCode = node.get("statusCode").asInt();
                 String bodyResult = node.get("bodyResult").asText();
                 String mode = node.get("mode").asText();
+                IiaTaskEnum iiaTaskEnum = IiaTaskEnum.valueOf(mode);
 
                 //Evaluate the task result
                 if (HttpStatus.SC_BAD_REQUEST == statusCode) {
@@ -200,7 +212,7 @@ public class IiaTaskService {
                             public void run() {
 
                                 //Reinsert the task into the queue
-                                Callable<String> callableTask = createTask(iiaApprovalId, mode, approvingHeiId);
+                                Callable<String> callableTask = createTask(iiaApprovalId, iiaTaskEnum, approvingHeiId);
                                 addTask(callableTask);
                             }
 

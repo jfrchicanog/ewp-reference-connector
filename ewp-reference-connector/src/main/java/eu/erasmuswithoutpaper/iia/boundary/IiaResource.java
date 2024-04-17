@@ -33,6 +33,7 @@ import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
+import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
@@ -353,7 +354,7 @@ public class IiaResource {
 
     private void execNotificationToAlgoria(String iiaId, String notifierHeiId) {
 
-        Callable<String> callableTask = IiaTaskService.createTask(iiaId, IiaTaskService.MODIFIED, notifierHeiId);
+        Callable<String> callableTask = IiaTaskService.createTask(iiaId, IiaTaskEnum.UPDATED, notifierHeiId);
 
         //Put the task in the queue
         IiaTaskService.addTask(callableTask);
