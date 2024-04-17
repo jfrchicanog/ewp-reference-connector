@@ -386,7 +386,7 @@ public class AuxIiaThread {
             return;
         }
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(modifIia);
+        String json = ow.writeValueAsString(sendIia);
         execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.MODIFY, json);
         LOG.fine("AuxIiaThread_MODIFY: notify algoria");
 
