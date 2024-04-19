@@ -616,9 +616,9 @@ public class GuiIiaResource {
         //get the first one found
         Iia theIia = foundIia.get(0);
 
-        if(!hashSitEquals(theIia)) {
+        /*if(!hashSitEquals(theIia)) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
-        }
+        }*/
 
         LOG.fine("Iia found: " + theIia.getId());
 
