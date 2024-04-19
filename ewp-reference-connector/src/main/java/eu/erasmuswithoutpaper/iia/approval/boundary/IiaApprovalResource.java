@@ -181,6 +181,12 @@ public class IiaApprovalResource {
 
         iiaIdList.forEach(iiaId -> {
             List<Iia> iiaApproval = iiasEJB.getByPartnerId(notifierHeiId, iiaId);
+            if (iiaApproval == null || iiaApproval.isEmpty()) {
+                Iia approvedIia = iiasEJB.findApprovedVersion(iiaId);
+                if (approvedIia != null) {
+                    iiaApproval = iiasEJB.getByPartnerId(notifierHeiId, approvedIia.getId());
+                }
+            }
             if (iiaApproval != null && !iiaApproval.isEmpty()) {
                 LOG.fine("iiaApproval: " + iiaApproval.size());
                 iiaApproval.forEach(iia -> {
