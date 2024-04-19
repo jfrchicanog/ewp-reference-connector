@@ -192,7 +192,7 @@ public class IiaApprovalResource {
                 iiaApproval.forEach(iia -> {
                     IiasApprovalResponse.Approval approval = new IiasApprovalResponse.Approval();
                     approval.setIiaId(iiaId);
-                    approval.setIiaHash(iia.getHashPartner());
+                    approval.setIiaHash(iia.getConditionsHash());
 
                     List<IiaApproval> iiaApprovals = iiasEJB.findIiaApproval(iiasEJB.getHeiId(), iia.getId());
                     if (iiaApprovals != null && !iiaApprovals.isEmpty()) {

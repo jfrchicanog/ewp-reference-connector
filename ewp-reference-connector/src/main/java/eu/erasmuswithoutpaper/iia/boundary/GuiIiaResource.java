@@ -626,7 +626,7 @@ public class GuiIiaResource {
         approval.setIiaCode(iiaCode);
         approval.setIia(theIia);
         approval.setHeiId(heiId);
-        approval.setConditionsHash(theIia.getHashPartner());
+        approval.setConditionsHash(theIia.getConditionsHash());
 
         iiasEJB.insertIiaApproval(approval);
 
