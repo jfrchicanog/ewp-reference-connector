@@ -192,15 +192,15 @@ public class IiaApprovalResource {
                 if (!iiaApprovals.isEmpty()) {
                     LOG.fine("iiaApprovals: " + iiaApprovals.size());
                     response.getApproval().add(approval);
-                }
-            } else {
-                Iia approvedIia = iiasEJB.findApprovedVersion(iiaId);
-                if (approvedIia != null) {
-                    IiasApprovalResponse.Approval approval = new IiasApprovalResponse.Approval();
-                    approval.setIiaId(iiaId);
-                    approval.setIiaHash(approvedIia.getHashPartner());
+                } else {
+                    Iia approvedIia = iiasEJB.findApprovedVersion(iia.getId());
+                    if (approvedIia != null) {
+                        approval = new IiasApprovalResponse.Approval();
+                        approval.setIiaId(iiaId);
+                        approval.setIiaHash(approvedIia.getHashPartner());
 
-                    response.getApproval().add(approval);
+                        response.getApproval().add(approval);
+                    }
                 }
             }
         });
