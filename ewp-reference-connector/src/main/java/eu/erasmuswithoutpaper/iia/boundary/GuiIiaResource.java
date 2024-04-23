@@ -590,10 +590,8 @@ public class GuiIiaResource {
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response iiasApprove(@FormParam("hei_id") String heiId, @FormParam("iia_code") String
             iiaCode) {
-        if (heiId == null || heiId.isEmpty() || iiaCode == null || iiaCode.isEmpty()) {
-            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
-        }
 
+        String localHeiId = iiasEJB.getHeiId();
         //seek the iia by code and by the ouid of the sending institution
         List<Iia> foundIia = iiasEJB.findByIiaCode(iiaCode);
 
@@ -602,7 +600,7 @@ public class GuiIiaResource {
             public boolean test(Iia iia) {
                 List<CooperationCondition> cooperationConditions = iia.getCooperationConditions();
 
-                List<CooperationCondition> filtered = cooperationConditions.stream().filter(c -> heiId.equals(c.getSendingPartner().getInstitutionId())).collect(Collectors.toList());
+                List<CooperationCondition> filtered = cooperationConditions.stream().filter(c -> localHeiId.equals(c.getSendingPartner().getInstitutionId())).collect(Collectors.toList());
                 return !filtered.isEmpty();
             }
         };
@@ -625,7 +623,7 @@ public class GuiIiaResource {
         IiaApproval approval = new IiaApproval();
         approval.setIiaCode(iiaCode);
         approval.setIia(theIia);
-        approval.setHeiId(heiId);
+        approval.setHeiId(localHeiId);
         approval.setConditionsHash(theIia.getConditionsHash());
 
         iiasEJB.insertIiaApproval(approval);
