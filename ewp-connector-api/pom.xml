@@ -74,6 +74,7 @@
 								<value>all</value>
 							</property>
 						</properties>
+						<outputFile/>
 					</configuration>
 				</plugin>
 				<plugin>
