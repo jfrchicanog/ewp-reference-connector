@@ -903,6 +903,9 @@ public class GuiIiaResource {
         String localHeiId = iiasEJB.getHeiId();
         String partnerHeiId = "";
         Iia iia = iiasEJB.findById(iiaId);
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
         for (CooperationCondition c : iia.getCooperationConditions()) {
             LOG.fine("GuiIiaRecource: Sending Partner: " + c.getSendingPartner().getInstitutionId());
             LOG.fine("GuiIiaRecource: Receiving Partner: " + c.getReceivingPartner().getInstitutionId());
@@ -915,12 +918,12 @@ public class GuiIiaResource {
 
         Map<String, String> map = registryClient.getIiaApprovalHeiUrls(partnerHeiId);
         if (map == null) {
-            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         String url = map.get("url");
         if (url == null) {
-            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         ClientRequest clientRequest = new ClientRequest();

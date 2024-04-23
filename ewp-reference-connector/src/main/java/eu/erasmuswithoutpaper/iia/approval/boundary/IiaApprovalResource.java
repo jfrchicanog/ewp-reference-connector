@@ -194,8 +194,9 @@ public class IiaApprovalResource {
                 approval.setIiaId(iiaId);
                 approval.setIiaHash(iia.getHashPartner());
 
-                List<IiaApproval> iiaApprovals = iiasEJB.findIiaApproval(iiasEJB.getHeiId(), iia.getId());
-                if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
+                List<IiaApproval> iiaApprovals = new ArrayList<>(iiasEJB.findIiaApproval(iiasEJB.getHeiId(), iia.getId()));
+                iiaApprovals.addAll(iiasEJB.findIiaApproval(notifierHeiId, iia.getId()));
+                if (!iiaApprovals.isEmpty()) {
                     LOG.fine("iiaApprovals: " + iiaApprovals.size());
                     response.getApproval().add(approval);
                 }
