@@ -181,12 +181,6 @@ public class IiaApprovalResource {
 
         iiaIdList.forEach(iiaId -> {
             List<Iia> iiaApproval = iiasEJB.getByPartnerId(notifierHeiId, iiaId);
-            if (iiaApproval == null || iiaApproval.isEmpty()) {
-                Iia approvedIia = iiasEJB.findApprovedVersion(iiaId);
-                if (approvedIia != null) {
-                    iiaApproval = iiasEJB.getByPartnerId(notifierHeiId, approvedIia.getId());
-                }
-            }
             if (iiaApproval != null && !iiaApproval.isEmpty()) {
                 LOG.fine("iiaApproval: " + iiaApproval.size());
                 Iia iia = iiaApproval.get(0);
@@ -199,7 +193,15 @@ public class IiaApprovalResource {
                     LOG.fine("iiaApprovals: " + iiaApprovals.size());
                     response.getApproval().add(approval);
                 }
+            } else {
+                Iia approvedIia = iiasEJB.findApprovedVersion(iiaId);
+                if (approvedIia != null) {
+                    IiasApprovalResponse.Approval approval = new IiasApprovalResponse.Approval();
+                    approval.setIiaId(iiaId);
+                    approval.setIiaHash(approvedIia.getHashPartner());
 
+                    response.getApproval().add(approval);
+                }
             }
         });
 
