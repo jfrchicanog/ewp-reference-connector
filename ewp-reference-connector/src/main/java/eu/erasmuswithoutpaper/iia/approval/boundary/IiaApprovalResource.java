@@ -189,17 +189,17 @@ public class IiaApprovalResource {
             }
             if (iiaApproval != null && !iiaApproval.isEmpty()) {
                 LOG.fine("iiaApproval: " + iiaApproval.size());
-                iiaApproval.forEach(iia -> {
-                    IiasApprovalResponse.Approval approval = new IiasApprovalResponse.Approval();
-                    approval.setIiaId(iiaId);
-                    approval.setIiaHash(iia.getHashPartner());
+                Iia iia = iiaApproval.get(0);
+                IiasApprovalResponse.Approval approval = new IiasApprovalResponse.Approval();
+                approval.setIiaId(iiaId);
+                approval.setIiaHash(iia.getHashPartner());
 
-                    List<IiaApproval> iiaApprovals = iiasEJB.findIiaApproval(iiasEJB.getHeiId(), iia.getId());
-                    if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
-                        LOG.fine("iiaApprovals: " + iiaApprovals.size());
-                        response.getApproval().add(approval);
-                    }
-                });
+                List<IiaApproval> iiaApprovals = iiasEJB.findIiaApproval(iiasEJB.getHeiId(), iia.getId());
+                if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
+                    LOG.fine("iiaApprovals: " + iiaApprovals.size());
+                    response.getApproval().add(approval);
+                }
+
             }
         });
 

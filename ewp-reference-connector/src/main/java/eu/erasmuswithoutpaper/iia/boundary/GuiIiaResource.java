@@ -894,6 +894,66 @@ public class GuiIiaResource {
         return javax.ws.rs.core.Response.ok().build();
     }
 
+    @GET
+    @Path("get-approval")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response getApproval(@QueryParam("iia_id") String iiaId) {
+        if (iiaId == null || iiaId.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        String localHeiId = iiasEJB.getHeiId();
+        String partnerHeiId = "";
+        Iia iia = iiasEJB.findById(iiaId);
+        for (CooperationCondition c : iia.getCooperationConditions()) {
+            LOG.fine("GuiIiaRecource: Sending Partner: " + c.getSendingPartner().getInstitutionId());
+            LOG.fine("GuiIiaRecource: Receiving Partner: " + c.getReceivingPartner().getInstitutionId());
+            if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
+                partnerHeiId = c.getReceivingPartner().getInstitutionId();
+            } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
+                partnerHeiId = c.getSendingPartner().getInstitutionId();
+            }
+        }
+
+        Map<String, String> map = registryClient.getIiaApprovalHeiUrls(partnerHeiId);
+        if (map == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String url = map.get("url");
+        if (url == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(partnerHeiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(url);
+
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("iia_id", Arrays.asList(iiaId));
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasApprovalResponse.class);
+        IiasApprovalResponse responseEnity = (IiasApprovalResponse) clientResponse.getResult();
+
+        if (responseEnity == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        if (responseEnity.getApproval() == null || responseEnity.getApproval().isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        IiasApprovalResponse.Approval approval = responseEnity.getApproval().get(0);
+
+
+        return javax.ws.rs.core.Response.ok(approval).build();
+    }
+
 
     private boolean hashSitEquals(Iia iia) {
         String localHeiId = iiasEJB.getHeiId();
