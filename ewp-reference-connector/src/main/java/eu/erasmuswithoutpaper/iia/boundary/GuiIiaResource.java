@@ -893,6 +893,66 @@ public class GuiIiaResource {
     }
 
     @GET
+    @Path("get-partner")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response getPartner(@QueryParam("iia_id") String iiaId, @QueryParam("partner_iia_id") String partnerIiaId, @QueryParam("partner_hei_id") String partnerHeiId) {
+        if(iiaId != null && !iiaId.isEmpty()) {
+
+            String localHeiId = iiasEJB.getHeiId();
+            Iia iia = iiasEJB.findById(iiaId);
+            if (iia == null) {
+                return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            for (CooperationCondition c : iia.getCooperationConditions()) {
+                LOG.fine("GuiIiaRecource: Sending Partner: " + c.getSendingPartner().getInstitutionId());
+                LOG.fine("GuiIiaRecource: Receiving Partner: " + c.getReceivingPartner().getInstitutionId());
+                if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
+                    partnerHeiId = c.getReceivingPartner().getInstitutionId();
+                } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
+                    partnerHeiId = c.getSendingPartner().getInstitutionId();
+                }
+            }
+        }else {
+            iiaId = partnerIiaId;
+        }
+
+        Map<String, String> map = registryClient.getIiaHeiUrls(partnerHeiId);
+        if (map == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String url = map.get("get-url");
+        if (url == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(partnerHeiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(url);
+
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("iia_id", Arrays.asList(iiaId));
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasGetResponse.class);
+
+        IiasGetResponse responseEnity = (IiasGetResponse) clientResponse.getResult();
+
+        if (responseEnity == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        List<IiasGetResponse.Iia> iias = responseEnity.getIia();
+
+        return javax.ws.rs.core.Response.ok(iias).build();
+    }
+
+    @GET
     @Path("get-approval")
     @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
