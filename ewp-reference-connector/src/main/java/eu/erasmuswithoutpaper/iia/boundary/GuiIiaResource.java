@@ -129,6 +129,24 @@ public class GuiIiaResource {
     }
 
     @GET
+    @Path("get-approved")
+    @InternalAuthenticate
+    public Response getApproved(@QueryParam("iia_id") String iiaId) {
+        if (iiaId != null) {
+            Iia iia = iiasEJB.findApprovedVersion(iiaId);
+            if (iia != null) {
+                String heiId = iiasEJB.getHeiId();
+                List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
+                return Response.ok(iiaResponse).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        }  else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+
+    @GET
     @Path("get_other")
     @InternalAuthenticate
     public Response getOther(@QueryParam("iia_id") String iiaId, @QueryParam("hei_id") String heiId) {
