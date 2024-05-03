@@ -274,18 +274,6 @@ public class GuiIiaResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response add(IiasGetResponse.Iia iia) throws Exception {
         LOG.fine("ADD: Add start");
-        if (iia != null) {
-            JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.class);
-
-            // Create Marshaller
-            Marshaller marshaller = jaxbContext.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            StringWriter sw = new StringWriter();
-            marshaller.marshal(iia, sw);
-
-            LOG.fine("ADD: addedObject: " + sw.toString());
-        }
         Iia iiaInternal = new Iia();
 
         iiaConverter.convertToIia(iia, iiaInternal, iiasEJB.findAllInstitutions());
