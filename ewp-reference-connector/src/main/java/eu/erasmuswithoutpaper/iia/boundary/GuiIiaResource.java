@@ -274,6 +274,7 @@ public class GuiIiaResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response add(IiasGetResponse.Iia iia) throws Exception {
         LOG.fine("ADD: Add start");
+        LOG.fine("ADD: Iia: " + iia);
         Iia iiaInternal = new Iia();
 
         iiaConverter.convertToIia(iia, iiaInternal, iiasEJB.findAllInstitutions());
