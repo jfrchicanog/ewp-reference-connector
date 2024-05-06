@@ -150,7 +150,7 @@ public class AuxIiaThread {
             LOG.fine("AuxIiaThread_ADDEDIT: Iia convertsed with conditions: " + newIia.getCooperationConditions().size());
 
             iiasEJB.insertReceivedIia(sendIia, newIia);
-            execNotificationToAlgoria(newIia.getId(), heiId, IiaTaskEnum.UPDATED, "Created");
+            execNotificationToAlgoria(newIia.getId(), heiId, IiaTaskEnum.CREATED, "Created");
 
             LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
 

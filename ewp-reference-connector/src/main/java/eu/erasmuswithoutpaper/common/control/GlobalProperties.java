@@ -26,6 +26,7 @@ public class GlobalProperties {
     
     //String defaultAlgoriaApprovalURL = "https://relacionesi.uma.es/algoria/ewp_approved_agreement_notifications/";
     String defaultAlgoriaApprovalURL = "http://relacionesi-test.uma.es/algoria/ewp_approved_agreement_notifications/";
+    String defaultAlgoriaCreatedURL = "https://relacionesi-test.uma.es/algoria/ewp_created_agreement_notifications/";
     String defaultAlgoriaModifyURL = "http://relacionesi-test.uma.es/algoria/ewp_modified_agreement_notifications/";
     String defaultAlgoriaDeleteURL = "http://relacionesi-test.uma.es/algoria/ewp_deleted_agreement_notifications/";
     String defaultAlgoriaRevertURL = "http://relacionesi-test.uma.es/algoria/ewp_revert_agreement_notifications/";
@@ -170,6 +171,10 @@ public class GlobalProperties {
     
     public String getAlgoriaApprovalURL() {
     	return getProperty("algoria.approval.url", defaultAlgoriaApprovalURL);
+    }
+
+    public String getAlgoriaCreatedURL() {
+        return getProperty("algoria.created.url", defaultAlgoriaCreatedURL);
     }
     
     public String getAlgoriaModifyURL() {

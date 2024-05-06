@@ -98,6 +98,9 @@ public class IiaTaskService {
             String url = null;
             //switch case to evaluate the mode
             switch (mode) {
+                case CREATED:
+                    url = globalProperties.getAlgoriaCreatedURL();
+                    break;
                 case UPDATED:
                 case MODIFY:
                     url = globalProperties.getAlgoriaModifyURL();
