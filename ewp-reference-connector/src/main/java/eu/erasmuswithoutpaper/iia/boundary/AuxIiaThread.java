@@ -151,8 +151,10 @@ public class AuxIiaThread {
 
             Iia persisted = iiasEJB.insertReceivedIia(sendIia, newIia);
 
+            IiaConverter converter = new IiaConverter();
+            List<IiasGetResponse.Iia> iias = converter.convertToIias(localHeiId, Arrays.asList(persisted));
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-            String json = ow.writeValueAsString(persisted);
+            String json = ow.writeValueAsString(iias.get(0));
             execNotificationToAlgoria(newIia.getId(), heiId, IiaTaskEnum.CREATED, json);
 
             LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
