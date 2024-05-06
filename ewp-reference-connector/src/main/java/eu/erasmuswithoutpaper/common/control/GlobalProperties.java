@@ -25,14 +25,15 @@ public class GlobalProperties {
     String defaultAlgoriaToken = "675701176db0293a8cac23814481f8e50b320fbd";
     
     //String defaultAlgoriaApprovalURL = "https://relacionesi.uma.es/algoria/ewp_approved_agreement_notifications/";
-    String defaultAlgoriaApprovalURL = "http://relacionesi-test.uma.es/algoria/ewp_approved_agreement_notifications/";
-    String defaultAlgoriaCreatedURL = "https://relacionesi-test.uma.es/algoria/ewp_created_agreement_notifications/";
-    String defaultAlgoriaModifyURL = "http://relacionesi-test.uma.es/algoria/ewp_modified_agreement_notifications/";
-    String defaultAlgoriaDeleteURL = "http://relacionesi-test.uma.es/algoria/ewp_deleted_agreement_notifications/";
-    String defaultAlgoriaRevertURL = "http://relacionesi-test.uma.es/algoria/ewp_revert_agreement_notifications/";
-    String defaultAlgoriaTerminateURL = "http://relacionesi-test.uma.es/algoria/ewp_terminated_agreement_notifications/";
+    String defaultAlgoriaApprovalURL = "http://relacionesi-test2.uma.es/algoria/ewp_approved_agreement_notifications/";
+    String defaultAlgoriaCreatedURL = "https://relacionesi-test2.uma.es/algoria/ewp_created_agreement_notifications/";
+    String defaultAlgoriaModifyURL = "http://relacionesi-test2.uma.es/algoria/ewp_modified_agreement_notifications/";
+    String defaultAlgoriaDeleteURL = "http://relacionesi-test2.uma.es/algoria/ewp_deleted_agreement_notifications/";
+    String defaultAlgoriaRevertURL = "http://relacionesi-test2.uma.es/algoria/ewp_revert_agreement_notifications/";
+    String defaultAlgoriaTerminateURL = "http://relacionesi-test2.uma.es/algoria/ewp_terminated_agreement_notifications/";
     //String defaultAlgoriaAuthorizationToken = "Token d6cd15f2e78e02148c11f4e12a286aead4dbdf10";
-    String defaultAlgoriaAuthorizationToken = "Token ab1a997c0f38eddbfb64c24b9e0162d366832f29";
+    //String defaultAlgoriaAuthorizationToken = "Token ab1a997c0f38eddbfb64c24b9e0162d366832f29";
+    String defaultAlgoriaAuthorizationToken = "Token aa38ee014e1ce693c30b399aab9668ebc13f21fd";
 
     public GlobalProperties() {
         loadProperties();
