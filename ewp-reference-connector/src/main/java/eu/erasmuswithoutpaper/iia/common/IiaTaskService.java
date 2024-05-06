@@ -121,6 +121,9 @@ public class IiaTaskService {
                     break;
             }
 
+            System.out.println("ALGORIA URL: " + url);
+            System.out.println("ALGORIA TOKEN: " + token);
+
             //Invoke the method to execute the request
             Response result = MessageNotificationService.addApprovalNotification(url, json, token);
 
