@@ -153,6 +153,11 @@ public class AuxIiaThread {
 
             IiaConverter converter = new IiaConverter();
             List<IiasGetResponse.Iia> iias = converter.convertToIias(localHeiId, Arrays.asList(persisted));
+            iias.get(0).getPartner().forEach(p -> {
+                if(p.getHeiId().equals(localHeiId)) {
+                    p.setIiaCode(null);
+                }
+            });
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
             String json = ow.writeValueAsString(iias.get(0));
             execNotificationToAlgoria(newIia.getId(), heiId, IiaTaskEnum.CREATED, json);
