@@ -128,7 +128,7 @@ public class IiasEJB {
         em.merge(iiaInternal);
     }
 
-    public void insertReceivedIia(IiasGetResponse.Iia sendIia, Iia newIia) {
+    public Iia insertReceivedIia(IiasGetResponse.Iia sendIia, Iia newIia) {
         String localHeiId = getHeiId();
         for (CooperationCondition cc : newIia.getCooperationConditions()) {
             for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
@@ -174,6 +174,8 @@ public class IiasEJB {
 
         em.merge(newIia);
         em.flush();
+
+        return newIia;
     }
 
     public Iia saveApprovedVersion(Iia originalIia, Date modifyDate, String hashPartner) {

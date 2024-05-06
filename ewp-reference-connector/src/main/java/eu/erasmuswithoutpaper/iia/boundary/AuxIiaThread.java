@@ -149,8 +149,11 @@ public class AuxIiaThread {
 
             LOG.fine("AuxIiaThread_ADDEDIT: Iia convertsed with conditions: " + newIia.getCooperationConditions().size());
 
-            iiasEJB.insertReceivedIia(sendIia, newIia);
-            execNotificationToAlgoria(newIia.getId(), heiId, IiaTaskEnum.CREATED, "Created");
+            Iia persisted = iiasEJB.insertReceivedIia(sendIia, newIia);
+
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = ow.writeValueAsString(persisted);
+            execNotificationToAlgoria(newIia.getId(), heiId, IiaTaskEnum.CREATED, json);
 
             LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
 
