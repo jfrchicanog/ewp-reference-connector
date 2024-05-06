@@ -181,7 +181,16 @@ public class AuxIiaThread {
             if (localIia.getHashPartner() == null) {
                 LOG.fine("AuxIiaThread_ADDEDIT: Not containing other HASH");
                 iiasEJB.updateWithPartnerIDs(localIia, sendIia, iiaId, heiId);
-                execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.UPDATED, "Updated hash y id del partner");
+                IiaConverter converter = new IiaConverter();
+                List<IiasGetResponse.Iia> iias = converter.convertToIias(localHeiId, Arrays.asList(localIia));
+                iias.get(0).getPartner().forEach(p -> {
+                    if(p.getHeiId().equals(localHeiId)) {
+                        p.setIiaCode(null);
+                    }
+                });
+                ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+                String json = ow.writeValueAsString(iias.get(0));
+                execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.UPDATED, json);
                 LOG.fine("AuxIiaThread_ADDEDIT: Merged");
 
                 String localId = localIia.getId();
@@ -213,7 +222,17 @@ public class AuxIiaThread {
                 if (!beforeHash.equals(afterHash)) {
 
                     iiasEJB.deleteAssociatedIiaApprovals(localIia.getId());
-                    execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.UPDATED, "Update");
+
+                    IiaConverter converter = new IiaConverter();
+                    List<IiasGetResponse.Iia> iias = converter.convertToIias(localHeiId, Arrays.asList(localIia));
+                    iias.get(0).getPartner().forEach(p -> {
+                        if(p.getHeiId().equals(localHeiId)) {
+                            p.setIiaCode(null);
+                        }
+                    });
+                    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+                    String json = ow.writeValueAsString(iias.get(0));
+                    execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.UPDATED, json);
 
                     LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
 
