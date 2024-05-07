@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -28,6 +29,8 @@ import javax.xml.transform.TransformerException;
 
 import eu.erasmuswithoutpaper.common.control.*;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
+import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
+import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,7 +144,7 @@ public class GuiIiaResource {
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-        }  else {
+        } else {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
@@ -746,6 +749,7 @@ public class GuiIiaResource {
 
         return javax.ws.rs.core.Response.ok(iiaResponse).build();*/
     }
+
     @DELETE
     @Path("delete")
     @InternalAuthenticate
@@ -761,7 +765,7 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        if(iiasEJB.findApprovedVersion(iiaId) != null) {
+        if (iiasEJB.findApprovedVersion(iiaId) != null) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity("The IIA is approved").build();
         }
 
@@ -887,7 +891,7 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        if(iiasEJB.findApprovedVersion(iiaId) == null) {
+        if (iiasEJB.findApprovedVersion(iiaId) == null) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity("The IIA is not approved").build();
         }
 
@@ -915,7 +919,7 @@ public class GuiIiaResource {
     @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response getPartner(@QueryParam("iia_id") String iiaId, @QueryParam("partner_iia_id") String partnerIiaId, @QueryParam("partner_hei_id") String partnerHeiId) {
-        if(iiaId != null && !iiaId.isEmpty()) {
+        if (iiaId != null && !iiaId.isEmpty()) {
 
             String localHeiId = iiasEJB.getHeiId();
             Iia iia = iiasEJB.findById(iiaId);
@@ -931,7 +935,7 @@ public class GuiIiaResource {
                     partnerHeiId = c.getSendingPartner().getInstitutionId();
                 }
             }
-        }else {
+        } else {
             iiaId = partnerIiaId;
         }
 
@@ -1033,15 +1037,53 @@ public class GuiIiaResource {
         return javax.ws.rs.core.Response.ok(approval).build();
     }
 
+    @POST
+    @Path("sendAlgoria")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response sendAlgoria(@FormParam("type") String type) {
+        switch (type) {
+            case "CREATED":
+                execNotificationToAlgoria(IiaTaskEnum.CREATED);
+                break;
+            case "UPDATED":
+                execNotificationToAlgoria(IiaTaskEnum.UPDATED);
+                break;
+            case "APPROVED":
+                execNotificationToAlgoria(IiaTaskEnum.APPROVED);
+                break;
+                case "MODIFY":
+                execNotificationToAlgoria(IiaTaskEnum.MODIFY);
+            case "DELETED":
+                execNotificationToAlgoria(IiaTaskEnum.DELETED);
+                break;
+            case "REVERTED":
+                execNotificationToAlgoria(IiaTaskEnum.REVERTED);
+                break;
+            case "TERMINATED":
+                execNotificationToAlgoria(IiaTaskEnum.TERMINATED);
+                break;
+        }
+
+        return javax.ws.rs.core.Response.ok().build();
+    }
+
+    private void execNotificationToAlgoria(IiaTaskEnum type) {
+
+        Callable<String> callableTask = IiaTaskService.createTask("FCB4C575-BE1D-43AB-A59F-496FB66A0682", type, "test.uma.es");
+
+        //Put the task in the queue
+        IiaTaskService.addTask(callableTask);
+    }
 
     private boolean hashSitEquals(Iia iia) {
         String localHeiId = iiasEJB.getHeiId();
-        if(iia.getCooperationConditions() == null || iia.getCooperationConditions().isEmpty()) {
+        if (iia.getCooperationConditions() == null || iia.getCooperationConditions().isEmpty()) {
             return false;
         }
         String partnerHeiId = null;
         String partnerIiaId = null;
-        if(localHeiId.equals(iia.getCooperationConditions().get(0).getSendingPartner().getInstitutionId())) {
+        if (localHeiId.equals(iia.getCooperationConditions().get(0).getSendingPartner().getInstitutionId())) {
             partnerHeiId = iia.getCooperationConditions().get(0).getReceivingPartner().getInstitutionId();
             partnerIiaId = iia.getCooperationConditions().get(0).getReceivingPartner().getIiaId();
         }
