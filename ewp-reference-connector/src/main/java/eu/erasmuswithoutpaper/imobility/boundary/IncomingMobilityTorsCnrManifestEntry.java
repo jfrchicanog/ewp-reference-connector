@@ -15,9 +15,9 @@ public class IncomingMobilityTorsCnrManifestEntry implements ManifestEntryStrate
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         ImobilityTorCnr imobilityTorCnr = new ImobilityTorCnr();
-        imobilityTorCnr.setVersion(EwpConstants.INCOMING_MOBILITY_TORS_CNR_VERSION);
+        /*imobilityTorCnr.setVersion(EwpConstants.INCOMING_MOBILITY_TORS_CNR_VERSION);
         imobilityTorCnr.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxMobilityIds()));
-        imobilityTorCnr.setUrl(baseUri + "imobilities/tors/cnr");
+        imobilityTorCnr.setUrl(baseUri + "imobilities/tors/cnr");*/
         return imobilityTorCnr;
     }
 }

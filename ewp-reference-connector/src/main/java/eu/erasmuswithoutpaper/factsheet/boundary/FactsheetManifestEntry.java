@@ -16,7 +16,7 @@ import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 import eu.erasmuswithoutpaper.common.control.EwpConstants;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 
-@PublicAPI
+//@PublicAPI
 public class FactsheetManifestEntry implements ManifestEntryStrategy {
     @Inject
     GlobalProperties globalProperties;
@@ -24,18 +24,18 @@ public class FactsheetManifestEntry implements ManifestEntryStrategy {
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         Factsheet factsheet = new Factsheet();
-        factsheet.setVersion(EwpConstants.FACTSHEET_VERSION);
+        /*factsheet.setVersion(EwpConstants.FACTSHEET_VERSION);
         factsheet.setUrl(baseUri + "factsheet");
         factsheet.setMaxHeiIds(BigInteger.valueOf(globalProperties.getMaxFactsheetIds()));
         
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
-        
+        */
         /*CliauthTlscert cliauthtlscert = new CliauthTlscert();
         cliauthtlscert.setAllowsSelfSigned(false);
         clientAuthMethods.getAny().add(cliauthtlscert);*/
-        
+        /*
         clientAuthMethods.getAny().add(new CliauthHttpsig());
         
         httpSecurityOptions.setClientAuthMethods(clientAuthMethods);
@@ -48,7 +48,7 @@ public class FactsheetManifestEntry implements ManifestEntryStrategy {
         httpSecurityOptions.setServerAuthMethods(serverAuthMethods);
         factsheet.setHttpSecurity(httpSecurityOptions);
         
-        
+        */
         return factsheet;	
     }
 }

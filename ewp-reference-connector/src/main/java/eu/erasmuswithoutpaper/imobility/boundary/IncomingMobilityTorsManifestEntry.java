@@ -21,7 +21,7 @@ public class IncomingMobilityTorsManifestEntry implements ManifestEntryStrategy 
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         ImobilityTors mobilities = new ImobilityTors();
-        mobilities.setVersion(EwpConstants.INCOMING_MOBILITIES_TORS_VERSION);
+        /*mobilities.setVersion(EwpConstants.INCOMING_MOBILITIES_TORS_VERSION);
         mobilities.setGetUrl(baseUri + "imobilities/tors/get");
         mobilities.setIndexUrl(baseUri + "imobilities/tors/index");
         mobilities.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxMobilityIds()));
@@ -31,13 +31,13 @@ public class IncomingMobilityTorsManifestEntry implements ManifestEntryStrategy 
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
-        
+        */
         /*CliauthTlscert cliauthtlscert = new CliauthTlscert();
         cliauthtlscert.setAllowsSelfSigned(true);
         clientAuthMethods.getAny().add(cliauthtlscert);*/
         
 //        clientAuthMethods.getAny().add(new Anonymous());
-        
+        /*
         clientAuthMethods.getAny().add(new CliauthHttpsig());
         
         httpSecurityOptions.setClientAuthMethods(clientAuthMethods);
@@ -50,7 +50,7 @@ public class IncomingMobilityTorsManifestEntry implements ManifestEntryStrategy 
         httpSecurityOptions.setServerAuthMethods(serverAuthMethods);
         
         mobilities.setHttpSecurity(httpSecurityOptions);
-        
+        */
         return mobilities;
     }
 }

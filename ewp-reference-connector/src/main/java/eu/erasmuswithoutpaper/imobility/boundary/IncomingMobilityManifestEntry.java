@@ -17,7 +17,7 @@ import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 import eu.erasmuswithoutpaper.common.control.EwpConstants;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 
-@PublicAPI
+//@PublicAPI
 public class IncomingMobilityManifestEntry implements ManifestEntryStrategy {
     @Inject
     GlobalProperties globalProperties;
@@ -25,18 +25,18 @@ public class IncomingMobilityManifestEntry implements ManifestEntryStrategy {
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         Imobilities mobilities = new Imobilities();
-        mobilities.setVersion(EwpConstants.INCOMING_MOBILITIES_VERSION);
+        /*mobilities.setVersion(EwpConstants.INCOMING_MOBILITIES_VERSION);
         mobilities.setGetUrl(baseUri + "imobilities/get");
         mobilities.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxMobilityIds()));
         
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
-        
+        */
         /*CliauthTlscert cliauthtlscert = new CliauthTlscert();
         cliauthtlscert.setAllowsSelfSigned(true);
         clientAuthMethods.getAny().add(cliauthtlscert);*/
-        
+        /*
         clientAuthMethods.getAny().add(new CliauthHttpsig());
         
         httpSecurityOptions.setClientAuthMethods(clientAuthMethods);
@@ -50,7 +50,7 @@ public class IncomingMobilityManifestEntry implements ManifestEntryStrategy {
         mobilities.setHttpSecurity(httpSecurityOptions);
 
         mobilities.setSendsNotifications(new Empty());
-        
+        */
         return mobilities;
     }
 }

@@ -22,18 +22,18 @@ public class IncomingMobilityCnrManifestEntry implements ManifestEntryStrategy {
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         ImobilityCnr imobilityCnr = new ImobilityCnr();
-        imobilityCnr.setVersion(EwpConstants.INCOMING_MOBILITY_CNR_VERSION);
+        /*imobilityCnr.setVersion(EwpConstants.INCOMING_MOBILITY_CNR_VERSION);
         imobilityCnr.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxMobilityIds()));
         imobilityCnr.setUrl(baseUri + "imobilities/cnr");
         
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
-        
+        */
         /*CliauthTlscert cliauthtlscert = new CliauthTlscert();
         cliauthtlscert.setAllowsSelfSigned(true);
         clientAuthMethods.getAny().add(cliauthtlscert);*/
-        
+        /*
         clientAuthMethods.getAny().add(new CliauthHttpsig());
         
         httpSecurityOptions.setClientAuthMethods(clientAuthMethods);
@@ -45,7 +45,7 @@ public class IncomingMobilityCnrManifestEntry implements ManifestEntryStrategy {
         
         httpSecurityOptions.setServerAuthMethods(serverAuthMethods);
         imobilityCnr.setHttpSecurity(httpSecurityOptions);
-
+*/
         return imobilityCnr;
     }
 }
