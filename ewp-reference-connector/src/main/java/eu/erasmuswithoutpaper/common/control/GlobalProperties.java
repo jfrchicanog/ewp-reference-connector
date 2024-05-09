@@ -30,7 +30,7 @@ public class GlobalProperties {
     String defaultAlgoriaDeleteURL = "https://relacionesi.uma.es/algoria/ewp_deleted_agreement_notifications/";
     String defaultAlgoriaRevertURL = "https://relacionesi.uma.es/algoria/ewp_revert_agreement_notifications/";
     String defaultAlgoriaTerminateURL = "https://relacionesi.uma.es/algoria/ewp_terminated_agreement_notifications/";
-    String defaultAlgoriaAuthorizationToken = "Token d6cd15f2e78e02148c11f4e12a286aead4dbdf10";
+    String defaultAlgoriaAuthorizationToken = "Token 6076263cedb35ca6c8abcfc6f872fb471130fdd7";
     //String defaultAlgoriaAuthorizationToken = "Token ab1a997c0f38eddbfb64c24b9e0162d366832f29";
     //String defaultAlgoriaAuthorizationToken = "Token aa38ee014e1ce693c30b399aab9668ebc13f21fd";
 
