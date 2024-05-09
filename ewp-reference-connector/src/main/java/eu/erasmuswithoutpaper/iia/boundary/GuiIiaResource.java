@@ -1052,8 +1052,9 @@ public class GuiIiaResource {
             case "APPROVED":
                 execNotificationToAlgoria(IiaTaskEnum.APPROVED);
                 break;
-                case "MODIFY":
+            case "MODIFY":
                 execNotificationToAlgoria(IiaTaskEnum.MODIFY);
+                break;
             case "DELETED":
                 execNotificationToAlgoria(IiaTaskEnum.DELETED);
                 break;
