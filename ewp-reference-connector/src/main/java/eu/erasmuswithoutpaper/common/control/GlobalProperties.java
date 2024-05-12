@@ -118,7 +118,7 @@ public class GlobalProperties {
     }
     
     public String getRegistryUrl() {
-        return getProperty("ewp.registry.url", "dev-registry.erasmuswithoutpaper.eu");
+        return getProperty("ewp.registry.url", "registry.erasmuswithoutpaper.eu");
     }
     
     public boolean isRegistryAutoRefreshing() {
