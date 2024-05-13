@@ -54,6 +54,7 @@ public class AuxIiaThread {
     private static final Logger LOG = Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
     public void addEditIiaBeforeApproval(String heiId, String iiaId) throws Exception {
+        LOG.fine("AuxIiaThread_ADDEDIT: Empezando con HEIID: " + (heiId==null?"null":heiId) + " y IIAID: " + (iiaId==null?"null":iiaId));
         String localHeiId = iiasEJB.getHeiId();
 
         LOG.fine("AuxIiaThread_ADDEDIT: Empezando GET tras CNR");

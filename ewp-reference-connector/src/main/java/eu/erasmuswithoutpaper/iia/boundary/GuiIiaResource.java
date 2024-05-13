@@ -1069,6 +1069,26 @@ public class GuiIiaResource {
         return javax.ws.rs.core.Response.ok().build();
     }
 
+    @GET
+    @Path("urls")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response getUrls(@QueryParam("heiId") String heiId, @QueryParam("type") String type) {
+
+        Map<String, String> map = registryClient.getIiaHeiUrls(heiId);
+        if (map == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        LOG.fine("URLS: MAP ENCONTRADO");
+        String url = map.get(type);
+        if (url == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        return javax.ws.rs.core.Response.ok(url).build();
+    }
+
     private void execNotificationToAlgoria(IiaTaskEnum type) {
 
         Callable<String> callableTask = IiaTaskService.createTask("FCB4C575-BE1D-43AB-A59F-496FB66A0682", type, "test.uma.es");
