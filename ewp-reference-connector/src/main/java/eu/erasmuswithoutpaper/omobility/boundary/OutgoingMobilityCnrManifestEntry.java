@@ -18,9 +18,9 @@ public class OutgoingMobilityCnrManifestEntry implements ManifestEntryStrategy {
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         OmobilityCnr omobilityCnr = new OmobilityCnr();
-        omobilityCnr.setVersion(EwpConstants.OUTGOING_MOBILITY_CNR_VERSION);
+        /*omobilityCnr.setVersion(EwpConstants.OUTGOING_MOBILITY_CNR_VERSION);
         omobilityCnr.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxMobilityIds()));
-        omobilityCnr.setUrl(baseUri + "omobilities/cnr");
+        omobilityCnr.setUrl(baseUri + "omobilities/cnr");*/
         return omobilityCnr;
     }
 }
