@@ -24,7 +24,7 @@ public class OutgoingMobilityManifestEntry implements ManifestEntryStrategy {
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         Omobilities mobilities = new Omobilities();
-        /*mobilities.setVersion(EwpConstants.OUTGOING_MOBILITIES_VERSION);
+        mobilities.setVersion(EwpConstants.OUTGOING_MOBILITIES_VERSION);
         mobilities.setIndexUrl(baseUri + "omobilities/index");
         mobilities.setGetUrl(baseUri + "omobilities/get");
         mobilities.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxMobilityIds()));
@@ -34,12 +34,12 @@ public class OutgoingMobilityManifestEntry implements ManifestEntryStrategy {
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         
         HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
-        */
+
         /*CliauthTlscert cliauthtlscert = new CliauthTlscert();
         cliauthtlscert.setAllowsSelfSigned(true);
         clientAuthMethods.getAny().add(cliauthtlscert);*/
         
-        /*clientAuthMethods.getAny().add(new CliauthHttpsig());
+        clientAuthMethods.getAny().add(new CliauthHttpsig());
         
         httpSecurityOptions.setClientAuthMethods(clientAuthMethods);
         
@@ -49,7 +49,7 @@ public class OutgoingMobilityManifestEntry implements ManifestEntryStrategy {
         serverAuthMethods.getAny().add(new SrvauthHttpsig());
         
         httpSecurityOptions.setServerAuthMethods(serverAuthMethods);
-        mobilities.setHttpSecurity(httpSecurityOptions);*/
+        mobilities.setHttpSecurity(httpSecurityOptions);
         return mobilities;
     }
 }
