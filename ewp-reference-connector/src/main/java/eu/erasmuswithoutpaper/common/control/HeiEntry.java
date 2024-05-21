@@ -5,6 +5,7 @@ import java.util.Map;
 public class HeiEntry {
     private String id;
     private String name;
+    private String erasmusId;
     private Map<String, String> urls;
 
     public HeiEntry() {
@@ -13,6 +14,12 @@ public class HeiEntry {
     public HeiEntry(String id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public HeiEntry(String id, String name, String erasmusId) {
+        this.id = id;
+        this.name = name;
+        this.erasmusId = erasmusId;
     }
 
     public String getId() {
@@ -29,6 +36,14 @@ public class HeiEntry {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getErasmusId() {
+        return erasmusId;
+    }
+
+    public void setErasmusId(String erasmusId) {
+        this.erasmusId = erasmusId;
     }
 
     public Map<String, String> getUrls() {

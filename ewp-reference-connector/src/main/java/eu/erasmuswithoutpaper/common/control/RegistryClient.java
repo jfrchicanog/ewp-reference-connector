@@ -240,7 +240,11 @@ public class RegistryClient {
         myConditions.setApiClassRequired(namespace, name, version);
         
         Collection<eu.erasmuswithoutpaper.registryclient.HeiEntry> list = client.findHeis(myConditions);
-        List<HeiEntry> heis = list.stream().map(e -> new HeiEntry(e.getId(), e.getName())).collect(Collectors.toList());
+        List<HeiEntry> heis = list.stream().map(e -> {
+            Collection<String> erasmusIds = e.getOtherIds("erasmus");
+            String erasmusId = erasmusIds.isEmpty() ? null : erasmusIds.iterator().next();
+            return new HeiEntry(e.getId(), e.getName(), erasmusId);
+        }).collect(Collectors.toList());
         
         return heis;
     }
