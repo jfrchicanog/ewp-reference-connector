@@ -375,91 +375,95 @@ public class IiaConverter {
 
 
     public void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal, List<Institution> institutions) {
+        try {
+            if (iia.getIiaHash() != null) {
+                iiaInternal.setConditionsHash(iia.getIiaHash());
+            }
 
-        if (iia.getIiaHash() != null) {
-            iiaInternal.setConditionsHash(iia.getIiaHash());
-        }
+            iiaInternal.setInEfect(iia.isInEffect());
+            if (iia.getCooperationConditions() != null) {
+                iiaInternal.setConditionsTerminatedAsAWhole(iia.getCooperationConditions().isTerminatedAsAWhole());
+            }
 
-        iiaInternal.setInEfect(iia.isInEffect());
-        if (iia.getCooperationConditions() != null) {
-            iiaInternal.setConditionsTerminatedAsAWhole(iia.getCooperationConditions().isTerminatedAsAWhole());
-        }
+            List<CooperationCondition> iiaIternalCooperationConditions = getCooperationConditions(iia.getCooperationConditions());
 
-        List<CooperationCondition> iiaIternalCooperationConditions = getCooperationConditions(iia.getCooperationConditions());
+            iia.getPartner().stream().forEach((IiasGetResponse.Iia.Partner partner) -> {
 
-        iia.getPartner().stream().forEach((IiasGetResponse.Iia.Partner partner) -> {
+                IiaPartner partnerInternal = new IiaPartner();
 
-            IiaPartner partnerInternal = new IiaPartner();
-
-            for (Institution institution : institutions) {
-                if (institution.getInstitutionId().equals(partner.getHeiId())) {
-                    System.out.println("Found Parter:" + partner.getHeiId());
+                for (Institution institution : institutions) {
+                    if (institution.getInstitutionId().equals(partner.getHeiId())) {
+                    /*System.out.println("Found Parter:" + partner.getHeiId());
                     System.out.println("IiaCode:" + iiaInternal.getIiaCode());
-                    System.out.println("IiaCode Parter:" + partner.getIiaCode());
+                    System.out.println("IiaCode Parter:" + partner.getIiaCode());*/
 
-                    //iiaInternal.setEndDate(null);
-                    //iiaInternal.setStartDate(null);
-                    iiaInternal.setIiaCode(partner.getIiaCode());
-                    iiaInternal.setId(partner.getIiaId());
+                        //iiaInternal.setEndDate(null);
+                        //iiaInternal.setStartDate(null);
+                        iiaInternal.setIiaCode(partner.getIiaCode());
+                        iiaInternal.setId(partner.getIiaId());
 
-                    if (partner.getSigningDate() != null) {
-                        iiaInternal.setSigningDate(partner.getSigningDate().toGregorianCalendar().getTime());
+                        if (partner.getSigningDate() != null) {
+                            iiaInternal.setSigningDate(partner.getSigningDate().toGregorianCalendar().getTime());
+                        }
+
+                        break;
+                    }
+                }
+
+                if (partner.getIiaCode() != null) {
+                    partnerInternal.setIiaCode(partner.getIiaCode());
+                }
+
+                if (partner.getIiaId() != null) {
+                    partnerInternal.setIiaId(partner.getIiaId());
+                }
+
+                partnerInternal.setInstitutionId(partner.getHeiId());
+
+                if (partner.getOunitId() != null) {
+                    partnerInternal.setOrganizationUnitId(partner.getOunitId());
+                }
+
+                if (partner.getSigningContact() != null) {
+                    Contact signingContact = partner.getSigningContact();
+
+                    eu.erasmuswithoutpaper.organization.entity.Contact signingContactInternal = convertToContact(signingContact);
+                    partnerInternal.setSigningContact(signingContactInternal);
+                }
+
+                if (partner.getContact() != null) {
+                    List<Contact> contacts = partner.getContact();
+
+                    List<eu.erasmuswithoutpaper.organization.entity.Contact> internalContacts = new ArrayList<>();
+                    for (Contact contact : contacts) {
+                        eu.erasmuswithoutpaper.organization.entity.Contact internalContact = convertToContact(contact);
+
+                        internalContacts.add(internalContact);
                     }
 
-                    break;
-                }
-            }
-
-            if (partner.getIiaCode() != null) {
-                partnerInternal.setIiaCode(partner.getIiaCode());
-            }
-
-            if (partner.getIiaId() != null) {
-                partnerInternal.setIiaId(partner.getIiaId());
-            }
-
-            partnerInternal.setInstitutionId(partner.getHeiId());
-
-            if (partner.getOunitId() != null) {
-                partnerInternal.setOrganizationUnitId(partner.getOunitId());
-            }
-
-            if (partner.getSigningContact() != null) {
-                Contact signingContact = partner.getSigningContact();
-
-                eu.erasmuswithoutpaper.organization.entity.Contact signingContactInternal = convertToContact(signingContact);
-                partnerInternal.setSigningContact(signingContactInternal);
-            }
-
-            if (partner.getContact() != null) {
-                List<Contact> contacts = partner.getContact();
-
-                List<eu.erasmuswithoutpaper.organization.entity.Contact> internalContacts = new ArrayList<>();
-                for (Contact contact : contacts) {
-                    eu.erasmuswithoutpaper.organization.entity.Contact internalContact = convertToContact(contact);
-
-                    internalContacts.add(internalContact);
+                    partnerInternal.setContacts(internalContacts);
                 }
 
-                partnerInternal.setContacts(internalContacts);
-            }
+                for (CooperationCondition cooperationConditionInternal : iiaIternalCooperationConditions) {
 
-            for (CooperationCondition cooperationConditionInternal : iiaIternalCooperationConditions) {
+                    if (cooperationConditionInternal.getReceivingPartner().getInstitutionId().equals(partner.getHeiId())) {
 
-                if (cooperationConditionInternal.getReceivingPartner().getInstitutionId().equals(partner.getHeiId())) {
+                        cooperationConditionInternal.setReceivingPartner(partnerInternal);
 
-                    cooperationConditionInternal.setReceivingPartner(partnerInternal);
+                    } else if (cooperationConditionInternal.getSendingPartner().getInstitutionId().equals(partner.getHeiId())) {
 
-                } else if (cooperationConditionInternal.getSendingPartner().getInstitutionId().equals(partner.getHeiId())) {
+                        cooperationConditionInternal.setSendingPartner(partnerInternal);
 
-                    cooperationConditionInternal.setSendingPartner(partnerInternal);
-
+                    }
                 }
-            }
 
-        });
+            });
 
-        iiaInternal.setCooperationConditions(iiaIternalCooperationConditions);
+            iiaInternal.setCooperationConditions(iiaIternalCooperationConditions);
+        }catch (Exception e) {
+            logger.error("Error converting IIA", e);
+            throw e;
+        }
     }
 
     private eu.erasmuswithoutpaper.organization.entity.Contact convertToContact(Contact pContact) {
