@@ -182,6 +182,23 @@ public class IiaResource {
             throw new EwpWebApplicationException("Max number of IIA ids has exceeded.", Response.Status.BAD_REQUEST);
         }
 
+        try {
+            Collection<String> heisCoveredByCertificate;
+            if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+                heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+            } else {
+                heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+            }
+
+            if (!heisCoveredByCertificate.isEmpty()) {
+                String notifierHeiId = heisCoveredByCertificate.iterator().next();
+
+                LOG.fine("GET REQUEST FROM: " + notifierHeiId);
+            }
+        }catch (Exception e) {
+            LOG.fine("ERROR OBTAINING HEI ID FROM CERTIFICATE");
+        }
+
         return iiaGet(iiaIdList);
 
     }
@@ -215,6 +232,17 @@ public class IiaResource {
             String localHeiId = iiasEjb.getHeiId();
 
             response.getIia().addAll(iiaConverter.convertToIias(localHeiId, iiaList));
+
+            try {
+                if (iiaList != null && !iiaList.isEmpty()) {
+                    LOG.fine("GET: iiaList.size(): " + iiaList.size());
+                    iiaList.forEach(iia -> {
+                        LOG.fine("GET: iia.getId(): " + iia.getId());
+                    });
+                }
+            }catch (Exception e) {
+                LOG.fine("ERROR OBTAINING IIA ID");
+            }
         }
 
 
