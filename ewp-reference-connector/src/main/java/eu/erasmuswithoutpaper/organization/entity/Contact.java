@@ -41,7 +41,7 @@ public class Contact implements Serializable {
     @Column(name = "CONTACT_ROLE")
     private String role;
     
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "PERSON_ID", referencedColumnName = "ID")
     private Person person;
     

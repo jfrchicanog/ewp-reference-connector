@@ -36,7 +36,7 @@ public class IiaPartner implements Serializable{
     private String iiaId;
     private String iiaCode;
     
-    @ManyToMany(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "IIA_PARTNER_CONTACTS")
     private List<Contact> contacts;
     
