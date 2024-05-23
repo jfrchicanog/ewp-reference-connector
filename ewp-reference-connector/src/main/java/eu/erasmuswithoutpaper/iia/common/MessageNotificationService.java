@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.iia.common;
 
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
@@ -36,7 +37,7 @@ public class MessageNotificationService {
         Invocation.Builder postBuilder = target.request().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_TYPE);
         postBuilder = postBuilder.header("Authorization", token);
         //add content length
-        postBuilder = postBuilder.header(HttpHeaders.CONTENT_LENGTH, msg.length());
+        postBuilder = postBuilder.header(HttpHeaders.CONTENT_LENGTH, String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
 
         MultivaluedMap<String, Object> headers = postBuilder.head().getHeaders();
         logger.info("Headers:");
