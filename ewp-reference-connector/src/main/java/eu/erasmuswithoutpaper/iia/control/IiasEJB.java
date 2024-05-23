@@ -483,4 +483,8 @@ public class IiasEJB {
         revertIia(iiaId, approvedId);
         terminateIia(iiaId);
     }
+
+    public List<Iia> findByDateRange(Date initDate, Date finDate) {
+        return em.createNamedQuery(Iia.findByDateRange, Iia.class).setParameter("initDate", initDate).setParameter("finDate", finDate).getResultList();
+    }
 }

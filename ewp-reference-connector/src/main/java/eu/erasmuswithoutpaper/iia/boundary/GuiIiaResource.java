@@ -70,6 +70,19 @@ public class GuiIiaResource {
 
 
     @GET
+    @Path("get-range")
+    @InternalAuthenticate
+    public Response get(@QueryParam("init-date") Date initDate, @QueryParam("fin-date") Date finDate) {
+        List<Iia> iiaList = iiasEJB.findByDateRange(initDate, finDate);
+        List<IiasGetResponse.Iia> result = iiaConverter.convertToIias(iiasEJB.getHeiId(), iiaList);
+
+        GenericEntity<List<IiasGetResponse.Iia>> entity = new GenericEntity<List<IiasGetResponse.Iia>>(result) {
+        };
+
+        return Response.ok(entity).build();
+    }
+
+    @GET
     @Path("get")
     @InternalAuthenticate
     public Response get(@QueryParam("iia_id") String iiaId, @QueryParam("partner_id") String partnerId) {
