@@ -30,8 +30,12 @@ public class IiaConverter {
             IiasGetResponse.Iia converted = new IiasGetResponse.Iia();
             HashMap<String, IiaPartner> uniquePartners = new HashMap<>();
             for (CooperationCondition condition : iia.getCooperationConditions()) {
-                uniquePartners.put(condition.getSendingPartner().getInstitutionId(), condition.getSendingPartner());
-                uniquePartners.put(condition.getReceivingPartner().getInstitutionId(), condition.getReceivingPartner());
+                if (condition.getSendingPartner() != null && condition.getSendingPartner().getInstitutionId() != null) {
+                    uniquePartners.put(condition.getSendingPartner().getInstitutionId(), condition.getSendingPartner());
+                }
+                if (condition.getReceivingPartner() != null && condition.getReceivingPartner().getInstitutionId() != null) {
+                    uniquePartners.put(condition.getReceivingPartner().getInstitutionId(), condition.getReceivingPartner());
+                }
             }
 
             Set<String> partnerKeys = uniquePartners.keySet();
@@ -50,10 +54,10 @@ public class IiaConverter {
                 //     return 0 otherwise
                 @Override
                 public int compare(IiasGetResponse.Iia.Partner lhs, IiasGetResponse.Iia.Partner rhs) {
-                    if (rhs.getHeiId().equals(hei_id)) {
+                    if (rhs.getHeiId() != null && rhs.getHeiId().equals(hei_id)) {
                         return 1;
                     }
-                    if (lhs.getHeiId().equals(hei_id)) {
+                    if (lhs.getHeiId() != null && lhs.getHeiId().equals(hei_id)) {
                         return -1;
                     }
                     return 0;
@@ -125,7 +129,19 @@ public class IiaConverter {
         // TODO: Add this
         Map<String, List<CooperationCondition>> ccMap = cooperationConditions
                 .stream()
-                .collect(Collectors.groupingBy(cc -> cc.getMobilityType().getMobilityGroup() + "-" + cc.getMobilityType().getMobilityCategory()));
+                .collect(Collectors.groupingBy(cc -> {
+                    String rtn = "";
+                    if (cc.getMobilityType() == null) {
+                        return rtn;
+                    }
+                    if (cc.getMobilityType().getMobilityGroup() != null) {
+                        rtn += cc.getMobilityType().getMobilityGroup() + "-";
+                    }
+                    if (cc.getMobilityType().getMobilityCategory() != null) {
+                        rtn += cc.getMobilityType().getMobilityCategory();
+                    }
+                    return rtn;
+                }));
 
         CooperationConditions converted = new CooperationConditions();
 
@@ -167,6 +183,10 @@ public class IiaConverter {
     private IiasGetResponse.Iia.Partner convertToPartner(Iia iia, IiaPartner partner) {
         IiasGetResponse.Iia.Partner converted = new IiasGetResponse.Iia.Partner();
 
+        if (partner == null) {
+            return converted;
+        }
+
         converted.setHeiId(partner.getInstitutionId());
         converted.setOunitId(partner.getOrganizationUnitId());
 
@@ -175,7 +195,6 @@ public class IiaConverter {
 
         try {
             if (iia.getSigningDate() != null) {
-                System.out.println(iia.getSigningDate());
                 converted.setSigningDate(ConverterHelper.convertToXmlGregorianCalendar(iia.getSigningDate()));
             }
         } catch (DatatypeConfigurationException e) {
@@ -185,10 +204,13 @@ public class IiaConverter {
         if (partner.getSigningContact() != null) {
             Contact contact = new Contact();
 
-            contact.setPersonGender(partner.getSigningContact().getPerson().getGender().value());
-            contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(partner.getSigningContact().getContactDetails().getMailingAddress()));
-            contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(partner.getSigningContact().getContactDetails().getStreetAddress()));
-
+            if (partner.getSigningContact().getPerson() != null && partner.getSigningContact().getPerson().getGender() != null) {
+                contact.setPersonGender(partner.getSigningContact().getPerson().getGender().value());
+            }
+            if (partner.getSigningContact().getContactDetails() != null) {
+                contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(partner.getSigningContact().getContactDetails().getMailingAddress()));
+                contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(partner.getSigningContact().getContactDetails().getStreetAddress()));
+            }
             converted.setSigningContact(contact);
         }
 
@@ -284,37 +306,48 @@ public class IiaConverter {
             conv.getSubjectArea().addAll(subjectAreas);
         }
 
-        List<Contact> contactReceivings = cc.getReceivingPartner().getContacts().stream().map(recContact -> {
-            Contact contact = new Contact();
 
-            contact.setPersonGender(recContact.getPerson().getGender().value());
+        List<Contact> contactReceivings = new ArrayList<>();
+        if (cc.getReceivingPartner() != null && cc.getReceivingPartner().getContacts() != null) {
+            contactReceivings = cc.getReceivingPartner().getContacts().stream().map(recContact -> {
+                Contact contact = new Contact();
 
-            if (recContact.getContactDetails() != null) {
-                contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getMailingAddress()));
-                contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getStreetAddress()));
-            }
+                if (recContact.getPerson() != null && recContact.getPerson().getGender() != null) {
+                    contact.setPersonGender(recContact.getPerson().getGender().value());
+                }
 
-            return contact;
-        }).collect(Collectors.toList());
+                if (recContact.getContactDetails() != null) {
+                    contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getMailingAddress()));
+                    contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getStreetAddress()));
+                }
+
+                return contact;
+            }).collect(Collectors.toList());
+        }
 
         conv.getReceivingContact().addAll(contactReceivings);
 
-        List<Contact> contactsSending = cc.getSendingPartner().getContacts().stream().map(sendContact -> {
-            Contact contact = new Contact();
+        List<Contact> contactsSending = new ArrayList<>();
+        if (cc.getSendingPartner() != null && cc.getSendingPartner().getContacts() != null) {
+            contactsSending = cc.getSendingPartner().getContacts().stream().map(sendContact -> {
+                Contact contact = new Contact();
 
-            contact.setPersonGender(sendContact.getPerson().getGender().value());
+                if (sendContact.getPerson() != null && sendContact.getPerson().getGender() != null) {
+                    contact.setPersonGender(sendContact.getPerson().getGender().value());
+                }
 
-            if (sendContact.getContactDetails() != null) {
-                contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getMailingAddress()));
-                contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getStreetAddress()));
-            }
+                if (sendContact.getContactDetails() != null) {
+                    contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getMailingAddress()));
+                    contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getStreetAddress()));
+                }
 
-            return contact;
-        }).collect(Collectors.toList());
+                return contact;
+            }).collect(Collectors.toList());
+        }
 
         conv.getSendingContact().addAll(contactsSending);
 
-        if (cc.getSendingPartner().getOrganizationUnitId() != null) {
+        if (cc.getSendingPartner() != null && cc.getSendingPartner().getOrganizationUnitId() != null) {
             conv.setSendingOunitId(cc.getSendingPartner().getOrganizationUnitId());
         }
 
@@ -325,8 +358,12 @@ public class IiaConverter {
             mobilitiesPerYear.setNotYetDefined(true);
         }
         conv.setMobilitiesPerYear(mobilitiesPerYear);
-        conv.setReceivingHeiId(cc.getReceivingPartner().getInstitutionId());
-        conv.setSendingHeiId(cc.getSendingPartner().getInstitutionId());
+        if (cc.getReceivingPartner() != null) {
+            conv.setReceivingHeiId(cc.getReceivingPartner().getInstitutionId());
+        }
+        if (cc.getSendingPartner() != null) {
+            conv.setSendingHeiId(cc.getSendingPartner().getInstitutionId());
+        }
         conv.setOtherInfoTerms(cc.getOtherInfoTerms());
     }
 
@@ -475,7 +512,7 @@ public class IiaConverter {
                             for (Contact contact : contacts) {
                                 eu.erasmuswithoutpaper.organization.entity.Contact internalContact = convertToContact(contact);
 
-                                if(internalContact != null) {
+                                if (internalContact != null) {
                                     internalContacts.add(internalContact);
                                 }
                             }
@@ -486,7 +523,7 @@ public class IiaConverter {
 
                     logger.info("CONVERTING IIA: after contacts");
 
-                    if(iiaIternalCooperationConditions != null) {
+                    if (iiaIternalCooperationConditions != null) {
                         for (CooperationCondition cooperationConditionInternal : iiaIternalCooperationConditions) {
 
                             if (cooperationConditionInternal.getReceivingPartner() != null && cooperationConditionInternal.getReceivingPartner().getInstitutionId() != null &&
@@ -512,7 +549,7 @@ public class IiaConverter {
 
             iiaInternal.setCooperationConditions(iiaIternalCooperationConditions);
             logger.info("CONVERTING IIA: after cooperation conditions 3");
-        }catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Error converting IIA", e);
             e.printStackTrace();
             String stackTrace = Arrays.stream(e.getStackTrace())
@@ -575,7 +612,7 @@ public class IiaConverter {
         Optional.ofNullable(flexible.getAddressLine()).ifPresent(flexibleAddressInternal.getAddressLine()::addAll);
         Optional.ofNullable(flexible.getRecipientName()).ifPresent(flexibleAddressInternal.getRecipientName()::addAll);
 
-        if(flexible.getDeliveryPointCode() != null) {
+        if (flexible.getDeliveryPointCode() != null) {
             List<String> codes = flexible.getDeliveryPointCode().stream().map(String::valueOf).collect(Collectors.toList());
             flexibleAddressInternal.setDeliveryPointCode(new ArrayList<>());
             flexibleAddressInternal.getDeliveryPointCode().addAll(codes);
@@ -726,7 +763,7 @@ public class IiaConverter {
                 if (recommendedSkill.getSubjectArea() != null) {
                     eu.erasmuswithoutpaper.iia.entity.SubjectArea subjectArea = new eu.erasmuswithoutpaper.iia.entity.SubjectArea();
                     subjectArea.setIscedClarification(recommendedSkill.getSubjectArea().getIscedClarification());
-                    if(recommendedSkill.getSubjectArea().getIscedFCode() != null) {
+                    if (recommendedSkill.getSubjectArea().getIscedFCode() != null) {
                         subjectArea.setIscedFCode(recommendedSkill.getSubjectArea().getIscedFCode().getValue());
                     }
                     langskill.setSubjectArea(subjectArea);
@@ -748,7 +785,7 @@ public class IiaConverter {
         cc.getReceivingAcademicYearId().add(mobilitySpec.getReceivingLastAcademicYearId());
 
         //Require academic years to be ordered and without gaps
-        if(cc.getReceivingAcademicYearId() != null) {
+        if (cc.getReceivingAcademicYearId() != null) {
             cc.getReceivingAcademicYearId().sort(String::compareTo);
         }
 
@@ -778,8 +815,8 @@ public class IiaConverter {
 
         if (mobilitySpec.getMobilitiesPerYear() != null) {
             MobilityNumber mobNumber = new MobilityNumber();
-            if(mobilitySpec.getMobilitiesPerYear().isNotYetDefined() == null || !mobilitySpec.getMobilitiesPerYear().isNotYetDefined()) {
-                if(mobilitySpec.getMobilitiesPerYear().getValue() != null) {
+            if (mobilitySpec.getMobilitiesPerYear().isNotYetDefined() == null || !mobilitySpec.getMobilitiesPerYear().isNotYetDefined()) {
+                if (mobilitySpec.getMobilitiesPerYear().getValue() != null) {
                     mobNumber.setNumber(mobilitySpec.getMobilitiesPerYear().getValue().intValue());
                 }
             }
