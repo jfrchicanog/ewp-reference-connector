@@ -42,7 +42,7 @@ public class IiaTaskService {
 
     private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
 
-    static GlobalProperties globalProperties = new GlobalProperties();
+    public static GlobalProperties globalProperties = new GlobalProperties();
 
     private final static ExecutorService exeService = Executors.newCachedThreadPool();
     private static BlockingQueue<Future<String>> queue = new LinkedBlockingDeque<Future<String>>(100);

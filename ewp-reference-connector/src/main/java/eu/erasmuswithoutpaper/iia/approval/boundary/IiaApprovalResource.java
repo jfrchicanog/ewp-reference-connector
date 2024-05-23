@@ -147,6 +147,7 @@ public class IiaApprovalResource {
 
     private void execNotificationToAlgoria(String iiaApprovalId, String approvingHeiId) {
 
+        IiaTaskService.globalProperties = properties;
         Callable<String> callableTask = IiaTaskService.createTask(iiaApprovalId, IiaTaskEnum.APPROVED, approvingHeiId);
 
         //Put the task in the queue

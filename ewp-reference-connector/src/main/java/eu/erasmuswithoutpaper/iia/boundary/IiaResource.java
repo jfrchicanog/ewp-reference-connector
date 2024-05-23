@@ -382,6 +382,7 @@ public class IiaResource {
 
     private void execNotificationToAlgoria(String iiaId, String notifierHeiId) {
 
+        IiaTaskService.globalProperties = properties;
         Callable<String> callableTask = IiaTaskService.createTask(iiaId, IiaTaskEnum.UPDATED, notifierHeiId);
 
         //Put the task in the queue

@@ -12,6 +12,7 @@ import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
+import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
@@ -50,6 +51,9 @@ public class AuxIiaThread {
 
     @Inject
     IiaConverter iiaConverter;
+
+    @Inject
+    GlobalProperties properties;
 
     private static final Logger LOG = Logger.getLogger(AuxIiaThread.class.getCanonicalName());
 
@@ -483,6 +487,7 @@ public class AuxIiaThread {
 
     private void execNotificationToAlgoria(String iiaId, String notifierHeiId, IiaTaskEnum iiaTaskService, String description) {
 
+        IiaTaskService.globalProperties = properties;
         Callable<String> callableTask = IiaTaskService.createTask(iiaId, iiaTaskService, notifierHeiId, description);
 
         //Put the task in the queue
