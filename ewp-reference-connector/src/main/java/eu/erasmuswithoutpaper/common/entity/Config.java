@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @NamedQueries({
-        @NamedQuery(name = Config.findByKey, query = "SELECT c FROM Config c WHERE c.key = :key"),
+        @NamedQuery(name = Config.findByKey, query = "SELECT c FROM Config c WHERE c.clave = :key"),
 })
 public class Config {
 
@@ -15,7 +15,7 @@ public class Config {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String key;
+    private String clave;
 
     private String value;
 
@@ -23,8 +23,8 @@ public class Config {
 
     }
 
-    public Config(String key, String value) {
-        this.key = key;
+    public Config(String clave, String value) {
+        this.clave = clave;
         this.value = value;
     }
 
@@ -36,12 +36,12 @@ public class Config {
         this.id = id;
     }
 
-    public String getKey() {
-        return key;
+    public String getClave() {
+        return clave;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setClave(String clave) {
+        this.clave = clave;
     }
 
     public String getValue() {

@@ -31,7 +31,7 @@ public class ConfigEJB {
         Config config = (Config) em.createNamedQuery(Config.findByKey).setParameter("key", key).getSingleResult();
         if (config == null) {
             config = new Config();
-            config.setKey(key);
+            config.setClave(key);
             config.setValue(value);
             em.persist(config);
         } else {
