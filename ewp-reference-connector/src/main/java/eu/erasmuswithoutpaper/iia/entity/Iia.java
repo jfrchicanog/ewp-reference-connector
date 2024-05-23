@@ -24,7 +24,7 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
                 " WHERE ((sp.institutionId = :heiId AND sp.iiaId = :iiaId) OR (rp.institutionId = :heiId AND rp.iiaId = :iiaId)) " +
                 "AND i.original is null"),
         @NamedQuery(name = Iia.findByOriginalIiaId, query = "SELECT i FROM Iia i JOIN i.original oi WHERE oi.id = :iiaId"),
-        @NamedQuery(name = Iia.findByDateRange, query = "SELECT i FROM Iia i WHERE i.modifyDate <= :endDate AND i.endDate >= :modifyDate")
+        @NamedQuery(name = Iia.findByDateRange, query = "SELECT i FROM Iia i WHERE i.modifyDate <= :endDate AND i.modifyDate >= :statrDate")
 })
 public class Iia implements Serializable {
 
