@@ -1,7 +1,6 @@
 package eu.erasmuswithoutpaper.iia.common;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import javax.ws.rs.core.Response;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -33,41 +31,44 @@ public class MessageNotificationService {
 
     private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
 
-    public static Response addApprovalNotification(String url, String msg, String token) {
+    public static Response addApprovalNotification(String url, String msg, String token) {;
 
-        try {
-            HttpPost post = new HttpPost(url);
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        /*try {
+            clientBuilder.sslContext(SSLContext.getDefault());
+        } catch (NoSuchAlgorithmException e1) {
+            logger.error("Error setting ssl context! " + e1.getMessage());
+        }*/
 
-            post.setEntity(new StringEntity(msg, StandardCharsets.UTF_8));
+        WebTarget target = clientBuilder.build().target(url);
+        //target.property("http.autoredirect", true);
 
-            //post.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-            post.setHeader(HttpHeaders.AUTHORIZATION, token);
-            //post.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
+        Invocation.Builder postBuilder = target.request().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_TYPE);
+        postBuilder = postBuilder.header("Authorization", token);
+        //add content length
+
+        /*MultivaluedMap<String, Object> headers = postBuilder.head().getHeaders();
+        logger.info("Headers:");
+        headers.forEach((key, values) -> {
+            logger.info(key + ": " + values);
+        });*/
 
 
-            String result = "";
-            try (CloseableHttpClient httpClient = HttpClients.createDefault();
-                 CloseableHttpResponse response = httpClient.execute(post)) {
+        Response response = postBuilder.post(Entity.json(new String(msg.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8)));
 
-                result = EntityUtils.toString(response.getEntity());
-            } catch (IOException e) {
-                logger.error("Error sending message! " + e.getMessage());
-                //print stack trace with logger
-                StackTraceElement[] stack = e.getStackTrace();
-                for (StackTraceElement stackTraceElement : stack) {
-                    logger.error(stackTraceElement.toString());
-                }
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error sending message! " + e.getMessage()).build();
-            }
+        logger.info("Response status: " + response.getStatus());
 
-            logger.info("Message sent! " + result);
+        //response headers
+        MultivaluedMap<String, Object> responseHeaders = response.getHeaders();
+        logger.info("Response headers:");
+        responseHeaders.forEach((key, values) -> {
+            logger.info(key + ": " + values);
+        });
 
-            Response response = Response.status(Response.Status.OK).entity(result).build();
-            return response;
-        } catch (Exception e) {
-            logger.error("Error sending message! " + e.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error sending message! " + e.getMessage()).build();
-        }
+        //response body
 
+        logger.info("Response body: " + response.readEntity(String.class));
+
+        return response;
     }
 }
