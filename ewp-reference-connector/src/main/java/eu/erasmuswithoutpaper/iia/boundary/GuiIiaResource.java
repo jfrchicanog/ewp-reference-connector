@@ -1,32 +1,22 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.UserTransaction;
 import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import eu.erasmuswithoutpaper.common.control.*;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
@@ -34,48 +24,24 @@ import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import com.sun.org.apache.xml.internal.security.c14n.CanonicalizationException;
-import com.sun.org.apache.xml.internal.security.c14n.InvalidCanonicalizerException;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
-import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.Approval;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
-import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.CooperationConditions;
-import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.Partner;
-import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
-import eu.erasmuswithoutpaper.api.iias.endpoints.RecommendedLanguageSkill;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StaffMobilitySpecification;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTeacherMobilitySpec;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StaffTrainingMobilitySpec;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StudentMobilitySpecification;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StudentStudiesMobilitySpec;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StudentTraineeshipMobilitySpec;
-import eu.erasmuswithoutpaper.api.types.contact.Contact;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
-import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
-import eu.erasmuswithoutpaper.iia.entity.Duration;
 import eu.erasmuswithoutpaper.iia.entity.DurationUnitVariants;
 import eu.erasmuswithoutpaper.iia.entity.Iia;
 import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
 import eu.erasmuswithoutpaper.iia.entity.IiaResponse;
-import eu.erasmuswithoutpaper.iia.entity.MobilityNumber;
 import eu.erasmuswithoutpaper.iia.entity.MobilityNumberVariants;
 import eu.erasmuswithoutpaper.iia.entity.MobilityType;
-import eu.erasmuswithoutpaper.iia.entity.SubjectArea;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
-import eu.erasmuswithoutpaper.organization.entity.ContactDetails;
-import eu.erasmuswithoutpaper.organization.entity.FlexibleAddress;
-import eu.erasmuswithoutpaper.organization.entity.Gender;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
-import eu.erasmuswithoutpaper.organization.entity.Person;
 import eu.erasmuswithoutpaper.security.InternalAuthenticate;
 
 @Path("iia")
@@ -1041,28 +1007,49 @@ public class GuiIiaResource {
     @Path("sendAlgoria")
     @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response sendAlgoria(@FormParam("type") String type) {
+    public javax.ws.rs.core.Response sendAlgoria(@FormParam("type") String type, @QueryParam("iiaId") String iiaId) throws JsonProcessingException {
+        if (type == null || type.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        if (iiaId == null || iiaId.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        Iia iia = iiasEJB.findById(iiaId);
+        String heiId = iiasEJB.getHeiId();
+        IiasGetResponse.Iia iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia)).get(0);
+
+        AtomicReference<String> partnerHeiId = new AtomicReference<>("");
+        iiaResponse.getPartner().forEach(i -> {
+            if (!i.getHeiId().equals(heiId)) {
+                partnerHeiId.set(i.getHeiId());
+            }
+        });
+
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String json = ow.writeValueAsString(iiaResponse);
+
         switch (type) {
             case "CREATED":
-                execNotificationToAlgoria(IiaTaskEnum.CREATED);
+                execNotificationToAlgoria(IiaTaskEnum.CREATED, iiaId, partnerHeiId.get(), json);
                 break;
             case "UPDATED":
-                execNotificationToAlgoria(IiaTaskEnum.UPDATED);
+                execNotificationToAlgoria(IiaTaskEnum.UPDATED, iiaId, partnerHeiId.get(), json);
                 break;
             case "APPROVED":
-                execNotificationToAlgoria(IiaTaskEnum.APPROVED);
+                execNotificationToAlgoria(IiaTaskEnum.APPROVED, iiaId, partnerHeiId.get(), "Aproved");
                 break;
             case "MODIFY":
-                execNotificationToAlgoria(IiaTaskEnum.MODIFY);
+                execNotificationToAlgoria(IiaTaskEnum.MODIFY, iiaId, partnerHeiId.get(), json);
                 break;
             case "DELETED":
-                execNotificationToAlgoria(IiaTaskEnum.DELETED);
+                execNotificationToAlgoria(IiaTaskEnum.DELETED, iiaId, partnerHeiId.get(), "Deleted");
                 break;
             case "REVERTED":
-                execNotificationToAlgoria(IiaTaskEnum.REVERTED);
+                execNotificationToAlgoria(IiaTaskEnum.REVERTED, iiaId, partnerHeiId.get(), json);
                 break;
             case "TERMINATED":
-                execNotificationToAlgoria(IiaTaskEnum.TERMINATED);
+                execNotificationToAlgoria(IiaTaskEnum.TERMINATED, iiaId, partnerHeiId.get(), "Terminated");
                 break;
         }
 
@@ -1089,9 +1076,9 @@ public class GuiIiaResource {
         return javax.ws.rs.core.Response.ok(url).build();
     }
 
-    private void execNotificationToAlgoria(IiaTaskEnum type) {
+    private void execNotificationToAlgoria(IiaTaskEnum type, String iiaId, String heiId, String description) {
 
-        Callable<String> callableTask = IiaTaskService.createTask("FCB4C575-BE1D-43AB-A59F-496FB66A0682", type, "test.uma.es");
+        Callable<String> callableTask = IiaTaskService.createTask(iiaId, type, heiId, description);
 
         //Put the task in the queue
         IiaTaskService.addTask(callableTask);

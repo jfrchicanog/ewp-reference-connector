@@ -97,6 +97,7 @@ public class IiaTaskService {
 
             String url = null;
             //switch case to evaluate the mode
+            logger.info("Mode: " + mode.toString());
             switch (mode) {
                 case CREATED:
                     url = globalProperties.getAlgoriaCreatedURL();
@@ -121,11 +122,13 @@ public class IiaTaskService {
                     break;
             }
 
-            System.out.println("ALGORIA URL: " + url);
-            System.out.println("ALGORIA TOKEN: " + token);
+            logger.info("ALGORIA URL: " + url);
+            logger.info("ALGORIA TOKEN: " + token);
 
             //Invoke the method to execute the request
             Response result = MessageNotificationService.addApprovalNotification(url, json, token);
+
+            logger.info("Status code: " + result.getStatusInfo().getStatusCode());
 
             ObjectNode nodeRes = mapper.createObjectNode();
             nodeRes.put("agreement_uuid", iiaId);
@@ -141,7 +144,7 @@ public class IiaTaskService {
             }
 
             String jsonRes = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(nodeRes);
-            System.out.println(jsonRes);
+            logger.info(jsonRes);
             return jsonRes;
         };
 
@@ -177,34 +180,34 @@ public class IiaTaskService {
 
                 //Evaluate the task result
                 if (HttpStatus.SC_BAD_REQUEST == statusCode) {
-                    System.out.println("-------------------------------------");
-                    System.out.println("Test1");
-                    System.out.println("-------------------------------------");
+                    logger.info("-------------------------------------");
+                    logger.info("Test1");
+                    logger.info("-------------------------------------");
 
                     String responseJSON = bodyResult;
 
                     logger.error("Error incorrect json! " + responseJSON);
 
                 } else if (HttpStatus.SC_NOT_FOUND == statusCode) {
-                    System.out.println("-------------------------------------");
-                    System.out.println("Test2");
-                    System.out.println("-------------------------------------");
+                    logger.info("-------------------------------------");
+                    logger.info("Test2");
+                    logger.info("-------------------------------------");
 
                     logger.error("Error the agreement was not found into Algoria");
 
                 } else if (HttpStatus.SC_UNAUTHORIZED == statusCode) {
-                    System.out.println("-------------------------------------");
-                    System.out.println("Test3");
-                    System.out.println("-------------------------------------");
+                    logger.info("-------------------------------------");
+                    logger.info("Test3");
+                    logger.info("-------------------------------------");
 
                     String responseJSON = bodyResult;
 
                     logger.error("Error missing or invalid token! " + responseJSON);
 
                 } else if (HttpStatus.SC_SERVICE_UNAVAILABLE == statusCode) {
-                    System.out.println("-------------------------------------");
-                    System.out.println("Test4");
-                    System.out.println("-------------------------------------");
+                    logger.info("-------------------------------------");
+                    logger.info("Test4");
+                    logger.info("-------------------------------------");
 
                     logger.info("The service (server) is temporarily unavailable but should be restored in the future");
 
@@ -236,15 +239,15 @@ public class IiaTaskService {
                         scheduler.shutdown();
                     }
                 } else {
-                    System.out.println("-------------------------------------");
-                    System.out.println("Test4");
-                    System.out.println("-------------------------------------");
+                    logger.info("-------------------------------------");
+                    logger.info("Test4");
+                    logger.info("-------------------------------------");
                 }
             }
         } catch (InterruptedException | ExecutionException | IOException e) {
-            System.out.println("-------------------------------------");
-            System.out.println("Test6");
-            System.out.println("-------------------------------------");
+            logger.info("-------------------------------------");
+            logger.info("Test6");
+            logger.info("-------------------------------------");
 
             logger.error("The task was interrupted! " + e.getMessage());
         }

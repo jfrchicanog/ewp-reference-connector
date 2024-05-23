@@ -65,6 +65,12 @@ public class RegistryClient {
         
         return new ArrayList<>();
     }
+
+    public List<HeiEntry> getEwpInstanceHeisWithUrlsNew() {
+        List<HeiEntry> heis = getAllHeis();
+        heis.stream().forEach(hei -> hei.setUrls(getEwpInstanceHeiUrls(hei.getId())));
+        return heis;
+    }
     
     public List<HeiEntry> getEwpInstanceHeisWithUrls() {
         List<HeiEntry> heis = getHeis(EwpConstants.INSTITUTION_NAMESPACE, "institutions", EwpConstants.INSTITUTION_CLIENT_VERSION);
@@ -233,6 +239,19 @@ public class RegistryClient {
         if (manifest != null) {
         	return getUrlsFromManifestElement(manifest);
         } else return null;
+    }
+
+    private List<HeiEntry> getAllHeis() {
+        ApiSearchConditions myConditions = new ApiSearchConditions();
+
+        Collection<eu.erasmuswithoutpaper.registryclient.HeiEntry> list = client.findHeis(myConditions);
+        List<HeiEntry> heis = list.stream().map(e -> {
+            Collection<String> erasmusIds = e.getOtherIds("erasmus");
+            String erasmusId = erasmusIds.isEmpty() ? null : erasmusIds.iterator().next();
+            return new HeiEntry(e.getId(), e.getName(), erasmusId);
+        }).collect(Collectors.toList());
+
+        return heis;
     }
     
     private List<HeiEntry> getHeis(String namespace, String name, String version) {
