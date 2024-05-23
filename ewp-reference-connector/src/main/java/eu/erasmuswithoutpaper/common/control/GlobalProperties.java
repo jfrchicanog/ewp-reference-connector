@@ -49,7 +49,7 @@ public class GlobalProperties {
     
     @PostConstruct
     private void loadProperties() {
-        if (configEJB.getValue("algoria.approval.url") == null) {
+        /*if (configEJB.getValue("algoria.approval.url") == null) {
             logger.info("Setting default values for Algoria URLs");
             configEJB.saveValue("algoria.approval.url", defaultAlgoriaApprovalURL);
             configEJB.saveValue("algoria.created.url", defaultAlgoriaCreatedURL);
@@ -58,7 +58,7 @@ public class GlobalProperties {
             configEJB.saveValue("algoria.revert.url", defaultAlgoriaRevertURL);
             configEJB.saveValue("algoria.terminate.url", defaultAlgoriaTerminateURL);
             configEJB.saveValue("algoria.tokens.authorization", defaultAlgoriaAuthorizationToken);
-        }
+        }*/
 
         properties = new Properties();
         try (InputStream in = getClass().getClassLoader().getResourceAsStream("ewp.properties")) {
