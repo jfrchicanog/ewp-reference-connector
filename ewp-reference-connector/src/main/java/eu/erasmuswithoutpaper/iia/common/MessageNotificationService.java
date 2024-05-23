@@ -1,7 +1,11 @@
 package eu.erasmuswithoutpaper.iia.common;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.ClientBuilder;
@@ -13,6 +17,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,43 +35,33 @@ public class MessageNotificationService {
 
     public static Response addApprovalNotification(String url, String msg, String token) {
 
-        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        /*try {
-            clientBuilder.sslContext(SSLContext.getDefault());
-        } catch (NoSuchAlgorithmException e1) {
-            logger.error("Error setting ssl context! " + e1.getMessage());
-        }*/
+        try {
+            HttpPost post = new HttpPost(url);
 
-        WebTarget target = clientBuilder.build().target(url);
-        //target.property("http.autoredirect", true);
+            post.setEntity(new StringEntity(msg));
 
-        Invocation.Builder postBuilder = target.request().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_TYPE);
-        postBuilder = postBuilder.header("Authorization", token);
-        //add content length
-        postBuilder = postBuilder.header(HttpHeaders.CONTENT_LENGTH, String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
-
-        /*MultivaluedMap<String, Object> headers = postBuilder.head().getHeaders();
-        logger.info("Headers:");
-        headers.forEach((key, values) -> {
-            logger.info(key + ": " + values);
-        });*/
+            post.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+            post.setHeader("Authorization", token);
+            post.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
 
 
-        Response response = postBuilder.post(Entity.json(new String(msg.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8)));
+            String result = "";
+            try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                 CloseableHttpResponse response = httpClient.execute(post)) {
 
-        logger.info("Response status: " + response.getStatus());
+                result = EntityUtils.toString(response.getEntity());
+            } catch (IOException e) {
+                logger.error("Error sending message! " + e.getMessage());
+            }
 
-        //response headers
-        MultivaluedMap<String, Object> responseHeaders = response.getHeaders();
-        logger.info("Response headers:");
-        responseHeaders.forEach((key, values) -> {
-            logger.info(key + ": " + values);
-        });
+            logger.info("Message sent! " + result);
 
-        //response body
+            Response response = Response.status(Response.Status.OK).entity(result).build();
+            return response;
+        } catch (Exception e) {
+            logger.error("Error sending message! " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error sending message! " + e.getMessage()).build();
+        }
 
-        logger.info("Response body: " + response.readEntity(String.class));
-
-        return response;
     }
 }
