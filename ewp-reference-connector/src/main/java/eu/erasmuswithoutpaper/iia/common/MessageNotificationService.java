@@ -25,11 +25,11 @@ public class MessageNotificationService {
     public static Response addApprovalNotification(String url, String msg, String token) {
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        try {
+        /*try {
             clientBuilder.sslContext(SSLContext.getDefault());
         } catch (NoSuchAlgorithmException e1) {
             logger.error("Error setting ssl context! " + e1.getMessage());
-        }
+        }*/
 
         WebTarget target = clientBuilder.build().target(url);
         //target.property("http.autoredirect", true);
@@ -46,7 +46,7 @@ public class MessageNotificationService {
         });*/
 
 
-        Response response = postBuilder.post(Entity.json(msg));
+        Response response = postBuilder.post(Entity.json(new String(msg.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8)));
 
         logger.info("Response status: " + response.getStatus());
 
