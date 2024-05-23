@@ -42,9 +42,6 @@ public class IiaTaskService {
 
     private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
 
-    public final static String MODIFIED = "Modified";
-    public final static String APPROVED = "Approved";
-
     static GlobalProperties globalProperties = new GlobalProperties();
 
     private final static ExecutorService exeService = Executors.newCachedThreadPool();
