@@ -38,11 +38,11 @@ public class MessageNotificationService {
         try {
             HttpPost post = new HttpPost(url);
 
-            post.setEntity(new StringEntity(msg));
+            post.setEntity(new StringEntity(msg, StandardCharsets.UTF_8));
 
-            post.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-            post.setHeader("Authorization", token);
-            post.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
+            //post.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+            post.setHeader(HttpHeaders.AUTHORIZATION, token);
+            //post.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
 
 
             String result = "";
@@ -52,6 +52,12 @@ public class MessageNotificationService {
                 result = EntityUtils.toString(response.getEntity());
             } catch (IOException e) {
                 logger.error("Error sending message! " + e.getMessage());
+                //print stack trace with logger
+                StackTraceElement[] stack = e.getStackTrace();
+                for (StackTraceElement stackTraceElement : stack) {
+                    logger.error(stackTraceElement.toString());
+                }
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error sending message! " + e.getMessage()).build();
             }
 
             logger.info("Message sent! " + result);
