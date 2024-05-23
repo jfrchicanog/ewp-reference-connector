@@ -9,6 +9,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -36,7 +37,14 @@ public class MessageNotificationService {
         postBuilder = postBuilder.header("Authorization", token);
         //add content length
         postBuilder = postBuilder.header(HttpHeaders.CONTENT_LENGTH, msg.length());
-        
+
+        MultivaluedMap<String, Object> headers = postBuilder.head().getHeaders();
+        logger.info("Headers:");
+        headers.forEach((key, values) -> {
+            logger.info(key + ": " + values);
+        });
+
+
         Response response = postBuilder.post(Entity.json(msg));
 
         return response;

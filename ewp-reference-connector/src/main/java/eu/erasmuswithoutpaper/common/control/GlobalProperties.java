@@ -6,12 +6,19 @@ import java.io.InputStream;
 import java.util.Optional;
 import java.util.Properties;
 import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
+
+import eu.erasmuswithoutpaper.common.entity.ConfigEJB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
 public class GlobalProperties {
+
+    @EJB
+    ConfigEJB configEJB;
+
     private static final Logger logger = LoggerFactory.getLogger(GlobalProperties.class);
     public static enum University {
         IKEA_U,
@@ -42,6 +49,17 @@ public class GlobalProperties {
     
     @PostConstruct
     private void loadProperties() {
+        if (configEJB.getValue("algoria.approval.url") == null) {
+            logger.info("Setting default values for Algoria URLs");
+            configEJB.saveValue("algoria.approval.url", defaultAlgoriaApprovalURL);
+            configEJB.saveValue("algoria.created.url", defaultAlgoriaCreatedURL);
+            configEJB.saveValue("algoria.modify.url", defaultAlgoriaModifyURL);
+            configEJB.saveValue("algoria.delete.url", defaultAlgoriaDeleteURL);
+            configEJB.saveValue("algoria.revert.url", defaultAlgoriaRevertURL);
+            configEJB.saveValue("algoria.terminate.url", defaultAlgoriaTerminateURL);
+            configEJB.saveValue("algoria.tokens.authorization", defaultAlgoriaAuthorizationToken);
+        }
+
         properties = new Properties();
         try (InputStream in = getClass().getClassLoader().getResourceAsStream("ewp.properties")) {
             properties.load(in);
@@ -166,35 +184,35 @@ public class GlobalProperties {
     }
 
     public String getAlgoriaToken() {
-    	return getProperty("ewp.algoria.token", defaultAlgoriaToken);
+        return configEJB.getValue("ewp.algoria.token", defaultAlgoriaToken);
     }
     
     public String getAlgoriaApprovalURL() {
-    	return getProperty("algoria.approval.url", defaultAlgoriaApprovalURL);
+    	return configEJB.getValue("algoria.approval.url", defaultAlgoriaApprovalURL);
     }
 
     public String getAlgoriaCreatedURL() {
-        return getProperty("algoria.created.url", defaultAlgoriaCreatedURL);
+        return configEJB.getValue("algoria.created.url", defaultAlgoriaCreatedURL);
     }
     
     public String getAlgoriaModifyURL() {
-    	return getProperty("algoria.modify.url", defaultAlgoriaModifyURL);
+    	return configEJB.getValue("algoria.modify.url", defaultAlgoriaModifyURL);
     }
 
     public String getAlgoriaDeleteURL() {
-        return getProperty("algoria.delete.url", defaultAlgoriaDeleteURL);
+        return configEJB.getValue("algoria.delete.url", defaultAlgoriaDeleteURL);
     }
 
     public String getAlgoriaRevertURL() {
-        return getProperty("algoria.revert.url", defaultAlgoriaRevertURL);
+        return configEJB.getValue("algoria.revert.url", defaultAlgoriaRevertURL);
     }
 
     public String getAlgoriaTerminateURL() {
-        return getProperty("algoria.terminate.url", defaultAlgoriaTerminateURL);
+        return configEJB.getValue("algoria.terminate.url", defaultAlgoriaTerminateURL);
     }
     
     public String getAlgoriaAuthotizationToken() {
-    	return getProperty("algoria.tokens.authorization", defaultAlgoriaAuthorizationToken);
+    	return configEJB.getValue("algoria.tokens.authorization", defaultAlgoriaAuthorizationToken);
     }
             
     public int getAlgoriaTaskDelay() {
