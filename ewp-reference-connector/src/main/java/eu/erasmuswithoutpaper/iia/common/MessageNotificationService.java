@@ -57,6 +57,10 @@ public class MessageNotificationService {
             logger.info(key + ": " + values);
         });
 
+        //response body
+
+        logger.info("Response body: " + response.readEntity(String.class));
+
         return response;
     }
 }
