@@ -12,7 +12,7 @@ public class ConfigEJB {
     EntityManager em;
 
     public String getValue(String key) {
-        Config config = (Config) em.createNamedQuery(Config.findByKey).getSingleResult();
+        Config config = (Config) em.createNamedQuery(Config.findByKey).setParameter("key", key).getSingleResult();
         if (config == null) {
             return null;
         }
@@ -28,7 +28,7 @@ public class ConfigEJB {
     }
 
     public void saveValue(String key, String value) {
-        Config config = (Config) em.createNamedQuery(Config.findByKey).getSingleResult();
+        Config config = (Config) em.createNamedQuery(Config.findByKey).setParameter("key", key).getSingleResult();
         if (config == null) {
             config = new Config();
             config.setKey(key);
