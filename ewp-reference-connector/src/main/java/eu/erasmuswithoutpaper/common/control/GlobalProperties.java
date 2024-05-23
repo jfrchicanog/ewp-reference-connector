@@ -184,35 +184,67 @@ public class GlobalProperties {
     }
 
     public String getAlgoriaToken() {
-        return configEJB.getValue("ewp.algoria.token", defaultAlgoriaToken);
+        try {
+            return configEJB.getValue("ewp.algoria.token", defaultAlgoriaToken);
+        } catch (Exception e) {
+            return defaultAlgoriaToken;
+        }
     }
     
     public String getAlgoriaApprovalURL() {
-    	return configEJB.getValue("algoria.approval.url", defaultAlgoriaApprovalURL);
+        try {
+            return configEJB.getValue("algoria.approval.url", defaultAlgoriaApprovalURL);
+        } catch (Exception e) {
+            return defaultAlgoriaApprovalURL;
+        }
     }
 
     public String getAlgoriaCreatedURL() {
-        return configEJB.getValue("algoria.created.url", defaultAlgoriaCreatedURL);
+        try {
+            return configEJB.getValue("algoria.created.url", defaultAlgoriaCreatedURL);
+        } catch (Exception e) {
+            return defaultAlgoriaCreatedURL;
+        }
     }
     
     public String getAlgoriaModifyURL() {
-    	return configEJB.getValue("algoria.modify.url", defaultAlgoriaModifyURL);
+        try {
+            return configEJB.getValue("algoria.modify.url", defaultAlgoriaModifyURL);
+        } catch (Exception e) {
+            return defaultAlgoriaModifyURL;
+        }
     }
 
     public String getAlgoriaDeleteURL() {
-        return configEJB.getValue("algoria.delete.url", defaultAlgoriaDeleteURL);
+        try {
+            return configEJB.getValue("algoria.delete.url", defaultAlgoriaDeleteURL);
+        } catch (Exception e) {
+            return defaultAlgoriaDeleteURL;
+        }
     }
 
     public String getAlgoriaRevertURL() {
-        return configEJB.getValue("algoria.revert.url", defaultAlgoriaRevertURL);
+        try {
+            return configEJB.getValue("algoria.revert.url", defaultAlgoriaRevertURL);
+        } catch (Exception e) {
+            return defaultAlgoriaRevertURL;
+        }
     }
 
     public String getAlgoriaTerminateURL() {
-        return configEJB.getValue("algoria.terminate.url", defaultAlgoriaTerminateURL);
+        try {
+            return configEJB.getValue("algoria.terminate.url", defaultAlgoriaTerminateURL);
+        } catch (Exception e) {
+            return defaultAlgoriaTerminateURL;
+        }
     }
     
     public String getAlgoriaAuthotizationToken() {
-    	return configEJB.getValue("algoria.tokens.authorization", defaultAlgoriaAuthorizationToken);
+        try {
+            return configEJB.getValue("algoria.tokens.authorization", defaultAlgoriaAuthorizationToken);
+        } catch (Exception e) {
+            return defaultAlgoriaAuthorizationToken;
+        }
     }
             
     public int getAlgoriaTaskDelay() {
