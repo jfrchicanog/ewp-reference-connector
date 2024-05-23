@@ -36,14 +36,17 @@ public class MessageNotificationService {
 
         Invocation.Builder postBuilder = target.request().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_TYPE);
         postBuilder = postBuilder.header("Authorization", token);
+        postBuilder = postBuilder.header(HttpHeaders.CONTENT_LENGTH, 5975);
+
+        logger.info(String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
         //add content length
         //postBuilder = postBuilder.header(HttpHeaders.CONTENT_LENGTH, String.valueOf(msg.getBytes(StandardCharsets.UTF_8).length));
 
-        MultivaluedMap<String, Object> headers = postBuilder.head().getHeaders();
+        /*MultivaluedMap<String, Object> headers = postBuilder.head().getHeaders();
         logger.info("Headers:");
         headers.forEach((key, values) -> {
             logger.info(key + ": " + values);
-        });
+        });*/
 
 
         Response response = postBuilder.post(Entity.json(msg));
