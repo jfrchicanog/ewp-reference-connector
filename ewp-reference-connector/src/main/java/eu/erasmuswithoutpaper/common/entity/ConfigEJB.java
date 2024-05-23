@@ -3,6 +3,7 @@ package eu.erasmuswithoutpaper.common.entity;
 import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 
 @Singleton
 public class ConfigEJB {
@@ -12,11 +13,11 @@ public class ConfigEJB {
     EntityManager em;
 
     public String getValue(String key) {
-        Config config = (Config) em.createNamedQuery(Config.findByKey).setParameter("key", key).getSingleResult();
-        if (config == null) {
+        List<Config> list = em.createNamedQuery(Config.findByKey).setParameter("key", key).getResultList();
+        if (list == null || list.isEmpty()) {
             return null;
         }
-        return config.getValue();
+        return list.get(0).getValue();
     }
 
     public String getValue(String key, String defaultValue) {
@@ -28,13 +29,15 @@ public class ConfigEJB {
     }
 
     public void saveValue(String key, String value) {
-        Config config = (Config) em.createNamedQuery(Config.findByKey).setParameter("key", key).getSingleResult();
-        if (config == null) {
+        List<Config> list = em.createNamedQuery(Config.findByKey).setParameter("key", key).getResultList();
+        Config config;
+        if (list == null || list.isEmpty()) {
             config = new Config();
             config.setClave(key);
             config.setValue(value);
             em.persist(config);
         } else {
+            config = list.get(0);
             config.setValue(value);
             em.merge(config);
         }
