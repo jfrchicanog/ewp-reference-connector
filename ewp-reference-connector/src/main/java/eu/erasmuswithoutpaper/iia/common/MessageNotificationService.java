@@ -48,6 +48,15 @@ public class MessageNotificationService {
 
         Response response = postBuilder.post(Entity.json(msg));
 
+        logger.info("Response status: " + response.getStatus());
+
+        //response headers
+        MultivaluedMap<String, Object> responseHeaders = response.getHeaders();
+        logger.info("Response headers:");
+        responseHeaders.forEach((key, values) -> {
+            logger.info(key + ": " + values);
+        });
+
         return response;
     }
 }
