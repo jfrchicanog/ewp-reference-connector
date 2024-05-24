@@ -1040,6 +1040,7 @@ public class GuiIiaResource {
         });
 
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        iiaResponse.setIiaHash(null);
         String json = ow.writeValueAsString(iiaResponse);
 
         switch (type) {

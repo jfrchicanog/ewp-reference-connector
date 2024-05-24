@@ -167,8 +167,11 @@ public class AuxIiaThread {
                 }
             });
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String iiaHash = iias.get(0).getIiaHash();
+            iias.get(0).setIiaHash(null);
             String json = ow.writeValueAsString(iias.get(0));
             execNotificationToAlgoria(newIia.getId(), heiId, IiaTaskEnum.CREATED, json);
+            iias.get(0).setIiaHash(iiaHash);
 
             LOG.fine("AuxIiaThread_ADDEDIT: After seting id");
 
@@ -197,8 +200,11 @@ public class AuxIiaThread {
                     }
                 });
                 ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+                String iiaHash = iias.get(0).getIiaHash();
+                iias.get(0).setIiaHash(null);
                 String json = ow.writeValueAsString(iias.get(0));
                 execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.UPDATED, json);
+                iias.get(0).setIiaHash(iiaHash);
                 LOG.fine("AuxIiaThread_ADDEDIT: Merged");
 
                 String localId = localIia.getId();
@@ -239,8 +245,11 @@ public class AuxIiaThread {
                         }
                     });
                     ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+                    String iiaHash = iias.get(0).getIiaHash();
+                    iias.get(0).setIiaHash(null);
                     String json = ow.writeValueAsString(iias.get(0));
                     execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.UPDATED, json);
+                    iias.get(0).setIiaHash(iiaHash);
 
                     LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
 
@@ -424,8 +433,11 @@ public class AuxIiaThread {
             return;
         }
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String iiaHash = sendIia.getIiaHash();
+        sendIia.setIiaHash(null);
         String json = ow.writeValueAsString(sendIia);
         execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.MODIFY, json);
+        sendIia.setIiaHash(iiaHash);
         LOG.fine("AuxIiaThread_MODIFY: notify algoria");
 
     }
