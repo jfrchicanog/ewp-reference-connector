@@ -49,7 +49,12 @@ public class HeiEntry {
     public Map<String, String> getUrls() {
         return this.urls;
     }
+
     public void setUrls(Map<String, String> urls) {
         this.urls = urls;
+    }
+
+    public void addUrls(Map<String, String> urls) {
+        this.urls.putAll(urls);
     }
 }

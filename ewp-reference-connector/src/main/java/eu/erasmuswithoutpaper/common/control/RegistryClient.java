@@ -68,8 +68,17 @@ public class RegistryClient {
 
     public List<HeiEntry> getEwpInstanceHeisWithUrlsNew() {
         List<HeiEntry> heis = getAllHeis();
-        heis.stream().forEach(hei -> hei.setUrls(getEwpInstanceHeiUrls(hei.getId())));
+        heis.forEach(hei -> {
+            hei.setUrls(new HashMap<>());
+            hei.addUrls(getEwpInstanceHeiUrls(hei.getId()));
+            hei.addUrls(getEwpOrganizationUnitHeiUrls(hei.getId()));
+            hei.addUrls(getIiaHeiUrls(hei.getId()));
+        });
         return heis;
+    }
+
+    public Map<String, String> getFactsheetHeiUrls(String heiId) {
+        return getHeiUrls(heiId, EwpConstants.ECHO_NAMESPACE, "factsheet", EwpConstants.FACTSHEET_VERSION);
     }
     
     public List<HeiEntry> getEwpInstanceHeisWithUrls() {
