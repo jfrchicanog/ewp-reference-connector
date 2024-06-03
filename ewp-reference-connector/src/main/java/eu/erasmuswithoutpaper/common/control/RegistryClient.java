@@ -70,9 +70,9 @@ public class RegistryClient {
         List<HeiEntry> heis = getAllHeis();
         heis.forEach(hei -> {
             hei.setUrls(new HashMap<>());
-            hei.addUrls(getEwpInstanceHeiUrls(hei.getId()));
-            hei.addUrls(getEwpOrganizationUnitHeiUrls(hei.getId()));
-            hei.addUrls(getIiaHeiUrls(hei.getId()));
+            hei.addUrls(getEwpInstanceHeiUrls(hei.getId()), "institutions");
+            hei.addUrls(getEwpOrganizationUnitHeiUrls(hei.getId()), "ounits");
+            hei.addUrls(getIiaHeiUrls(hei.getId()), "iias");
         });
         return heis;
     }
