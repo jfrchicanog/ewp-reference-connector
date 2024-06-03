@@ -73,9 +73,9 @@ public class RegistryClient {
         heis.forEach(hei -> {
             if (hei != null && hei.getId() != null) {
                 hei.setUrls(new HashMap<>());
-                hei.addUrls(getEwpInstanceHeiUrls(hei.getId()), "institutions");
-                hei.addUrls(getEwpOrganizationUnitHeiUrls(hei.getId()), "ounits");
-                hei.addUrls(getIiaHeiUrls(hei.getId()), "iias");
+                hei.addUrls(getEwpInstanceHeiUrls(hei.getId()), "institutions_");
+                hei.addUrls(getEwpOrganizationUnitHeiUrls(hei.getId()), "ounits_");
+                hei.addUrls(getIiaHeiUrls(hei.getId()), "iias_");
             }
         });
         return heis;
