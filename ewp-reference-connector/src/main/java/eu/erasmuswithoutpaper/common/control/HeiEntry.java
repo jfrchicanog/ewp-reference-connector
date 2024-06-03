@@ -55,6 +55,10 @@ public class HeiEntry {
     }
 
     public void addUrls(Map<String, String> urls, String prefix) {
+        if (urls == null) {
+            return;
+        }
+
         urls.forEach((key, value) -> {
             this.urls.put(prefix + key, value);
         });
