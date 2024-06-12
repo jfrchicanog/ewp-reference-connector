@@ -559,7 +559,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         List<String> omobilityLasIds = new ArrayList<>();
 
         lasList.stream().forEachOrdered((m) -> {
-            if (receivingHeiIdList.isEmpty() || receivingHeiIdList.contains(m.getReceivingHei())) {
+            if (receivingHeiIdList.isEmpty() || receivingHeiIdList.contains(m.getReceivingHei().getHeiId())) {
                 omobilityLasIds.add(m.getId());
             }
         });
