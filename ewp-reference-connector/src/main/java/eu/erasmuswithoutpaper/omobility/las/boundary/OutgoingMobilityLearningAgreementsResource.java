@@ -435,6 +435,12 @@ public class OutgoingMobilityLearningAgreementsResource {
         }
         String sendingHeiId = sendingHeiIds.get(0);
 
+        Map<String, String> urls = registryClient.getOmobilityLasHeiUrls(sendingHeiId);
+        if (urls == null || urls.isEmpty()) {
+            throw new EwpWebApplicationException("Unknown heiId: " + sendingHeiId, Response.Status.BAD_REQUEST);
+        }
+
+
         if (receiving_academic_year_ids.size() > 1) {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
         } else if (!receiving_academic_year_ids.isEmpty()) {
