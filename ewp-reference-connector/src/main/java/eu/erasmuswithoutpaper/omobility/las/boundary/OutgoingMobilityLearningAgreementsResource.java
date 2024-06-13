@@ -447,8 +447,8 @@ public class OutgoingMobilityLearningAgreementsResource {
         } else if (!receiving_academic_year_ids.isEmpty()) {
             receiving_academic_year_id = receiving_academic_year_ids.get(0);
             try {
-                String adjustedDateString = receiving_academic_year_id.replaceAll("([\\+\\-]\\d{2}):(\\d{2})", "$1$2");
-                System.out.println((new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")).parse(adjustedDateString));
+                //String adjustedDateString = receiving_academic_year_id.replaceAll("([\\+\\-]\\d{2}):(\\d{2})", "$1$2");
+                System.out.println((new SimpleDateFormat("yyyy/yyyy")).parse(receiving_academic_year_id));
             } catch (ParseException e) {
                 throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
             }
@@ -485,18 +485,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         List<OlearningAgreement> mobilityList = learningAgreementEJB.findBySendingHeiIdFilterd(sendingHeiId);
 
         if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
-            receiving_academic_year_id = receiving_academic_year_id.substring(0, receiving_academic_year_ids.lastIndexOf("+"));
-
-
-            RestAlgoria algoria = new RestAlgoria();
-            try {
-                algoria.getAcademicYear(receiving_academic_year_id);
-            } catch (Exception e) {
-                throw new EwpWebApplicationException("Can not connect to algoria.", Response.Status.BAD_REQUEST);
-            }
-
-            String finalReceiving_academic_year_id = receiving_academic_year_id;
-            mobilityList = mobilityList.stream().filter(omobility -> anyMatchReceivingAcademicYear.test(omobility, finalReceiving_academic_year_id)).collect(Collectors.toList());
+            mobilityList = mobilityList.stream().filter(omobility -> anyMatchReceivingAcademicYear.test(omobility, receiving_academic_year_id)).collect(Collectors.toList());
         }
 
         if (globalId != null && !globalId.isEmpty()) {
