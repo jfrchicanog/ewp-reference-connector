@@ -209,7 +209,7 @@ public class OutgoingMobilityLearningAgreementsResource {
             learningAgreementEJB.approveChangesProposal(request);
 
         } else if (request.getCommentProposalV1() != null) {
-           learningAgreementEJB.rejectChangesProposal(request);
+            learningAgreementEJB.rejectChangesProposal(request);
         }
 
         OmobilityLasUpdateResponse response = new OmobilityLasUpdateResponse();
@@ -220,7 +220,6 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         return javax.ws.rs.core.Response.ok(response).build();
     }
-
 
 
     @GET
@@ -389,9 +388,6 @@ public class OutgoingMobilityLearningAgreementsResource {
     }
 
 
-
-
-
     private javax.ws.rs.core.Response mobilityGet(String sendingHeiId, List<String> mobilityIdList) {
         if (sendingHeiId == null || sendingHeiId.trim().isEmpty() || mobilityIdList == null || mobilityIdList.isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for get.", Response.Status.BAD_REQUEST);
@@ -502,7 +498,7 @@ public class OutgoingMobilityLearningAgreementsResource {
             Calendar calendarModifySince = Calendar.getInstance();
 
             try {
-                OffsetDateTime dateTime = OffsetDateTime.parse(modifiedSince);
+                OffsetDateTime dateTime = OffsetDateTime.parse(modifiedSince, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
                 calendarModifySince.setTime(Date.from(dateTime.toInstant()));
             } catch (Exception e) {
                 throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
@@ -510,31 +506,39 @@ public class OutgoingMobilityLearningAgreementsResource {
 
             Date modified_since = calendarModifySince.getTime();
 
+            LOG.info("modified_since: " + modified_since);
+
             List<OlearningAgreement> mobilities = new ArrayList<>();
             mobilityList.stream().forEachOrdered((m) -> {
 
-                Date studentSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
-                Date receivingSignatureDate = m.getFirstVersion().getReceivingHeiSignature() != null ? m.getFirstVersion().getReceivingHeiSignature().getTimestamp() : null;
-                Date sendingSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
+                if (m != null && m.getFirstVersion() != null) {
+                    Date studentSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
+                    Date receivingSignatureDate = m.getFirstVersion().getReceivingHeiSignature() != null ? m.getFirstVersion().getReceivingHeiSignature().getTimestamp() : null;
+                    Date sendingSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
 
-                if (studentSignatureDate != null) {
-                    if (studentSignatureDate.after(modified_since)) {
-                        mobilities.add(m);
+                    if (studentSignatureDate != null) {
+                        LOG.info("studentSignatureDate: " + studentSignatureDate);
+                        if (studentSignatureDate.after(modified_since)) {
+                            mobilities.add(m);
+                        }
                     }
-                }
 
-                if (receivingSignatureDate != null) {
-                    if (receivingSignatureDate.after(modified_since)) {
-                        mobilities.add(m);
+                    if (receivingSignatureDate != null) {
+                        LOG.info("receivingSignatureDate: " + receivingSignatureDate);
+                        if (receivingSignatureDate.after(modified_since)) {
+                            mobilities.add(m);
+                        }
                     }
-                }
 
-                if (sendingSignatureDate != null) {
-                    if (sendingSignatureDate.after(modified_since)) {
-                        mobilities.add(m);
+                    if (sendingSignatureDate != null) {
+                        LOG.info("sendingSignatureDate: " + sendingSignatureDate);
+                        if (sendingSignatureDate.after(modified_since)) {
+                            mobilities.add(m);
+                        }
                     }
                 }
             });
+
 
             mobilityList.clear();
             mobilityList.addAll(mobilities);
