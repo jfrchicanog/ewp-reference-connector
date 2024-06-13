@@ -20,6 +20,7 @@ public class GlobalProperties {
     ConfigEJB configEJB;
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalProperties.class);
+
     public static enum University {
         IKEA_U,
         POMODORO_U,
@@ -37,6 +38,7 @@ public class GlobalProperties {
     String defaultAlgoriaDeleteURL = "https://relacionesi.uma.es/algoria/ewp_deleted_agreement_notifications/";
     String defaultAlgoriaRevertURL = "https://relacionesi.uma.es/algoria/ewp_revert_agreement_notifications/";
     String defaultAlgoriaTerminateURL = "https://relacionesi.uma.es/algoria/ewp_terminated_agreement_notifications/";
+    String defaultAlgoriaACURL = "http://relacionesi.uma.es/algoria/courses/";
     String defaultAlgoriaAuthorizationToken = "Token 6076263cedb35ca6c8abcfc6f872fb471130fdd7";
     //String defaultAlgoriaAuthorizationToken = "Token ab1a997c0f38eddbfb64c24b9e0162d366832f29";
     //String defaultAlgoriaAuthorizationToken = "Token aa38ee014e1ce693c30b399aab9668ebc13f21fd";
@@ -234,6 +236,14 @@ public class GlobalProperties {
     public String getAlgoriaTerminateURL() {
         try {
             return configEJB.getValue("algoria.terminate.url", defaultAlgoriaTerminateURL);
+        } catch (Exception e) {
+            return defaultAlgoriaTerminateURL;
+        }
+    }
+
+    public String getAlgoriaAcademicCourseURL() {
+        try {
+            return configEJB.getValue("algoria.ac.url", defaultAlgoriaACURL);
         } catch (Exception e) {
             return defaultAlgoriaTerminateURL;
         }

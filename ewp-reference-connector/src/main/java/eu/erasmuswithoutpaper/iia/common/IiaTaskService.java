@@ -40,7 +40,7 @@ import java.math.BigDecimal;
 
 public class IiaTaskService {
 
-    private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
+    private static final Logger logger = LoggerFactory.getLogger(IiaTaskService.class);
 
     public static GlobalProperties globalProperties = new GlobalProperties();
 

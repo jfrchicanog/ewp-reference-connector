@@ -31,7 +31,7 @@ public class MessageNotificationService {
 
     private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
 
-    public static Response addApprovalNotification(String url, String msg, String token) {;
+    public static Response addApprovalNotification(String url, String msg, String token) {
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         /*try {
