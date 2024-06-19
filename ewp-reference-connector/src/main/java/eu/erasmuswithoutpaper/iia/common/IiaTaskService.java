@@ -3,13 +3,9 @@
  */
 package eu.erasmuswithoutpaper.iia.common;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -37,6 +33,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
 import java.math.BigDecimal;
+import java.util.zip.Deflater;
 
 public class IiaTaskService {
 
@@ -124,7 +121,7 @@ public class IiaTaskService {
             logger.info("ALGORIA TOKEN: " + token);
 
             //Invoke the method to execute the request
-            Response result = MessageNotificationService.addApprovalNotification(url, json, token);
+            Response result = MessageNotificationService.addApprovalNotification(url, compress(json), token);
 
             logger.info("Status code: " + result.getStatusInfo().getStatusCode());
 
@@ -249,5 +246,25 @@ public class IiaTaskService {
 
             logger.error("The task was interrupted! " + e.getMessage());
         }
+    }
+
+    public static String compress(String data) throws IOException {
+        byte[] input = data.getBytes("UTF-8");
+
+        Deflater deflater = new Deflater();
+        deflater.setInput(input);
+        deflater.finish();
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(input.length);
+        byte[] buffer = new byte[1024];
+
+        while (!deflater.finished()) {
+            int count = deflater.deflate(buffer);
+            outputStream.write(buffer, 0, count);
+        }
+        outputStream.close();
+
+        byte[] output = outputStream.toByteArray();
+        return Base64.getEncoder().encodeToString(output);
     }
 }
