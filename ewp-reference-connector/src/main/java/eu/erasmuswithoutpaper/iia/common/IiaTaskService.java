@@ -82,7 +82,7 @@ public class IiaTaskService {
             ObjectNode node = mapper.createObjectNode();
             node.put("agreement_uuid", iiaId);
             node.put("hei_id", approvingHeiId);
-            node.put("description", description);
+            node.put("description", compress(description));
 
             String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
 
@@ -121,7 +121,7 @@ public class IiaTaskService {
             logger.info("ALGORIA TOKEN: " + token);
 
             //Invoke the method to execute the request
-            Response result = MessageNotificationService.addApprovalNotification(url, compress(json), token);
+            Response result = MessageNotificationService.addApprovalNotification(url, json, token);
 
             logger.info("Status code: " + result.getStatusInfo().getStatusCode());
 
