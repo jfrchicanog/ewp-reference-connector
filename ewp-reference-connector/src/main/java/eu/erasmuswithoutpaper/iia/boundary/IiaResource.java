@@ -88,6 +88,19 @@ public class IiaResource {
 
     private javax.ws.rs.core.Response iiaIndex(List<String> receiving_academic_year_id, List<String> modified_since) {
 
+        Collection<String> heisCoveredByCertificate;
+        if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+        } else {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+        }
+
+        if (heisCoveredByCertificate.isEmpty()) {
+            throw new EwpWebApplicationException("No HEIs covered by this certificate.", Response.Status.FORBIDDEN);
+        }
+
+        String senderHeiId = heisCoveredByCertificate.iterator().next();
+
         if (modified_since != null && modified_since.size() > 1) {
             throw new EwpWebApplicationException("Not allow more than one value of modified_since", Response.Status.BAD_REQUEST);
         }
@@ -113,6 +126,17 @@ public class IiaResource {
         List<Iia> filteredIiaList = iiasEjb.findAll();
 
         LOG.fine("Filtered:" + filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
+
+        if(!filteredIiaList.isEmpty()){
+            filteredIiaList = filteredIiaList.stream().filter(iia ->
+                iia.getCooperationConditions().stream().anyMatch(c ->
+                    senderHeiId.equals(c.getReceivingPartner().getInstitutionId()) ||
+                    senderHeiId.equals(c.getSendingPartner().getInstitutionId())
+                )
+            ).collect(Collectors.toList());
+        }
+
+        LOG.fine("Filtered 0:" + filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
 
         if (!filteredIiaList.isEmpty()) {
 
