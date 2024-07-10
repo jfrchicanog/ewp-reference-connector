@@ -63,7 +63,7 @@ public class InstitutionLoader extends AbstractStartupLoader {
 
 	@Override
 	public void createDemoDataUma() throws IOException {
-		String otherIds = "[{'idType':'erasmus','idValue':'E MALAGA01'},{'idType':'local','idValue':'uma.es'}]";
+		String otherIds = "[{'idType':'erasmus','idValue':'E  MALAGA01'},{'idType':'local','idValue':'uma.es'}]";
         String names = "[{'text':'Universidad de Málaga','lang':'es'},{'text':'University of Malaga','lang':'en'}]";
         String streetAddressForUma = "{'addressLine':['Avenida Cervantes, 2'],'postalCode':'29071','locality':'Málaga','country':'ES'}";
         String websiteUrlForUma = "[{'text':'https://www.uma.es','lang':'es'}]";
