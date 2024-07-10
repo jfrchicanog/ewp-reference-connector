@@ -16,7 +16,7 @@ import eu.erasmuswithoutpaper.common.boundary.ManifestEntryStrategy;
 import eu.erasmuswithoutpaper.common.control.EwpConstants;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 
-//@PublicAPI
+@PublicAPI
 public class OutgoingMobilityLearningAgreementsManifestEntry implements ManifestEntryStrategy {
     @Inject
     GlobalProperties globalProperties;
@@ -24,7 +24,7 @@ public class OutgoingMobilityLearningAgreementsManifestEntry implements Manifest
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
     	OmobilityLas mobilitieslas = new OmobilityLas();
-        /*mobilitieslas.setVersion(EwpConstants.OUTGOING_MOBILITIES_LAS_VERSION);
+        mobilitieslas.setVersion(EwpConstants.OUTGOING_MOBILITIES_LAS_VERSION);
         mobilitieslas.setIndexUrl(baseUri + "omobilities/las/index");
         mobilitieslas.setGetUrl(baseUri + "omobilities/las/get");
         mobilitieslas.setUpdateUrl(baseUri + "omobilities/las/update");
@@ -34,13 +34,13 @@ public class OutgoingMobilityLearningAgreementsManifestEntry implements Manifest
 
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         
-        HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();*/
+        HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
 
         /*CliauthTlscert cliauthtlscert = new CliauthTlscert();
         cliauthtlscert.setAllowsSelfSigned(true);
         clientAuthMethods.getAny().add(cliauthtlscert);*/
 
-        /*clientAuthMethods.getAny().add(new CliauthHttpsig());
+        clientAuthMethods.getAny().add(new CliauthHttpsig());
         
         httpSecurityOptions.setClientAuthMethods(clientAuthMethods);
         
@@ -50,7 +50,7 @@ public class OutgoingMobilityLearningAgreementsManifestEntry implements Manifest
         serverAuthMethods.getAny().add(new SrvauthHttpsig());
         
         httpSecurityOptions.setServerAuthMethods(serverAuthMethods);
-        mobilitieslas.setHttpSecurity(httpSecurityOptions);*/
+        mobilitieslas.setHttpSecurity(httpSecurityOptions);
         return mobilitieslas;
     }
 }
