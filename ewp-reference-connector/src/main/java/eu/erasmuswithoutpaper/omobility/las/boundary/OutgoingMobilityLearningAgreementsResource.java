@@ -427,6 +427,15 @@ public class OutgoingMobilityLearningAgreementsResource {
         String mobilityType;
         String modifiedSince;
 
+        Collection<String> heisCoveredByCertificate;
+        if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+        } else {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+        }
+
+        LOG.fine("heisCoveredByCertificate: " + heisCoveredByCertificate.toString());
+
         if (sendingHeiIds.size() != 1) {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
         }
