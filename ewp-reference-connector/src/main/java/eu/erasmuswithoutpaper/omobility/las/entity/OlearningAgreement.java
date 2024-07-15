@@ -68,8 +68,8 @@ public class OlearningAgreement implements Serializable {
     private String iscedClarification;
 
 	@JohnzonConverter(StandardDateConverter.class)
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "MODIFICATE_SINCE")
+	@Temporal(TemporalType.DATE)
+	@Column(name = "MODIFIED_SINCE")
 	private Date modificateSince;
     
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
