@@ -434,7 +434,9 @@ public class OutgoingMobilityLearningAgreementsResource {
             heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
         }
 
-        LOG.fine("heisCoveredByCertificate: " + heisCoveredByCertificate.toString());
+        if (heisCoveredByCertificate.isEmpty()) {
+            return javax.ws.rs.core.Response.ok(new OmobilityLasIndexResponse()).build();
+        }
 
         if (sendingHeiIds.size() != 1) {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
