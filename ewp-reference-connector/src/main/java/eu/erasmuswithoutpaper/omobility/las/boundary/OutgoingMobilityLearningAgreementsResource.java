@@ -511,28 +511,11 @@ public class OutgoingMobilityLearningAgreementsResource {
             List<OlearningAgreement> mobilities = new ArrayList<>();
             mobilityList.stream().forEachOrdered((m) -> {
 
-                if (m != null && m.getFirstVersion() != null) {
-                    Date studentSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
-                    Date receivingSignatureDate = m.getFirstVersion().getReceivingHeiSignature() != null ? m.getFirstVersion().getReceivingHeiSignature().getTimestamp() : null;
-                    Date sendingSignatureDate = m.getFirstVersion().getStudentSignature() != null ? m.getFirstVersion().getStudentSignature().getTimestamp() : null;
+                if (m != null) {
 
-                    if (studentSignatureDate != null) {
-                        LOG.info("studentSignatureDate: " + studentSignatureDate);
-                        if (studentSignatureDate.after(modified_since)) {
-                            mobilities.add(m);
-                        }
-                    }
-
-                    if (receivingSignatureDate != null) {
-                        LOG.info("receivingSignatureDate: " + receivingSignatureDate);
-                        if (receivingSignatureDate.after(modified_since)) {
-                            mobilities.add(m);
-                        }
-                    }
-
-                    if (sendingSignatureDate != null) {
-                        LOG.info("sendingSignatureDate: " + sendingSignatureDate);
-                        if (sendingSignatureDate.after(modified_since)) {
+                    if (m.getModificateSince() != null) {
+                        LOG.info("getModificateSince: " + m.getModificateSince());
+                        if (m.getModificateSince().after(modified_since)) {
                             mobilities.add(m);
                         }
                     }

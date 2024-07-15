@@ -66,6 +66,11 @@ public class OlearningAgreement implements Serializable {
     private byte eqfLevelStudiedAtDeparture;
     private  String iscedFCode;
     private String iscedClarification;
+
+	@JohnzonConverter(StandardDateConverter.class)
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "MODIFICATE_SINCE")
+	private Date modificateSince;
     
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "LANGSKILL_OMOBILITY_LAS",referencedColumnName = "ID")
@@ -236,6 +241,14 @@ public class OlearningAgreement implements Serializable {
 
 	public void setStudent(eu.erasmuswithoutpaper.omobility.las.entity.Student student) {
 		this.student = student;
+	}
+
+	public Date getModificateSince() {
+		return modificateSince;
+	}
+
+	public void setModificateSince(Date modificateSince) {
+		this.modificateSince = modificateSince;
 	}
 
 	@Override
