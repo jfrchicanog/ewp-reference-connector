@@ -786,6 +786,7 @@ public class IiaConverter {
 
         //Require academic years to be ordered and without gaps
         if (cc.getReceivingAcademicYearId() != null) {
+            logger.info("Before sorting: " + cc.getReceivingAcademicYearId());
             cc.getReceivingAcademicYearId().sort(String::compareTo);
         }
 

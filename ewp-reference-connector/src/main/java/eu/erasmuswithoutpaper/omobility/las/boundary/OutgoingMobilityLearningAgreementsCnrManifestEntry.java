@@ -15,7 +15,7 @@ import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import javax.inject.Inject;
 import java.math.BigInteger;
 
-@PublicAPI
+//@PublicAPI
 public class OutgoingMobilityLearningAgreementsCnrManifestEntry implements ManifestEntryStrategy {
     @Inject
     GlobalProperties globalProperties;
@@ -23,20 +23,20 @@ public class OutgoingMobilityLearningAgreementsCnrManifestEntry implements Manif
     @Override
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
     	OmobilityLaCnr mobilitieslas = new OmobilityLaCnr();
-        mobilitieslas.setVersion(EwpConstants.OUTGOING_MOBILITIES_CNR_CLIENT_VERSION);
+        /*mobilitieslas.setVersion(EwpConstants.OUTGOING_MOBILITIES_CNR_CLIENT_VERSION);
         mobilitieslas.setUrl(baseUri + "omobilities/las/cnr");
         
         mobilitieslas.setMaxOmobilityIds(BigInteger.valueOf(globalProperties.getMaxOmobilitylasIds()));
 
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();
         
-        HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();
+        HttpSecurityOptions.ClientAuthMethods clientAuthMethods = new HttpSecurityOptions.ClientAuthMethods();*/
 
         /*CliauthTlscert cliauthtlscert = new CliauthTlscert();
         cliauthtlscert.setAllowsSelfSigned(true);
         clientAuthMethods.getAny().add(cliauthtlscert);*/
 
-        clientAuthMethods.getAny().add(new CliauthHttpsig());
+        /*clientAuthMethods.getAny().add(new CliauthHttpsig());
         
         httpSecurityOptions.setClientAuthMethods(clientAuthMethods);
         
@@ -46,7 +46,7 @@ public class OutgoingMobilityLearningAgreementsCnrManifestEntry implements Manif
         serverAuthMethods.getAny().add(new SrvauthHttpsig());
         
         httpSecurityOptions.setServerAuthMethods(serverAuthMethods);
-        mobilitieslas.setHttpSecurity(httpSecurityOptions);
+        mobilitieslas.setHttpSecurity(httpSecurityOptions);*/
         return mobilitieslas;
     }
 }
