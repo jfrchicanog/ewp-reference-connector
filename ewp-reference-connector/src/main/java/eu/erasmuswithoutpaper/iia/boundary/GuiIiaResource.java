@@ -593,7 +593,7 @@ public class GuiIiaResource {
 
         String localHeiId = iiasEJB.getHeiId();
         //seek the iia by code and by the ouid of the sending institution
-        List<Iia> foundIia = iiasEJB.findByIdList(iiaId);
+        List<Iia> foundIia = iiasEJB.findByIdListApp(iiaId);
 
         Predicate<Iia> condition = new Predicate<Iia>() {
             @Override
