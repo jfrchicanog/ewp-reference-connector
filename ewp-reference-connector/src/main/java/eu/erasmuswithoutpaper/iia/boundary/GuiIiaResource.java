@@ -588,12 +588,12 @@ public class GuiIiaResource {
     @Path("iias-approve")
     @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response iiasApprove(@FormParam("hei_id") String heiId, @FormParam("iia_code") String
-            iiaCode) {
+    public javax.ws.rs.core.Response iiasApprove(@FormParam("hei_id") String heiId, @FormParam("iia_id") String
+            iiaId) {
 
         String localHeiId = iiasEJB.getHeiId();
         //seek the iia by code and by the ouid of the sending institution
-        List<Iia> foundIia = iiasEJB.findByIiaCode(iiaCode);
+        List<Iia> foundIia = iiasEJB.findByIdList(iiaId);
 
         Predicate<Iia> condition = new Predicate<Iia>() {
             @Override
@@ -621,7 +621,7 @@ public class GuiIiaResource {
         LOG.fine("Iia found: " + theIia.getId());
 
         IiaApproval approval = new IiaApproval();
-        approval.setIiaCode(iiaCode);
+        approval.setIiaCode(foundIia.get(0).getIiaCode());
         approval.setIia(theIia);
         approval.setHeiId(localHeiId);
         approval.setConditionsHash(theIia.getConditionsHash());
