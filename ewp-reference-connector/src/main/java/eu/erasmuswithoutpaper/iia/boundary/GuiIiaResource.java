@@ -409,6 +409,18 @@ public class GuiIiaResource {
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
+    @POST
+    @Path("update")
+    @InternalAuthenticate
+    public void resendCnr(@QueryParam("iiaId") String iiaId) {
+        Iia iia = iiasEJB.findById(iiaId);
+        if (iia == null) {
+            return;
+        }
+
+        notifyPartner(iia);
+    }
+
     private List<ClientResponse> notifyPartner(Iia iia) {
         LOG.fine("NOTIFY: Send notification");
 

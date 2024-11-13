@@ -28,6 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
+import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import eu.erasmuswithoutpaper.iia.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +125,7 @@ public class GuiIiaApprovalResource {
         	Iia iia = em.find(Iia.class, iiaId);
         	
         	eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia iiaresponse = new IiasGetResponse.Iia();
-        	iiaresponse.setCooperationConditions(iiaConverter.convertToCooperationConditions(iia.getCooperationConditions(), iia.getConditionsTerminatedAsAWhole()));
+        	iiaresponse.setCooperationConditions(iiaConverter.convertToCooperationConditions(iia.getCooperationConditions(), iia.getConditionsTerminatedAsAWhole(), "uma.es"));
         	
         	try {
         		

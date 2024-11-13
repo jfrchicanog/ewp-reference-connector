@@ -65,7 +65,7 @@ public class IiaConverter {
             };
             converted.getPartner().sort(heiIdComparator);
 
-            converted.setCooperationConditions(convertToCooperationConditions(iia.getCooperationConditions(), iia.getConditionsTerminatedAsAWhole()));
+            converted.setCooperationConditions(convertToCooperationConditions(iia.getCooperationConditions(), iia.getConditionsTerminatedAsAWhole(), hei_id));
             converted.setInEffect(iia.isInEfect());
 
             //try {
@@ -125,7 +125,7 @@ public class IiaConverter {
         return cc;
     }
 
-    public CooperationConditions convertToCooperationConditions(List<CooperationCondition> cooperationConditions, Boolean terminatedAsAWhole) {
+    public CooperationConditions convertToCooperationConditions(List<CooperationCondition> cooperationConditions, Boolean terminatedAsAWhole, String hei_id) {
         // TODO: Add this
         Map<String, List<CooperationCondition>> ccMap = cooperationConditions
                 .stream()
@@ -150,6 +150,13 @@ public class IiaConverter {
                     ccMap.get("Staff-Teaching")
                             .stream()
                             .map(this::convertToStaffTeacherMobilitySpec)
+                            .sorted(Comparator.comparing(staffTeacherMobilitySpec -> {
+                                if (staffTeacherMobilitySpec.getSendingHeiId() != null && staffTeacherMobilitySpec.getSendingHeiId().equals(hei_id)) {
+                                    return 1;
+                                }else {
+                                    return -1;
+                                }
+                            }))
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Staff-Training")) {
@@ -157,6 +164,13 @@ public class IiaConverter {
                     ccMap.get("Staff-Training")
                             .stream()
                             .map(this::convertToStaffTrainingMobilitySpec)
+                            .sorted(Comparator.comparing(staffTrainingMobilitySpec -> {
+                                if (staffTrainingMobilitySpec.getSendingHeiId() != null && staffTrainingMobilitySpec.getSendingHeiId().equals(hei_id)) {
+                                    return 1;
+                                }else {
+                                    return -1;
+                                }
+                            }))
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Student-Studies")) {
@@ -164,6 +178,13 @@ public class IiaConverter {
                     ccMap.get("Student-Studies")
                             .stream()
                             .map(this::convertToStudentStudiesMobilitySpec)
+                            .sorted(Comparator.comparing(studentStudiesMobilitySpec -> {
+                                if (studentStudiesMobilitySpec.getSendingHeiId() != null && studentStudiesMobilitySpec.getSendingHeiId().equals(hei_id)) {
+                                    return 1;
+                                }else {
+                                    return -1;
+                                }
+                            }))
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Student-Training")) {
@@ -171,6 +192,13 @@ public class IiaConverter {
                     ccMap.get("Student-Training")
                             .stream()
                             .map(this::convertToStudentTraineeshipMobilitySpec)
+                            .sorted(Comparator.comparing(studentTraineeshipMobilitySpec -> {
+                                if (studentTraineeshipMobilitySpec.getSendingHeiId() != null && studentTraineeshipMobilitySpec.getSendingHeiId().equals(hei_id)) {
+                                    return 1;
+                                }else {
+                                    return -1;
+                                }
+                            }))
                             .collect(Collectors.toList()));
         }
         converted.getStudentTraineeshipMobilitySpec();
