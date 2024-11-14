@@ -226,6 +226,11 @@ public class IiasEJB {
 
     }
 
+    public void update(Iia iia) {
+        em.merge(iia);
+        em.flush();
+    }
+
     public void updateHashPartner(String iiaId, String hashPartner) {
         Iia iia = em.find(Iia.class, iiaId);
         iia.setHashPartner(hashPartner);
@@ -494,5 +499,21 @@ public class IiasEJB {
 
     public List<Iia> findByDateRange(Date initDate, Date finDate) {
         return em.createNamedQuery(Iia.findByDateRange, Iia.class).setParameter("initDate", initDate).setParameter("finDate", finDate).getResultList();
+    }
+
+    public boolean isApproved(String iiaId) {
+        List<IiaApproval> iiaApprovals = findIiaApproval(iiaId);
+        List<IiaApproval> distinctHeiIds = new ArrayList<>();
+        if (iiaApprovals == null) {
+            return false;
+        }
+
+        for (IiaApproval iiaApproval : iiaApprovals) {
+            if (distinctHeiIds.stream().noneMatch(d -> d.getHeiId().equals(iiaApproval.getHeiId()))) {
+                distinctHeiIds.add(iiaApproval);
+            }
+        }
+
+        return distinctHeiIds.size() >= 2;
     }
 }

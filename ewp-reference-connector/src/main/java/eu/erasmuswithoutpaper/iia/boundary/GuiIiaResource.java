@@ -21,6 +21,7 @@ import eu.erasmuswithoutpaper.common.control.*;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
+import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -410,7 +411,7 @@ public class GuiIiaResource {
     }
 
     @POST
-    @Path("update")
+    @Path("sendCnr")
     @InternalAuthenticate
     public void resendCnr(@QueryParam("iiaId") String iiaId) {
         Iia iia = iiasEJB.findById(iiaId);
@@ -419,6 +420,39 @@ public class GuiIiaResource {
         }
 
         notifyPartner(iia);
+    }
+
+    @GET
+    @Path("hash")
+    @InternalAuthenticate
+    public javax.ws.rs.core.Response reCalcHash(@QueryParam("iiaId") String iiaId) {
+        Iia iia = iiasEJB.findById(iiaId);
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        if(iiasEJB.isApproved(iiaId)) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        try {
+            iia.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(iiasEJB.getHeiId(), Collections.singletonList(iia)).get(0)));
+            iiasEJB.update(iia);
+        } catch (Exception e) {
+            return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            notifyPartner(iia);
+        });
+
+        IiaResponse response = new IiaResponse(iia.getId(), iia.getConditionsHash());
+        return javax.ws.rs.core.Response.ok(response).build();
     }
 
     private List<ClientResponse> notifyPartner(Iia iia) {
