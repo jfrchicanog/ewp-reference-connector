@@ -4,14 +4,11 @@ package eu.erasmuswithoutpaper.organization.entity;
 import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
+
 import org.apache.johnzon.mapper.JohnzonConverter;
 
 @Entity

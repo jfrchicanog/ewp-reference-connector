@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.iia.control;
 
+import eu.erasmuswithoutpaper.api.architecture.StringWithOptionalLang;
 import eu.erasmuswithoutpaper.api.iias.endpoints.*;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse.Iia.CooperationConditions;
 import eu.erasmuswithoutpaper.api.iias.endpoints.MobilitySpecification;
@@ -153,7 +154,7 @@ public class IiaConverter {
                             .sorted(Comparator.comparing(staffTeacherMobilitySpec -> {
                                 if (staffTeacherMobilitySpec.getSendingHeiId() != null && staffTeacherMobilitySpec.getSendingHeiId().equals(hei_id)) {
                                     return 1;
-                                }else {
+                                } else {
                                     return -1;
                                 }
                             }))
@@ -167,7 +168,7 @@ public class IiaConverter {
                             .sorted(Comparator.comparing(staffTrainingMobilitySpec -> {
                                 if (staffTrainingMobilitySpec.getSendingHeiId() != null && staffTrainingMobilitySpec.getSendingHeiId().equals(hei_id)) {
                                     return 1;
-                                }else {
+                                } else {
                                     return -1;
                                 }
                             }))
@@ -181,7 +182,7 @@ public class IiaConverter {
                             .sorted(Comparator.comparing(studentStudiesMobilitySpec -> {
                                 if (studentStudiesMobilitySpec.getSendingHeiId() != null && studentStudiesMobilitySpec.getSendingHeiId().equals(hei_id)) {
                                     return 1;
-                                }else {
+                                } else {
                                     return -1;
                                 }
                             }))
@@ -195,7 +196,7 @@ public class IiaConverter {
                             .sorted(Comparator.comparing(studentTraineeshipMobilitySpec -> {
                                 if (studentTraineeshipMobilitySpec.getSendingHeiId() != null && studentTraineeshipMobilitySpec.getSendingHeiId().equals(hei_id)) {
                                     return 1;
-                                }else {
+                                } else {
                                     return -1;
                                 }
                             }))
@@ -337,40 +338,56 @@ public class IiaConverter {
 
         List<Contact> contactReceivings = new ArrayList<>();
         if (cc.getReceivingPartner() != null && cc.getReceivingPartner().getContacts() != null) {
-            contactReceivings = cc.getReceivingPartner().getContacts().stream().map(recContact -> {
-                Contact contact = new Contact();
+            contactReceivings = cc.getReceivingPartner().getContacts().stream()
+                    .filter(recContact -> recContact.getName() != null && !recContact.getName().isEmpty())
+                    .map(recContact -> {
+                        Contact contact = new Contact();
 
-                if (recContact.getPerson() != null && recContact.getPerson().getGender() != null) {
-                    contact.setPersonGender(recContact.getPerson().getGender().value());
-                }
+                        contact.getContactName().addAll(recContact.getName().stream().map(name -> {
+                            StringWithOptionalLang stringWithOptionalLang = new StringWithOptionalLang();
+                            stringWithOptionalLang.setValue(name.getText());
+                            stringWithOptionalLang.setLang(name.getLang());
+                            return stringWithOptionalLang;
+                        }).collect(Collectors.toList()));
+                        if (recContact.getPerson() != null && recContact.getPerson().getGender() != null) {
+                            contact.setPersonGender(recContact.getPerson().getGender().value());
+                        }
 
-                if (recContact.getContactDetails() != null) {
-                    contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getMailingAddress()));
-                    contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getStreetAddress()));
-                }
+                        if (recContact.getContactDetails() != null) {
+                            contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getMailingAddress()));
+                            contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(recContact.getContactDetails().getStreetAddress()));
+                        }
 
-                return contact;
-            }).collect(Collectors.toList());
+                        return contact;
+                    }).collect(Collectors.toList());
         }
 
         conv.getReceivingContact().addAll(contactReceivings);
 
         List<Contact> contactsSending = new ArrayList<>();
         if (cc.getSendingPartner() != null && cc.getSendingPartner().getContacts() != null) {
-            contactsSending = cc.getSendingPartner().getContacts().stream().map(sendContact -> {
-                Contact contact = new Contact();
+            contactsSending = cc.getSendingPartner().getContacts().stream()
+                    .filter(sendContact -> sendContact.getName() != null && !sendContact.getName().isEmpty())
+                    .map(sendContact -> {
+                        Contact contact = new Contact();
 
-                if (sendContact.getPerson() != null && sendContact.getPerson().getGender() != null) {
-                    contact.setPersonGender(sendContact.getPerson().getGender().value());
-                }
+                        contact.getContactName().addAll(sendContact.getName().stream().map(name -> {
+                            StringWithOptionalLang stringWithOptionalLang = new StringWithOptionalLang();
+                            stringWithOptionalLang.setValue(name.getText());
+                            stringWithOptionalLang.setLang(name.getLang());
+                            return stringWithOptionalLang;
+                        }).collect(Collectors.toList()));
+                        if (sendContact.getPerson() != null && sendContact.getPerson().getGender() != null) {
+                            contact.setPersonGender(sendContact.getPerson().getGender().value());
+                        }
 
-                if (sendContact.getContactDetails() != null) {
-                    contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getMailingAddress()));
-                    contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getStreetAddress()));
-                }
+                        if (sendContact.getContactDetails() != null) {
+                            contact.setMailingAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getMailingAddress()));
+                            contact.setStreetAddress(ConverterHelper.convertToFlexibleAddress(sendContact.getContactDetails().getStreetAddress()));
+                        }
 
-                return contact;
-            }).collect(Collectors.toList());
+                        return contact;
+                    }).collect(Collectors.toList());
         }
 
         conv.getSendingContact().addAll(contactsSending);
@@ -906,9 +923,16 @@ public class IiaConverter {
     private eu.erasmuswithoutpaper.organization.entity.Contact convertToContactDetails(Contact contact) {
         eu.erasmuswithoutpaper.organization.entity.Contact contactRec = new eu.erasmuswithoutpaper.organization.entity.Contact();
 
-        if (contact == null) {
+        if (contact == null || contact.getContactName() == null) {
             return null;
         }
+
+        contactRec.setName(contact.getContactName().stream().map(stringWithOptionalLang -> {
+            LanguageItem languageItem = new LanguageItem();
+            languageItem.setLang(stringWithOptionalLang.getLang());
+            languageItem.setText(stringWithOptionalLang.getValue());
+            return languageItem;
+        }).collect(Collectors.toList()));
 
         FlexibleAddress address = convertFlexibleAddress(contact.getMailingAddress());
         FlexibleAddress streetAdd = convertFlexibleAddress(contact.getMailingAddress());
@@ -923,6 +947,7 @@ public class IiaConverter {
         if (contact.getPersonGender() != null) {
             person.setGender(Gender.getById(contact.getPersonGender()));
         }
+
         return contactRec;
     }
 }
