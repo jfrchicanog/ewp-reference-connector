@@ -17,8 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -151,13 +153,17 @@ public class IiaConverter {
                     ccMap.get("Staff-Teaching")
                             .stream()
                             .map(this::convertToStaffTeacherMobilitySpec)
-                            .sorted(Comparator.comparing(staffTeacherMobilitySpec -> {
-                                if (staffTeacherMobilitySpec.getSendingHeiId() != null && staffTeacherMobilitySpec.getSendingHeiId().equals(hei_id)) {
+                            .sorted((o1, o2) -> {
+                                if ((o1.getSendingHeiId() != null && o1.getSendingHeiId().equals(hei_id)) &&
+                                    (o2.getSendingHeiId() != null && !o2.getSendingHeiId().equals(hei_id))) {
                                     return 1;
-                                } else {
+                                } else if ((o1.getSendingHeiId() != null && !o1.getSendingHeiId().equals(hei_id)) &&
+                                        (o2.getSendingHeiId() != null && o2.getSendingHeiId().equals(hei_id))) {
                                     return -1;
+                                } else {
+                                    return computeHash(o1).compareTo(computeHash(o2));
                                 }
-                            }))
+                            })
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Staff-Training")) {
@@ -165,13 +171,17 @@ public class IiaConverter {
                     ccMap.get("Staff-Training")
                             .stream()
                             .map(this::convertToStaffTrainingMobilitySpec)
-                            .sorted(Comparator.comparing(staffTrainingMobilitySpec -> {
-                                if (staffTrainingMobilitySpec.getSendingHeiId() != null && staffTrainingMobilitySpec.getSendingHeiId().equals(hei_id)) {
+                            .sorted((o1, o2) -> {
+                                if ((o1.getSendingHeiId() != null && o1.getSendingHeiId().equals(hei_id)) &&
+                                        (o2.getSendingHeiId() != null && !o2.getSendingHeiId().equals(hei_id))) {
                                     return 1;
-                                } else {
+                                } else if ((o1.getSendingHeiId() != null && !o1.getSendingHeiId().equals(hei_id)) &&
+                                        (o2.getSendingHeiId() != null && o2.getSendingHeiId().equals(hei_id))) {
                                     return -1;
+                                } else {
+                                    return computeHash(o1).compareTo(computeHash(o2));
                                 }
-                            }))
+                            })
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Student-Studies")) {
@@ -179,13 +189,17 @@ public class IiaConverter {
                     ccMap.get("Student-Studies")
                             .stream()
                             .map(this::convertToStudentStudiesMobilitySpec)
-                            .sorted(Comparator.comparing(studentStudiesMobilitySpec -> {
-                                if (studentStudiesMobilitySpec.getSendingHeiId() != null && studentStudiesMobilitySpec.getSendingHeiId().equals(hei_id)) {
+                            .sorted((o1, o2) -> {
+                                if ((o1.getSendingHeiId() != null && o1.getSendingHeiId().equals(hei_id)) &&
+                                        (o2.getSendingHeiId() != null && !o2.getSendingHeiId().equals(hei_id))) {
                                     return 1;
-                                } else {
+                                } else if ((o1.getSendingHeiId() != null && !o1.getSendingHeiId().equals(hei_id)) &&
+                                        (o2.getSendingHeiId() != null && o2.getSendingHeiId().equals(hei_id))) {
                                     return -1;
+                                } else {
+                                    return computeHash(o1).compareTo(computeHash(o2));
                                 }
-                            }))
+                            })
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Student-Training")) {
@@ -193,13 +207,17 @@ public class IiaConverter {
                     ccMap.get("Student-Training")
                             .stream()
                             .map(this::convertToStudentTraineeshipMobilitySpec)
-                            .sorted(Comparator.comparing(studentTraineeshipMobilitySpec -> {
-                                if (studentTraineeshipMobilitySpec.getSendingHeiId() != null && studentTraineeshipMobilitySpec.getSendingHeiId().equals(hei_id)) {
+                            .sorted((o1, o2) -> {
+                                if ((o1.getSendingHeiId() != null && o1.getSendingHeiId().equals(hei_id)) &&
+                                        (o2.getSendingHeiId() != null && !o2.getSendingHeiId().equals(hei_id))) {
                                     return 1;
-                                } else {
+                                } else if ((o1.getSendingHeiId() != null && !o1.getSendingHeiId().equals(hei_id)) &&
+                                        (o2.getSendingHeiId() != null && o2.getSendingHeiId().equals(hei_id))) {
                                     return -1;
+                                } else {
+                                    return computeHash(o1).compareTo(computeHash(o2));
                                 }
-                            }))
+                            })
                             .collect(Collectors.toList()));
         }
         converted.getStudentTraineeshipMobilitySpec();
@@ -207,6 +225,47 @@ public class IiaConverter {
         converted.setTerminatedAsAWhole(terminatedAsAWhole);
 
         return converted;
+    }
+
+    private static String computeHash(Object obj) {
+        if (obj == null) {
+            return "null"; // Return a constant for null values
+        }
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            StringBuilder sb = new StringBuilder();
+
+            // Use reflection to access fields of the object
+            for (Field field : obj.getClass().getDeclaredFields()) {
+                field.setAccessible(true); // Make private fields accessible
+                Object value = field.get(obj);
+                if (value == null) {
+                    sb.append("null"); // Add "null" for null fields
+                } else if (isPrimitiveOrWrapper(value.getClass()) || value instanceof String) {
+                    sb.append(value.toString()); // Add primitive or String value
+                } else {
+                    // Recursively compute hash for sub-objects
+                    sb.append(computeHash(value));
+                }
+            }
+
+            byte[] hashBytes = digest.digest(sb.toString().getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                hexString.append(String.format("%02x", b));
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Error computing hash", e);
+        }
+    }
+
+    // Utility to check if a class is a primitive or wrapper
+    private static boolean isPrimitiveOrWrapper(Class<?> clazz) {
+        return clazz.isPrimitive() ||
+                clazz == Byte.class || clazz == Short.class || clazz == Integer.class ||
+                clazz == Long.class || clazz == Float.class || clazz == Double.class ||
+                clazz == Boolean.class || clazz == Character.class;
     }
 
     private IiasGetResponse.Iia.Partner convertToPartner(Iia iia, IiaPartner partner) {
