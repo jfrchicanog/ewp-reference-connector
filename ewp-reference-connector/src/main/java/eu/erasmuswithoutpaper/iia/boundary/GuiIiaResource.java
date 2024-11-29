@@ -431,10 +431,6 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        if(iiasEJB.isApproved(iiaId)) {
-            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
         String hash = "";
         try {
             hash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(iiasEJB.getHeiId(), Collections.singletonList(iia)).get(0));
