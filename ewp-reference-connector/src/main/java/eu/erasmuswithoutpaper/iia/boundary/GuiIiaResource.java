@@ -423,6 +423,30 @@ public class GuiIiaResource {
     }
 
     @GET
+    @Path("computeHash")
+    @InternalAuthenticate
+    public javax.ws.rs.core.Response computeHash(@QueryParam("iiaId") String iiaId) {
+        Iia iia = iiasEJB.findById(iiaId);
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        if(iiasEJB.isApproved(iiaId)) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        String hash = "";
+        try {
+            hash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(iiasEJB.getHeiId(), Collections.singletonList(iia)).get(0));
+        } catch (Exception e) {
+            return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        IiaResponse response = new IiaResponse(iiaId, hash);
+        return javax.ws.rs.core.Response.ok(response).build();
+    }
+
+    @GET
     @Path("hash")
     @InternalAuthenticate
     public javax.ws.rs.core.Response reCalcHash(@QueryParam("iiaId") String iiaId) {
