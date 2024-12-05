@@ -184,6 +184,12 @@ public class IiaResource {
 
         LOG.fine("Filtered 3:" + filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
 
+        if(!filteredIiaList.isEmpty()){
+            filteredIiaList = filteredIiaList.stream().filter(iia -> iia.getOriginal() == null).collect(Collectors.toList());
+        }
+
+        LOG.fine("Filtered INTERNAL:" + filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList()));
+
         if (!filteredIiaList.isEmpty()) {
             List<String> iiaIds = filteredIiaList.stream().map(Iia::getId).collect(Collectors.toList());
             LOG.fine("IIA IDs:" + iiaIds);
@@ -249,6 +255,7 @@ public class IiaResource {
         List<Iia> iiaList = iiaIdList.stream()
                 .map(id -> iiasEjb.findById(id))
                 .filter(Objects::nonNull)
+                .filter(iia -> iia.getOriginal() == null)
                 .collect(Collectors.toList());
 
         LOG.fine("GET: iiaList.isEmpty(): " + iiaList.isEmpty());
