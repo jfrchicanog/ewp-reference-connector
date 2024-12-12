@@ -12,12 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,10 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.logging.Level;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -49,6 +40,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tomitribe.auth.signatures.Base64;
 
 @Singleton
 public class HttpSignature {
@@ -147,8 +139,9 @@ public class HttpSignature {
             headers.put("X-Request-Id", requestId);
 
             final Date today = new Date();
-            final String stringToday = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US)
-                    .format(today);
+            final SimpleDateFormat rfc1123Format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+            rfc1123Format.setTimeZone(TimeZone.getTimeZone("GMT")); // Set timezone to GMT
+            final String stringToday = rfc1123Format.format(today);
             headers.put("Original-Date", stringToday);
             
             headers.put("host", uri.getHost());
