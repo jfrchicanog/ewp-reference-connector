@@ -135,11 +135,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @Consumes("application/json")
     public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, ApprovedProposal request) {
 
-        LOG.fine("UPDATE: start");
-        LOG.fine("UPDATE: heiId: " + heiId);
-        LOG.fine("UPDATE: ownId: " + id);
-        LOG.fine("UPDATE request: " + request.toString());
-        LOG.finer("TEST");
+        learningAgreementEJB.logUtil(heiId, id, request);
 /*
         if(id != null && !id.isEmpty()) {
             OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();

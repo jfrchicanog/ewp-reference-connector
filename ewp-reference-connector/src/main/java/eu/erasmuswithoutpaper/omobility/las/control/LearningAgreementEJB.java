@@ -250,4 +250,12 @@ public class LearningAgreementEJB {
 
         return commentProposal;
     }
+
+    public void logUtil(String heiId, String id, ApprovedProposal request) {
+        LOG.fine("UPDATE: start");
+        LOG.fine("UPDATE: heiId: " + heiId);
+        LOG.fine("UPDATE: ownId: " + id);
+        LOG.fine("UPDATE request: " + request.toString());
+
+    }
 }
