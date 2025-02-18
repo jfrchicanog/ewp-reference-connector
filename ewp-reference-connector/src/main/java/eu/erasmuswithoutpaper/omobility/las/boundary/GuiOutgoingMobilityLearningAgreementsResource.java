@@ -135,10 +135,10 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @Consumes("application/json")
     public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, ApprovedProposal request) {
 
-        LOG.fine("UPDATECODE: start");
-        LOG.fine("UPDATECODE: heiId: " + heiId);
-        LOG.fine("UPDATECODE: ownId: " + id);
-        LOG.fine("UPDATECODE request: " + request.toString());
+        LOG.fine("APPROVE: start");
+        LOG.fine("APPROVE: heiId: " + heiId);
+        LOG.fine("APPROVE: ownId: " + id);
+        LOG.fine("APPROVE request: " + request.toString());
 
         if(id != null && !id.isEmpty()) {
             OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
