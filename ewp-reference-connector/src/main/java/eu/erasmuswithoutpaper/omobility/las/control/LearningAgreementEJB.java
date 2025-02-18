@@ -2,7 +2,6 @@ package eu.erasmuswithoutpaper.omobility.las.control;
 
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateRequest;
 import eu.erasmuswithoutpaper.imobility.entity.IMobility;
-import eu.erasmuswithoutpaper.omobility.las.boundary.TestEndpointsOLAS;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 

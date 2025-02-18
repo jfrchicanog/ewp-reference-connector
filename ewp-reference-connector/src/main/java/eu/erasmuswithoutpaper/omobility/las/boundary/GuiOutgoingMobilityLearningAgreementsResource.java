@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiPredicate;
 
 @Path("omobilities/las/test")
-public class TestEndpointsOLAS {
+public class GuiOutgoingMobilityLearningAgreementsResource {
 
     @EJB
     LearningAgreementEJB learningAgreementEJB;
@@ -45,7 +45,7 @@ public class TestEndpointsOLAS {
     @Inject
     SendMonitoringService sendMonitoringService;
 
-    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(OutgoingMobilityLearningAgreementsResource.class.getCanonicalName());
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(GuiOutgoingMobilityLearningAgreementsResource.class.getCanonicalName());
 
     @GET
     @Path("")
