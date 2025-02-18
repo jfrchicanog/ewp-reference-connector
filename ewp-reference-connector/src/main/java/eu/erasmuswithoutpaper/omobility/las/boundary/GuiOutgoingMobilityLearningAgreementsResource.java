@@ -135,8 +135,11 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @Consumes("application/json")
     public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, ApprovedProposal request) {
 
-        learningAgreementEJB.logUtil(heiId, id, request);
-/*
+        LOG.fine("UPDATECODE: start");
+        LOG.fine("UPDATECODE: heiId: " + heiId);
+        LOG.fine("UPDATECODE: ownId: " + id);
+        LOG.fine("UPDATECODE request: " + request.toString());
+
         if(id != null && !id.isEmpty()) {
             OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
             ApproveProposalV1 ownApprove = new ApproveProposalV1();
@@ -182,8 +185,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         LOG.fine("UPDATE: response: " + response.getRawResponse());
 
-        return Response.ok(response).build();*/
-        return Response.ok().build();
+        return Response.ok(response).build();
     }
 
     @POST
