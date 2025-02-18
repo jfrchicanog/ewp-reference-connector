@@ -45,7 +45,7 @@ public class TestEndpointsOLAS {
     @Inject
     SendMonitoringService sendMonitoringService;
 
-    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TestEndpointsOLAS.class);
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(OutgoingMobilityLearningAgreementsResource.class.getCanonicalName());
 
     @GET
     @Path("")
@@ -66,9 +66,9 @@ public class TestEndpointsOLAS {
     @Path("change")
     @Consumes("application/json")
     public Response change(OlearningAgreement olearningAgreement) {
-        LOG.info("CHANGE: start");
+        LOG.fine("CHANGE: start");
 
-        LOG.info("CHANGE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
+        LOG.fine("CHANGE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
 
         String id  = learningAgreementEJB.update(olearningAgreement);
 
@@ -84,7 +84,7 @@ public class TestEndpointsOLAS {
                 notifyPartner(olearningAgreementDB2);
             });
 
-            LOG.info("CHANGE: merge olearningAgreement: " + olearningAgreementDB2.getId());
+            LOG.fine("CHANGE: merge olearningAgreement: " + olearningAgreementDB2.getId());
 
 
             OmobilityLasGetResponse response = new OmobilityLasGetResponse();
@@ -100,13 +100,13 @@ public class TestEndpointsOLAS {
     @Consumes("application/json")
     public Response create(OlearningAgreement olearningAgreement) {
 
-        LOG.info("CREATE: start");
+        LOG.fine("CREATE: start");
 
-        LOG.info("CREATE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
+        LOG.fine("CREATE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
 
         String id = learningAgreementEJB.insert(olearningAgreement);
 
-        LOG.info("NOTIFY: Send notification");
+        LOG.fine("NOTIFY: Send notification");
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -117,7 +117,7 @@ public class TestEndpointsOLAS {
             notifyPartner(olearningAgreement);
         });
 
-        LOG.info("NOTIFY: notification sent");
+        LOG.fine("NOTIFY: notification sent");
 
         OmobilityLasGetResponse response = new OmobilityLasGetResponse();
         response.getLa().add(converter.convertToLearningAgreements(learningAgreementEJB.findById(id)));
@@ -129,10 +129,11 @@ public class TestEndpointsOLAS {
     @Consumes("application/json")
     public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, ApprovedProposal request) {
 
-        LOG.error("UPDATE: start");
-        LOG.error("UPDATE: heiId: " + heiId);
-        LOG.error("UPDATE: ownId: " + id);
-        LOG.error("UPDATE request: " + request.toString());
+        LOG.fine("UPDATE: start");
+        LOG.fine("UPDATE: heiId: " + heiId);
+        LOG.fine("UPDATE: ownId: " + id);
+        LOG.fine("UPDATE request: " + request.toString());
+        LOG.finer("TEST");
 /*
         if(id != null && !id.isEmpty()) {
             OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
@@ -177,7 +178,7 @@ public class TestEndpointsOLAS {
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
 
-        LOG.info("UPDATE: response: " + response.getRawResponse());
+        LOG.fine("UPDATE: response: " + response.getRawResponse());
 
         return Response.ok(response).build();*/
         return Response.ok().build();
@@ -188,7 +189,7 @@ public class TestEndpointsOLAS {
     @Consumes("application/json")
     public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, CommentProposal request) {
 
-        LOG.info("UPDATE: start");
+        LOG.fine("UPDATE: start");
         if(id != null && !id.isEmpty()) {
             OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
             CommentProposalV1 ownComment = new CommentProposalV1();
@@ -233,7 +234,7 @@ public class TestEndpointsOLAS {
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
 
-        LOG.info("UPDATE: response: " + response.getRawResponse());
+        LOG.fine("UPDATE: response: " + response.getRawResponse());
 
         return Response.ok(response).build();
     }
@@ -258,7 +259,7 @@ public class TestEndpointsOLAS {
     }
 
     private List<ClientResponse> notifyPartner(OlearningAgreement olearningAgreement) {
-        LOG.info("NOTIFY: Send notification");
+        LOG.fine("NOTIFY: Send notification");
 
         String localHeiId = learningAgreementEJB.getHeiId();
 
@@ -269,8 +270,8 @@ public class TestEndpointsOLAS {
         MobilityInstitution partnerSending = olearningAgreement.getSendingHei();
         MobilityInstitution partnerReceiving = olearningAgreement.getReceivingHei();
 
-        LOG.info("NOTIFY: partnerSending: " + partnerSending.getHeiId());
-        LOG.info("NOTIFY: partnerReceiving: " + partnerReceiving.getHeiId());
+        LOG.fine("NOTIFY: partnerSending: " + partnerSending.getHeiId());
+        LOG.fine("NOTIFY: partnerReceiving: " + partnerReceiving.getHeiId());
 
         Map<String, String> urls = null;
 
@@ -302,8 +303,8 @@ public class TestEndpointsOLAS {
 
         String finalLocalHeiId = localHeiId;
         cnrUrls.forEach(url -> {
-            LOG.info("NOTIFY: url: " + url.getUrl());
-            LOG.info("NOTIFY: heiId: " + url.getHeiId());
+            LOG.fine("NOTIFY: url: " + url.getUrl());
+            LOG.fine("NOTIFY: heiId: " + url.getHeiId());
             //Notify the other institution about the modification
             ClientRequest clientRequest = new ClientRequest();
             clientRequest.setUrl(url.getUrl());//get the first and only one url
@@ -320,7 +321,7 @@ public class TestEndpointsOLAS {
 
             ClientResponse iiaResponse = restClient.sendRequest(clientRequest, Empty.class);
 
-            LOG.info("NOTIFY: response: " + iiaResponse.getRawResponse());
+            LOG.fine("NOTIFY: response: " + iiaResponse.getRawResponse());
 
             try {
                 if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
