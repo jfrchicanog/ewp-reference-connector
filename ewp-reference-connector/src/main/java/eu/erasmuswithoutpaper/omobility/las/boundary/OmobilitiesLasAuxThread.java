@@ -84,6 +84,8 @@ public class OmobilitiesLasAuxThread {
 
         OmobilityLasGetResponse response = (OmobilityLasGetResponse) omobilityLasGetResponse.getResult();
 
+        LOG.fine("OmobilitiesLasAuxThread: response: " + response.toString());
+
         if (response == null) {
             LOG.fine("OmobilitiesLasAuxThread: response is null");
             return;
@@ -101,6 +103,8 @@ public class OmobilitiesLasAuxThread {
 
         LearningAgreement learningAgreement = response.getLa().get(0);
 
+        LOG.fine("OmobilitiesLasAuxThread: learningAgreement: " + learningAgreement.toString());
+
         List<OlearningAgreement> omobilityLasList = learningAgreementEJB.findBySendingHeiId(heiId);
 
         omobilityLasList = omobilityLasList.stream().filter(ola -> ola.getOmobilityId().equals(learningAgreement.getOmobilityId())).collect(Collectors.toList());
@@ -111,17 +115,27 @@ public class OmobilitiesLasAuxThread {
         }
 
 
+        LOG.fine("OmobilitiesLasAuxThread: End auxiliary thread to create LAS for mobility " + mobilityId);
+
     }
 
     private void createOlearningAgreement(LearningAgreement la) {
+        LOG.fine("OmobilitiesLasAuxThread: createOlearningAgreement");
+
         OlearningAgreement ola = convertToOlearningAgreement(la);
         learningAgreementEJB.insert(ola);
+
+        LOG.fine("OmobilitiesLasAuxThread: OlearningAgreement created");
     }
 
     private void updateOlearningAgreement(LearningAgreement la, OlearningAgreement ola) {
+        LOG.fine("OmobilitiesLasAuxThread: updateOlearningAgreement");
+
         OlearningAgreement updatedOla = convertToOlearningAgreement(la);
         updatedOla.setId(ola.getId());
         learningAgreementEJB.merge(updatedOla);
+
+        LOG.fine("OmobilitiesLasAuxThread: OlearningAgreement updated");
     }
 
     private OlearningAgreement convertToOlearningAgreement(LearningAgreement la) {

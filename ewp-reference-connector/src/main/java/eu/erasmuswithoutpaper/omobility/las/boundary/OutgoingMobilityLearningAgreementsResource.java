@@ -270,9 +270,9 @@ public class OutgoingMobilityLearningAgreementsResource {
             //cnr.start();
         }
 
-        Empty response = new Empty();
+        eu.erasmuswithoutpaper.api.omobilities.las.cnr.endpoints.ObjectFactory factory = new eu.erasmuswithoutpaper.api.omobilities.las.cnr.endpoints.ObjectFactory();
 
-        return javax.ws.rs.core.Response.ok(response).build();
+        return javax.ws.rs.core.Response.ok(factory.createOmobilityLaCnrResponse(new Empty())).build();
     }
 
     private javax.ws.rs.core.Response omobilityStatsGet(String heiId) {
