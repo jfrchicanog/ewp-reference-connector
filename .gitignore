@@ -10,3 +10,4 @@ connector.iml
 **/workshops/
 **/derby.log
 /ewp-connector-api/target/
+/Baader/.ssh/known_hosts
