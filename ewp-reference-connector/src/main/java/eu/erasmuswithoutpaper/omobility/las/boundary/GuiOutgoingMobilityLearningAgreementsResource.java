@@ -176,12 +176,15 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         Map<String, String> map = registryClient.getOmobilityLasHeiUrls(heiId);
         String url = map.get("update-url");
+        LOG.fine("APPROVE: upd url: " + url);
 
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setUrl(url);
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
         clientRequest.setXml(requestSend);
+
+        LOG.fine("APPROVE: request: " + requestSend.toString());
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
 
