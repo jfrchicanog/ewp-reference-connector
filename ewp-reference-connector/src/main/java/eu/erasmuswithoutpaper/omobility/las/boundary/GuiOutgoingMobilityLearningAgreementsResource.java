@@ -175,6 +175,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         requestSend.setSendingHeiId(heiId);
 
         Map<String, String> map = registryClient.getOmobilityLasHeiUrls(heiId);
+        LOG.fine("APPROVE: map: " + map.toString());
         String url = map.get("update-url");
         LOG.fine("APPROVE: upd url: " + url);
 
@@ -188,7 +189,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
 
-        LOG.fine("UPDATE: response: " + response.getRawResponse());
+        LOG.fine("APPROVE: response: " + response.getRawResponse());
 
         return Response.ok(response).build();
     }
