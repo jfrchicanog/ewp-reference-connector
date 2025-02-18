@@ -141,6 +141,7 @@ public class TestEndpointsOLAS {
         LOG.fine("UPDATE: heiId: " + heiId);
         LOG.fine("UPDATE: ownId: " + id);
         LOG.fine("UPDATE request: " + request.toString());
+        LOG.finer("TEST");
 /*
         if(id != null && !id.isEmpty()) {
             OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
