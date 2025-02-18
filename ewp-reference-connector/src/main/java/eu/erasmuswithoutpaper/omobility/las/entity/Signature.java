@@ -102,4 +102,9 @@ public class Signature {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Signature{" + "id=" + id + ", signerName=" + signerName + ", signerPosition=" + signerPosition + ", signerEmail=" + signerEmail + ", timestamp=" + timestamp + ", signerApp=" + signerApp + '}';
+    }
 }

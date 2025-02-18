@@ -19,6 +19,7 @@ import eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution;
 import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
 import eu.erasmuswithoutpaper.omobility.las.entity.Student;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
+import org.apache.activeio.journal.active.LogFile;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -137,6 +138,10 @@ public class TestEndpointsOLAS {
     public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, ApprovedProposal request) {
 
         LOG.fine("UPDATE: start");
+        LOG.fine("UPDATE: heiId: " + heiId);
+        LOG.fine("UPDATE: ownId: " + id);
+        LOG.fine("UPDATE request: " + request.toString());
+
         if(id != null && !id.isEmpty()) {
             OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
             ApproveProposalV1 ownApprove = new ApproveProposalV1();

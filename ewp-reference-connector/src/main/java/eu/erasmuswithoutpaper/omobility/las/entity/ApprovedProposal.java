@@ -101,4 +101,9 @@ public class ApprovedProposal implements Serializable{
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "ApprovedProposal{" + "id=" + id + ", omobilityId=" + omobilityId + ", changesProposalId=" + changesProposalId + ", signature=" + signature + '}';
+    }
 }
