@@ -53,7 +53,7 @@ public class TestEndpointsOLAS {
     @Inject
     SendMonitoringService sendMonitoringService;
 
-    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(TestEndpointsOLAS.class.getCanonicalName());
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger("TestEndpointsOLAS");
 
     @GET
     @Path("")
