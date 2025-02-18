@@ -129,10 +129,10 @@ public class TestEndpointsOLAS {
     @Consumes("application/json")
     public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, ApprovedProposal request) {
 
-        LOG.info("UPDATE: start");
-        LOG.info("UPDATE: heiId: " + heiId);
-        LOG.info("UPDATE: ownId: " + id);
-        LOG.info("UPDATE request: " + request.toString());
+        LOG.error("UPDATE: start");
+        LOG.error("UPDATE: heiId: " + heiId);
+        LOG.error("UPDATE: ownId: " + id);
+        LOG.error("UPDATE request: " + request.toString());
 /*
         if(id != null && !id.isEmpty()) {
             OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
