@@ -144,6 +144,8 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
             OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
             ApproveProposalV1 ownApprove = new ApproveProposalV1();
             OlearningAgreement olearningAgreement = learningAgreementEJB.findById(id);
+            LOG.fine("APPROVE: olearningAgreement: " + (olearningAgreement == null ? "null" : "not null"));
+            LOG.fine("APPROVE: changesProposal: " + (olearningAgreement.getChangesProposal() == null ? "null" : "not null"));
             ownApprove.setChangesProposalId(olearningAgreement.getChangesProposal().getId());
             ownApprove.setOmobilityId(id);
             eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature ownSignature = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
