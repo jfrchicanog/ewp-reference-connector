@@ -141,7 +141,7 @@ public class TestEndpointsOLAS {
         LOG.fine("UPDATE: heiId: " + heiId);
         LOG.fine("UPDATE: ownId: " + id);
         LOG.fine("UPDATE request: " + request.toString());
-
+/*
         if(id != null && !id.isEmpty()) {
             OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
             ApproveProposalV1 ownApprove = new ApproveProposalV1();
@@ -187,7 +187,8 @@ public class TestEndpointsOLAS {
 
         LOG.fine("UPDATE: response: " + response.getRawResponse());
 
-        return Response.ok(response).build();
+        return Response.ok(response).build();*/
+        return Response.ok().build();
     }
 
     @POST
