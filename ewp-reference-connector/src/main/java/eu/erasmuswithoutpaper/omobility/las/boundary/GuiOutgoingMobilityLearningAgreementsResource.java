@@ -187,7 +187,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         LOG.fine("APPROVE: request: " + requestSend.toString());
 
-        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
+        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, false);
 
         LOG.fine("APPROVE: response: " + response.getRawResponse());
 
