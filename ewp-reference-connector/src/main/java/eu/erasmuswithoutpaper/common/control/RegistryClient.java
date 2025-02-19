@@ -292,6 +292,8 @@ public class RegistryClient {
                 urlMap.put("index-url", childNode.getFirstChild().getNodeValue());
             } else if ("get-url".equalsIgnoreCase(childNode.getLocalName())) {
                 urlMap.put("get-url", childNode.getFirstChild().getNodeValue());
+            } else if ("update-url".equalsIgnoreCase(childNode.getLocalName())) {
+                urlMap.put("update-url", childNode.getFirstChild().getNodeValue());
             }
         }
 
