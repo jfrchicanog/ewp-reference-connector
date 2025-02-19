@@ -452,11 +452,15 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         StringWriter sw = new StringWriter();
         marshaller.marshal(object, sw);
 
-        LOG.fine("XMLCONVERTER: OmobilityLasUpdateRequest object to XML: " + sw.toString());
+        String xmlString = sw.toString();
+
+        xmlString = xmlString.replaceAll("\\s+", "");
+
+        LOG.fine("XMLCONVERTER: OmobilityLasUpdateRequest object to XML: " + xmlString);
 
         LOG.fine("XMLCONVERTER: OmobilityLasUpdateRequest object to String conversion finished");
 
         // Convert XML to byte array
-        return sw.toString();
+        return xmlString;
     }
 }
