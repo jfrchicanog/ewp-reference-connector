@@ -112,7 +112,7 @@ public class RestClient {
                     }else {
                         Invocation.Builder postBuilder = target.request();
                         if (clientRequest.isHttpsec()) {
-                            httpSignature.signRequest("post", target.getUri(), postBuilder, requestID, body);
+                            httpSignature.signRequest("post", target.getUri(), postBuilder, "", requestID, body);
                         }
                         response = postBuilder.post(Entity.entity(clientRequest.getXml(), MediaType.APPLICATION_XML));
                     }

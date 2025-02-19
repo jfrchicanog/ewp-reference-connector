@@ -7,6 +7,7 @@ import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.httpsig.SrvauthHtt
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.tlscert.SrvauthTlscert;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -155,7 +156,7 @@ public class HttpSignature {
             headers.put("host", uri.getHost());
 
             if (body != null && !body.isEmpty()) {
-                final byte[] digest = MessageDigest.getInstance("SHA-256").digest(body.getBytes());
+                final byte[] digest = MessageDigest.getInstance("SHA-256").digest(body.getBytes(StandardCharsets.UTF_8));
                 final String digestHeader = "SHA-256=" + new String(Base64.encodeBase64(digest));
                 headers.put("Digest", digestHeader);
             } else {
