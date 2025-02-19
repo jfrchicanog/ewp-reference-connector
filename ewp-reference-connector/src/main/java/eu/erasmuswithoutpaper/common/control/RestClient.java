@@ -75,8 +75,11 @@ public class RestClient {
     public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass) {
         return sendRequest(clientRequest, responseClass, false);
     }
-
     public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass, boolean sendXML) {
+        return sendRequest(clientRequest, responseClass, sendXML, null);
+    }
+
+    public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass, boolean sendXML, String body) {
         ClientResponse clientResponse = new ClientResponse();
         String requestID = UUID.randomUUID().toString();
 
@@ -109,7 +112,7 @@ public class RestClient {
                     }else {
                         Invocation.Builder postBuilder = target.request();
                         if (clientRequest.isHttpsec()) {
-                            httpSignature.signRequest("post", target.getUri(), postBuilder, requestID);
+                            httpSignature.signRequest("post", target.getUri(), postBuilder, requestID, body);
                         }
                         response = postBuilder.post(Entity.entity(clientRequest.getXml(), MediaType.APPLICATION_XML));
                     }

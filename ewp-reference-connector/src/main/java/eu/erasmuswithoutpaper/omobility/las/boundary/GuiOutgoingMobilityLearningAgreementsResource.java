@@ -1,6 +1,7 @@
 package eu.erasmuswithoutpaper.omobility.las.boundary;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.*;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
@@ -23,6 +24,12 @@ import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +140,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("update/approve")
     @Consumes("application/json")
-    public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, ApprovedProposal request) {
+    public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, ApprovedProposal request) throws JAXBException, IOException {
 
         LOG.fine("APPROVE: start");
         LOG.fine("APPROVE: heiId: " + heiId);
@@ -187,7 +194,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         LOG.fine("APPROVE: request: " + requestSend.toString());
 
-        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
+        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, convertObjectToString(requestSend));
 
         LOG.fine("APPROVE: response: " + response.getRawResponse());
 
@@ -431,4 +438,25 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
             return false;
         }
     };
+
+    private static String convertObjectToString(OmobilityLasUpdateRequest object) throws JAXBException, IOException {
+        LOG.fine("XMLCONVERTER: start OmobilityLasUpdateRequest object to String conversion");
+        // Create JAXBContext
+        JAXBContext jaxbContext = JAXBContext.newInstance(OmobilityLasUpdateRequest.class);
+
+        // Create Marshaller
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        // Marshal the object to XML
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(object, sw);
+
+        LOG.fine("XMLCONVERTER: OmobilityLasUpdateRequest object to XML: " + sw.toString());
+
+        LOG.fine("XMLCONVERTER: OmobilityLasUpdateRequest object to String conversion finished");
+
+        // Convert XML to byte array
+        return sw.toString();
+    }
 }

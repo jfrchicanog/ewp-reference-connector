@@ -5,6 +5,7 @@ import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.none.CliauthAnonym
 //import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.httpsig.SrvauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.tlscert.SrvauthTlscert;
+
 import java.io.IOException;
 import java.security.Key;
 import java.security.MessageDigest;
@@ -24,6 +25,7 @@ import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.error.control.EwpSecWebApplicationException;
 import eu.erasmuswithoutpaper.error.control.EwpSecWebApplicationException.AuthMethod;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -38,6 +40,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tomitribe.auth.signatures.Base64;
@@ -62,19 +65,19 @@ public class HttpSignature {
                 Arrays.stream(requestContext.getHeaders().getFirst("accept-signature").split(",\\s?"))
                         .anyMatch(m -> "rsa-sha256".equalsIgnoreCase(m));
     }
-    
+
     public void signResponse(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
         MultivaluedMap<String, String> reqHeaders = requestContext.getHeaders();
-        MultivaluedMap<String,Object> resHeaders = responseContext.getHeaders();
+        MultivaluedMap<String, Object> resHeaders = responseContext.getHeaders();
         try {
             String requestID = reqHeaders.getFirst("X-Request-Id");
             String requestAuthorization = reqHeaders.getFirst("Authorization");
-            String wwwAuthenticate = (String)resHeaders.getFirst("WWW-Authenticate");
+            String wwwAuthenticate = (String) resHeaders.getFirst("WWW-Authenticate");
             resHeaders.remove("WWW-Authenticate");
-            
-            String wantDigest = (String)resHeaders.getFirst("Want-Digest");
+
+            String wantDigest = (String) resHeaders.getFirst("Want-Digest");
             resHeaders.remove("Want-Digest");
-            
+
             Signature reqSig = null;
             if (requestAuthorization != null) {
                 reqSig = Signature.fromString(requestAuthorization);
@@ -101,10 +104,10 @@ public class HttpSignature {
                 headers.put("X-Request-Signature", reqSig.getSignature());
             }
             if (wwwAuthenticate != null) {
-            	headers.put("WWW-Authenticate", wwwAuthenticate);
+                headers.put("WWW-Authenticate", wwwAuthenticate);
             }
             if (wantDigest != null) {
-            	headers.put("Want-Digest", wantDigest);
+                headers.put("Want-Digest", wantDigest);
             }
 
             // Update the other header lists as well
@@ -132,10 +135,15 @@ public class HttpSignature {
     public void signRequest(String method, URI uri, Invocation.Builder request, String requestId) {
         signRequest(method, uri, request, "", requestId);
     }
+
     public void signRequest(String method, URI uri, Invocation.Builder request, String formData, String requestId) {
+        signRequest(method, uri, request, formData, requestId, null);
+    }
+
+    public void signRequest(String method, URI uri, Invocation.Builder request, String formData, String requestId, String body) {
         try {
             final Map<String, String> headers = new HashMap<>();
-            
+
             headers.put("X-Request-Id", requestId);
 
             final Date today = new Date();
@@ -143,13 +151,19 @@ public class HttpSignature {
             rfc1123Format.setTimeZone(TimeZone.getTimeZone("GMT")); // Set timezone to GMT
             final String stringToday = rfc1123Format.format(today);
             headers.put("Original-Date", stringToday);
-            
+
             headers.put("host", uri.getHost());
 
-            byte[] bodyBytes = formData.getBytes();
-            final byte[] digest = MessageDigest.getInstance("SHA-256").digest(bodyBytes);
-            final String digestHeader = "SHA-256=" + new String(Base64.encodeBase64(digest));
-            headers.put("Digest", digestHeader);
+            if (body != null && !body.isEmpty()) {
+                final byte[] digest = MessageDigest.getInstance("SHA-256").digest(body.getBytes());
+                final String digestHeader = "SHA-256=" + new String(Base64.encodeBase64(digest));
+                headers.put("Digest", digestHeader);
+            } else {
+                byte[] bodyBytes = formData.getBytes();
+                final byte[] digest = MessageDigest.getInstance("SHA-256").digest(bodyBytes);
+                final String digestHeader = "SHA-256=" + new String(Base64.encodeBase64(digest));
+                headers.put("Digest", digestHeader);
+            }
 
             List<String> headerNames = new ArrayList<>();
             headerNames.add("(request-target)");
@@ -157,7 +171,7 @@ public class HttpSignature {
                 headerNames.add(header.getKey());
                 request.header(header.getKey(), header.getValue());
             });
-            System.out.println("FINGERPRINT: " +keystoreController.getOwnPublicKeyFingerprint());
+            System.out.println("FINGERPRINT: " + keystoreController.getOwnPublicKeyFingerprint());
             final Signature signature = new Signature(keystoreController.getOwnPublicKeyFingerprint(), "rsa-sha256",
                     null,
                     headerNames);
@@ -166,22 +180,22 @@ public class HttpSignature {
             final Signer signer = new Signer(key, signature);
             Signature signed;
             String queryParams = uri.getQuery() == null ? "" : "?" + uri.getQuery();
-            signed = signer.sign(method, uri.getPath() + queryParams , headers);
+            signed = signer.sign(method, uri.getPath() + queryParams, headers);
 
             request.header("Authorization", signed.toString());
-            
+
             // Want signed response
             request.header("Accept-Signature", "RSA-SHA256");
         } catch (IOException | NoSuchAlgorithmException e) {
             logger.error("Can't sign response", e);
         }
     }
-    
+
     public AuthenticateMethodResponse verifyHttpSignatureRequest(ContainerRequestContext requestContext) {
         MultivaluedMap<String, String> reqHeaders = requestContext.getHeaders();
         String authorization = reqHeaders.getFirst("authorization");
         logger.info("Verifying HTTP signature");
-        
+
         if (authorization == null || !authorization.toLowerCase().startsWith("signature")) {
             return AuthenticateMethodResponse.builder()
                     .withRequiredMethodInfoFulfilled(false)
@@ -206,7 +220,7 @@ public class HttpSignature {
         if (authenticateMethodResponse.isPresent()) {
             return authenticateMethodResponse.get();
         }
-        
+
         if (headers.containsKey("host") &&
                 !headers.get("host").equals(requestContext.getUriInfo().getRequestUri().getHost())) {
             return AuthenticateMethodResponse.builder()
@@ -214,7 +228,7 @@ public class HttpSignature {
                     .withResponseCode(javax.ws.rs.core.Response.Status.BAD_REQUEST)
                     .build();
         }
-        
+
         if (headers.containsKey("x-request-id") &&
                 !headers.get("x-request-id").matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")) {
             return AuthenticateMethodResponse.builder()
@@ -230,7 +244,7 @@ public class HttpSignature {
                     .withResponseCode(javax.ws.rs.core.Response.Status.BAD_REQUEST)
                     .build();
         }
-        
+
         try {
             if (headers.containsKey("digest")) {
                 byte[] bodyBytes = getByteArray(requestContext);
@@ -257,7 +271,7 @@ public class HttpSignature {
                 if (!digestCalculated.equals(requestDigest)) {
                     return AuthenticateMethodResponse.builder()
                             .withErrorMessage("Digest mismatch! calculated (body length: " + bodyBytes.length + "): " + digestCalculated
-                                                + ", header: " + reqHeaders.getFirst("digest"))
+                                    + ", header: " + reqHeaders.getFirst("digest"))
                             .withResponseCode(javax.ws.rs.core.Response.Status.BAD_REQUEST)
                             .build();
                 }
@@ -275,11 +289,11 @@ public class HttpSignature {
             final Verifier verifier = new Verifier(publicKey, signature);
 
             logger.info("Verifying signature, fingerprint: {}", fingerprint);
-            
+
             String queryParams = requestContext.getUriInfo().getRequestUri().getRawQuery();
-            String requestString = requestContext.getUriInfo().getRequestUri().getRawPath() + 
+            String requestString = requestContext.getUriInfo().getRequestUri().getRawPath() +
                     (queryParams == null ? "" : "?" + queryParams);
-            logger.info("Signing string: "+verifier.createSigningString(requestContext.getMethod().toLowerCase(), requestString, headers));
+            logger.info("Signing string: " + verifier.createSigningString(requestContext.getMethod().toLowerCase(), requestString, headers));
             boolean verifies = verifier.verify(requestContext.getMethod().toLowerCase(), requestString, headers);
 
             if (!verifies) {
@@ -318,16 +332,16 @@ public class HttpSignature {
 
         return AuthenticateMethodResponse.builder().build();
     }
-    
+
     public String verifyHttpSignatureResponse(String method, String requestUri, MultivaluedMap<String, Object> responseHeaders, String raw, String requestID) {
         if (!requestID.equals(responseHeaders.getFirst("X-Request-Id"))) {
             return "Header X-Request-Id does not match the id sent in the request";
         }
-        
+
         if (!responseHeaders.containsKey("signature")) {
             return "Missing Signature header in response";
         }
-        String signatureHeader = (String)responseHeaders.getFirst("signature");
+        String signatureHeader = (String) responseHeaders.getFirst("signature");
         logger.info("Verifying HTTP signature");
 
         Signature signature = Signature.fromString(signatureHeader);
@@ -335,22 +349,22 @@ public class HttpSignature {
         if (signature.getAlgorithm() != Algorithm.RSA_SHA256) {
             return "Only signature algorithm rsa-sha256 is supported.";
         }
-        
+
         Optional<AuthenticateMethodResponse> authenticateMethodResponse = checkRequiredSignedHeaders(signature, "date|original-date", "digest", "x-request-id", "x-request-signature");
         if (authenticateMethodResponse.isPresent()) {
             return authenticateMethodResponse.get().errorMessage();
         }
-        
+
         Map<String, String> headers = new HashMap<>();
         responseHeaders.keySet().forEach((hkey) -> {
-            headers.put(hkey.toLowerCase(), (String)responseHeaders.getFirst(hkey));
+            headers.put(hkey.toLowerCase(), (String) responseHeaders.getFirst(hkey));
         });
 
         if ((headers.containsKey("date") && !isDateWithinTimeThreshold(headers.get("date"))) ||
                 (headers.containsKey("original-date") && !isDateWithinTimeThreshold(headers.get("original-date")))) {
             return "The date cannot be parsed or the date does not match your server clock within a certain threshold of timeDate.";
         }
-        
+
         try {
             if (headers.containsKey("digest")) {
                 byte[] bodyBytes = raw.getBytes();
@@ -399,7 +413,7 @@ public class HttpSignature {
         }
         return null;
     }
-    
+
     private Optional<AuthenticateMethodResponse> checkRequiredSignedHeaders(Signature signature, String... headers) {
         return Arrays.stream(headers).map(header -> {
             if (Arrays.stream(header.split("\\|")).noneMatch(h -> signature.getHeaders().contains(h))) {
@@ -422,19 +436,21 @@ public class HttpSignature {
         byte[] data = new byte[1024];
         while ((nRead = is.read(data, 0, data.length)) != -1) {
             buffer.write(data, 0, nRead);
-        }   buffer.flush();
+        }
+        buffer.flush();
         bodyBytes = buffer.toByteArray();
         buffer.close();
-        
+
         return bodyBytes;
     }
+
     private byte[] getByteArray(ContainerRequestContext requestContext) throws IOException {
         ByteArrayOutputStream buffer;
         byte[] bodyBytes;
         try (InputStream is = requestContext.getEntityStream()) {
             bodyBytes = getByteArray(is);
         }
-        
+
         requestContext.setEntityStream(new ByteArrayInputStream(bodyBytes));
         return bodyBytes;
     }
@@ -458,9 +474,9 @@ public class HttpSignature {
                 responseContext.setEntity(bodyBytes);
             }
             return bodyBytes;
-        }   catch (PropertyException ex) {
+        } catch (PropertyException ex) {
             logger.error("Property error", ex);
-        }   catch (JAXBException ex) {
+        } catch (JAXBException ex) {
             logger.error("Jaxb error", ex);
         }
         return new byte[0];
