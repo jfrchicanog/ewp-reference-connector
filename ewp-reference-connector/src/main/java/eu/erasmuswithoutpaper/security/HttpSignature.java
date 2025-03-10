@@ -19,6 +19,7 @@ import java.util.*;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.tomitribe.auth.signatures.*;
 
 import eu.erasmuswithoutpaper.common.control.EwpKeyStore;
@@ -156,9 +157,7 @@ public class HttpSignature {
             headers.put("host", uri.getHost());
 
             if (body != null && !body.isEmpty()) {
-                final byte[] digest = MessageDigest.getInstance("SHA-256").digest(body.getBytes(StandardCharsets.UTF_8));
-                final String digestHeader = "SHA-256=" + new String(Base64.encodeBase64(digest));
-                headers.put("Digest", digestHeader);
+                headers.put("Digest", computeSHA256Base64(body));
             } else {
                 byte[] bodyBytes = formData.getBytes();
                 final byte[] digest = MessageDigest.getInstance("SHA-256").digest(bodyBytes);
@@ -501,5 +500,17 @@ public class HttpSignature {
             logger.warn("Can't parse date: " + dateString, e);
         }
         return false;
+    }
+
+    public String computeSHA256Base64(String body) {
+        if (body == null || body.isEmpty()) {
+            return java.util.Base64.getEncoder().encodeToString(new byte[0]); // Return empty Base64 string
+        }
+
+        // Compute SHA-256 digest
+        byte[] binaryDigest = DigestUtils.sha256(body);
+
+        // Convert to Base64
+        return java.util.Base64.getEncoder().encodeToString(binaryDigest);
     }
 }

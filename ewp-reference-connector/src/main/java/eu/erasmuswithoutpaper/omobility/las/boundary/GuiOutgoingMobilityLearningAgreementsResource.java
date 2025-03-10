@@ -161,8 +161,12 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
         clientRequest.setXml(omobilityLasUpdateRequest);
+        String xml = convertObjectToString(omobilityLasUpdateRequest);
+        //clientRequest.setXml(xml);
 
-        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, convertObjectToString(omobilityLasUpdateRequest));
+        LOG.fine("APPROVE: xml: " + xml);
+
+        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, xml);
 
         LOG.fine("APPROVE: response: " + response.getRawResponse());
 
@@ -291,28 +295,27 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         return omobilitiesLas;
     }
 
-    private static String convertObjectToString(OmobilityLasUpdateRequest object) throws JAXBException, IOException {
-        LOG.fine("XMLCONVERTER: start OmobilityLasUpdateRequest object to String conversion");
-        // Create JAXBContext
-        JAXBContext jaxbContext = JAXBContext.newInstance(OmobilityLasUpdateRequest.class);
+    private static String convertObjectToString(Object obj) throws JAXBException, IOException {
+        if (obj == null) {
+            return "";
+        }
+        LOG.fine("convertObjectToString: obj: " + obj.toString());
 
-        // Create Marshaller
-        Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        try {
+            // Create JAXB context for the object's class
+            JAXBContext context = JAXBContext.newInstance(obj.getClass());
+            Marshaller marshaller = context.createMarshaller();
 
-        // Marshal the object to XML
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(object, sw);
+            // Make the output formatted for readability (optional)
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-        String xmlString = sw.toString();
+            // Convert the object to XML string
+            StringWriter writer = new StringWriter();
+            marshaller.marshal(obj, writer);
+            return writer.toString();
 
-        xmlString = xmlString.replaceAll("\\s+", "");
-
-        LOG.fine("XMLCONVERTER: OmobilityLasUpdateRequest object to XML: " + xmlString);
-
-        LOG.fine("XMLCONVERTER: OmobilityLasUpdateRequest object to String conversion finished");
-
-        // Convert XML to byte array
-        return xmlString;
+        } catch (JAXBException e) {
+            throw new RuntimeException("Error converting object to XML string", e);
+        }
     }
 }
