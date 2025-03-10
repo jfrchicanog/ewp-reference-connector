@@ -17,7 +17,8 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
     @NamedQuery(name = OlearningAgreement.findAll, query = "SELECT la FROM OlearningAgreement la"),
     @NamedQuery(name = OlearningAgreement.findBySendingHeiId, query = "SELECT o FROM OlearningAgreement o WHERE o.sendingHei.heiId=:sendingHei"),
 	@NamedQuery(name = OlearningAgreement.findBySendingHeiIdFilterd, query = "SELECT o FROM OlearningAgreement o left join o.changesProposal cp left join cp.commentProposal ccp WHERE o.sendingHei.heiId=:sendingHei AND (cp.id IS NULL OR ccp.id IS NULL)"),
-    @NamedQuery(name = OlearningAgreement.findByReceivingHeiId, query = "SELECT o FROM OlearningAgreement o WHERE o.receivingHei.heiId=:receivingHei")
+    @NamedQuery(name = OlearningAgreement.findByReceivingHeiId, query = "SELECT o FROM OlearningAgreement o WHERE o.receivingHei.heiId=:receivingHei"),
+	@NamedQuery(name = OlearningAgreement.findByChangesProposalId, query = "SELECT o FROM OlearningAgreement o WHERE o.changesProposal.id_changeProposal=:changesProposalId")
 })
 
 public class OlearningAgreement implements Serializable {
@@ -27,12 +28,14 @@ public class OlearningAgreement implements Serializable {
     public static final String findBySendingHeiId = PREFIX + "findBySendingHeiId";
 	public static final String findBySendingHeiIdFilterd = PREFIX + "findBySendingHeiIdFilterd";
     public static final String findByReceivingHeiId = PREFIX + "findByReceivingHeiId";
+	public static final String findByChangesProposalId = PREFIX + "findByChangesProposalId";
     
     @Id
     @Column(updatable = false)
 	@GeneratedValue(generator="system-uuid")
     String id;
-    
+
+	private Boolean isFromPartner;
     private String omobilityId;
     
     @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
@@ -99,7 +102,15 @@ public class OlearningAgreement implements Serializable {
         this.id = id;
     }
 
-    public String getReceivingAcademicTermEwpId() {
+	public Boolean getFromPartner() {
+		return isFromPartner;
+	}
+
+	public void setFromPartner(Boolean fromPartner) {
+		isFromPartner = fromPartner;
+	}
+
+	public String getReceivingAcademicTermEwpId() {
 		return receivingAcademicTermEwpId;
 	}
 

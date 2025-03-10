@@ -12,45 +12,47 @@ import javax.persistence.OneToOne;
 
 @Entity
 @NamedQueries({
-    @NamedQuery(name = ChangesProposal.findAll, query = "SELECT c FROM ChangesProposal c"),
+        @NamedQuery(name = ChangesProposal.findAll, query = "SELECT c FROM ChangesProposal c"),
+        @NamedQuery(name = ChangesProposal.findByIdChangeProposal, query = "SELECT c FROM ChangesProposal c WHERE c.id_changeProposal = :id_changeProposal")
 })
-public class ChangesProposal extends ListOfComponents{
-	
-	private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal.";
+public class ChangesProposal extends ListOfComponents {
+
+    private static final String PREFIX = "eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal.";
     public static final String findAll = PREFIX + "all";
-	
+    public static final String findByIdChangeProposal = PREFIX + "byIdChangeProposal";
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "CHANGE_PROPOSAL_STUDENT",referencedColumnName = "ID")
-	private Student student;
-    
-    private  String id;
+    @JoinColumn(name = "CHANGE_PROPOSAL_STUDENT", referencedColumnName = "ID")
+    private Student student;
+
+    private String id_changeProposal;
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    @JoinColumn(name = "CHANGE_PROPOSAL_APPROVED_PROPOSAL",referencedColumnName = "ID")
+    @JoinColumn(name = "CHANGE_PROPOSAL_APPROVED_PROPOSAL", referencedColumnName = "ID")
     private ApprovedProposal approvedProposal;
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    @JoinColumn(name = "CHANGE_PROPOSAL_COMMENT_PROPOSAL",referencedColumnName = "ID")
+    @JoinColumn(name = "CHANGE_PROPOSAL_COMMENT_PROPOSAL", referencedColumnName = "ID")
     private CommentProposal commentProposal;
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "changesProposal")
     private OlearningAgreement olearningAgreement;
-    
-	public Student getStudent() {
-		return student;
-	}
-	
-	public void setStudent(Student student) {
-		this.student = student;
-	}
-	
-	public String getId() {
-		return id;
-	}
-	
-	public void setId(String id) {
-		this.id = id;
-	}
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public String getId_changeProposal() {
+        return id_changeProposal;
+    }
+
+    public void setId_changeProposal(String id_changeProposal) {
+        this.id_changeProposal = id_changeProposal;
+    }
 
     public ApprovedProposal getApprovedProposal() {
         return approvedProposal;
@@ -75,8 +77,8 @@ public class ChangesProposal extends ListOfComponents{
     public void setOlearningAgreement(OlearningAgreement olearningAgreement) {
         this.olearningAgreement = olearningAgreement;
     }
-    
-	@Override
+
+    @Override
     public int hashCode() {
         int hash = 7;
         hash = 37 * hash + Objects.hashCode(this.id);

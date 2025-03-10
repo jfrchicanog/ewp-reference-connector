@@ -18,10 +18,7 @@ import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -35,18 +32,14 @@ import javax.ws.rs.core.Response;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
-import eu.erasmuswithoutpaper.api.imobilities.Imobilities;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LasOutgoingStatsResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasIndexResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateRequest;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateResponse;
-import eu.erasmuswithoutpaper.api.registry.Hei;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
-import eu.erasmuswithoutpaper.common.control.RestAlgoria;
-import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.imobility.entity.IMobility;
 import eu.erasmuswithoutpaper.imobility.entity.IMobilityStatus;
@@ -55,7 +48,6 @@ import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgre
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
-import org.apache.commons.logging.Log;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -120,7 +112,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("update")
     @Produces(MediaType.APPLICATION_XML)
-    //@EwpAuthenticate
+    @EwpAuthenticate
     public javax.ws.rs.core.Response omobilityLasUpdatePost(OmobilityLasUpdateRequest request) {
         if (request == null) {
             throw new EwpWebApplicationException("No update data was sent", Response.Status.BAD_REQUEST);
@@ -156,7 +148,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
             LOG.fine("Starting CNR for " + request.getApproveProposalV1().getOmobilityId() + " omobility learning agreements");
 
-            ChangesProposal changesProposal = learningAgreementEJB.findChangesProposalById(request.getApproveProposalV1().getChangesProposalId());
+            ChangesProposal changesProposal = learningAgreementEJB.findByIdChangeProposal(request.getApproveProposalV1().getChangesProposalId());
 
             LOG.fine("ChangesProposal: " + (changesProposal == null ? "null" : changesProposal.getId()));
 
@@ -171,9 +163,9 @@ public class OutgoingMobilityLearningAgreementsResource {
                     throw new EwpWebApplicationException("Sending Hei Id doesn't match Omobility Id's sending HEI", Response.Status.BAD_REQUEST);
                 }
             }
-        }
 
-        if (request.getCommentProposalV1() != null) {
+            learningAgreementEJB.approveChangesProposal(request, request.getApproveProposalV1().getOmobilityId());
+        } else if (request.getCommentProposalV1() != null) {
             if (request.getCommentProposalV1().getOmobilityId() == null || request.getCommentProposalV1().getOmobilityId().isEmpty()) {
                 throw new EwpWebApplicationException("Mising required parameter, omobility-id is required", Response.Status.BAD_REQUEST);
             }
@@ -185,31 +177,8 @@ public class OutgoingMobilityLearningAgreementsResource {
             if (request.getCommentProposalV1().getComment() == null) {
                 throw new EwpWebApplicationException("Mising required parameter, comment is required", Response.Status.BAD_REQUEST);
             }
-        }
-    /*
-        eu.erasmuswithoutpaper.omobility.las.entity.OmobilityLasUpdateRequest mobilityUpdateRequest = new eu.erasmuswithoutpaper.omobility.las.entity.OmobilityLasUpdateRequest();
-        mobilityUpdateRequest.setSendingHeiId(request.getSendingHeiId());
 
-        ApprovedProposal appCmp = approveCmpStudiedDraft(request);
-        mobilityUpdateRequest.setApproveComponentsStudiedDraft(appCmp);
-
-        CommentProposal updateComponentsStudied = updateComponentsStudied(request);
-        mobilityUpdateRequest.setUpdateComponentsStudied(updateComponentsStudied);
-
-        em.persist(mobilityUpdateRequest);
-
-        OmobilityLasUpdateResponse response = new OmobilityLasUpdateResponse();
-        MultilineStringWithOptionalLang message = new MultilineStringWithOptionalLang();
-        message.setLang("en");
-        message.setValue("Thank you! We will review your suggestion");
-        response.getSuccessUserMessage().add(message);*/
-
-
-        if (request.getApproveProposalV1() != null) {
-            learningAgreementEJB.approveChangesProposal(request);
-
-        } else if (request.getCommentProposalV1() != null) {
-            learningAgreementEJB.rejectChangesProposal(request);
+            learningAgreementEJB.rejectChangesProposal(request, request.getCommentProposalV1().getOmobilityId());
         }
 
         OmobilityLasUpdateResponse response = new OmobilityLasUpdateResponse();
@@ -240,34 +209,27 @@ public class OutgoingMobilityLearningAgreementsResource {
     @Path("cnr")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response omobilitiesLasCnr(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("omobility_id") List<String> mobilityIdList) {
+    public javax.ws.rs.core.Response omobilitiesLasCnr(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("omobility_id") List<String> omobilityIdList) {
         if (sendingHeiId == null || sendingHeiId.trim().isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for get.", Response.Status.BAD_REQUEST);
         }
 
-        if (mobilityIdList.size() > properties.getMaxOmobilitylasIds()) {
+        if (omobilityIdList.size() > properties.getMaxOmobilitylasIds()) {
             throw new EwpWebApplicationException("Max number of omobility learning agreements id's has exceeded.", Response.Status.BAD_REQUEST);
         }
 
         //TODO: Notify algoria
 
-        LOG.info("Starting CNR for " + mobilityIdList.size() + " omobility learning agreements");
+        LOG.info("Starting CNR for " + omobilityIdList.size() + " omobility learning agreements");
 
-        for (String mobilityId : mobilityIdList) {
+        for (String omobilityId : omobilityIdList) {
             CompletableFuture.runAsync(() -> {
-                /*try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }*/
                 try {
-                    ait.createLas(sendingHeiId, mobilityId);
+                    ait.createLas(sendingHeiId, omobilityId);
                 } catch (Exception e) {
                     LOG.fine("Error in AuxIiaApprovalThread: " + e.getMessage());
                 }
             });
-            //CNROmobilitiesLa cnr = new CNROmobilitiesLa(sendingHeiId, mobilityId);
-            //cnr.start();
         }
 
         eu.erasmuswithoutpaper.api.omobilities.las.cnr.endpoints.ObjectFactory factory = new eu.erasmuswithoutpaper.api.omobilities.las.cnr.endpoints.ObjectFactory();
@@ -489,7 +451,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
 
-        List<OlearningAgreement> mobilityList = learningAgreementEJB.findBySendingHeiIdFilterd(sendingHeiId);
+        List<OlearningAgreement> mobilityList = learningAgreementEJB.findBySendingHeiId(sendingHeiId);
 
         if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
             mobilityList = mobilityList.stream().filter(omobility -> anyMatchReceivingAcademicYear.test(omobility, receiving_academic_year_id)).collect(Collectors.toList());
@@ -521,9 +483,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
             List<OlearningAgreement> mobilities = new ArrayList<>();
             mobilityList.stream().forEachOrdered((m) -> {
-
                 if (m != null) {
-
                     if (m.getModificateSince() != null) {
                         LOG.info("getModificateSince: " + m.getModificateSince());
                         if (m.getModificateSince().after(modified_since)) {
@@ -577,9 +537,11 @@ public class OutgoingMobilityLearningAgreementsResource {
     BiPredicate<OlearningAgreement, String> anyMatchSpecifiedStudent = new BiPredicate<OlearningAgreement, String>() {
         @Override
         public boolean test(OlearningAgreement omobility, String global_id) {
-            Student student = omobility.getChangesProposal().getStudent();
+            if (omobility.getChangesProposal() == null || omobility.getChangesProposal().getStudent() == null) {
+                return false;
+            }
 
-            return global_id.equals(student.getGlobalId());
+            return global_id.equals(omobility.getChangesProposal().getStudent().getGlobalId());
         }
     };
 
@@ -588,22 +550,18 @@ public class OutgoingMobilityLearningAgreementsResource {
         public boolean test(OlearningAgreement omobility, String mobilityType) {
 
             if (MobilityType.BLENDED.value().equals(mobilityType)) {
-
-                return omobility.getFirstVersion().getBlendedMobilityComponents() != null && !omobility.getFirstVersion().getBlendedMobilityComponents().isEmpty();
+                return (omobility.getFirstVersion() != null && omobility.getFirstVersion().getBlendedMobilityComponents() != null && !omobility.getFirstVersion().getBlendedMobilityComponents().isEmpty())
+                        || (omobility.getApprovedChanges() != null && omobility.getApprovedChanges().getBlendedMobilityComponents() != null && !omobility.getApprovedChanges().getBlendedMobilityComponents().isEmpty())
+                        || (omobility.getChangesProposal() != null && omobility.getChangesProposal().getBlendedMobilityComponents() != null && !omobility.getChangesProposal().getBlendedMobilityComponents().isEmpty());
             } else if (MobilityType.DOCTORAL.value().equals(mobilityType)) {
-
-                return omobility.getFirstVersion().getShortTermDoctoralComponents() != null && !omobility.getFirstVersion().getShortTermDoctoralComponents().isEmpty();
+                return (omobility.getFirstVersion() != null && omobility.getFirstVersion().getShortTermDoctoralComponents() != null && !omobility.getFirstVersion().getShortTermDoctoralComponents().isEmpty())
+                        || (omobility.getApprovedChanges() != null && omobility.getApprovedChanges().getShortTermDoctoralComponents() != null && !omobility.getApprovedChanges().getShortTermDoctoralComponents().isEmpty())
+                        || (omobility.getChangesProposal() != null && omobility.getChangesProposal().getShortTermDoctoralComponents() != null && !omobility.getChangesProposal().getShortTermDoctoralComponents().isEmpty());
             } else if (MobilityType.SEMESTRE.value().equals(mobilityType)) {
-
-                if (omobility.getFirstVersion() != null) {
-
-                    return (omobility.getFirstVersion().getComponentsStudied() != null && !omobility.getFirstVersion().getComponentsStudied().isEmpty());
-                } else if (omobility.getApprovedChanges() != null) {
-
-                    return (omobility.getApprovedChanges().getComponentsStudied() != null && !omobility.getApprovedChanges().getComponentsStudied().isEmpty());
-                }
+                    return (omobility.getFirstVersion() != null && omobility.getFirstVersion().getComponentsStudied() != null && !omobility.getFirstVersion().getComponentsStudied().isEmpty())
+                            || (omobility.getApprovedChanges() != null && omobility.getApprovedChanges().getComponentsStudied() != null && !omobility.getApprovedChanges().getComponentsStudied().isEmpty())
+                            || (omobility.getChangesProposal() != null && omobility.getChangesProposal().getComponentsStudied() != null && !omobility.getChangesProposal().getComponentsStudied().isEmpty());
             }
-
             return false;
         }
     };

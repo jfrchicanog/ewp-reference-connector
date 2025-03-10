@@ -187,6 +187,13 @@ public class HttpSignature {
 
             // Want signed response
             request.header("Accept-Signature", "RSA-SHA256");
+
+            //print headers (not from the request)
+            headers.entrySet().forEach((header) -> {
+                System.out.println(header.getKey() + ": " + header.getValue());
+            });
+            System.out.println("SIGNED: " + signed.toString());
+            System.out.println("Accept-Signature: RSA-SHA256");
         } catch (IOException | NoSuchAlgorithmException e) {
             logger.error("Can't sign response", e);
         }

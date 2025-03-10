@@ -72,54 +72,23 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         }
 
         return javax.ws.rs.core.Response.ok(response).build();
-
-    }
-
-    @POST
-    @Path("change")
-    @Consumes("application/json")
-    public Response change(OlearningAgreement olearningAgreement) {
-        LOG.fine("CHANGE: start");
-
-        LOG.fine("CHANGE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
-
-        String id  = learningAgreementEJB.update(olearningAgreement);
-
-        if(id != null) {
-            OlearningAgreement olearningAgreementDB2 = learningAgreementEJB.findById(olearningAgreement.getId());
-
-            CompletableFuture.runAsync(() -> {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                notifyPartner(olearningAgreementDB2);
-            });
-
-            LOG.fine("CHANGE: merge olearningAgreement: " + olearningAgreementDB2.getId());
-
-
-            OmobilityLasGetResponse response = new OmobilityLasGetResponse();
-            response.getLa().add(converter.convertToLearningAgreements(olearningAgreementDB2));
-            return Response.ok(response).build();
-        }
-
-        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @POST
     @Path("create")
     @Consumes("application/json")
-    public Response create(OlearningAgreement olearningAgreement) {
+    public Response create(LearningAgreement learningAgreement) {
 
         LOG.fine("CREATE: start");
 
-        LOG.fine("CREATE: olearningAgreement: " + olearningAgreement.getChangesProposal().getId());
+        LOG.fine("CREATE: olearningAgreement: " + learningAgreement.getChangesProposal().getId());
 
+        OlearningAgreement olearningAgreement = converter.convertToOlearningAgreement(learningAgreement, false, null);
+        olearningAgreement.setFromPartner(false);
         String id = learningAgreementEJB.insert(olearningAgreement);
+        olearningAgreement.setId(id);
 
-        LOG.fine("NOTIFY: Send notification");
+        LOG.fine("CREATE: Send notification");
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -130,58 +99,60 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
             notifyPartner(olearningAgreement);
         });
 
-        LOG.fine("NOTIFY: notification sent");
+        LOG.fine("CREATE: notification sent");
+
+        return Response.ok(id).build();
+    }
+
+
+    @POST
+    @Path("change")
+    @Consumes("application/json")
+    public Response change(LearningAgreement learningAgreement) {
+        LOG.fine("CHANGE: start");
+
+        LOG.fine("CHANGE: olearningAgreement: " + learningAgreement.getChangesProposal().getId());
+
+        OlearningAgreement original = learningAgreementEJB.findById(learningAgreement.getOmobilityId());
+        if (original == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        OlearningAgreement olearningAgreement = converter.convertToOlearningAgreement(learningAgreement, false, original);
+        String id = learningAgreementEJB.update(olearningAgreement);
+
+        if (id == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            notifyPartner(olearningAgreement);
+        });
+
+        LOG.fine("CHANGE: merge olearningAgreement: " + olearningAgreement.getId());
 
         OmobilityLasGetResponse response = new OmobilityLasGetResponse();
-        response.getLa().add(converter.convertToLearningAgreements(learningAgreementEJB.findById(id)));
+        response.getLa().add(converter.convertToLearningAgreements(olearningAgreement));
+
         return Response.ok(response).build();
     }
 
     @POST
     @Path("update/approve")
     @Consumes("application/json")
-    public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, ApprovedProposal request) throws JAXBException, IOException {
-
+    public Response updateAccept(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws JAXBException, IOException {
         LOG.fine("APPROVE: start");
-        LOG.fine("APPROVE: heiId: " + heiId);
         LOG.fine("APPROVE: ownId: " + id);
-        LOG.fine("APPROVE request: " + request.toString());
+        LOG.fine("APPROVE request: " + omobilityLasUpdateRequest.toString());
 
-        if(id != null && !id.isEmpty()) {
-            OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
-            ApproveProposalV1 ownApprove = new ApproveProposalV1();
-            OlearningAgreement olearningAgreement = learningAgreementEJB.findById(id);
-            LOG.fine("APPROVE: olearningAgreement: " + (olearningAgreement == null ? "null" : "not null"));
-            LOG.fine("APPROVE: changesProposal: " + (olearningAgreement.getChangesProposal() == null ? "null" : "not null"));
-            ownApprove.setChangesProposalId(olearningAgreement.getChangesProposal().getId());
-            ownApprove.setOmobilityId(id);
-            eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature ownSignature = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
-            ownSignature.setSignerApp(request.getSignature().getSignerApp());
-            ownSignature.setSignerEmail(request.getSignature().getSignerEmail());
-            ownSignature.setSignerName(request.getSignature().getSignerName());
-            ownSignature.setSignerPosition(request.getSignature().getSignerPosition());
-            ownApprove.setSignature(ownSignature);
-            ownUpdate.setApproveProposalV1(ownApprove);
-            ownUpdate.setSendingHeiId(heiId);
+        learningAgreementEJB.approveChangesProposal(omobilityLasUpdateRequest, id);
 
-            learningAgreementEJB.approveChangesProposal(ownUpdate);
-        }
-
-
-        OmobilityLasUpdateRequest requestSend = new OmobilityLasUpdateRequest();
-        ApproveProposalV1 approvedProposalV1 = new ApproveProposalV1();
-        approvedProposalV1.setChangesProposalId(request.getChangesProposalId());
-        approvedProposalV1.setOmobilityId(request.getOmobilityId());
-        eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature signature = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
-        signature.setSignerApp(request.getSignature().getSignerApp());
-        signature.setSignerEmail(request.getSignature().getSignerEmail());
-        signature.setSignerName(request.getSignature().getSignerName());
-        signature.setSignerPosition(request.getSignature().getSignerPosition());
-        approvedProposalV1.setSignature(signature);
-        requestSend.setApproveProposalV1(approvedProposalV1);
-        requestSend.setSendingHeiId(heiId);
-
-        Map<String, String> map = registryClient.getOmobilityLasHeiUrls(heiId);
+        Map<String, String> map = registryClient.getOmobilityLasHeiUrls(omobilityLasUpdateRequest.getSendingHeiId());
         LOG.fine("APPROVE: map: " + map.toString());
         String url = map.get("update-url");
         LOG.fine("APPROVE: upd url: " + url);
@@ -190,11 +161,9 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         clientRequest.setUrl(url);
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
-        clientRequest.setXml(requestSend);
+        clientRequest.setXml(omobilityLasUpdateRequest);
 
-        LOG.fine("APPROVE: request: " + requestSend.toString());
-
-        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, convertObjectToString(requestSend));
+        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, convertObjectToString(omobilityLasUpdateRequest));
 
         LOG.fine("APPROVE: response: " + response.getRawResponse());
 
@@ -204,75 +173,30 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("update/reject")
     @Consumes("application/json")
-    public Response update(@QueryParam("heiId") String heiId, @QueryParam("ownId") String id, CommentProposal request) {
+    public Response updateReject(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws JAXBException, IOException {
 
-        LOG.fine("UPDATE: start");
-        if(id != null && !id.isEmpty()) {
-            OmobilityLasUpdateRequest ownUpdate = new OmobilityLasUpdateRequest();
-            CommentProposalV1 ownComment = new CommentProposalV1();
-            OlearningAgreement olearningAgreement = learningAgreementEJB.findById(id);
-            ownComment.setChangesProposalId(olearningAgreement.getChangesProposal().getId());
-            ownComment.setOmobilityId(id);
-            ownComment.setComment(request.getComment());
-            eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature ownSignature = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
-            ownSignature.setSignerApp(request.getSignature().getSignerApp());
-            ownSignature.setSignerEmail(request.getSignature().getSignerEmail());
-            ownSignature.setSignerName(request.getSignature().getSignerName());
-            ownSignature.setSignerPosition(request.getSignature().getSignerPosition());
-            ownComment.setSignature(ownSignature);
-            ownUpdate.setCommentProposalV1(ownComment);
-            ownUpdate.setSendingHeiId(heiId);
+        LOG.fine("REJCET: start");
+        LOG.fine("REJCET: ownId: " + id);
+        LOG.fine("REJCET request: " + omobilityLasUpdateRequest.toString());
 
-            learningAgreementEJB.rejectChangesProposal(ownUpdate);
-        }
+        learningAgreementEJB.rejectChangesProposal(omobilityLasUpdateRequest, id);
 
-        OmobilityLasUpdateRequest requestSend = new OmobilityLasUpdateRequest();
-        CommentProposalV1 commentProposalV1 = new CommentProposalV1();
-        commentProposalV1.setChangesProposalId(request.getChangesProposalId());
-        commentProposalV1.setOmobilityId(request.getOmobilityId());
-        commentProposalV1.setComment(request.getComment());
-        eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature signature = new eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Signature();
-        signature.setSignerApp(request.getSignature().getSignerApp());
-        signature.setSignerEmail(request.getSignature().getSignerEmail());
-        signature.setSignerName(request.getSignature().getSignerName());
-        signature.setSignerPosition(request.getSignature().getSignerPosition());
-        commentProposalV1.setSignature(signature);
-        requestSend.setCommentProposalV1(commentProposalV1);
-        requestSend.setSendingHeiId(heiId);
-
-        Map<String, String> map = registryClient.getOmobilityLasHeiUrls(heiId);
+        Map<String, String> map = registryClient.getOmobilityLasHeiUrls(omobilityLasUpdateRequest.getSendingHeiId());
+        LOG.fine("REJCET: map: " + map.toString());
         String url = map.get("update-url");
+        LOG.fine("REJCET: upd url: " + url);
 
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setUrl(url);
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
-        clientRequest.setXml(requestSend);
+        clientRequest.setXml(omobilityLasUpdateRequest);
 
-        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true);
+        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, convertObjectToString(omobilityLasUpdateRequest));
 
-        LOG.fine("UPDATE: response: " + response.getRawResponse());
+        LOG.fine("REJCET: response: " + response.getRawResponse());
 
         return Response.ok(response).build();
-    }
-
-    private ApprovedProposal approveCmpStudiedDraft(OmobilityLasUpdateRequest request) {
-        ApprovedProposal appCmp = new ApprovedProposal();
-        String changesProposal = request.getApproveProposalV1().getChangesProposalId();
-        appCmp.setChangesProposalId(changesProposal);
-
-        appCmp.setOmobilityId(request.getApproveProposalV1().getOmobilityId());
-
-        Signature signature = new Signature();
-        signature.setSignerApp(request.getApproveProposalV1().getSignature().getSignerApp());
-        signature.setSignerEmail(request.getApproveProposalV1().getSignature().getSignerEmail());
-        signature.setSignerName(request.getApproveProposalV1().getSignature().getSignerName());
-        signature.setSignerPosition(request.getApproveProposalV1().getSignature().getSignerPosition());
-        signature.setTimestamp(request.getApproveProposalV1().getSignature().getTimestamp().toGregorianCalendar().getTime());
-
-        appCmp.setSignature(signature);
-
-        return appCmp;
     }
 
     private List<ClientResponse> notifyPartner(OlearningAgreement olearningAgreement) {
@@ -357,22 +281,6 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
     }
 
-    private static ListOfComponents getListOfComponents(ChangesProposal changesProposal, ApprovedProposal appCmp) {
-        ListOfComponents cmp = new ListOfComponents();
-
-        cmp.setBlendedMobilityComponents(changesProposal.getBlendedMobilityComponents());
-        cmp.setComponentsStudied(changesProposal.getComponentsStudied());
-        cmp.setComponentsRecognized(changesProposal.getComponentsRecognized());
-        cmp.setVirtualComponents(changesProposal.getVirtualComponents());
-        cmp.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
-        cmp.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
-        if (appCmp.getSignature() != null) {
-            cmp.setReceivingHeiSignature(appCmp.getSignature());
-        }
-        cmp.setStudentSignature(changesProposal.getStudentSignature());
-        return cmp;
-    }
-
     private List<LearningAgreement> omobilitiesLas(List<OlearningAgreement> omobilityLasList, List<String> omobilityLasIdList) {
         List<LearningAgreement> omobilitiesLas = new ArrayList<>();
         omobilityLasList.stream().forEachOrdered((m) -> {
@@ -383,61 +291,6 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         return omobilitiesLas;
     }
-
-    private List<String> omobilityLasIds(List<OlearningAgreement> lasList, List<String> receivingHeiIdList) {
-        List<String> omobilityLasIds = new ArrayList<>();
-        if (lasList == null) {
-            return omobilityLasIds;
-        }
-        lasList.stream().forEachOrdered((m) -> {
-            if (receivingHeiIdList.isEmpty() || receivingHeiIdList.contains(m.getReceivingHei())) {
-                omobilityLasIds.add(m.getId());
-            }
-        });
-
-        return omobilityLasIds;
-    }
-
-    BiPredicate<OlearningAgreement, String> anyMatchReceivingAcademicYear = new BiPredicate<OlearningAgreement, String>() {
-        @Override
-        public boolean test(OlearningAgreement omobility, String receiving_academic_year_id) {
-            return receiving_academic_year_id.equals(omobility.getReceivingAcademicTermEwpId());
-        }
-    };
-
-    BiPredicate<OlearningAgreement, String> anyMatchSpecifiedStudent = new BiPredicate<OlearningAgreement, String>() {
-        @Override
-        public boolean test(OlearningAgreement omobility, String global_id) {
-            Student student = omobility.getChangesProposal().getStudent();
-
-            return global_id.equals(student.getGlobalId());
-        }
-    };
-
-    BiPredicate<OlearningAgreement, String> anyMatchSpecifiedType = new BiPredicate<OlearningAgreement, String>() {
-        @Override
-        public boolean test(OlearningAgreement omobility, String mobilityType) {
-
-            if (MobilityType.BLENDED.value().equals(mobilityType)) {
-
-                return omobility.getFirstVersion().getBlendedMobilityComponents() != null && !omobility.getFirstVersion().getBlendedMobilityComponents().isEmpty();
-            } else if (MobilityType.DOCTORAL.value().equals(mobilityType)) {
-
-                return omobility.getFirstVersion().getShortTermDoctoralComponents() != null && !omobility.getFirstVersion().getShortTermDoctoralComponents().isEmpty();
-            } else if (MobilityType.SEMESTRE.value().equals(mobilityType)) {
-
-                if (omobility.getFirstVersion() != null) {
-
-                    return (omobility.getFirstVersion().getComponentsStudied() != null && !omobility.getFirstVersion().getComponentsStudied().isEmpty());
-                } else if (omobility.getApprovedChanges() != null) {
-
-                    return (omobility.getApprovedChanges().getComponentsStudied() != null && !omobility.getApprovedChanges().getComponentsStudied().isEmpty());
-                }
-            }
-
-            return false;
-        }
-    };
 
     private static String convertObjectToString(OmobilityLasUpdateRequest object) throws JAXBException, IOException {
         LOG.fine("XMLCONVERTER: start OmobilityLasUpdateRequest object to String conversion");

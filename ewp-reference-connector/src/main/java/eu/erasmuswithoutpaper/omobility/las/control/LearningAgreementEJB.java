@@ -6,6 +6,7 @@ import eu.erasmuswithoutpaper.omobility.las.entity.*;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
@@ -14,6 +15,9 @@ import java.util.List;
 public class LearningAgreementEJB {
     @PersistenceContext(unitName = "connector")
     EntityManager em;
+
+    @Inject
+    OutgoingMobilityLearningAgreementsConverter converter;
 
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(LearningAgreementEJB.class.getCanonicalName());
 
@@ -29,23 +33,13 @@ public class LearningAgreementEJB {
     }
 
     public String update(OlearningAgreement olearningAgreement) {
-        OlearningAgreement olearningAgreementDB = em.find(OlearningAgreement.class, olearningAgreement.getId());
-        if (olearningAgreementDB == null) {
-            return null;
+        if (olearningAgreement.getChangesProposal() != null && olearningAgreement.getChangesProposal().getId() == null) {
+            em.persist(olearningAgreement.getChangesProposal());
+            em.flush();
         }
-        ChangesProposal changesProposal = olearningAgreement.getChangesProposal();
-        LOG.fine("CHANGE: changesProposal: " + changesProposal);
-
-        em.persist(changesProposal);
+        em.merge(olearningAgreement);
         em.flush();
-
-        LOG.fine("CHANGE: changesProposal: " + changesProposal.getId());
-
-        olearningAgreementDB.setChangesProposal(changesProposal);
-        em.merge(olearningAgreementDB);
-        em.flush();
-
-        return olearningAgreementDB.getId();
+        return olearningAgreement.getId();
     }
 
     public List<OlearningAgreement> findAll() {
@@ -82,71 +76,68 @@ public class LearningAgreementEJB {
         return internalInstitution.get(0).getInstitutionId();
     }
 
-    public ChangesProposal findChangesProposalById(String id) {
-        return em.find(ChangesProposal.class, id);
+    public ChangesProposal findByIdChangeProposal(String id) {
+        return em.createNamedQuery(ChangesProposal.findByIdChangeProposal, ChangesProposal.class).setParameter("id_changeProposal", id).getSingleResult();
     }
 
-    public void approveChangesProposal(OmobilityLasUpdateRequest request) {
-        ApprovedProposal appCmp = approveCmpStudiedDraft(request);
+    public void approveChangesProposal(OmobilityLasUpdateRequest request, String id) {
+        ApprovedProposal appCmp = converter.approveCmpStudiedDraft(request);
         em.persist(appCmp);
         em.flush();
 
-        ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getApproveProposalV1().getChangesProposalId());
-        String idLAS = changesProposal.getOlearningAgreement().getId();
-        OlearningAgreement omobility = em.find(OlearningAgreement.class, idLAS);
-        changesProposal = omobility.getChangesProposal();
+        OlearningAgreement omobility = findById(id);
+        ChangesProposal changesProposal = omobility.getChangesProposal();
 
         omobility.setChangesProposal(null);
-        em.remove(changesProposal);
 
+        em.remove(changesProposal);
         em.merge(omobility);
         em.flush();
 
         if (omobility.getFirstVersion() != null) {
 
             if (omobility.getApprovedChanges() == null) {
-                ListOfComponents cmp = getListOfComponents(changesProposal, appCmp);
+                ListOfComponents cmp = converter.getListOfComponents(changesProposal, appCmp);
 
                 em.persist(cmp);
                 omobility.setApprovedChanges(cmp);
 
             } else {
                 ListOfComponents cmpBD = omobility.getApprovedChanges();
+                ListOfComponents cmp = converter.getListOfComponents(changesProposal, appCmp);
 
-                if (cmpBD.getBlendedMobilityComponents() == null || cmpBD.getBlendedMobilityComponents().isEmpty()) {
-                    cmpBD.setBlendedMobilityComponents(changesProposal.getBlendedMobilityComponents());
-                } else {
-                    cmpBD.getBlendedMobilityComponents().addAll(changesProposal.getBlendedMobilityComponents());
+                if ((cmpBD.getComponentsStudied() == null || cmpBD.getComponentsStudied().isEmpty()) && (cmp.getComponentsStudied() != null && !cmp.getComponentsStudied().isEmpty())) {
+                    cmpBD.setComponentsStudied(cmp.getComponentsStudied());
+                } else if (cmp.getComponentsStudied() != null && !cmp.getComponentsStudied().isEmpty()) {
+                    cmpBD.getComponentsStudied().addAll(cmp.getComponentsStudied());
                 }
 
-                if (cmpBD.getComponentsStudied() == null || cmpBD.getComponentsStudied().isEmpty()) {
-                    cmpBD.setComponentsStudied(changesProposal.getComponentsStudied());
-                } else {
-                    cmpBD.getComponentsStudied().addAll(changesProposal.getComponentsStudied());
+                if ((cmpBD.getComponentsRecognized() == null || cmpBD.getComponentsRecognized().isEmpty()) && (cmp.getComponentsRecognized() != null && !cmp.getComponentsRecognized().isEmpty())) {
+                    cmpBD.setComponentsRecognized(cmp.getComponentsRecognized());
+                } else if (cmp.getComponentsRecognized() != null && !cmp.getComponentsRecognized().isEmpty()) {
+                    cmpBD.getComponentsRecognized().addAll(cmp.getComponentsRecognized());
                 }
 
-                if (cmpBD.getComponentsRecognized() == null || cmpBD.getComponentsRecognized().isEmpty()) {
-                    cmpBD.setComponentsRecognized(changesProposal.getComponentsRecognized());
-                } else {
-                    cmpBD.getComponentsRecognized().addAll(changesProposal.getComponentsRecognized());
+                if ((cmpBD.getBlendedMobilityComponents() == null || cmpBD.getBlendedMobilityComponents().isEmpty()) && (cmp.getBlendedMobilityComponents() != null && !cmp.getBlendedMobilityComponents().isEmpty())) {
+                    cmpBD.setBlendedMobilityComponents(cmp.getBlendedMobilityComponents());
+                } else if (cmp.getBlendedMobilityComponents() != null && !cmp.getBlendedMobilityComponents().isEmpty()) {
+                    cmpBD.getBlendedMobilityComponents().addAll(cmp.getBlendedMobilityComponents());
                 }
 
-                if (cmpBD.getVirtualComponents() == null || cmpBD.getVirtualComponents().isEmpty()) {
-                    cmpBD.setVirtualComponents(changesProposal.getVirtualComponents());
-                } else {
-                    cmpBD.getVirtualComponents().addAll(changesProposal.getVirtualComponents());
+                if ((cmpBD.getVirtualComponents() == null || cmpBD.getVirtualComponents().isEmpty()) && (cmp.getVirtualComponents() != null && !cmp.getVirtualComponents().isEmpty())) {
+                    cmpBD.setVirtualComponents(cmp.getVirtualComponents());
+                } else if (cmp.getVirtualComponents() != null && !cmp.getVirtualComponents().isEmpty()) {
+                    cmpBD.getVirtualComponents().addAll(cmp.getVirtualComponents());
                 }
 
-                if (cmpBD.getShortTermDoctoralComponents() == null || cmpBD.getShortTermDoctoralComponents().isEmpty()) {
-                    cmpBD.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
-                } else {
-                    cmpBD.getShortTermDoctoralComponents().addAll(changesProposal.getShortTermDoctoralComponents());
+                if ((cmpBD.getShortTermDoctoralComponents() == null || cmpBD.getShortTermDoctoralComponents().isEmpty()) && (cmp.getShortTermDoctoralComponents() != null && !cmp.getShortTermDoctoralComponents().isEmpty())) {
+                    cmpBD.setShortTermDoctoralComponents(cmp.getShortTermDoctoralComponents());
+                } else if (cmp.getShortTermDoctoralComponents() != null && !cmp.getShortTermDoctoralComponents().isEmpty()) {
+                    cmpBD.getShortTermDoctoralComponents().addAll(cmp.getShortTermDoctoralComponents());
                 }
 
                 cmpBD.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
-                if (appCmp.getSignature() != null) {
-                    cmpBD.setReceivingHeiSignature(appCmp.getSignature());
-                }
+                cmpBD.setReceivingHeiSignature(cmp.getReceivingHeiSignature());
                 cmpBD.setStudentSignature(changesProposal.getStudentSignature());
 
                 em.merge(cmpBD);
@@ -154,7 +145,7 @@ public class LearningAgreementEJB {
             }
 
         } else {
-            ListOfComponents cmp = getListOfComponents(changesProposal, appCmp);
+            ListOfComponents cmp = converter.getListOfComponents(changesProposal, appCmp);
 
             em.persist(cmp);
 
@@ -165,23 +156,19 @@ public class LearningAgreementEJB {
         em.flush();
     }
 
-    public void rejectChangesProposal(OmobilityLasUpdateRequest request) {
-        CommentProposal updateComponentsStudied = updateComponentsStudied(request);
-        em.persist(updateComponentsStudied);
+    public void rejectChangesProposal(OmobilityLasUpdateRequest request, String id) {
+        CommentProposal rejectCmpStudiedDraft = converter.rejectCmpStudiedDraft(request);
+        em.persist(rejectCmpStudiedDraft);
         em.flush();
 
-        ChangesProposal changesProposal = em.find(ChangesProposal.class, request.getCommentProposalV1().getChangesProposalId());
+        OlearningAgreement omobility = findById(id);
+        ChangesProposal changesProposal = omobility.getChangesProposal();
+
         if (changesProposal.getOlearningAgreement().getFirstVersion() == null) {
-            changesProposal.setCommentProposal(updateComponentsStudied);
-            if (updateComponentsStudied.getSignature() != null) {
-                changesProposal.setReceivingHeiSignature(updateComponentsStudied.getSignature());
-            }
-            em.merge(changesProposal);
-            em.flush();
+            em.remove(omobility);
         } else {
             em.remove(changesProposal);
 
-            OlearningAgreement omobility = em.find(OlearningAgreement.class, changesProposal.getOlearningAgreement().getId());
             omobility.setChangesProposal(null);
 
             em.merge(omobility);
@@ -189,73 +176,4 @@ public class LearningAgreementEJB {
         }
     }
 
-    private ApprovedProposal approveCmpStudiedDraft(OmobilityLasUpdateRequest request) {
-        ApprovedProposal appCmp = new ApprovedProposal();
-
-        if (request == null || request.getApproveProposalV1() == null) {
-            return null;
-        }
-
-        String changesProposal = request.getApproveProposalV1().getChangesProposalId();
-        appCmp.setChangesProposalId(changesProposal);
-
-        appCmp.setOmobilityId(request.getApproveProposalV1().getOmobilityId());
-
-        Signature signature = new Signature();
-        signature.setSignerApp(request.getApproveProposalV1().getSignature().getSignerApp());
-        signature.setSignerEmail(request.getApproveProposalV1().getSignature().getSignerEmail());
-        signature.setSignerName(request.getApproveProposalV1().getSignature().getSignerName());
-        signature.setSignerPosition(request.getApproveProposalV1().getSignature().getSignerPosition());
-        if (request.getApproveProposalV1().getSignature().getTimestamp() != null) {
-            signature.setTimestamp(request.getApproveProposalV1().getSignature().getTimestamp().toGregorianCalendar().getTime());
-        }
-
-        appCmp.setSignature(signature);
-
-        return appCmp;
-    }
-
-    private static ListOfComponents getListOfComponents(ChangesProposal changesProposal, ApprovedProposal appCmp) {
-        ListOfComponents cmp = new ListOfComponents();
-
-        cmp.setBlendedMobilityComponents(changesProposal.getBlendedMobilityComponents());
-        cmp.setComponentsStudied(changesProposal.getComponentsStudied());
-        cmp.setComponentsRecognized(changesProposal.getComponentsRecognized());
-        cmp.setVirtualComponents(changesProposal.getVirtualComponents());
-        cmp.setShortTermDoctoralComponents(changesProposal.getShortTermDoctoralComponents());
-        cmp.setSendingHeiSignature(changesProposal.getSendingHeiSignature());
-        if (appCmp.getSignature() != null) {
-            cmp.setReceivingHeiSignature(appCmp.getSignature());
-        }
-        cmp.setStudentSignature(changesProposal.getStudentSignature());
-        return cmp;
-    }
-
-    private CommentProposal updateComponentsStudied(OmobilityLasUpdateRequest request) {
-        CommentProposal commentProposal = new CommentProposal();
-
-        commentProposal.setChangesProposalId(request.getCommentProposalV1().getChangesProposalId());
-        commentProposal.setComment(request.getCommentProposalV1().getComment());
-        commentProposal.setOmobilityId(request.getCommentProposalV1().getOmobilityId());
-
-        Signature signature = new Signature();
-        signature.setSignerApp(request.getCommentProposalV1().getSignature().getSignerApp());
-        signature.setSignerEmail(request.getCommentProposalV1().getSignature().getSignerEmail());
-        signature.setSignerName(request.getCommentProposalV1().getSignature().getSignerName());
-        signature.setSignerPosition(request.getCommentProposalV1().getSignature().getSignerPosition());
-        if (request.getCommentProposalV1().getSignature().getTimestamp() != null) {
-            signature.setTimestamp(request.getCommentProposalV1().getSignature().getTimestamp().toGregorianCalendar().getTime());
-        }
-        commentProposal.setSignature(signature);
-
-        return commentProposal;
-    }
-
-    public void logUtil(String heiId, String id, ApprovedProposal request) {
-        LOG.fine("UPDATE: start");
-        LOG.fine("UPDATE: heiId: " + heiId);
-        LOG.fine("UPDATE: ownId: " + id);
-        LOG.fine("UPDATE request: " + request.toString());
-
-    }
 }

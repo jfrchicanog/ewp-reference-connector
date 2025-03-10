@@ -27,7 +27,7 @@ public class Signature {
     @Id
     @GeneratedValue(generator="system-uuid")
     String id;
-    
+
     private String signerName;
     private String signerPosition;
     private String signerEmail;
@@ -37,8 +37,16 @@ public class Signature {
     private Date timestamp;
     
     private String signerApp;
-    
-	public String getSignerName() {
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getSignerName() {
 		return signerName;
 	}
 	

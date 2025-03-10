@@ -28,11 +28,11 @@ public class CommentProposal implements Serializable{
     String id;
     
     private String omobilityId;
-    
-    private String comment;
-    
+
     private String changesProposalId;
-    
+
+    private String comment;
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "COMMENT_PROPOSAL_SIGNATURE",referencedColumnName = "ID")
     private Signature signature;

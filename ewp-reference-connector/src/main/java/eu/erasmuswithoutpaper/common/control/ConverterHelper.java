@@ -88,8 +88,7 @@ public class ConverterHelper {
     public static XMLGregorianCalendar convertToXmlGregorianCalendar(Date date) throws DatatypeConfigurationException {
         GregorianCalendar c = new GregorianCalendar();
         c.setTime(date);
-        XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
-        return date2;
+        return DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
     }
     
     public static PhoneNumber convertToPhoneNumber(eu.erasmuswithoutpaper.organization.entity.PhoneNumber phoneNumber) {

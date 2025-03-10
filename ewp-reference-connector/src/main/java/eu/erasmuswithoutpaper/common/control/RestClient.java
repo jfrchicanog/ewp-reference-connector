@@ -114,6 +114,13 @@ public class RestClient {
                         if (clientRequest.isHttpsec()) {
                             httpSignature.signRequest("post", target.getUri(), postBuilder, "", requestID, body);
                         }
+                        // Log all headers again after signing
+                        logger.info("Request Headers AFTER signing:");
+                        target.getConfiguration().getProperties().forEach((key, value) -> {
+                            logger.info(key + ": " + value);
+                        });
+                        logger.info("Request Body: " + clientRequest.getXml());
+
                         response = postBuilder.post(Entity.entity(clientRequest.getXml(), MediaType.APPLICATION_XML));
                     }
                     break;
