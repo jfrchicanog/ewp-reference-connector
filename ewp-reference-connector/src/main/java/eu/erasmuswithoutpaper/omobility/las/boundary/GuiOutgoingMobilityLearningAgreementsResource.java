@@ -160,9 +160,9 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         clientRequest.setUrl(url);
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
-        clientRequest.setXml(omobilityLasUpdateRequest);
+        //clientRequest.setXml(omobilityLasUpdateRequest);
         String xml = convertObjectToString(omobilityLasUpdateRequest);
-        //clientRequest.setXml(xml);
+        clientRequest.setXml(xml);
 
         LOG.fine("APPROVE: xml: " + xml);
 
