@@ -165,6 +165,16 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         String url = map.get("update-url");
         LOG.fine("APPROVE: upd url: " + url);
 
+        ClientResponse response = sendRequest(omobilityLasUpdateRequest, url);
+        ClientResponse response2 = sendRequest(omobilityLasUpdateRequest, "https://test.tirainiciativa.es/dummy");
+
+        LOG.fine("APPROVE: response: " + response.getRawResponse());
+        LOG.fine("APPROVE: response2: " + response2.getRawResponse());
+
+        return Response.ok(response).build();
+    }
+
+    private ClientResponse sendRequest(OmobilityLasUpdateRequest omobilityLasUpdateRequest, String url) throws JAXBException {
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setUrl(url);
         clientRequest.setMethod(HttpMethodEnum.POST);
@@ -176,10 +186,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         LOG.fine("APPROVE: xml: " + xml);
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, xml);
-
-        LOG.fine("APPROVE: response: " + response.getRawResponse());
-
-        return Response.ok(response).build();
+        return response;
     }
 
     @POST
