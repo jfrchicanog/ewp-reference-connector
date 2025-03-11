@@ -156,24 +156,23 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         LOG.fine("APPROVE: xml: " + toXml2(omobilityLasUpdateRequest));
 
-        ClientResponse response = sendRequest(omobilityLasUpdateRequest, url);
-        ClientResponse response2 = sendRequestOwn(omobilityLasUpdateRequest);
+        ClientResponse hash = sendRequestOwn(omobilityLasUpdateRequest);
+
+        ClientResponse response = sendRequest(omobilityLasUpdateRequest, url, (String) hash.getResult());
 
         LOG.fine("APPROVE: response: " + response.getRawResponse());
-        LOG.fine("APPROVE: response2: " + response2.getRawResponse());
 
         return Response.ok(response).build();
     }
 
-    private ClientResponse sendRequest(OmobilityLasUpdateRequest omobilityLasUpdateRequest, String url) throws JAXBException {
+    private ClientResponse sendRequest(OmobilityLasUpdateRequest omobilityLasUpdateRequest, String url, String hash) throws JAXBException {
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setUrl(url);
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
         clientRequest.setXml(omobilityLasUpdateRequest);
-        String xml = toXml(omobilityLasUpdateRequest);
 
-        return restClient.sendRequest(clientRequest, Empty.class, true, xml);
+        return restClient.sendRequest(clientRequest, Empty.class, true, hash);
     }
 
     private ClientResponse sendRequestOwn(OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws JAXBException {

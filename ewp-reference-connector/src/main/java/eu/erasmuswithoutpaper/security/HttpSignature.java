@@ -143,7 +143,7 @@ public class HttpSignature {
         signRequest(method, uri, request, formData, requestId, null);
     }
 
-    public void signRequest(String method, URI uri, Invocation.Builder request, String formData, String requestId, String body) {
+    public void signRequest(String method, URI uri, Invocation.Builder request, String formData, String requestId, String hash) {
         try {
             final Map<String, String> headers = new HashMap<>();
 
@@ -157,8 +157,8 @@ public class HttpSignature {
 
             headers.put("Host", uri.getHost());
 
-            if (body != null && !body.isEmpty()) {
-                headers.put("Digest", computeSHA256Base64(body));
+            if (hash != null && !hash.isEmpty()) {
+                headers.put("Digest", hash);
                 headers.put("Content-Type", "application/xml"); // Adjust based on API
             } else {
                 byte[] bodyBytes = formData.getBytes();
@@ -504,15 +504,4 @@ public class HttpSignature {
         return false;
     }
 
-    public String computeSHA256Base64(String body) {
-        if (body == null || body.isEmpty()) {
-            return java.util.Base64.getEncoder().encodeToString(new byte[0]); // Return empty Base64 string
-        }
-
-        // Compute SHA-256 digest
-        byte[] binaryDigest = DigestUtils.sha256(body);
-
-        // Convert to Base64
-        return java.util.Base64.getEncoder().encodeToString(binaryDigest);
-    }
 }

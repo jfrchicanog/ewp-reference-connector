@@ -74,7 +74,7 @@ public class RestClient {
         return sendRequest(clientRequest, responseClass, sendXML, null);
     }
 
-    public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass, boolean sendXML, String body) {
+    public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass, boolean sendXML, String hash) {
         ClientResponse clientResponse = new ClientResponse();
         String requestID = UUID.randomUUID().toString();
 
@@ -110,7 +110,7 @@ public class RestClient {
                         Invocation.Builder newPostBuilder = newTarget
                                 .request(MediaType.APPLICATION_XML);
                         if (clientRequest.isHttpsec()) {
-                            httpSignature.signRequest("post", newTarget.getUri(), newPostBuilder, "", requestID, body);
+                            httpSignature.signRequest("post", newTarget.getUri(), newPostBuilder, "", requestID, hash);
                         }
                         // Log all headers again after signing
                         logger.info("Request Headers AFTER signing:");
@@ -277,8 +277,6 @@ public class RestClient {
                             .map(es -> es.getKey() + ": " + es.getValue().stream().map(Object::toString).collect(Collectors.joining(", ")))
                             .collect(Collectors.toList()));
 
-            String rawResponse = "";
-            clientResponse.setRawResponse(rawResponse);
             clientResponse.setResult(response.readEntity(String.class));
 
             logger.info("Response Headers:");
