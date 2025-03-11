@@ -236,10 +236,10 @@ public class RestClient {
     }
 
     public ClientResponse sendRequestOwn(ClientRequest clientRequest) {
+        logger.info("Sending request to: " + clientRequest.getUrl());
         // Create an SSL context that ignores hostname verification and trust validation
-        SSLContext sslContext = null;
         try {
-            sslContext = SSLContext.getInstance("TLS");
+            SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, new TrustManager[]{new X509TrustManager() {
                 public void checkClientTrusted(X509Certificate[] chain, String authType) {
                 }
@@ -291,6 +291,7 @@ public class RestClient {
 
             return clientResponse;
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            logger.error("failed to send request", e);
             throw new RuntimeException(e);
         }
 
