@@ -11,6 +11,7 @@ import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.iia.boundary.NotifyAux;
+import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.omobility.las.control.LearningAgreementEJB;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
@@ -19,6 +20,7 @@ import eu.erasmuswithoutpaper.omobility.las.entity.ListOfComponents;
 import eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution;
 import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
 import eu.erasmuswithoutpaper.omobility.las.entity.Student;
+import org.w3c.dom.Document;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -29,9 +31,20 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiPredicate;
@@ -141,7 +154,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("update/approve")
     @Consumes("application/json")
-    public Response updateAccept(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws JAXBException, IOException, DatatypeConfigurationException {
+    public Response updateAccept(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws Exception {
         LOG.fine("APPROVE: start");
         LOG.fine("APPROVE: ownId: " + id);
         LOG.fine("APPROVE request: " + omobilityLasUpdateRequest.toString());
@@ -165,6 +178,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         //clientRequest.setXml(xml);
 
         LOG.fine("APPROVE: xml: " + xml);
+        LOG.fine("XML_TEST: " + getXmlTransformed(omobilityLasUpdateRequest));
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, xml);
 
@@ -303,5 +317,50 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         java.io.StringWriter sw = new java.io.StringWriter();
         marshaller.marshal(request, sw);
         return sw.toString();
+    }
+
+    private static String getXmlTransformed(OmobilityLasUpdateRequest request) throws Exception {
+        System.setProperty(
+                "javax.xml.transform.TransformerFactory","net.sf.saxon.TransformerFactoryImpl");
+        LOG.fine("HASH UTILS: start transformation");
+        byte[] xmlBytes = convertObjectToByteArray(request);
+        byte[] xsltBytes = Files.readAllBytes(Paths.get(HashCalculationUtility.class.getClassLoader().getResource("META-INF/transform_version_7.xsl").toURI()));
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document document = db.parse(new ByteArrayInputStream(xmlBytes));
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer(
+                new StreamSource(new ByteArrayInputStream(xsltBytes)));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        transformer.transform(new DOMSource(document), new StreamResult(output));
+
+        LOG.fine("HASH UTILS: transformation finished");
+
+        return output.toString();
+    }
+
+    private static byte[] convertObjectToByteArray(OmobilityLasUpdateRequest request) throws JAXBException, IOException {
+        LOG.fine("HASH UTILS: start iias object to byte array conversion");
+        // Create JAXBContext
+        JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.class);
+
+        // Create Marshaller
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        // Marshal the object to XML
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(request, sw);
+
+        LOG.fine("HASH UTILS: iias object to XML: " + sw.toString());
+
+        LOG.fine("HASH UTILS: iias object to byte array conversion finished");
+
+        // Convert XML to byte array
+        return sw.toString().getBytes(StandardCharsets.UTF_8);
     }
 }
