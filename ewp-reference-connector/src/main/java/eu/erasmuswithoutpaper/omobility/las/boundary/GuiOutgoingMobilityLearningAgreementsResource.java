@@ -1,7 +1,6 @@
 package eu.erasmuswithoutpaper.omobility.las.boundary;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
-import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.*;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
@@ -16,10 +15,7 @@ import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.omobility.las.control.LearningAgreementEJB;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
-import eu.erasmuswithoutpaper.omobility.las.entity.ListOfComponents;
 import eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution;
-import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
-import eu.erasmuswithoutpaper.omobility.las.entity.Student;
 import org.w3c.dom.Document;
 
 import javax.ejb.EJB;
@@ -346,7 +342,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     private static byte[] convertObjectToByteArray(OmobilityLasUpdateRequest request) throws JAXBException, IOException {
         LOG.fine("HASH UTILS: start iias object to byte array conversion");
         // Create JAXBContext
-        JAXBContext jaxbContext = JAXBContext.newInstance(IiasGetResponse.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(OmobilityLasUpdateRequest.class);
 
         // Create Marshaller
         Marshaller marshaller = jaxbContext.createMarshaller();
