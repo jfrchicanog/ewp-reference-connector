@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -154,10 +155,11 @@ public class HttpSignature {
             final String stringToday = rfc1123Format.format(today);
             headers.put("Original-Date", stringToday);
 
-            headers.put("host", uri.getHost());
+            headers.put("Host", uri.getHost());
 
             if (body != null && !body.isEmpty()) {
                 headers.put("Digest", computeSHA256Base64(body));
+                headers.put("Content-Type", "application/xml"); // Adjust based on API
             } else {
                 byte[] bodyBytes = formData.getBytes();
                 final byte[] digest = MessageDigest.getInstance("SHA-256").digest(bodyBytes);

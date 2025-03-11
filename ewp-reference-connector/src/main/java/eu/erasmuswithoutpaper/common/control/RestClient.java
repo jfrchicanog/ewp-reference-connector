@@ -110,18 +110,21 @@ public class RestClient {
                         Entity<String> entity = Entity.entity(formData, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
                         response = postBuilder.post(entity);
                     }else {
-                        Invocation.Builder postBuilder = target.request();
+                        Client client = ClientBuilder.newClient();
+                        WebTarget newTarget = client.target(clientRequest.getUrl());
+                        Invocation.Builder newPostBuilder = newTarget
+                                .request(MediaType.APPLICATION_XML);
                         if (clientRequest.isHttpsec()) {
-                            httpSignature.signRequest("post", target.getUri(), postBuilder, "", requestID, body);
+                            httpSignature.signRequest("post", target.getUri(), newPostBuilder, "", requestID, body);
                         }
                         // Log all headers again after signing
                         logger.info("Request Headers AFTER signing:");
-                        target.getConfiguration().getProperties().forEach((key, value) -> {
+                        newTarget.getConfiguration().getProperties().forEach((key, value) -> {
                             logger.info(key + ": " + value);
                         });
                         logger.info("Request Body: " + clientRequest.getXml());
 
-                        response = postBuilder.post(Entity.entity(clientRequest.getXml(), MediaType.APPLICATION_XML));
+                        response = newPostBuilder.post(Entity.entity(clientRequest.getXml(), MediaType.APPLICATION_XML));
                     }
                     break;
                 case PUT:

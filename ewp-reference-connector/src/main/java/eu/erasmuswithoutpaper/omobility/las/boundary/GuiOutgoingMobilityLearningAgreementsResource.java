@@ -160,9 +160,9 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         clientRequest.setUrl(url);
         clientRequest.setMethod(HttpMethodEnum.POST);
         clientRequest.setHttpsec(true);
-        //clientRequest.setXml(omobilityLasUpdateRequest);
-        String xml = convertObjectToString(omobilityLasUpdateRequest);
-        clientRequest.setXml(xml);
+        clientRequest.setXml(omobilityLasUpdateRequest);
+        String xml = toXml(omobilityLasUpdateRequest);
+        //clientRequest.setXml(xml);
 
         LOG.fine("APPROVE: xml: " + xml);
 
@@ -195,7 +195,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         clientRequest.setHttpsec(true);
         clientRequest.setXml(omobilityLasUpdateRequest);
 
-        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, convertObjectToString(omobilityLasUpdateRequest));
+        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, toXml(omobilityLasUpdateRequest));
 
         LOG.fine("REJCET: response: " + response.getRawResponse());
 
@@ -295,27 +295,13 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         return omobilitiesLas;
     }
 
-    private static String convertObjectToString(Object obj) throws JAXBException, IOException {
-        if (obj == null) {
-            return "";
-        }
-        LOG.fine("convertObjectToString: obj: " + obj.toString());
+    private static String toXml(OmobilityLasUpdateRequest request) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(OmobilityLasUpdateRequest.class);
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-        try {
-            // Create JAXB context for the object's class
-            JAXBContext context = JAXBContext.newInstance(obj.getClass());
-            Marshaller marshaller = context.createMarshaller();
-
-            // Make the output formatted for readability (optional)
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-            // Convert the object to XML string
-            StringWriter writer = new StringWriter();
-            marshaller.marshal(obj, writer);
-            return writer.toString();
-
-        } catch (JAXBException e) {
-            throw new RuntimeException("Error converting object to XML string", e);
-        }
+        java.io.StringWriter sw = new java.io.StringWriter();
+        marshaller.marshal(request, sw);
+        return sw.toString();
     }
 }
