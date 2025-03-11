@@ -111,7 +111,7 @@ public class RestClient {
                         response = postBuilder.post(entity);
                     }else {
                         Client client = ClientBuilder.newClient();
-                        WebTarget newTarget = client.target(clientRequest.getUrl());
+                        WebTarget newTarget = client.target(/*clientRequest.getUrl()*/"https://test.tirainiciativa.es/dummy");
                         Invocation.Builder newPostBuilder = newTarget
                                 .request(MediaType.APPLICATION_XML);
                         if (clientRequest.isHttpsec()) {
