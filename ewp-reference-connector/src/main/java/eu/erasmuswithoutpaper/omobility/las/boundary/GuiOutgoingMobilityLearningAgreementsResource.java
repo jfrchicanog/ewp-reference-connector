@@ -157,7 +157,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         LOG.fine("APPROVE: xml: " + toXml2(omobilityLasUpdateRequest));
 
         ClientResponse response = sendRequest(omobilityLasUpdateRequest, url);
-        ClientResponse response2 = sendRequest(omobilityLasUpdateRequest, "https://ewp-test.uma.es/algoria/omobilities/las/test/digest");
+        ClientResponse response2 = sendRequest(omobilityLasUpdateRequest, "https://localhost/algoria/omobilities/las/test/digest");
 
         LOG.fine("APPROVE: response: " + response.getRawResponse());
         LOG.fine("APPROVE: response2: " + response2.getRawResponse());
