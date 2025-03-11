@@ -183,7 +183,6 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         clientRequest.setHttpsec(true);
         clientRequest.setXml(omobilityLasUpdateRequest);
 
-        String xml = toXml(omobilityLasUpdateRequest);
         return restClient.sendRequestOwn(clientRequest);
     }
 

@@ -281,6 +281,14 @@ public class RestClient {
             clientResponse.setRawResponse(rawResponse);
             clientResponse.setResult(response.readEntity(String.class));
 
+            logger.info("Response Headers:");
+            response.getHeaders().forEach((key, value) -> {
+                logger.info(key + ": " + value);
+            });
+
+            logger.info("Response Body: " + clientResponse.getResult());
+            logger.info("Response Status: " + clientResponse.getStatusCode());
+
             return clientResponse;
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             throw new RuntimeException(e);
