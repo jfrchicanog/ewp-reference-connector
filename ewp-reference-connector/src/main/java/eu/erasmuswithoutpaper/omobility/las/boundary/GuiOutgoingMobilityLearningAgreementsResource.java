@@ -10,14 +10,12 @@ import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.iia.boundary.NotifyAux;
-import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.omobility.las.control.LearningAgreementEJB;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
 import eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution;
 import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
-import org.w3c.dom.Document;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -27,26 +25,14 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiPredicate;
 
 @Path("omobilities/las/test")
 public class GuiOutgoingMobilityLearningAgreementsResource {
@@ -171,7 +157,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         LOG.fine("APPROVE: xml: " + toXml2(omobilityLasUpdateRequest));
 
         ClientResponse response = sendRequest(omobilityLasUpdateRequest, url);
-        ClientResponse response2 = sendRequest(omobilityLasUpdateRequest, "https://test.tirainiciativa.es/dummy");
+        ClientResponse response2 = sendRequest(omobilityLasUpdateRequest, "https://ewp-test.uma.es/algoria/omobilities/las/test/digest");
 
         LOG.fine("APPROVE: response: " + response.getRawResponse());
         LOG.fine("APPROVE: response2: " + response2.getRawResponse());
@@ -336,5 +322,25 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         marshaller.marshal(root, writer);
 
         return writer.toString();
+    }
+
+    @POST
+    @Path("digest")
+    public Response computeDigest(String body) {
+        try {
+            // Compute SHA-256 Digest
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] binaryDigest = digest.digest(body.getBytes(StandardCharsets.UTF_8));
+
+            // Encode to Base64
+            String base64Digest = Base64.getEncoder().encodeToString(binaryDigest);
+
+            // Return the computed digest as a plain text response
+            return Response.ok(base64Digest).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error computing digest: " + e.getMessage()).build();
+        }
     }
 }
