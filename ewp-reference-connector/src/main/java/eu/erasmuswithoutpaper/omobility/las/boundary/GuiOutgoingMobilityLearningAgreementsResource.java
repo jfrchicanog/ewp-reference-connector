@@ -316,27 +316,8 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     }
 
     private static String getXmlTransformed(OmobilityLasUpdateRequest request) throws Exception {
-        System.setProperty(
-                "javax.xml.transform.TransformerFactory","net.sf.saxon.TransformerFactoryImpl");
-        LOG.fine("HASH UTILS: start transformation");
         byte[] xmlBytes = convertObjectToByteArray(request);
-        byte[] xsltBytes = Files.readAllBytes(Paths.get(HashCalculationUtility.class.getClassLoader().getResource("META-INF/transform_version_7.xsl").toURI()));
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document document = db.parse(new ByteArrayInputStream(xmlBytes));
-
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer(
-                new StreamSource(new ByteArrayInputStream(xsltBytes)));
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-        transformer.transform(new DOMSource(document), new StreamResult(output));
-
-        LOG.fine("HASH UTILS: transformation finished");
-
-        return output.toString();
+        return new String(xmlBytes, StandardCharsets.UTF_8);
     }
 
     private static byte[] convertObjectToByteArray(OmobilityLasUpdateRequest request) throws JAXBException, IOException {
