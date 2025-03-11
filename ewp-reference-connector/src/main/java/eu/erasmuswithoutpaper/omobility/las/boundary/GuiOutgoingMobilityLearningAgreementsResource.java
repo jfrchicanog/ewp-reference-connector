@@ -157,7 +157,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         ClientResponse hash = sendRequestOwn(omobilityLasUpdateRequest);
 
-        String hashString = hash.getRawResponse();
+        String hashString = (String) hash.getResult();
 
         LOG.fine("APPROVE: hash: " + hashString);
 
