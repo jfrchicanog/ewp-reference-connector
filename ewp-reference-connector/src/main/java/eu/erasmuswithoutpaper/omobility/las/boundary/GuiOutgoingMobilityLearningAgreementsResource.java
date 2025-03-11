@@ -154,11 +154,14 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         String url = map.get("update-url");
         LOG.fine("APPROVE: upd url: " + url);
 
-        LOG.fine("APPROVE: xml: " + toXml2(omobilityLasUpdateRequest));
 
         ClientResponse hash = sendRequestOwn(omobilityLasUpdateRequest);
 
-        ClientResponse response = sendRequest(omobilityLasUpdateRequest, url, (String) hash.getResult());
+        String hashString = hash.getRawResponse();
+
+        LOG.fine("APPROVE: hash: " + hashString);
+
+        ClientResponse response = sendRequest(omobilityLasUpdateRequest, url, hashString);
 
         LOG.fine("APPROVE: response: " + response.getRawResponse());
 

@@ -158,6 +158,7 @@ public class HttpSignature {
             headers.put("Host", uri.getHost());
 
             if (hash != null && !hash.isEmpty()) {
+                logger.info("Using hash: " + hash);
                 headers.put("Digest", hash);
                 headers.put("Content-Type", "application/xml"); // Adjust based on API
             } else {
