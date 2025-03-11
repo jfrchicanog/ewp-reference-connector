@@ -18,7 +18,7 @@
             <jaxb:package name="eu.erasmuswithoutpaper.api.omobilities.las.endpoints"/>
         </jaxb:schemaBindings>
     </jaxb:bindings>    
-    <jaxb:bindings schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobility-las/v1.2.0/endpoints/update-request.xsd">
+    <jaxb:bindings schemaLocation="https://raw.githubusercontent.com/erasmus-without-paper/ewp-specs-api-omobility-las/stable-v1/endpoints/update-request.xsd">
         <jaxb:schemaBindings>
             <jaxb:package name="eu.erasmuswithoutpaper.api.omobilities.las.endpoints"/>
         </jaxb:schemaBindings>

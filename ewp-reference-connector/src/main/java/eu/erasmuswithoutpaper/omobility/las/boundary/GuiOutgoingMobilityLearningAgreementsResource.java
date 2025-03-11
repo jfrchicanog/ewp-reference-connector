@@ -16,6 +16,7 @@ import eu.erasmuswithoutpaper.omobility.las.control.LearningAgreementEJB;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
 import eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution;
+import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
 import org.w3c.dom.Document;
 
 import javax.ejb.EJB;
@@ -23,10 +24,12 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -165,6 +168,8 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         String url = map.get("update-url");
         LOG.fine("APPROVE: upd url: " + url);
 
+        LOG.fine("APPROVE: xml: " + toXml2(omobilityLasUpdateRequest));
+
         ClientResponse response = sendRequest(omobilityLasUpdateRequest, url);
         ClientResponse response2 = sendRequest(omobilityLasUpdateRequest, "https://test.tirainiciativa.es/dummy");
 
@@ -181,12 +186,8 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         clientRequest.setHttpsec(true);
         clientRequest.setXml(omobilityLasUpdateRequest);
         String xml = toXml(omobilityLasUpdateRequest);
-        //clientRequest.setXml(xml);
 
-        LOG.fine("APPROVE: xml: " + xml);
-
-        ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, xml);
-        return response;
+        return restClient.sendRequest(clientRequest, Empty.class, true, xml);
     }
 
     @POST
@@ -319,5 +320,21 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         java.io.StringWriter sw = new java.io.StringWriter();
         marshaller.marshal(request, sw);
         return sw.toString();
+    }
+
+    private static String toXml2(OmobilityLasUpdateRequest request) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(OmobilityLasUpdateRequest.class, ApproveProposalV1.class, Signature.class);
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
+        marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true); // Remove XML header
+
+        // Wrapping the object with the correct QName
+        QName qName = new QName("https://github.com/erasmus-without-paper/ewp-specs-api-omobility-las/blob/stable-v1/endpoints/update-request.xsd", "omobility-las-update-request", "ns7");
+        JAXBElement<OmobilityLasUpdateRequest> root = new JAXBElement<>(qName, OmobilityLasUpdateRequest.class, request);
+
+        StringWriter writer = new StringWriter();
+        marshaller.marshal(root, writer);
+
+        return writer.toString();
     }
 }
