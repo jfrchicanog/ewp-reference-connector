@@ -111,11 +111,11 @@ public class RestClient {
                         response = postBuilder.post(entity);
                     }else {
                         Client client = ClientBuilder.newClient();
-                        WebTarget newTarget = client.target(/*clientRequest.getUrl()*/"https://test.tirainiciativa.es/dummy");
+                        WebTarget newTarget = client.target(clientRequest.getUrl());
                         Invocation.Builder newPostBuilder = newTarget
                                 .request(MediaType.APPLICATION_XML);
                         if (clientRequest.isHttpsec()) {
-                            httpSignature.signRequest("post", target.getUri(), newPostBuilder, "", requestID, body);
+                            httpSignature.signRequest("post", newTarget.getUri(), newPostBuilder, "", requestID, body);
                         }
                         // Log all headers again after signing
                         logger.info("Request Headers AFTER signing:");
@@ -125,6 +125,23 @@ public class RestClient {
                         logger.info("Request Body: " + clientRequest.getXml());
 
                         response = newPostBuilder.post(Entity.entity(clientRequest.getXml(), MediaType.APPLICATION_XML));
+
+                        Client client2 = ClientBuilder.newClient();
+                        WebTarget newTarget2 = client.target("https://test.tirainiciativa.es/dummy");
+                        Invocation.Builder newPostBuilder2 = newTarget
+                                .request(MediaType.APPLICATION_XML);
+                        if (clientRequest.isHttpsec()) {
+                            httpSignature.signRequest("post", newTarget2.getUri(), newPostBuilder2, "", requestID, body);
+                        }
+                        // Log all headers again after signing
+                        logger.info("Request Headers AFTER signing:");
+                        newTarget2.getConfiguration().getProperties().forEach((key, value) -> {
+                            logger.info(key + ": " + value);
+                        });
+                        logger.info("Request Body: " + clientRequest.getXml());
+
+                        Response response2 = newPostBuilder2.post(Entity.entity(clientRequest.getXml(), MediaType.APPLICATION_XML));
+
                     }
                     break;
                 case PUT:

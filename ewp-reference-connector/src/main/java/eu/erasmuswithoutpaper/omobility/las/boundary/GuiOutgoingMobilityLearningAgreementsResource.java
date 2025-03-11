@@ -174,7 +174,6 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         //clientRequest.setXml(xml);
 
         LOG.fine("APPROVE: xml: " + xml);
-        LOG.fine("XML_TEST: " + getXmlTransformed(omobilityLasUpdateRequest));
 
         ClientResponse response = restClient.sendRequest(clientRequest, Empty.class, true, xml);
 
@@ -313,31 +312,5 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         java.io.StringWriter sw = new java.io.StringWriter();
         marshaller.marshal(request, sw);
         return sw.toString();
-    }
-
-    private static String getXmlTransformed(OmobilityLasUpdateRequest request) throws Exception {
-        byte[] xmlBytes = convertObjectToByteArray(request);
-        return new String(xmlBytes, StandardCharsets.UTF_8);
-    }
-
-    private static byte[] convertObjectToByteArray(OmobilityLasUpdateRequest request) throws JAXBException, IOException {
-        LOG.fine("HASH UTILS: start iias object to byte array conversion");
-        // Create JAXBContext
-        JAXBContext jaxbContext = JAXBContext.newInstance(OmobilityLasUpdateRequest.class);
-
-        // Create Marshaller
-        Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        // Marshal the object to XML
-        StringWriter sw = new StringWriter();
-        marshaller.marshal(request, sw);
-
-        LOG.fine("HASH UTILS: iias object to XML: " + sw.toString());
-
-        LOG.fine("HASH UTILS: iias object to byte array conversion finished");
-
-        // Convert XML to byte array
-        return sw.toString().getBytes(StandardCharsets.UTF_8);
     }
 }
