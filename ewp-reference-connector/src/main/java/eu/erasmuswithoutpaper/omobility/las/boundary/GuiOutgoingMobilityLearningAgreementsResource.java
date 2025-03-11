@@ -157,7 +157,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         LOG.fine("APPROVE: xml: " + toXml2(omobilityLasUpdateRequest));
 
         ClientResponse response = sendRequest(omobilityLasUpdateRequest, url);
-        ClientResponse response2 = sendRequest(omobilityLasUpdateRequest, "https://localhost/algoria/omobilities/las/test/digest");
+        ClientResponse response2 = sendRequestOwn(omobilityLasUpdateRequest);
 
         LOG.fine("APPROVE: response: " + response.getRawResponse());
         LOG.fine("APPROVE: response2: " + response2.getRawResponse());
@@ -174,6 +174,17 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         String xml = toXml(omobilityLasUpdateRequest);
 
         return restClient.sendRequest(clientRequest, Empty.class, true, xml);
+    }
+
+    private ClientResponse sendRequestOwn(OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws JAXBException {
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setUrl("https://localhost/algoria/omobilities/las/test/digest");
+        clientRequest.setMethod(HttpMethodEnum.POST);
+        clientRequest.setHttpsec(true);
+        clientRequest.setXml(omobilityLasUpdateRequest);
+
+        String xml = toXml(omobilityLasUpdateRequest);
+        return restClient.sendRequestOwn(clientRequest);
     }
 
     @POST

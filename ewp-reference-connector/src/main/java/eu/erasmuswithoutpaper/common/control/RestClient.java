@@ -1,30 +1,22 @@
 package eu.erasmuswithoutpaper.common.control;
 
+import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.institutions.InstitutionsResponse;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.security.HttpSignature;
+
 import java.io.StringReader;
 import java.net.URLEncoder;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -35,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +56,8 @@ public class RestClient {
             }
             clientBuilder.hostnameVerifier((String string, SSLSession ssls) -> true);
             client = clientBuilder.build();
-        } catch (NoSuchAlgorithmException | KeyStoreException | NoSuchProviderException | UnrecoverableKeyException | KeyManagementException ex) {
+        } catch (NoSuchAlgorithmException | KeyStoreException | NoSuchProviderException | UnrecoverableKeyException |
+                 KeyManagementException ex) {
             logger.error("Cant't create HTTP client.", ex);
         }
     }
@@ -75,6 +69,7 @@ public class RestClient {
     public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass) {
         return sendRequest(clientRequest, responseClass, false);
     }
+
     public ClientResponse sendRequest(ClientRequest clientRequest, Class responseClass, boolean sendXML) {
         return sendRequest(clientRequest, responseClass, sendXML, null);
     }
@@ -109,7 +104,7 @@ public class RestClient {
 
                         Entity<String> entity = Entity.entity(formData, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
                         response = postBuilder.post(entity);
-                    }else {
+                    } else {
                         Client client = ClientBuilder.newClient();
                         WebTarget newTarget = client.target(clientRequest.getUrl());
                         Invocation.Builder newPostBuilder = newTarget
@@ -239,4 +234,58 @@ public class RestClient {
 
         return sb.toString();
     }
+
+    public ClientResponse sendRequestOwn(ClientRequest clientRequest) {
+        // Create an SSL context that ignores hostname verification and trust validation
+        SSLContext sslContext = null;
+        try {
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+                public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                }
+
+                public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                }
+
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+            }}, new SecureRandom());
+
+            // Create a custom hostname verifier that always returns true
+            HostnameVerifier hostnameVerifier = (hostname, session) -> true;
+
+            // Create a client with the custom SSL context and hostname verifier
+            Client client = ClientBuilder.newBuilder()
+                    .sslContext(sslContext)
+                    .hostnameVerifier(hostnameVerifier)
+                    .build();
+            WebTarget newTarget = client.target(clientRequest.getUrl());
+            Invocation.Builder newPostBuilder = newTarget
+                    .request(MediaType.APPLICATION_XML);
+
+            Response response = newPostBuilder.post(Entity.entity(clientRequest.getXml(), MediaType.APPLICATION_XML));
+
+            ClientResponse clientResponse = new ClientResponse();
+            clientResponse.setStatusCode(response.getStatus());
+            clientResponse.setMediaType(response.getMediaType().toString());
+            clientResponse.setHeaders(
+                    response
+                            .getHeaders()
+                            .entrySet()
+                            .stream()
+                            .map(es -> es.getKey() + ": " + es.getValue().stream().map(Object::toString).collect(Collectors.joining(", ")))
+                            .collect(Collectors.toList()));
+
+            String rawResponse = "";
+            clientResponse.setRawResponse(rawResponse);
+            clientResponse.setResult(response.readEntity(String.class));
+
+            return clientResponse;
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 }
