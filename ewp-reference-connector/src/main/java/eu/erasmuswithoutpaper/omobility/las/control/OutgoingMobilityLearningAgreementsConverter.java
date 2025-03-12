@@ -2,12 +2,13 @@ package eu.erasmuswithoutpaper.omobility.las.control;
 
 import java.time.YearMonth;
 import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import eu.erasmuswithoutpaper.api.types.phonenumber.PhoneNumber;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
@@ -575,7 +576,22 @@ public class OutgoingMobilityLearningAgreementsConverter {
         signature.setSignerEmail(s.getSignerEmail());
 
         if (s.getTimestamp() != null) {
-            signature.setTimestamp(s.getTimestamp().toGregorianCalendar().getTime());
+            XMLGregorianCalendar xmlCal = s.getTimestamp();
+            GregorianCalendar gregCal = xmlCal.toGregorianCalendar();
+
+            // Get the timezone
+            TimeZone timeZone = gregCal.getTimeZone();
+            ZoneId zoneId = timeZone.toZoneId();
+
+            // Convert to Instant and retain timezone
+            ZonedDateTime zonedDateTime = gregCal.toZonedDateTime();
+
+            // Set the timestamp in signature
+            signature.setTimestamp(Date.from(zonedDateTime.toInstant()));
+
+            // Print timestamp with timezone
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+            logger.info("Timestamp with TimeZone: " + zonedDateTime.format(formatter));
         }
 
         signature.setSignerApp(s.getSignerApp());
