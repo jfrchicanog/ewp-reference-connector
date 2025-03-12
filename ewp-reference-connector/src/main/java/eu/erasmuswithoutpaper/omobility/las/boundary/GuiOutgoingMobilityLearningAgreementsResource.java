@@ -217,6 +217,20 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         return Response.ok(response).build();
     }
 
+    @GET
+    @Path("XML")
+    @Consumes("application/xml")
+    public Response getXML(@QueryParam("id") String id) {
+
+        LOG.fine("XML: start");
+
+        OlearningAgreement olearningAgreement = learningAgreementEJB.findById(id);
+        OmobilityLasGetResponse response = new OmobilityLasGetResponse();
+        response.getLa().add(converter.convertToLearningAgreements(olearningAgreement));
+
+        return Response.ok(response).build();
+    }
+
     private List<ClientResponse> notifyPartner(OlearningAgreement olearningAgreement) {
         LOG.fine("NOTIFY: Send notification");
 
