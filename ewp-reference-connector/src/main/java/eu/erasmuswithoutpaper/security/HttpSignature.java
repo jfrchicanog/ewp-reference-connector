@@ -159,7 +159,7 @@ public class HttpSignature {
 
             if (hash != null && !hash.isEmpty()) {
                 logger.info("Using hash: " + hash);
-                headers.put("Digest", hash);
+                headers.put("Digest", "SHA-256="+hash);
                 headers.put("Content-Type", "application/xml"); // Adjust based on API
             } else {
                 byte[] bodyBytes = formData.getBytes();
