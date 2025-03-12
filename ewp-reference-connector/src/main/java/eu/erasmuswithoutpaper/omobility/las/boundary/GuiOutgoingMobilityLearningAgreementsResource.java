@@ -143,17 +143,11 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         LOG.fine("APPROVE: start");
         LOG.fine("APPROVE: ownId: " + id);
         LOG.fine("APPROVE request: " + omobilityLasUpdateRequest.toString());
-        if (omobilityLasUpdateRequest.getApproveProposalV1() != null && omobilityLasUpdateRequest.getApproveProposalV1().getSignature() != null) {
-            omobilityLasUpdateRequest.getApproveProposalV1().getSignature().setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
-        }
-
-        learningAgreementEJB.approveChangesProposal(omobilityLasUpdateRequest, id);
 
         Map<String, String> map = registryClient.getOmobilityLasHeiUrls(omobilityLasUpdateRequest.getSendingHeiId());
         LOG.fine("APPROVE: map: " + map.toString());
         String url = map.get("update-url");
         LOG.fine("APPROVE: upd url: " + url);
-
 
         ClientResponse hash = sendRequestOwn(omobilityLasUpdateRequest);
 
@@ -164,6 +158,17 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         ClientResponse response = sendRequest(omobilityLasUpdateRequest, url, hashString);
 
         LOG.fine("APPROVE: response: " + response.getRawResponse());
+
+        if (response.getStatusCode() != Response.Status.OK.getStatusCode()) {
+            return Response.status(response.getStatusCode()).entity(response.getErrorMessage()).build();
+        }
+
+        if (omobilityLasUpdateRequest.getApproveProposalV1() != null && omobilityLasUpdateRequest.getApproveProposalV1().getSignature() != null) {
+            omobilityLasUpdateRequest.getApproveProposalV1().getSignature().setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
+        }
+
+        learningAgreementEJB.approveChangesProposal(omobilityLasUpdateRequest, id);
+
 
         return Response.ok(response).build();
     }
