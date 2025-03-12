@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.omobility.las.entity;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 
@@ -34,7 +35,7 @@ public class Signature {
     
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date timestamp;
+    private Instant timestamp;
     
     private String signerApp;
 
@@ -70,11 +71,11 @@ public class Signature {
 		this.signerEmail = signerEmail;
 	}
 	
-	public Date getTimestamp() {
+	public Instant getTimestamp() {
 		return timestamp;
 	}
 	
-	public void setTimestamp(Date timestamp) {
+	public void setTimestamp(Instant timestamp) {
 		this.timestamp = timestamp;
 	}
 	

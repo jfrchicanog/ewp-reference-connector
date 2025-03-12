@@ -587,7 +587,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
             ZonedDateTime zonedDateTime = gregCal.toZonedDateTime();
 
             // Set the timestamp in signature
-            signature.setTimestamp(Date.from(zonedDateTime.toInstant()));
+            signature.setTimestamp(zonedDateTime.toInstant());
 
             // Print timestamp with timezone
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");

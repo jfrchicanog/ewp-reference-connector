@@ -8,6 +8,7 @@ import eu.erasmuswithoutpaper.api.types.address.FlexibleAddress;
 import eu.erasmuswithoutpaper.api.types.phonenumber.PhoneNumber;
 import eu.erasmuswithoutpaper.organization.entity.LanguageItem;
 
+import java.time.Instant;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,6 +89,12 @@ public class ConverterHelper {
     public static XMLGregorianCalendar convertToXmlGregorianCalendar(Date date) throws DatatypeConfigurationException {
         GregorianCalendar c = new GregorianCalendar();
         c.setTime(date);
+        return DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+    }
+
+    public static XMLGregorianCalendar convertToXmlGregorianCalendar(Instant date) throws DatatypeConfigurationException {
+        GregorianCalendar c = new GregorianCalendar();
+        c.setTime(Date.from(date));
         return DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
     }
     
