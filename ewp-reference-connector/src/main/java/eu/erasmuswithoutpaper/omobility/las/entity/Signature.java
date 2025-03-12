@@ -33,7 +33,7 @@ public class Signature {
     private String signerEmail;
     
     @JohnzonConverter(StandardDateConverter.class)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date timestamp;
     
     private String signerApp;
