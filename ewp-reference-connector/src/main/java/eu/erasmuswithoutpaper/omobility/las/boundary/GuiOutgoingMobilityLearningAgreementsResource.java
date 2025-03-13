@@ -393,8 +393,8 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         String url = map.get("get-url");
 
-        ClientResponse response = sendRequestAux(olearningAgreement.getSendingHei().getHeiId(), id, "https://localhost/rest/omobilities/las/get");
-        ClientResponse response2 = sendRequestAux(olearningAgreement.getSendingHei().getHeiId(), olearningAgreement.getOmobilityId(), url);
+        ClientResponse response = sendRequestAux(olearningAgreement.getSendingHei().getHeiId(), id, "https://localhost/rest/omobilities/las/get", OmobilityLasGetResponse.class);
+        ClientResponse response2 = sendRequestAux(olearningAgreement.getSendingHei().getHeiId(), olearningAgreement.getOmobilityId(), url, OmobilityLasGetResponse.class);
 
         log.info("getComapre: Response own: " + response.getRawResponse());
         log.info("getComapre: Response partner: " + response2.getRawResponse());
@@ -414,7 +414,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
     }
 
-    private ClientResponse sendRequestAux(String sendingHeiId, String id, String url) {
+    private ClientResponse sendRequestAux(String sendingHeiId, String id, String url, Class<?> clazz) {
         Map<String, List<String>> map = new HashMap<>();
         map.put("sending_hei_id", Collections.singletonList(sendingHeiId));
         map.put("omobility_id", Collections.singletonList(id));
@@ -430,7 +430,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         clientRequest.setHttpsec(true);
         clientRequest.setParams(paramsClass);
 
-        return restClient.sendRequest(clientRequest, String.class);
+        return restClient.sendRequest(clientRequest, clazz);
     }
 
 }
