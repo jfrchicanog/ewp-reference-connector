@@ -202,7 +202,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
     private ComponentList convertToComponentsList(List<eu.erasmuswithoutpaper.omobility.las.entity.Component> oLasComponents) {
         ComponentList componentList = new ComponentList();
 
-        if (oLasComponents == null) {
+        if (oLasComponents == null || oLasComponents.isEmpty()) {
             return null;
         }
 

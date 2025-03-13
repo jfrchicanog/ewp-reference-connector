@@ -399,6 +399,17 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         log.info("getComapre: Response own: " + response.getRawResponse());
         log.info("getComapre: Response partner: " + response2.getRawResponse());
 
+        OmobilityLasGetResponse a = (OmobilityLasGetResponse) response2.getResult();
+        if (a.getLa() != null) {
+            a.getLa().forEach(la -> {
+                if (la.getChangesProposal() != null &&  la.getChangesProposal().getComponentsRecognized() != null && la.getChangesProposal().getComponentsRecognized().getComponent() != null) {
+                    la.getChangesProposal().getComponentsRecognized().getComponent().forEach(component -> {
+                        log.info("getComapre: component: " + component.getTitle());
+                    });
+                }
+            });
+        }
+
         return Response.ok().build();
 
     }

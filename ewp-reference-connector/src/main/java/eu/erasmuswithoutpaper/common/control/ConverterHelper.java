@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -92,7 +93,10 @@ public class ConverterHelper {
     public static XMLGregorianCalendar convertToXmlGregorianCalendar(Date date) throws DatatypeConfigurationException {
         GregorianCalendar c = new GregorianCalendar();
         c.setTime(date);
-        return DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+        XMLGregorianCalendar xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+        xmlGregorianCalendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+
+        return xmlGregorianCalendar;
     }
 
     public static XMLGregorianCalendar convertToXmlGregorianCalendar(Date date, String timezone) throws DatatypeConfigurationException {
@@ -100,16 +104,16 @@ public class ConverterHelper {
             return null; // Handle null inputs gracefully
         }
 
-        // Convert Timestamp to LocalDateTime
         Instant instant = date.toInstant();
         ZoneId zoneId = ZoneId.of(timezone);
         ZonedDateTime zonedDateTime = instant.atZone(zoneId);
 
-        // Convert ZonedDateTime to GregorianCalendar
         GregorianCalendar gregorianCalendar = GregorianCalendar.from(zonedDateTime);
 
-        // Convert GregorianCalendar to XMLGregorianCalendar
-        return DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+        XMLGregorianCalendar xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+        xmlGregorianCalendar.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
+
+        return xmlGregorianCalendar;
     }
     
     public static PhoneNumber convertToPhoneNumber(eu.erasmuswithoutpaper.organization.entity.PhoneNumber phoneNumber) {
