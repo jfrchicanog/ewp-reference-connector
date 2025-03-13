@@ -8,6 +8,7 @@ import eu.erasmuswithoutpaper.api.types.address.FlexibleAddress;
 import eu.erasmuswithoutpaper.api.types.phonenumber.PhoneNumber;
 import eu.erasmuswithoutpaper.organization.entity.LanguageItem;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -94,19 +95,20 @@ public class ConverterHelper {
         return DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
     }
 
-    public static XMLGregorianCalendar convertToXmlGregorianCalendar(Instant date, String timezone) throws DatatypeConfigurationException {
+    public static XMLGregorianCalendar convertToXmlGregorianCalendar(Timestamp date, String timezone) throws DatatypeConfigurationException {
         if (date == null || timezone == null || timezone.isEmpty()) {
-            throw new IllegalArgumentException("Date and timezone must not be null or empty");
+            return null; // Handle null inputs gracefully
         }
 
-        // Convert Instant to ZonedDateTime with given timezone
+        // Convert Timestamp to LocalDateTime
+        Instant instant = date.toInstant();
         ZoneId zoneId = ZoneId.of(timezone);
-        ZonedDateTime zonedDateTime = date.atZone(zoneId);
+        ZonedDateTime zonedDateTime = instant.atZone(zoneId);
 
-        // Convert to GregorianCalendar
+        // Convert ZonedDateTime to GregorianCalendar
         GregorianCalendar gregorianCalendar = GregorianCalendar.from(zonedDateTime);
 
-        // Convert to XMLGregorianCalendar
+        // Convert GregorianCalendar to XMLGregorianCalendar
         return DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
     }
     

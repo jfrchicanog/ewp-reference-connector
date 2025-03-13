@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.omobility.las.control;
 
+import java.sql.Timestamp;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -8,6 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import eu.erasmuswithoutpaper.api.types.phonenumber.PhoneNumber;
@@ -339,7 +341,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
         ola.setFromPartner(fromPartner);
 
         ola.setReceivingHei(convertToMobilityInstitution(la.getReceivingHei(), original != null ? original.getReceivingHei() : null));
-        ola.setSendingHei(convertToMobilityInstitution(la.getSendingHei(), original != null ? original.getSendingHei(): null));
+        ola.setSendingHei(convertToMobilityInstitution(la.getSendingHei(), original != null ? original.getSendingHei() : null));
 
         ola.setReceivingAcademicTermEwpId(la.getReceivingAcademicYearId());
 
@@ -576,19 +578,19 @@ public class OutgoingMobilityLearningAgreementsConverter {
         signature.setSignerEmail(s.getSignerEmail());
 
         if (s.getTimestamp() != null) {
-            XMLGregorianCalendar xmlCal = s.getTimestamp();
-            GregorianCalendar gregCal = xmlCal.toGregorianCalendar();
+            try {
+                GregorianCalendar gcal = new GregorianCalendar();
+                XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
 
-            // Get the timezone
-            TimeZone timeZone = gregCal.getTimeZone();
-            ZoneId zoneId = timeZone.toZoneId();
+                // Convert XMLGregorianCalendar to java.util.Date and then to Timestamp
+                signature.setTimestamp(new Timestamp(xmlCal.toGregorianCalendar().getTimeInMillis()));
 
-            // Convert to Instant and retain timezone
-            ZonedDateTime zonedDateTime = gregCal.toZonedDateTime();
-
-            // Set the timestamp in signature
-            signature.setTimestamp(zonedDateTime.toInstant());
-            signature.setTimeZone(zoneId.getId());
+                // Get TimeZone as String
+                TimeZone timeZone = xmlCal.toGregorianCalendar().getTimeZone();
+                signature.setTimeZone(timeZone.getID());
+            } catch (Exception e) {
+                logger.error("Can't convert date", e);
+            }
         }
 
         signature.setSignerApp(s.getSignerApp());
