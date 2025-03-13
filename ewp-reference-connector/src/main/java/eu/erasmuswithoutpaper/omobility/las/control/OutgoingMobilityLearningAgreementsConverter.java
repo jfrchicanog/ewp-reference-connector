@@ -189,7 +189,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
         receivingHeiSig.setSignerPosition(localReceivingHeiSig.getSignerPosition());
         receivingHeiSig.setSignerEmail(localReceivingHeiSig.getSignerEmail());
         if (localReceivingHeiSig.getTimestamp() != null) {
-            receivingHeiSig.setTimestamp(ConverterHelper.convertToXmlGregorianCalendar(localReceivingHeiSig.getTimestamp()));
+            receivingHeiSig.setTimestamp(ConverterHelper.convertToXmlGregorianCalendar(localReceivingHeiSig.getTimestamp(), localReceivingHeiSig.getTimeZone()));
         }
         receivingHeiSig.setSignerApp(localReceivingHeiSig.getSignerApp());
 
@@ -589,10 +589,6 @@ public class OutgoingMobilityLearningAgreementsConverter {
             // Set the timestamp in signature
             signature.setTimestamp(zonedDateTime.toInstant());
             signature.setTimeZone(zoneId.getId());
-
-            // Print timestamp with timezone
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
-            logger.info("Timestamp with TimeZone: " + zonedDateTime.format(formatter));
         }
 
         signature.setSignerApp(s.getSignerApp());
