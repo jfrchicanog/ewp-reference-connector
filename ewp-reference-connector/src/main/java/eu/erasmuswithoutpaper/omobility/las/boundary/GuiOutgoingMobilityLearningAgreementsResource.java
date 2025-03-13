@@ -388,7 +388,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         ParamsClass paramsClass = new ParamsClass();
         paramsClass.setUnknownFields(map);
         ClientRequest clientRequest = new ClientRequest();
-        clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/get");
+        clientRequest.setUrl("https://localhost/rest/omobilities/las/get");
         clientRequest.setMethod(HttpMethodEnum.GET);
         clientRequest.setHttpsec(true);
         clientRequest.setParams(paramsClass);
