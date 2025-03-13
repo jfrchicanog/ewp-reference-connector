@@ -588,6 +588,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
             // Set the timestamp in signature
             signature.setTimestamp(zonedDateTime.toInstant());
+            signature.setTimeZone(zoneId.getId());
 
             // Print timestamp with timezone
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");

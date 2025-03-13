@@ -36,6 +36,7 @@ public class Signature {
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.TIMESTAMP)
     private Instant timestamp;
+    private String timeZone;
     
     private String signerApp;
 
@@ -87,7 +88,15 @@ public class Signature {
 		this.signerApp = signerApp;
 	}
 
-	@Override
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    @Override
     public int hashCode() {
         int hash = 5;
         hash = 67 * hash + Objects.hashCode(this.id);
