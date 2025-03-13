@@ -379,25 +379,44 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     }
 
     @GET
-    @Path("ownDet")
+    @Path("getComapre")
     public Response ownGet(@QueryParam("id") String id) {
+
+        OlearningAgreement olearningAgreement = learningAgreementEJB.findById(id);
+
+        Map<String, String> map = registryClient.getOmobilityLasHeiUrls(olearningAgreement.getSendingHei().getHeiId());
+        LOG.fine("getComapre: map: " + (map == null ? "null" : map.toString()));
+        if (map == null || map.isEmpty()) {
+            LOG.fine("getComapre: No LAS URLs found for HEI " + olearningAgreement.getSendingHei().getHeiId());
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String url = map.get("get-url");
+
+        ClientResponse response = sendRequestAux(olearningAgreement.getSendingHei().getHeiId(), id, "https://localhost/algoria/omobilities/las/test/XML");
+        ClientResponse response2 = sendRequestAux(olearningAgreement.getReceivingHei().getHeiId(), id, url);
+
+        log.info("getComapre: Response own: " + response.getRawResponse());
+        log.info("getComapre: Response partner: " + response2.getRawResponse());
+
+        return Response.ok().build();
+
+    }
+
+    private ClientResponse sendRequestAux(String sendingHeiId, String id, String url) {
         Map<String, List<String>> map = new HashMap<>();
-        map.put("sending_hei_id", Collections.singletonList("hei.demo.usos.edu.pl"));
+        map.put("sending_hei_id", Collections.singletonList(sendingHeiId));
         map.put("omobility_id", Collections.singletonList(id));
 
         ParamsClass paramsClass = new ParamsClass();
         paramsClass.setUnknownFields(map);
         ClientRequest clientRequest = new ClientRequest();
-        clientRequest.setUrl("https://localhost/rest/omobilities/las/get");
+        clientRequest.setUrl( url);
         clientRequest.setMethod(HttpMethodEnum.GET);
         clientRequest.setHttpsec(true);
         clientRequest.setParams(paramsClass);
 
-        ClientResponse response = restClient.sendRequest(clientRequest, String.class);
-        log.info("Response: " + response.getRawResponse());
-
-        return Response.ok(response).build();
-
+        return restClient.sendRequest(clientRequest, String.class);
     }
 
 }
