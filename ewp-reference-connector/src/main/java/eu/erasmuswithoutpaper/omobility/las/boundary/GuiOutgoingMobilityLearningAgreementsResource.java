@@ -394,7 +394,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         String url = map.get("get-url");
 
         ClientResponse response = sendRequestAux(olearningAgreement.getSendingHei().getHeiId(), id, "https://localhost/rest/omobilities/las/get");
-        ClientResponse response2 = sendRequestAux(olearningAgreement.getReceivingHei().getHeiId(), olearningAgreement.getOmobilityId(), url);
+        ClientResponse response2 = sendRequestAux(olearningAgreement.getSendingHei().getHeiId(), olearningAgreement.getOmobilityId(), url);
 
         log.info("getComapre: Response own: " + response.getRawResponse());
         log.info("getComapre: Response partner: " + response2.getRawResponse());
