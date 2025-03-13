@@ -394,7 +394,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         String url = map.get("get-url");
 
         ClientResponse response = sendRequestAux(olearningAgreement.getSendingHei().getHeiId(), id, "https://localhost/rest/omobilities/las/get");
-        ClientResponse response2 = sendRequestAux(olearningAgreement.getReceivingHei().getHeiId(), id, url);
+        ClientResponse response2 = sendRequestAux(olearningAgreement.getReceivingHei().getHeiId(), olearningAgreement.getOmobilityId(), url);
 
         log.info("getComapre: Response own: " + response.getRawResponse());
         log.info("getComapre: Response partner: " + response2.getRawResponse());
@@ -407,6 +407,9 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         Map<String, List<String>> map = new HashMap<>();
         map.put("sending_hei_id", Collections.singletonList(sendingHeiId));
         map.put("omobility_id", Collections.singletonList(id));
+
+        log.info("sendRequestAux: url: " + url);
+        log.info("sendRequestAux: map: " + map.toString());
 
         ParamsClass paramsClass = new ParamsClass();
         paramsClass.setUnknownFields(map);
