@@ -36,7 +36,7 @@ public class Signature {
     
     @JohnzonConverter(StandardDateConverter.class)
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp timestamp;
+    private Date timestamp;
     private String timeZone;
     
     private String signerApp;
@@ -73,11 +73,11 @@ public class Signature {
 		this.signerEmail = signerEmail;
 	}
 	
-	public Timestamp getTimestamp() {
+	public Date getTimestamp() {
 		return timestamp;
 	}
 	
-	public void setTimestamp(Timestamp timestamp) {
+	public void setTimestamp(Date timestamp) {
 		this.timestamp = timestamp;
 	}
 	

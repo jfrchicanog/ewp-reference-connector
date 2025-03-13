@@ -95,7 +95,7 @@ public class ConverterHelper {
         return DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
     }
 
-    public static XMLGregorianCalendar convertToXmlGregorianCalendar(Timestamp date, String timezone) throws DatatypeConfigurationException {
+    public static XMLGregorianCalendar convertToXmlGregorianCalendar(Date date, String timezone) throws DatatypeConfigurationException {
         if (date == null || timezone == null || timezone.isEmpty()) {
             return null; // Handle null inputs gracefully
         }
