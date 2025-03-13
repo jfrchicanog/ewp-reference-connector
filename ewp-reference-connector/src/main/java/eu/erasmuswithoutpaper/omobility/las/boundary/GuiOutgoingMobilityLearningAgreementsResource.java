@@ -16,6 +16,8 @@ import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgre
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
 import eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution;
 import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -37,6 +39,7 @@ import java.util.concurrent.CompletableFuture;
 @Path("omobilities/las/test")
 public class GuiOutgoingMobilityLearningAgreementsResource {
 
+    private static final Logger log = LoggerFactory.getLogger(GuiOutgoingMobilityLearningAgreementsResource.class);
     @EJB
     LearningAgreementEJB learningAgreementEJB;
 
@@ -374,4 +377,27 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
                     .entity("Error computing digest: " + e.getMessage()).build();
         }
     }
+
+    @GET
+    @Path("ownDet")
+    public Response ownGet(@QueryParam("id") String id) {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("sending_hei_id", Collections.singletonList("hei.demo.usos.edu.pl"));
+        map.put("omobility_id", Collections.singletonList(id));
+
+        ParamsClass paramsClass = new ParamsClass();
+        paramsClass.setUnknownFields(map);
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setUrl("https://ewp-test.uma.es/rest/omobilities/las/get");
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setHttpsec(true);
+        clientRequest.setParams(paramsClass);
+
+        ClientResponse response = restClient.sendRequest(clientRequest, String.class);
+        log.info("Response: " + response.getRawResponse());
+
+        return Response.ok(response).build();
+
+    }
+
 }
