@@ -192,6 +192,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
         receivingHeiSig.setSignerEmail(localReceivingHeiSig.getSignerEmail());
         if (localReceivingHeiSig.getTimestamp() != null) {
             receivingHeiSig.setTimestamp(ConverterHelper.convertToXmlGregorianCalendar(localReceivingHeiSig.getTimestamp(), localReceivingHeiSig.getTimeZone()));
+            logger.debug("Timestamp: " + receivingHeiSig.getTimestamp());
         }
         receivingHeiSig.setSignerApp(localReceivingHeiSig.getSignerApp());
 
@@ -579,14 +580,12 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
         if (s.getTimestamp() != null) {
             try {
-                GregorianCalendar gcal = new GregorianCalendar();
-                XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
-
+                GregorianCalendar xmlCal = s.getTimestamp().toGregorianCalendar();
                 // Convert XMLGregorianCalendar to java.util.Date and then to Timestamp
-                signature.setTimestamp(new Timestamp(xmlCal.toGregorianCalendar().getTimeInMillis()));
+                signature.setTimestamp(new Timestamp(xmlCal.getTimeInMillis()));
 
                 // Get TimeZone as String
-                TimeZone timeZone = xmlCal.toGregorianCalendar().getTimeZone();
+                TimeZone timeZone = xmlCal.getTimeZone();
                 signature.setTimeZone(timeZone.getID());
             } catch (Exception e) {
                 logger.error("Can't convert date", e);
