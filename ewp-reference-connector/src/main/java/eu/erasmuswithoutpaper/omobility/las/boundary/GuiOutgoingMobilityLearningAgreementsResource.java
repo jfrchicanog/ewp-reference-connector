@@ -183,7 +183,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         clientRequest.setHttpsec(true);
         clientRequest.setXml(omobilityLasUpdateRequest);
 
-        return restClient.sendRequest(clientRequest, Empty.class, true, hash);
+        return restClient.sendRequest(clientRequest, OmobilityLasUpdateResponse.class, true, hash);
     }
 
     private ClientResponse sendRequestOwn(OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws JAXBException {
