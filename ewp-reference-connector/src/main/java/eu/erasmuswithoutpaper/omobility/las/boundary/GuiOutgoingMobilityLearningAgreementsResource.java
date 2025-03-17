@@ -362,6 +362,8 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @Path("digest")
     public Response computeDigest(String body) {
         try {
+            LOG.fine("Received body:\n" + body);
+
             // Compute SHA-256 Digest
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] binaryDigest = digest.digest(body.getBytes(StandardCharsets.UTF_8));
