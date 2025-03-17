@@ -143,6 +143,9 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @Path("update/approve")
     @Consumes("application/json")
     public Response updateAccept(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws Exception {
+        if (omobilityLasUpdateRequest.getApproveProposalV1() != null && omobilityLasUpdateRequest.getApproveProposalV1().getSignature() != null) {
+            omobilityLasUpdateRequest.getApproveProposalV1().getSignature().setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
+        }
         LOG.fine("APPROVE: start");
         LOG.fine("APPROVE: ownId: " + id);
         LOG.fine("APPROVE request: " + omobilityLasUpdateRequest.toString());
