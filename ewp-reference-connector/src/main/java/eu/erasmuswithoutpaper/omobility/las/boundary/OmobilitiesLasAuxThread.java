@@ -127,15 +127,15 @@ public class OmobilitiesLasAuxThread {
         LOG.fine("OmobilitiesLasAuxThread: createOlearningAgreement");
 
         OlearningAgreement ola = converter.convertToOlearningAgreement(la, true, null);
-        if (ola.getChangesProposal() != null && ola.getChangesProposal().getComponentsStudied() != null && !ola.getChangesProposal().getComponentsStudied().isEmpty()) {
-            LOG.fine("OmobilitiesLasAuxThread: before insert " + ola.getChangesProposal().getComponentsStudied().get(0).getTitle());
+        if (ola.getChangesProposal() != null && ola.getChangesProposal().getComponentsRecognized() != null && !ola.getChangesProposal().getComponentsRecognized().isEmpty()) {
+            LOG.fine("OmobilitiesLasAuxThread: before insert " + ola.getChangesProposal().getComponentsRecognized().get(0).getTitle());
         }
         ola.setModificateSince(new java.util.Date());
         String id = learningAgreementEJB.insert(ola);
 
         OlearningAgreement ola2 = learningAgreementEJB.findById(id);
-        if (ola2.getChangesProposal() != null && ola2.getChangesProposal().getComponentsStudied() != null && !ola2.getChangesProposal().getComponentsStudied().isEmpty()) {
-            LOG.fine("OmobilitiesLasAuxThread: after insert " + ola2.getChangesProposal().getComponentsStudied().get(0).getTitle());
+        if (ola2.getChangesProposal() != null && ola2.getChangesProposal().getComponentsRecognized() != null && !ola2.getChangesProposal().getComponentsRecognized().isEmpty()) {
+            LOG.fine("OmobilitiesLasAuxThread: after insert " + ola2.getChangesProposal().getComponentsRecognized().get(0).getTitle());
         }
 
         LOG.fine("OmobilitiesLasAuxThread: OlearningAgreement created");
