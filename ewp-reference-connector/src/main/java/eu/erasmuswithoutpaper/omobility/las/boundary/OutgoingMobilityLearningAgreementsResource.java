@@ -378,7 +378,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
             //checking if caller covers the receiving HEI of this mobility,
             //omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId())).collect(Collectors.toList());
-
+            LOG.fine("GETREQUEST FROM PARTNER: FOR:" + omobilityLasList.get(0).getId());
             if (omobilityLasList.get(0).getFromPartner()) {
                 return javax.ws.rs.core.Response.ok(getRequestToClient(omobilityLasList.get(0).getOmobilityId(), sendingHeiId)).type(MediaType.APPLICATION_XML).build();
             } else {
