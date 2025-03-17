@@ -380,7 +380,7 @@ public class OutgoingMobilityLearningAgreementsResource {
             //omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId())).collect(Collectors.toList());
 
             if (omobilityLasList.get(0).getFromPartner()) {
-                return javax.ws.rs.core.Response.ok(getRequestToClient(omobilityLasList.get(0).getOmobilityId(), sendingHeiId)).build();
+                return javax.ws.rs.core.Response.ok(getRequestToClient(omobilityLasList.get(0).getOmobilityId(), sendingHeiId)).type(MediaType.APPLICATION_XML).build();
             } else {
                 response.getLa().addAll(omobilitiesLas(omobilityLasList, mobilityIdList));
             }
