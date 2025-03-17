@@ -225,16 +225,13 @@ public class OutgoingMobilityLearningAgreementsConverter {
             }
 
             if (cmp.getCredit() != null) {
-                logger.debug("\n\n--------------------");
-                logger.debug("CONVERTER: Credit: " + cmp.getCredit());
-                component.getCredit().addAll(cmp.getCredit().stream().map((credit) -> {
-                    Component.Credit cred = new Component.Credit();
-                    credit.setScheme(credit.getScheme());
-                    credit.setValue(credit.getValue());
-                    logger.debug("CONVERTER: Credit value: " + credit.getValue());
-                    return cred;
-                }).collect(Collectors.toList()));
-                logger.debug("--------------------\n\n");
+                List<Component.Credit> credits = new ArrayList<>();
+                for (Credit cred : cmp.getCredit()) {
+                    credits.add(convertToCredit(cred));
+                }
+                if (!credits.isEmpty()) {
+                    component.getCredit().addAll(credits);
+                }
 
             }
 
@@ -249,6 +246,19 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
         componentList.getComponent().addAll(components);
         return componentList;
+    }
+
+    private Component.Credit convertToCredit(Credit credit) {
+        Component.Credit c = new Component.Credit();
+
+        if (credit == null) {
+            return null;
+        }
+
+        c.setScheme(credit.getScheme());
+        c.setValue(credit.getValue());
+
+        return c;
     }
 
     private StudentLanguageSkill convertToStudentLanguageSkill(OlasLanguageSkill studentLanguageSkill) {
