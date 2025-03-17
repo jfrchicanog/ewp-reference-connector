@@ -5,14 +5,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
@@ -38,8 +31,13 @@ import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetRespo
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasIndexResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateRequest;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateResponse;
+import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
+import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
+import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
+import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
+import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
 import eu.erasmuswithoutpaper.imobility.entity.IMobility;
 import eu.erasmuswithoutpaper.imobility.entity.IMobilityStatus;
@@ -72,6 +70,9 @@ public class OutgoingMobilityLearningAgreementsResource {
 
     @Inject
     OmobilitiesLasAuxThread ait;
+
+    @Inject
+    RestClient restClient;
 
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(OutgoingMobilityLearningAgreementsResource.class.getCanonicalName());
 
@@ -378,9 +379,53 @@ public class OutgoingMobilityLearningAgreementsResource {
             //checking if caller covers the receiving HEI of this mobility,
             //omobilityLasList = omobilityLasList.stream().filter(omobility -> heisCoveredByCertificate.contains(omobility.getReceivingHei().getHeiId())).collect(Collectors.toList());
             response.getLa().addAll(omobilitiesLas(omobilityLasList, mobilityIdList));
+
+            if (omobilityLasList.get(0).getFromPartner()) {
+                //get to client
+                LOG.fine( "TestNewGet:\n" + getRequestToClient(omobilityLasList.get(0).getOmobilityId(), sendingHeiId));
+            }
         }
 
         return javax.ws.rs.core.Response.ok(response).build();
+    }
+
+    private String getRequestToClient(String omobilityId, String heiId) {
+        Map<String, String> map = registryClient.getOmobilityLasHeiUrls(heiId);
+        LOG.fine("OmobilitiesLasAuxThread: map: " + (map == null ? "null" : map.toString()));
+        if (map == null || map.isEmpty()) {
+            LOG.fine("OmobilitiesLasAuxThread: No LAS URLs found for HEI " + heiId);
+            return null;
+        }
+
+        String url = map.get("get-url");
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setUrl(url);
+        clientRequest.setHeiId(heiId);
+        clientRequest.setMethod(HttpMethodEnum.POST);
+        clientRequest.setHttpsec(true);
+
+        LOG.fine("OmobilitiesLasAuxThread: url: " + url);
+
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("sending_hei_id", Collections.singletonList(heiId));
+        paramsMap.put("omobility_id", Collections.singletonList(omobilityId));
+        ParamsClass paramsClass = new ParamsClass();
+        paramsClass.setUnknownFields(paramsMap);
+        clientRequest.setParams(paramsClass);
+
+        LOG.fine("OmobilitiesLasAuxThread: params: " + paramsMap.toString());
+
+        ClientResponse omobilityLasGetResponse = restClient.sendRequest(clientRequest, OmobilityLasGetResponse.class);
+
+        LOG.fine("NOTIFY: response: " + omobilityLasGetResponse.getRawResponse());
+
+        if (omobilityLasGetResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+            return null;
+        }
+
+        return omobilityLasGetResponse.getRawResponse();
+
     }
 
     private javax.ws.rs.core.Response omobilityLasIndex(List<String> sendingHeiIds, List<String> receivingHeiIdList, List<String> receiving_academic_year_ids, List<String> globalIds, List<String> mobilityTypes, List<String> modifiedSinces) {
