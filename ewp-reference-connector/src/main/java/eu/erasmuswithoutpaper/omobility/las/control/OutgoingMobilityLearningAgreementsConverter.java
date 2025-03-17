@@ -225,12 +225,17 @@ public class OutgoingMobilityLearningAgreementsConverter {
             }
 
             if (cmp.getCredit() != null) {
+                logger.debug("\n\n--------------------");
+                logger.debug("CONVERTER: Credit: " + cmp.getCredit());
                 component.getCredit().addAll(cmp.getCredit().stream().map((credit) -> {
                     Component.Credit cred = new Component.Credit();
                     credit.setScheme(credit.getScheme());
                     credit.setValue(credit.getValue());
+                    logger.debug("CONVERTER: Credit value: " + credit.getValue());
                     return cred;
                 }).collect(Collectors.toList()));
+                logger.debug("--------------------\n\n");
+
             }
 
             component.setRecognitionConditions(cmp.getRecognitionConditions());

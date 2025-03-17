@@ -127,9 +127,6 @@ public class OmobilitiesLasAuxThread {
         LOG.fine("OmobilitiesLasAuxThread: createOlearningAgreement");
 
         OlearningAgreement ola = converter.convertToOlearningAgreement(la, true, null);
-        if (ola.getChangesProposal() != null && ola.getChangesProposal().getComponentsRecognized() != null && !ola.getChangesProposal().getComponentsRecognized().isEmpty()) {
-            LOG.fine("OmobilitiesLasAuxThread: before insert " + ola.getChangesProposal().getComponentsRecognized().get(0).getTitle());
-        }
         ola.setModificateSince(new java.util.Date());
         learningAgreementEJB.insert(ola);
 
