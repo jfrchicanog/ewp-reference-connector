@@ -28,6 +28,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -144,7 +145,13 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @Consumes("application/json")
     public Response updateAccept(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws Exception {
         if (omobilityLasUpdateRequest.getApproveProposalV1() != null && omobilityLasUpdateRequest.getApproveProposalV1().getSignature() != null) {
-            omobilityLasUpdateRequest.getApproveProposalV1().getSignature().setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
+            GregorianCalendar calendar = new GregorianCalendar();
+
+            // Set the desired timezone (e.g., +01:00)
+            TimeZone timeZone = TimeZone.getTimeZone("Europe/Paris"); // Change as needed
+            calendar.setTimeZone(timeZone);
+
+            omobilityLasUpdateRequest.getApproveProposalV1().getSignature().setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar));
         }
         LOG.fine("APPROVE: start");
         LOG.fine("APPROVE: ownId: " + id);
