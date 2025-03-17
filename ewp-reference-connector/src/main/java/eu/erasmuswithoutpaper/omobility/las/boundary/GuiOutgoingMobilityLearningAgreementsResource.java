@@ -27,6 +27,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -176,12 +177,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
             return Response.status(response.getStatusCode()).entity(response.getErrorMessage()).build();
         }
 
-        if (omobilityLasUpdateRequest.getApproveProposalV1() != null && omobilityLasUpdateRequest.getApproveProposalV1().getSignature() != null) {
-            omobilityLasUpdateRequest.getApproveProposalV1().getSignature().setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
-        }
-
         learningAgreementEJB.approveChangesProposal(omobilityLasUpdateRequest, id);
-
 
         return Response.ok(response).build();
     }
@@ -209,8 +205,43 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("update/reject")
     @Consumes("application/json")
-    public Response updateReject(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws JAXBException, IOException {
+    public Response updateReject(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws JAXBException, IOException, DatatypeConfigurationException {
+        if (omobilityLasUpdateRequest.getCommentProposalV1() != null && omobilityLasUpdateRequest.getCommentProposalV1().getSignature() != null) {
+            GregorianCalendar calendar = new GregorianCalendar();
 
+            // Set the desired timezone (e.g., +01:00)
+            TimeZone timeZone = TimeZone.getTimeZone("Europe/Paris"); // Change as needed
+            calendar.setTimeZone(timeZone);
+
+            omobilityLasUpdateRequest.getCommentProposalV1().getSignature().setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar));
+        }
+        LOG.fine("REJCET: start");
+        LOG.fine("REJCET: ownId: " + id);
+        LOG.fine("REJCET request: " + omobilityLasUpdateRequest.toString());
+
+        Map<String, String> map = registryClient.getOmobilityLasHeiUrls(omobilityLasUpdateRequest.getSendingHeiId());
+        LOG.fine("REJCET: map: " + map.toString());
+        String url = map.get("update-url");
+        LOG.fine("REJCET: upd url: " + url);
+
+        ClientResponse hash = sendRequestOwn(omobilityLasUpdateRequest);
+
+        String hashString = (String) hash.getResult();
+
+        LOG.fine("REJCET: hash: " + hashString);
+
+        ClientResponse response = sendRequest(omobilityLasUpdateRequest, url, hashString);
+
+        LOG.fine("REJCET: response: " + response.getRawResponse());
+
+        if (response.getStatusCode() != Response.Status.OK.getStatusCode()) {
+            return Response.status(response.getStatusCode()).entity(response.getErrorMessage()).build();
+        }
+
+        learningAgreementEJB.rejectChangesProposal(omobilityLasUpdateRequest, id);
+
+        return Response.ok(response).build();
+        /*
         LOG.fine("REJCET: start");
         LOG.fine("REJCET: ownId: " + id);
         LOG.fine("REJCET request: " + omobilityLasUpdateRequest.toString());
@@ -232,7 +263,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         LOG.fine("REJCET: response: " + response.getRawResponse());
 
-        return Response.ok(response).build();
+        return Response.ok(response).build();*/
     }
 
     @GET
