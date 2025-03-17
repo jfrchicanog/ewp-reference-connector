@@ -131,12 +131,7 @@ public class OmobilitiesLasAuxThread {
             LOG.fine("OmobilitiesLasAuxThread: before insert " + ola.getChangesProposal().getComponentsRecognized().get(0).getTitle());
         }
         ola.setModificateSince(new java.util.Date());
-        String id = learningAgreementEJB.insert(ola);
-
-        OlearningAgreement ola2 = learningAgreementEJB.findById(id);
-        if (ola2.getChangesProposal() != null && ola2.getChangesProposal().getComponentsRecognized() != null && !ola2.getChangesProposal().getComponentsRecognized().isEmpty()) {
-            LOG.fine("OmobilitiesLasAuxThread: after insert " + ola2.getChangesProposal().getComponentsRecognized().get(0).getTitle());
-        }
+        learningAgreementEJB.insert(ola);
 
         LOG.fine("OmobilitiesLasAuxThread: OlearningAgreement created");
     }
