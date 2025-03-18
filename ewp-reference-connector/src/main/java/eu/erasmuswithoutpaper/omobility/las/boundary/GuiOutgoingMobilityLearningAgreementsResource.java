@@ -85,6 +85,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         olearningAgreement.setId(id);
         if (olearningAgreement.getChangesProposal() != null) {
             olearningAgreement.getChangesProposal().setId_changeProposal(olearningAgreement.getChangesProposal().getId());
+            learningAgreementEJB.merge(olearningAgreement);
         }
 
         LOG.fine("CREATE: olearningAgreement: " + olearningAgreement.getId());
