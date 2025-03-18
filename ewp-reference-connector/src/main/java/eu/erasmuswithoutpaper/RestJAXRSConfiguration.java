@@ -36,7 +36,6 @@ public class RestJAXRSConfiguration extends Application {
         resources.add(OutgoingMobilityLearningAgreementsResource.class);
         
         resources.add(TestMonitoringEndpoint.class);
-        resources.add(CustomJohnzonProvider.class);
         return resources;
     }
 }

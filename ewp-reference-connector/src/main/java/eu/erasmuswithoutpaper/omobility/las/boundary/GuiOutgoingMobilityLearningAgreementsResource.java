@@ -76,11 +76,10 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("create")
     @Consumes("application/json")
-    public Response create(LearningAgreement learningAgreement) {
+    public Response create(OlearningAgreement olearningAgreement) {
 
         LOG.fine("CREATE: start");
 
-        OlearningAgreement olearningAgreement = converter.convertToOlearningAgreement(learningAgreement, false, null);
         olearningAgreement.setFromPartner(false);
         String id = learningAgreementEJB.insert(olearningAgreement);
         olearningAgreement.setId(id);
@@ -446,17 +445,6 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         clientRequest.setParams(paramsClass);
 
         return restClient.sendRequest(clientRequest, clazz);
-    }
-
-    @POST
-    @Path("errorTest")
-    @Consumes("application/json")
-    public Response create(ErrorTestDTO test) {
-        return Response.ok(test).build();
-    }
-
-    private static class ErrorTestDTO {
-        public byte valueByte;
     }
 
 }
