@@ -448,4 +448,15 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         return restClient.sendRequest(clientRequest, clazz);
     }
 
+    @POST
+    @Path("errorTest")
+    @Consumes("application/json")
+    public Response create(ErrorTestDTO test) {
+        return Response.ok(test).build();
+    }
+
+    private static class ErrorTestDTO {
+        public byte valueByte;
+    }
+
 }
