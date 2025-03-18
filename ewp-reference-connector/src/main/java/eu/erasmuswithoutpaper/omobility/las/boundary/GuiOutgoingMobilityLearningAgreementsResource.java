@@ -79,10 +79,13 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     public Response create(OlearningAgreement olearningAgreement) {
 
         LOG.fine("CREATE: start");
-
+        olearningAgreement.setEqfLevelStudiedAtDeparture(Byte.parseByte("6"));
         olearningAgreement.setFromPartner(false);
         String id = learningAgreementEJB.insert(olearningAgreement);
         olearningAgreement.setId(id);
+
+        LOG.fine("CREATE: olearningAgreement: " + olearningAgreement.getId());
+        LOG.fine("CREATE: olearningAgreement chengeproposalId: " + olearningAgreement.getChangesProposal().getId());
 
         LOG.fine("CREATE: Send notification");
 
