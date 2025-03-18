@@ -1,6 +1,6 @@
 package eu.erasmuswithoutpaper;
 
-import eu.erasmuswithoutpaper.omobility.las.control.ByteConverter;
+import eu.erasmuswithoutpaper.omobility.las.control.ByteAdapter;
 import org.apache.johnzon.mapper.Mapper;
 import org.apache.johnzon.mapper.MapperBuilder;
 import javax.ws.rs.ext.ContextResolver;
@@ -13,7 +13,7 @@ public class CustomJohnzonProvider implements ContextResolver<Mapper> {
 
     public CustomJohnzonProvider() {
         this.mapper = new MapperBuilder()
-                .addConverter(Byte.class, new ByteConverter()) // Register custom byte converter
+                .addAdapter(new ByteAdapter())
                 .build();
     }
 
