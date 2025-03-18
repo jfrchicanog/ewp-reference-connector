@@ -80,8 +80,6 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         LOG.fine("CREATE: start");
 
-        LOG.fine("CREATE: olearningAgreement: " + learningAgreement.getChangesProposal().getId());
-
         OlearningAgreement olearningAgreement = converter.convertToOlearningAgreement(learningAgreement, false, null);
         olearningAgreement.setFromPartner(false);
         String id = learningAgreementEJB.insert(olearningAgreement);
@@ -182,26 +180,6 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         return Response.ok(response).build();
     }
 
-    private ClientResponse sendRequest(OmobilityLasUpdateRequest omobilityLasUpdateRequest, String url, String hash) throws JAXBException {
-        ClientRequest clientRequest = new ClientRequest();
-        clientRequest.setUrl(url);
-        clientRequest.setMethod(HttpMethodEnum.POST);
-        clientRequest.setHttpsec(true);
-        clientRequest.setXml(omobilityLasUpdateRequest);
-
-        return restClient.sendRequest(clientRequest, OmobilityLasUpdateResponse.class, true, hash);
-    }
-
-    private ClientResponse sendRequestOwn(OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws JAXBException {
-        ClientRequest clientRequest = new ClientRequest();
-        clientRequest.setUrl("https://localhost/algoria/omobilities/las/test/digest");
-        clientRequest.setMethod(HttpMethodEnum.POST);
-        clientRequest.setHttpsec(true);
-        clientRequest.setXml(omobilityLasUpdateRequest);
-
-        return restClient.sendRequestOwn(clientRequest);
-    }
-
     @POST
     @Path("update/reject")
     @Consumes("application/json")
@@ -264,6 +242,26 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         LOG.fine("REJCET: response: " + response.getRawResponse());
 
         return Response.ok(response).build();*/
+    }
+
+    private ClientResponse sendRequest(OmobilityLasUpdateRequest omobilityLasUpdateRequest, String url, String hash) {
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setUrl(url);
+        clientRequest.setMethod(HttpMethodEnum.POST);
+        clientRequest.setHttpsec(true);
+        clientRequest.setXml(omobilityLasUpdateRequest);
+
+        return restClient.sendRequest(clientRequest, OmobilityLasUpdateResponse.class, true, hash);
+    }
+
+    private ClientResponse sendRequestOwn(OmobilityLasUpdateRequest omobilityLasUpdateRequest) {
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setUrl("https://localhost/algoria/omobilities/las/test/digest");
+        clientRequest.setMethod(HttpMethodEnum.POST);
+        clientRequest.setHttpsec(true);
+        clientRequest.setXml(omobilityLasUpdateRequest);
+
+        return restClient.sendRequestOwn(clientRequest);
     }
 
     @GET
@@ -371,32 +369,6 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         });
 
         return omobilitiesLas;
-    }
-
-    private static String toXml(OmobilityLasUpdateRequest request) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(OmobilityLasUpdateRequest.class);
-        Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-        java.io.StringWriter sw = new java.io.StringWriter();
-        marshaller.marshal(request, sw);
-        return sw.toString();
-    }
-
-    private static String toXml2(OmobilityLasUpdateRequest request) throws JAXBException {
-        JAXBContext context = JAXBContext.newInstance(OmobilityLasUpdateRequest.class, ApproveProposalV1.class, Signature.class);
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
-        marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true); // Remove XML header
-
-        // Wrapping the object with the correct QName
-        QName qName = new QName("https://github.com/erasmus-without-paper/ewp-specs-api-omobility-las/blob/stable-v1/endpoints/update-request.xsd", "omobility-las-update-request", "ns7");
-        JAXBElement<OmobilityLasUpdateRequest> root = new JAXBElement<>(qName, OmobilityLasUpdateRequest.class, request);
-
-        StringWriter writer = new StringWriter();
-        marshaller.marshal(root, writer);
-
-        return writer.toString();
     }
 
     @POST
