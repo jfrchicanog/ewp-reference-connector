@@ -5,6 +5,8 @@ import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.none.CliauthAnonym
 //import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.tlscert.CliauthTlscert;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.httpsig.SrvauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.tlscert.SrvauthTlscert;
+import eu.erasmuswithoutpaper.omobility.las.control.XMLGregorianCalendarAdapter;
+
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
@@ -25,7 +27,8 @@ public class JaxbContextResolver implements ContextResolver<JAXBContext> {
               CliauthAnonymous.class,
               CliauthHttpsig.class,
               SrvauthHttpsig.class,
-              SrvauthTlscert.class);
+              SrvauthTlscert.class,
+              XMLGregorianCalendarAdapter.class);
     } catch (JAXBException e) {
       throw new RuntimeException(e);
     }
