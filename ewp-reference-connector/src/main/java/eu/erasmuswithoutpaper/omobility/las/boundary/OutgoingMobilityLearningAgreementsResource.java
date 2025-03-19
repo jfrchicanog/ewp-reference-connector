@@ -177,7 +177,7 @@ public class OutgoingMobilityLearningAgreementsResource {
                 throw new EwpWebApplicationException("Mising required parameter, comment is required", Response.Status.BAD_REQUEST);
             }
 
-            LOG.fine("Starting UPD-REJECT for " + request.getApproveProposalV1().getOmobilityId() + " omobility learning agreements");
+            LOG.fine("Starting UPD-REJECT for " + request.getCommentProposalV1().getOmobilityId() + " omobility learning agreements");
 
             OlearningAgreement olearningAgreement = learningAgreementEJB.findById(request.getCommentProposalV1().getOmobilityId());
 
