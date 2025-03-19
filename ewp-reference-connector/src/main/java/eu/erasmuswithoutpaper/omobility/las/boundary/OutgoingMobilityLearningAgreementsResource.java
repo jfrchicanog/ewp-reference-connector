@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
+import eu.erasmuswithoutpaper.api.omobilities.las.OmobilityLas;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LasOutgoingStatsResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
@@ -147,21 +148,18 @@ public class OutgoingMobilityLearningAgreementsResource {
                 throw new EwpWebApplicationException("Mising required parameter, changes-proposal-id is required", Response.Status.BAD_REQUEST);
             }
 
-            LOG.fine("Starting CNR for " + request.getApproveProposalV1().getOmobilityId() + " omobility learning agreements");
+            LOG.fine("Starting UPD-ACCEPT for " + request.getApproveProposalV1().getOmobilityId() + " omobility learning agreements");
 
-            ChangesProposal changesProposal = learningAgreementEJB.findByIdChangeProposal(request.getApproveProposalV1().getChangesProposalId());
+            OlearningAgreement olearningAgreement = learningAgreementEJB.findById(request.getApproveProposalV1().getOmobilityId());
 
-            LOG.fine("ChangesProposal: " + (changesProposal == null ? "null" : changesProposal.getId()));
-
-            if (changesProposal == null) {
+            if (olearningAgreement == null) {
                 throw new EwpWebApplicationException("Learning agreement does not exist", Response.Status.BAD_REQUEST);
             } else {
-                LOG.fine("Request.getSendingHeiId: " + (request.getSendingHeiId() == null ? "null" : request.getSendingHeiId()));
-                LOG.fine("changesProposal.getOlearningAgreement:" + (changesProposal.getOlearningAgreement() == null ? "null" : changesProposal.getOlearningAgreement().getId()));
-                LOG.fine("changesProposal.getOlearningAgreement().getSendingHei():" + (changesProposal.getOlearningAgreement().getSendingHei() == null ? "null" : changesProposal.getOlearningAgreement().getSendingHei()));
-                LOG.fine("changesProposal.getOlearningAgreement().getSendingHei().getHeiId():" + (changesProposal.getOlearningAgreement().getSendingHei().getHeiId() == null ? "null" : changesProposal.getOlearningAgreement().getSendingHei().getHeiId()));
-                if (!request.getSendingHeiId().equals(changesProposal.getOlearningAgreement().getSendingHei().getHeiId())) {
-                    throw new EwpWebApplicationException("Sending Hei Id doesn't match Omobility Id's sending HEI", Response.Status.BAD_REQUEST);
+                if (olearningAgreement.getChangesProposal() == null) {
+                    throw new EwpWebApplicationException("Changes proposal does not exist", Response.Status.BAD_REQUEST);
+                }
+                if (!olearningAgreement.getChangesProposal().getId().equals(request.getApproveProposalV1().getChangesProposalId())) {
+                    throw new EwpWebApplicationException("Changes proposal does not match", Response.Status.CONFLICT);
                 }
             }
 
@@ -177,6 +175,21 @@ public class OutgoingMobilityLearningAgreementsResource {
 
             if (request.getCommentProposalV1().getComment() == null) {
                 throw new EwpWebApplicationException("Mising required parameter, comment is required", Response.Status.BAD_REQUEST);
+            }
+
+            LOG.fine("Starting UPD-REJECT for " + request.getApproveProposalV1().getOmobilityId() + " omobility learning agreements");
+
+            OlearningAgreement olearningAgreement = learningAgreementEJB.findById(request.getCommentProposalV1().getOmobilityId());
+
+            if (olearningAgreement == null) {
+                throw new EwpWebApplicationException("Learning agreement does not exist", Response.Status.BAD_REQUEST);
+            } else {
+                if (olearningAgreement.getChangesProposal() == null) {
+                    throw new EwpWebApplicationException("Changes proposal does not exist", Response.Status.BAD_REQUEST);
+                }
+                if (!olearningAgreement.getChangesProposal().getId().equals(request.getCommentProposalV1().getChangesProposalId())) {
+                    throw new EwpWebApplicationException("Changes proposal does not match", Response.Status.CONFLICT);
+                }
             }
 
             learningAgreementEJB.rejectChangesProposal(request, request.getCommentProposalV1().getOmobilityId());
@@ -604,9 +617,9 @@ public class OutgoingMobilityLearningAgreementsResource {
                         || (omobility.getApprovedChanges() != null && omobility.getApprovedChanges().getShortTermDoctoralComponents() != null && !omobility.getApprovedChanges().getShortTermDoctoralComponents().isEmpty())
                         || (omobility.getChangesProposal() != null && omobility.getChangesProposal().getShortTermDoctoralComponents() != null && !omobility.getChangesProposal().getShortTermDoctoralComponents().isEmpty());
             } else if (MobilityType.SEMESTRE.value().equals(mobilityType)) {
-                    return (omobility.getFirstVersion() != null && omobility.getFirstVersion().getComponentsStudied() != null && !omobility.getFirstVersion().getComponentsStudied().isEmpty())
-                            || (omobility.getApprovedChanges() != null && omobility.getApprovedChanges().getComponentsStudied() != null && !omobility.getApprovedChanges().getComponentsStudied().isEmpty())
-                            || (omobility.getChangesProposal() != null && omobility.getChangesProposal().getComponentsStudied() != null && !omobility.getChangesProposal().getComponentsStudied().isEmpty());
+                return (omobility.getFirstVersion() != null && omobility.getFirstVersion().getComponentsStudied() != null && !omobility.getFirstVersion().getComponentsStudied().isEmpty())
+                        || (omobility.getApprovedChanges() != null && omobility.getApprovedChanges().getComponentsStudied() != null && !omobility.getApprovedChanges().getComponentsStudied().isEmpty())
+                        || (omobility.getChangesProposal() != null && omobility.getChangesProposal().getComponentsStudied() != null && !omobility.getChangesProposal().getComponentsStudied().isEmpty());
             }
             return false;
         }
