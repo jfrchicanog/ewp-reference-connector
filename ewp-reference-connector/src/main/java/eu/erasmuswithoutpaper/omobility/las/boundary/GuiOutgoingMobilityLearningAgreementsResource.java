@@ -118,6 +118,8 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         }
         LearningAgreement learningAgreement = converter.convertToLearningAgreements(olearningAgreementDTO);
         OlearningAgreement olearningAgreement = converter.convertToOlearningAgreement(learningAgreement, false, original);
+        olearningAgreement.setEqfLevelStudiedAtDeparture(Byte.parseByte("6"));
+        olearningAgreement.setFromPartner(false);
         String id = learningAgreementEJB.update(olearningAgreement);
 
         if (id == null) {
@@ -135,10 +137,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
         LOG.fine("CHANGE: merge olearningAgreement: " + olearningAgreement.getId());
 
-        OmobilityLasGetResponse response = new OmobilityLasGetResponse();
-        response.getLa().add(converter.convertToLearningAgreements(olearningAgreement));
-
-        return Response.ok(response).build();
+        return Response.ok(id).build();
     }
 
     @POST
