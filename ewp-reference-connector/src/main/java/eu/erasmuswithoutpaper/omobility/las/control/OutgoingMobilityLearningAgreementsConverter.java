@@ -108,6 +108,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
         }
 
         ChangesProposal changesProposal = new ChangesProposal();
+        changesProposal.setId(ochangesProposal.getId_changeProposal());
         changesProposal.setComponentsStudied(tmpChangesProposal.getComponentsStudied());
         changesProposal.setComponentsRecognized(tmpChangesProposal.getComponentsRecognized());
         changesProposal.setVirtualComponents(tmpChangesProposal.getVirtualComponents());
