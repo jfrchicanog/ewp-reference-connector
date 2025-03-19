@@ -107,16 +107,16 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
     @POST
     @Path("change")
     @Consumes("application/json")
-    public Response change(LearningAgreement learningAgreement) {
+    public Response change(OlearningAgreement olearningAgreementDTO) {
         LOG.fine("CHANGE: start");
 
-        LOG.fine("CHANGE: olearningAgreement: " + learningAgreement.getChangesProposal().getId());
+        LOG.fine("CHANGE: olearningAgreement: " + olearningAgreementDTO.getId());
 
-        OlearningAgreement original = learningAgreementEJB.findById(learningAgreement.getOmobilityId());
+        OlearningAgreement original = learningAgreementEJB.findById(olearningAgreementDTO.getId());
         if (original == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-
+        LearningAgreement learningAgreement = converter.convertToLearningAgreements(olearningAgreementDTO);
         OlearningAgreement olearningAgreement = converter.convertToOlearningAgreement(learningAgreement, false, original);
         String id = learningAgreementEJB.update(olearningAgreement);
 
