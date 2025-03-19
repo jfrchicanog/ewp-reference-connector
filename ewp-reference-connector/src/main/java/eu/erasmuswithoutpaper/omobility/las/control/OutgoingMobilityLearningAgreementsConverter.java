@@ -86,7 +86,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
             learningAgreement.setFirstVersion(convertToListOfComponents(olearningAgreement.getFirstVersion()));
             learningAgreement.setApprovedChanges(convertToListOfComponents(olearningAgreement.getApprovedChanges()));
 
-            learningAgreement.setChangesProposal(convertToChangesProposal(olearningAgreement.getChangesProposal()));
+            learningAgreement.setChangesProposal(convertToChangesProposal(olearningAgreement.getChangesProposal(), olearningAgreement.getFromPartner() != null && olearningAgreement.getFromPartner()));
 
             learningAgreement.setLearningOutcomesUrl(olearningAgreement.getLearningOutcomesUrl());
             learningAgreement.setProvisionsUrl(olearningAgreement.getProvisionsUrl());
@@ -99,7 +99,7 @@ public class OutgoingMobilityLearningAgreementsConverter {
     }
 
     private ChangesProposal convertToChangesProposal(
-            eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal ochangesProposal)
+            eu.erasmuswithoutpaper.omobility.las.entity.ChangesProposal ochangesProposal, boolean fromPartner)
             throws DatatypeConfigurationException {
         ListOfComponents tmpChangesProposal = convertToListOfComponents(ochangesProposal);
 
@@ -108,7 +108,6 @@ public class OutgoingMobilityLearningAgreementsConverter {
         }
 
         ChangesProposal changesProposal = new ChangesProposal();
-        changesProposal.setId(ochangesProposal.getId_changeProposal());
         changesProposal.setComponentsStudied(tmpChangesProposal.getComponentsStudied());
         changesProposal.setComponentsRecognized(tmpChangesProposal.getComponentsRecognized());
         changesProposal.setVirtualComponents(tmpChangesProposal.getVirtualComponents());
@@ -120,7 +119,11 @@ public class OutgoingMobilityLearningAgreementsConverter {
 
         eu.erasmuswithoutpaper.api.omobilities.las.endpoints.Student student = convertToStudent(ochangesProposal.getStudent());
         changesProposal.setStudent(student);
-        changesProposal.setId(ochangesProposal.getId_changeProposal());
+        if (fromPartner) {
+            changesProposal.setId(ochangesProposal.getId_changeProposal());
+        } else {
+            changesProposal.setId(ochangesProposal.getId());
+        }
 
         return changesProposal;
     }
