@@ -279,6 +279,20 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         return Response.ok(response).build();
     }
 
+    @POST
+    @Path("sendCNR")
+    public Response sendCNR(@QueryParam("id") String id) {
+        LOG.fine("sendCNR: start");
+        OlearningAgreement olearningAgreement = learningAgreementEJB.findById(id);
+        if (olearningAgreement == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        notifyPartner(olearningAgreement);
+
+        return Response.ok().build();
+    }
+
     private List<ClientResponse> notifyPartner(OlearningAgreement olearningAgreement) {
         LOG.fine("NOTIFY: Send notification");
 
