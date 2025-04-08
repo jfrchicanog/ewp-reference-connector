@@ -308,11 +308,14 @@ public class IiasEJB {
             foundIia.getCooperationConditions().sort((cc1, cc2) -> cc1.getSendingPartner().getInstitutionId().equals(localHeiId) ? 1 : -1);
         }
 
+        em.merge(foundIia);
+        em.flush();
+
         String newHash = "";
 
         LOG.fine("UPDATE: CALC HASH");
         try {
-            newHash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(foundIia)).get(0));
+            newHash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(this.getHeiId(), Collections.singletonList(findById(foundIia.getId()))).get(0));
             foundIia.setConditionsHash(newHash);
         } catch (Exception e) {
             LOG.fine("UPDATE: HASH ERROR, Can't calculate sha256 updating iia");
