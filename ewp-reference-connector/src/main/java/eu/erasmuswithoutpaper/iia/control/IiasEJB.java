@@ -519,4 +519,11 @@ public class IiasEJB {
 
         return distinctHeiIds.size() >= 2;
     }
+
+    public void updateHash(String localId, String newHash) {
+        Iia iia = em.find(Iia.class, localId);
+        iia.setConditionsHash(newHash);
+        em.merge(iia);
+        em.flush();
+    }
 }

@@ -254,6 +254,17 @@ public class AuxIiaThread {
                     LOG.fine("AuxIiaThread_ADDEDIT: CNR URL: " + url);
 
                     String localId = localIia.getId();
+
+                    LOG.fine("AuxIiaThread_ADDEDIT: Recompute hash");
+                    try {
+                        LOG.fine("AuxIiaThread_ADDEDIT: Hash before: " + localIia.getConditionsHash());
+                        String newHash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(iiasEJB.findById(localId))).get(0));
+                        LOG.fine("AuxIiaThread_ADDEDIT: Hash after: " + newHash);
+                        iiasEJB.updateHash(localId, newHash);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+
                     CompletableFuture.runAsync(() -> {
 
                         try {
