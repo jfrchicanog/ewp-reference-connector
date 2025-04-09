@@ -73,6 +73,21 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
+    @GET
+    @Path("get")
+    @Produces("application/json")
+    public Response get(@QueryParam("id") String id) {
+        LOG.fine("DOWNLOAD: start");
+        LOG.fine("DOWNLOAD: id: " + id);
+
+        OlearningAgreement olearningAgreement = learningAgreementEJB.findById(id);
+        if (olearningAgreement == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        return Response.ok(olearningAgreement).build();
+    }
+
     @POST
     @Path("create")
     @Consumes("application/json")
