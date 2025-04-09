@@ -85,7 +85,10 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        return Response.ok(olearningAgreement).build();
+        LearningAgreement learningAgreement = converter.convertToLearningAgreements(olearningAgreement);
+        OlearningAgreement olearningAgreementDTO = converter.convertToOlearningAgreement(learningAgreement, false, olearningAgreement);
+
+        return Response.ok(olearningAgreementDTO).build();
     }
 
     @POST
