@@ -398,6 +398,9 @@ public class OutgoingMobilityLearningAgreementsResource {
                 response.getLa().addAll(omobilitiesLas(omobilityLasList, mobilityIdList));
             }*/
             response.getLa().addAll(omobilitiesLas(omobilityLasList, mobilityIdList));
+        } else {
+            LOG.fine("omobilityLasList is empty");
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         return javax.ws.rs.core.Response.ok(response).build();
