@@ -10,6 +10,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -482,7 +484,22 @@ public class IiasEJB {
             }
         }
 
+        iia.setConditionsHash(computeHash(iia));
+        em.merge(iia);
+
         em.flush();
+    }
+
+    public String computeHash(Iia iia) {
+
+        String hash = "";
+        try {
+            hash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(getHeiId(), Collections.singletonList(iia)).get(0));
+        } catch (Exception e) {
+            return null;
+        }
+
+        return hash;
     }
 
     public void terminateIia(String iiaId) {
