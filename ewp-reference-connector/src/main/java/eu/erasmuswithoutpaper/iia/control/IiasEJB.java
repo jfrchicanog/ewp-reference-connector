@@ -508,6 +508,9 @@ public class IiasEJB {
         Iia iia = em.find(Iia.class, iiaId);
         iia.setConditionsTerminatedAsAWhole(true);
         iia.setInEfect(false);
+
+        iia.setConditionsHash(computeHash(iia));
+
         em.merge(iia);
         em.flush();
     }
