@@ -32,12 +32,14 @@ public class IiaConverter {
         return iiaList.stream().map((Iia iia) -> {
             IiasGetResponse.Iia converted = new IiasGetResponse.Iia();
             HashMap<String, IiaPartner> uniquePartners = new HashMap<>();
-            for (CooperationCondition condition : iia.getCooperationConditions()) {
-                if (condition.getSendingPartner() != null && condition.getSendingPartner().getInstitutionId() != null) {
-                    uniquePartners.put(condition.getSendingPartner().getInstitutionId(), condition.getSendingPartner());
-                }
-                if (condition.getReceivingPartner() != null && condition.getReceivingPartner().getInstitutionId() != null) {
-                    uniquePartners.put(condition.getReceivingPartner().getInstitutionId(), condition.getReceivingPartner());
+            if (iia.getCooperationConditions() != null) {
+                for (CooperationCondition condition : iia.getCooperationConditions()) {
+                    if (condition.getSendingPartner() != null && condition.getSendingPartner().getInstitutionId() != null) {
+                        uniquePartners.put(condition.getSendingPartner().getInstitutionId(), condition.getSendingPartner());
+                    }
+                    if (condition.getReceivingPartner() != null && condition.getReceivingPartner().getInstitutionId() != null) {
+                        uniquePartners.put(condition.getReceivingPartner().getInstitutionId(), condition.getReceivingPartner());
+                    }
                 }
             }
 
@@ -155,7 +157,7 @@ public class IiaConverter {
                             .map(this::convertToStaffTeacherMobilitySpec)
                             .sorted((o1, o2) -> {
                                 if ((o1.getSendingHeiId() != null && o1.getSendingHeiId().equals(hei_id)) &&
-                                    (o2.getSendingHeiId() != null && !o2.getSendingHeiId().equals(hei_id))) {
+                                        (o2.getSendingHeiId() != null && !o2.getSendingHeiId().equals(hei_id))) {
                                     return 1;
                                 } else if ((o1.getSendingHeiId() != null && !o1.getSendingHeiId().equals(hei_id)) &&
                                         (o2.getSendingHeiId() != null && o2.getSendingHeiId().equals(hei_id))) {
