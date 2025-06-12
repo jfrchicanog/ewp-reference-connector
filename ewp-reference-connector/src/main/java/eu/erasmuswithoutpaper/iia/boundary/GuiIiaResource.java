@@ -17,12 +17,14 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
 import eu.erasmuswithoutpaper.common.control.*;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
+import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1154,6 +1156,20 @@ public class GuiIiaResource {
         }
 
         return javax.ws.rs.core.Response.ok(url).build();
+    }
+
+    @GET
+    @Path("XML")
+    @Consumes("application/xml")
+    @Produces("application/xml")
+    public Response getXML(@QueryParam("id") String id) {
+        LOG.fine("XML: start");
+
+        Iia iia = iiasEJB.findById(id);
+        IiasGetResponse response = new IiasGetResponse();
+        response.getIia().add(iiaConverter.convertToIias(iiasEJB.getHeiId(), Collections.singletonList(iia)).get(0));
+
+        return Response.ok(response).build();
     }
 
     private void execNotificationToAlgoria(IiaTaskEnum type, String iiaId, String heiId, String description) {
