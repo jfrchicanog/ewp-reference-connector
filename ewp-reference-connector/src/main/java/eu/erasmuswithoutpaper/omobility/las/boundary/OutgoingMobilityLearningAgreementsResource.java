@@ -99,7 +99,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response omobilityGetGet(@QueryParam("sending_hei_id") String sendingHeiId, @QueryParam("omobility_id") List<String> mobilityIdList) {
+    public javax.ws.rs.core.Response omobilityGetGet(@QueryParam("sending_hei_id") List<String> sendingHeiId, @QueryParam("omobility_id") List<String> mobilityIdList) {
         return mobilityGet(sendingHeiId, mobilityIdList);
     }
 
@@ -107,7 +107,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     @Path("get")
     @Produces(MediaType.APPLICATION_XML)
     @EwpAuthenticate
-    public javax.ws.rs.core.Response omobilityGetPost(@FormParam("sending_hei_id") String sendingHeiId, @FormParam("omobility_id") List<String> mobilityIdList) {
+    public javax.ws.rs.core.Response omobilityGetPost(@FormParam("sending_hei_id") List<String> sendingHeiId, @FormParam("omobility_id") List<String> mobilityIdList) {
         return mobilityGet(sendingHeiId, mobilityIdList);
     }
 
@@ -364,7 +364,14 @@ public class OutgoingMobilityLearningAgreementsResource {
     }
 
 
-    private javax.ws.rs.core.Response mobilityGet(String sendingHeiId, List<String> mobilityIdList) {
+    private javax.ws.rs.core.Response mobilityGet(List<String> sendingHeiIds, List<String> mobilityIdList) {
+        if (sendingHeiIds != null && sendingHeiIds.size() > 1) {
+            throw new EwpWebApplicationException("Only one sending HEI ID is allowed.", Response.Status.BAD_REQUEST);
+        }
+        if (sendingHeiIds == null || sendingHeiIds.isEmpty()) {
+            throw new EwpWebApplicationException("Missing sending HEI ID.", Response.Status.BAD_REQUEST);
+        }
+        String sendingHeiId = sendingHeiIds.get(0);
         if (sendingHeiId == null || sendingHeiId.trim().isEmpty() || mobilityIdList == null || mobilityIdList.isEmpty()) {
             throw new EwpWebApplicationException("Missing argumanets for get.", Response.Status.BAD_REQUEST);
         }
