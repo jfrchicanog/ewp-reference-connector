@@ -92,6 +92,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         LOG.fine("CREATE: start");
         olearningAgreement.setEqfLevelStudiedAtDeparture(Byte.parseByte("6"));
         olearningAgreement.setFromPartner(false);
+        olearningAgreement.setModificateSince(new Date());
         String id = learningAgreementEJB.insert(olearningAgreement);
         olearningAgreement.setId(id);
 
@@ -131,6 +132,7 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
         OlearningAgreement olearningAgreement = converter.convertToOlearningAgreement(learningAgreement, false, original);
         olearningAgreement.setEqfLevelStudiedAtDeparture(Byte.parseByte("6"));
         olearningAgreement.setFromPartner(false);
+        olearningAgreement.setModificateSince(new Date());
         String id = learningAgreementEJB.update(olearningAgreement);
 
         if (id == null) {
