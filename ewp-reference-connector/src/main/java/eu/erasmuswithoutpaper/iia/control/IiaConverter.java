@@ -1032,7 +1032,7 @@ public class IiaConverter {
 
             IiaPartner partner = uniquePartners.get(heiId);
             if (partner != null) {
-                iiaForList.setPartnerId(partner.getInstitutionId());
+                iiaForList.setPartnerId(partner.getIiaId());
             } else {
                 iiaForList.setPartnerId(null);
             }
