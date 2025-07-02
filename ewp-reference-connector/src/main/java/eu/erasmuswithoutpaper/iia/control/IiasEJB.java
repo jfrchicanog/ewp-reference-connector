@@ -339,6 +339,10 @@ public class IiasEJB {
         return em.createNamedQuery(Iia.findByPartnerAndId).setParameter("heiId", heiId).setParameter("iiaId", partnerId).getResultList();
     }
 
+    public List<Iia> getByPartner(String heiId) {
+        return em.createNamedQuery(Iia.findByPartnerAndId).setParameter("heiId", heiId).getResultList();
+    }
+
     public void insertIiaApproval(IiaApproval iiaApproval) {
         em.persist(iiaApproval);
         em.flush();

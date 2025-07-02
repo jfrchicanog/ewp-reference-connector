@@ -192,28 +192,15 @@ public class GuiIiaResource {
     @Path("get_heiid")
     @InternalAuthenticate
     public Response getHei(@QueryParam("hei_id") String heiId) {
-        List<Iia> iiaList = iiasEJB.findAll();
-
-        Predicate<Iia> condition = new Predicate<Iia>() {
-            @Override
-            public boolean test(Iia iia) {
-                List<CooperationCondition> cooperationConditions = iia.getCooperationConditions();
-
-                List<CooperationCondition> filtered = cooperationConditions.stream().filter(c -> heiId.equals(c.getSendingPartner().getInstitutionId())).collect(Collectors.toList());
-                return !filtered.isEmpty();
-            }
-        };
+        List<Iia> iiaList = iiasEJB.getByPartner(heiId);
 
         if (!iiaList.isEmpty()) {
-            List<Iia> filteredList = iiaList.stream().filter(condition).collect(Collectors.toList());
+            List<IiasGetResponse.Iia> iiasGetResponseList = iiaConverter.convertToIias(heiId, iiaList);
 
-            if (!filteredList.isEmpty()) {
-                List<IiasGetResponse.Iia> iiasGetResponseList = iiaConverter.convertToIias(heiId, iiaList);
+            GenericEntity<List<IiasGetResponse.Iia>> entity = new GenericEntity<List<IiasGetResponse.Iia>>(iiasGetResponseList) {
+            };
+            return Response.ok(entity).build();
 
-                GenericEntity<List<IiasGetResponse.Iia>> entity = new GenericEntity<List<IiasGetResponse.Iia>>(iiasGetResponseList) {
-                };
-                return Response.ok(entity).build();
-            }
         }
 
         return javax.ws.rs.core.Response.ok().build();
@@ -453,7 +440,7 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        if(iiasEJB.isApproved(iiaId)) {
+        if (iiasEJB.isApproved(iiaId)) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
 
