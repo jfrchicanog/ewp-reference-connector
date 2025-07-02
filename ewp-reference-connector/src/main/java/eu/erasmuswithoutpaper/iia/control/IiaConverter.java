@@ -1011,4 +1011,32 @@ public class IiaConverter {
 
         return contactRec;
     }
+
+    public List<IiaForList> toIiaForList(String heiId, List<Iia> iiaList) {
+        return iiaList.stream().map(iia -> {
+            IiaForList iiaForList = new IiaForList();
+            iiaForList.setId(iia.getId());
+            iiaForList.setIiaCode(iia.getIiaCode());
+
+            HashMap<String, IiaPartner> uniquePartners = new HashMap<>();
+            if (iia.getCooperationConditions() != null) {
+                for (CooperationCondition condition : iia.getCooperationConditions()) {
+                    if (condition.getSendingPartner() != null && condition.getSendingPartner().getInstitutionId() != null) {
+                        uniquePartners.put(condition.getSendingPartner().getInstitutionId(), condition.getSendingPartner());
+                    }
+                    if (condition.getReceivingPartner() != null && condition.getReceivingPartner().getInstitutionId() != null) {
+                        uniquePartners.put(condition.getReceivingPartner().getInstitutionId(), condition.getReceivingPartner());
+                    }
+                }
+            }
+
+            IiaPartner partner = uniquePartners.get(heiId);
+            if (partner != null) {
+                iiaForList.setPartnerId(partner.getInstitutionId());
+            } else {
+                iiaForList.setPartnerId(null);
+            }
+            return iiaForList;
+        }).collect(Collectors.toList());
+    }
 }

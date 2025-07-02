@@ -24,6 +24,7 @@ import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
+import eu.erasmuswithoutpaper.iia.entity.*;
 import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +37,6 @@ import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
-import eu.erasmuswithoutpaper.iia.entity.CooperationCondition;
-import eu.erasmuswithoutpaper.iia.entity.DurationUnitVariants;
-import eu.erasmuswithoutpaper.iia.entity.Iia;
-import eu.erasmuswithoutpaper.iia.entity.IiaPartner;
-import eu.erasmuswithoutpaper.iia.entity.IiaResponse;
-import eu.erasmuswithoutpaper.iia.entity.MobilityNumberVariants;
-import eu.erasmuswithoutpaper.iia.entity.MobilityType;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.InternalAuthenticate;
@@ -198,6 +192,24 @@ public class GuiIiaResource {
             List<IiasGetResponse.Iia> iiasGetResponseList = iiaConverter.convertToIias(heiId, iiaList);
 
             GenericEntity<List<IiasGetResponse.Iia>> entity = new GenericEntity<List<IiasGetResponse.Iia>>(iiasGetResponseList) {
+            };
+            return Response.ok(entity).build();
+
+        }
+
+        return javax.ws.rs.core.Response.ok().build();
+    }
+
+    @GET
+    @Path("get_heiid_list")
+    @InternalAuthenticate
+    public Response getHeiList(@QueryParam("hei_id") String heiId) {
+        List<Iia> iiaList = iiasEJB.getByPartner(heiId);
+
+        if (!iiaList.isEmpty()) {
+            List<IiaForList> iiasGetResponseList = iiaConverter.toIiaForList(heiId, iiaList);
+
+            GenericEntity<List<IiaForList>> entity = new GenericEntity<List<IiaForList>>(iiasGetResponseList) {
             };
             return Response.ok(entity).build();
 
