@@ -51,11 +51,11 @@ public class HashCalculationUtility {
 	}
 
 	private static byte[] canonicalizeXML(String xmlText) throws InvalidCanonicalizerException, CanonicalizationException, ParserConfigurationException, IOException, SAXException {
-		byte[] xmlBytes = xmlText.getBytes();
+		byte[] xmlBytes = xmlText.getBytes(StandardCharsets.UTF_8);
 		
 		com.sun.org.apache.xml.internal.security.Init.init(); 
 		
-		Canonicalizer canon = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
+		Canonicalizer canon = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 		
 		byte[] canonXmlBytes = canon.canonicalize(xmlBytes);
 		return canonXmlBytes;

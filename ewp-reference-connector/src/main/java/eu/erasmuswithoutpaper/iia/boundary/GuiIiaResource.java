@@ -1266,4 +1266,57 @@ public class GuiIiaResource {
         return responseEnity.getIia().get(0);
     }
 
+
+    @GET
+    @Path("get-partner-list")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response getPartnerIds() {
+        List<Iia> iias = iiasEJB.findAll();
+        String heiId = iiasEJB.getHeiId();
+
+        Map<String, Map<String, List<String>>> partnerIds = new HashMap<>();
+        for (Iia iia : iias) {
+            IiaPartner partner = null;
+            if (iia.getCooperationConditions() != null) {
+                for (CooperationCondition condition : iia.getCooperationConditions()) {
+                    if (condition.getSendingPartner() != null && condition.getSendingPartner().getInstitutionId() != null
+                            && !condition.getSendingPartner().getInstitutionId().equals(heiId)) {
+                        partner = condition.getSendingPartner();
+                    }
+                    if (condition.getReceivingPartner() != null && condition.getReceivingPartner().getInstitutionId() != null
+                            && !condition.getReceivingPartner().getInstitutionId().equals(heiId)) {
+                        partner = condition.getReceivingPartner();
+                    }
+                }
+            }
+
+            if (partner != null) {
+                if (!partnerIds.containsKey(partner.getInstitutionId())) {
+                    Map<String, List<String>> iiaList = new HashMap<>();
+                    List<String> iiaIds = new ArrayList<>();
+                    iiaIds.add(iia.getId());
+                    iiaList.put(partner.getIiaId(), iiaIds);
+                    partnerIds.put(partner.getInstitutionId(), iiaList);
+                } else {
+                    Map<String, List<String>> iiaList = partnerIds.get(partner.getInstitutionId());
+                    if (iiaList.containsKey(partner.getIiaId())) {
+                        iiaList.get(partner.getIiaId()).add(iia.getId());
+                    } else {
+                        List<String> iiaIds = new ArrayList<>();
+                        iiaIds.add(iia.getId());
+                        iiaList.put(partner.getIiaId(), iiaIds);
+                    }
+
+                }
+            }
+
+        }
+
+        if (partnerIds.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        return javax.ws.rs.core.Response.ok(partnerIds).build();
+    }
 }
