@@ -1359,13 +1359,10 @@ public class GuiIiaResource {
         List<String> response = new ArrayList<>();
 
         for (String iiaId : toDelete) {
-            /*Response response = delete(iiaId);
-            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-                errors.add("Failed to delete IIA with ID: " + iiaId + " - " + response.getStatusInfo().getReasonPhrase());
-            }*/
             if (iiasEJB.isApproved(iiaId)) {
                 response.add("The IIA with ID: " + iiaId + " is approved and cannot be deleted.");
             } else {
+                delete(iiaId);
                 response.add("The IIA with ID: " + iiaId + " can be deleted.");
             }
         }
