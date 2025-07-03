@@ -1362,7 +1362,7 @@ public class GuiIiaResource {
             if (iiasEJB.isApproved(iiaId)) {
                 response.add("The IIA with ID: " + iiaId + " is approved and cannot be deleted.");
             } else {
-                delete(iiaId);
+                //delete(iiaId);
                 response.add("The IIA with ID: " + iiaId + " can be deleted.");
             }
         }
