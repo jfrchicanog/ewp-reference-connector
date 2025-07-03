@@ -1338,6 +1338,8 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
 
+        logger.info("GuiIiaResource: getToDelete: " + iiaIds);
+
         List<Iia> iias = iiasEJB.findAll();
         iias = iias.stream()
                 .filter(iia -> iia.getOriginal() == null)
