@@ -1273,6 +1273,9 @@ public class GuiIiaResource {
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response getPartnerIds() {
         List<Iia> iias = iiasEJB.findAll();
+        iias = iias.stream()
+                .filter(iia -> iia.getOriginal() == null)
+                .collect(Collectors.toList());
         String heiId = iiasEJB.getHeiId();
 
         Map<String, Map<String, List<String>>> partnerIds = new HashMap<>();
