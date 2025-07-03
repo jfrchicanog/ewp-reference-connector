@@ -1369,4 +1369,28 @@ public class GuiIiaResource {
         }
         return javax.ws.rs.core.Response.ok(response).build();
     }
+
+    @GET
+    @Path("get-approvals")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response getApprovals(@QueryParam("iiaId") String iiaId) {
+        if (iiaId == null || iiaId.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        Iia iia = iiasEJB.findById(iiaId);
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        List<IiaApproval> approvals = iiasEJB.findIiaApproval(iiaId);
+
+        Set<String> approvedHeiIds = approvals.stream()
+                .map(IiaApproval::getHeiId)
+                .collect(Collectors.toSet());
+
+
+        return javax.ws.rs.core.Response.ok(approvedHeiIds).build();
+    }
 }
