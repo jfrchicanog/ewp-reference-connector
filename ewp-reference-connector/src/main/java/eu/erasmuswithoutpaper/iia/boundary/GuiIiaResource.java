@@ -1278,6 +1278,16 @@ public class GuiIiaResource {
                 .collect(Collectors.toList());
         String heiId = iiasEJB.getHeiId();
 
+        Map<String, Map<String, List<String>>> partnerIds = getDupeMap(iias, heiId);
+
+        if (partnerIds.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        return javax.ws.rs.core.Response.ok(partnerIds).build();
+    }
+
+    private static Map<String, Map<String, List<String>>> getDupeMap(List<Iia> iias, String heiId) {
         Map<String, Map<String, List<String>>> partnerIds = new HashMap<>();
         for (Iia iia : iias) {
             IiaPartner partner = null;
@@ -1315,11 +1325,48 @@ public class GuiIiaResource {
             }
 
         }
+        return partnerIds;
+    }
 
-        if (partnerIds.isEmpty()) {
+    @POST
+    @Path("get-partner-delete")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response getToDelete(List<String> iiaIds) {
+        if (iiaIds == null || iiaIds.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        List<Iia> iias = iiasEJB.findAll();
+        iias = iias.stream()
+                .filter(iia -> iia.getOriginal() == null)
+                .collect(Collectors.toList());
+
+        List<String> toDelete = new ArrayList<>();
+        for (Iia iia : iias) {
+            if (!iiaIds.contains(iia.getId())) {
+                toDelete.add(iia.getId());
+            }
+        }
+
+        if (toDelete.isEmpty()) {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        return javax.ws.rs.core.Response.ok(partnerIds).build();
+        List<String> response = new ArrayList<>();
+
+        for (String iiaId : toDelete) {
+            /*Response response = delete(iiaId);
+            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                errors.add("Failed to delete IIA with ID: " + iiaId + " - " + response.getStatusInfo().getReasonPhrase());
+            }*/
+            if (iiasEJB.isApproved(iiaId)) {
+                response.add("The IIA with ID: " + iiaId + " is approved and cannot be deleted.");
+            } else {
+                response.add("The IIA with ID: " + iiaId + " can be deleted.");
+            }
+        }
+        return javax.ws.rs.core.Response.ok(response).build();
     }
 }
