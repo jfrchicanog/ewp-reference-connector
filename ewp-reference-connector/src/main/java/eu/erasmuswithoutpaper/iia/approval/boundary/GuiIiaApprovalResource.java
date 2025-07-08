@@ -114,7 +114,7 @@ public class GuiIiaApprovalResource {
         ClientResponse iiaApprovalResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse.class);
        
         //Verify that the agreements received are in their latest version through hash and then I return the correct ones to Algoria
-        IiasApprovalResponse iiaApproval = (IiasApprovalResponse) iiaApprovalResponse.getResult();
+        /*IiasApprovalResponse iiaApproval = (IiasApprovalResponse) iiaApprovalResponse.getResult();
         List<Approval> iiaApprovals = iiaApproval.getApproval();
         
         List<Approval> correctIiaApproval = new ArrayList<>();
@@ -164,7 +164,7 @@ public class GuiIiaApprovalResource {
         
         iiaApproval.getApproval().clear();
         iiaApproval.getApproval().addAll(correctIiaApproval);
-        iiaApprovalResponse.setResult(iiaApproval);
+        iiaApprovalResponse.setResult(iiaApproval);*/
         
         return javax.ws.rs.core.Response.ok(iiaApprovalResponse).build();
     }
