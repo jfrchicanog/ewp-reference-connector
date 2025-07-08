@@ -289,10 +289,17 @@ public class IiaConverter {
             }
         } catch (DatatypeConfigurationException e) {
             logger.error("Can't convert date", e);
-        }//TODO Iia has two other properties startDate, endDate
+        }
 
-        if (partner.getSigningContact() != null) {
+        if (partner.getSigningContact() != null && partner.getSigningContact().getName() != null && !partner.getSigningContact().getName().isEmpty()) {
             Contact contact = new Contact();
+
+            contact.getContactName().addAll(partner.getSigningContact().getName().stream().map(name -> {
+                StringWithOptionalLang stringWithOptionalLang = new StringWithOptionalLang();
+                stringWithOptionalLang.setValue(name.getText());
+                stringWithOptionalLang.setLang(name.getLang());
+                return stringWithOptionalLang;
+            }).collect(Collectors.toList()));
 
             if (partner.getSigningContact().getPerson() != null && partner.getSigningContact().getPerson().getGender() != null) {
                 contact.setPersonGender(partner.getSigningContact().getPerson().getGender().value());
@@ -673,7 +680,15 @@ public class IiaConverter {
 //		for (StringWithOptionalLang stringWithOptionalLang : contactNames) {
 //
 //		}
-        //internalContact.set
+        internalContact.setName(pContact.getContactName().stream().map(
+                name -> {
+                    LanguageItem languageItem = new LanguageItem();
+                    languageItem.setText(name.getValue());
+                    languageItem.setLang(name.getLang());
+                    return languageItem;
+                }
+        ).collect(Collectors.toList()
+        ));
 
         if (pContact == null) {
             return null;
