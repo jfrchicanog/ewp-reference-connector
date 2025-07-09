@@ -1171,6 +1171,15 @@ public class GuiIiaResource {
         return Response.ok(response).build();
     }
 
+    private void execNotificationToAlgoriaApprove(String iiaApprovalId, String approvingHeiId) {
+
+        IiaTaskService.globalProperties = properties;
+        Callable<String> callableTask = IiaTaskService.createTask(iiaApprovalId, IiaTaskEnum.APPROVED, approvingHeiId);
+
+        //Put the task in the queue
+        IiaTaskService.addTask(callableTask);
+    }
+
     private void execNotificationToAlgoria(IiaTaskEnum type, String iiaId, String heiId, String description) {
 
         IiaTaskService.globalProperties = properties;
@@ -1409,6 +1418,7 @@ public class GuiIiaResource {
 
         String partnerHeiId = "";
         String partnerIiaId = "";
+        String partnerIiaCode = "";
         String localHeiId = iiasEJB.getHeiId();
         for (CooperationCondition c : iia.getCooperationConditions()) {
             LOG.fine("get-partner-approvals: Sending Partner: " + c.getSendingPartner().getInstitutionId());
@@ -1416,9 +1426,11 @@ public class GuiIiaResource {
             if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
                 partnerHeiId = c.getReceivingPartner().getInstitutionId();
                 partnerIiaId = c.getReceivingPartner().getIiaId();
+                partnerIiaCode = c.getReceivingPartner().getIiaCode();
             } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
                 partnerHeiId = c.getSendingPartner().getInstitutionId();
                 partnerIiaId = c.getSendingPartner().getIiaId();
+                partnerIiaCode = c.getSendingPartner().getIiaCode();
             }
         }
 
@@ -1441,6 +1453,30 @@ public class GuiIiaResource {
         if (responseEnity == null) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
+
+        for (IiasApprovalResponse.Approval approval : responseEnity.getApproval()) {
+            if (approval.getIiaId().equals(iiaId)) {
+                LOG.fine("get-partner-approvals: Approval found for IIA: " + iiaId);
+                List<String> approvals = iiasEJB.findIiaApproval(iiaId)
+                        .stream()
+                        .map(IiaApproval::getHeiId)
+                        .collect(Collectors.toList());
+
+                if (!approvals.contains(partnerHeiId)) {
+                    LOG.fine("get-partner-approvals: Approval not found for partner: " + partnerHeiId);
+                    execNotificationToAlgoriaApprove(iiaId, partnerHeiId);
+                    IiaApproval iiaApproval = new IiaApproval();
+                    iiaApproval.setHeiId(partnerHeiId);
+                    iiaApproval.setIia(iia);
+                    iiaApproval.setConditionsHash(approval.getIiaHash());
+
+                    iiasEJB.insertIiaApproval(iiaApproval);
+                    LOG.fine("get-partner-approvals: Approval inserted for partner: " + partnerHeiId);
+                }
+            }
+        }
+
+        LOG.fine("get-partner-approvals: Sending Partner: " + partnerHeiId);
 
         return Response.ok(responseEnity).build();
     }
