@@ -1408,14 +1408,17 @@ public class GuiIiaResource {
         }
 
         String partnerHeiId = "";
+        String partnerIiaId = "";
         String localHeiId = iiasEJB.getHeiId();
         for (CooperationCondition c : iia.getCooperationConditions()) {
             LOG.fine("get-partner-approvals: Sending Partner: " + c.getSendingPartner().getInstitutionId());
             LOG.fine("get-partner-approvals: Receiving Partner: " + c.getReceivingPartner().getInstitutionId());
             if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
                 partnerHeiId = c.getReceivingPartner().getInstitutionId();
+                partnerIiaId = c.getReceivingPartner().getIiaId();
             } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
                 partnerHeiId = c.getSendingPartner().getInstitutionId();
+                partnerIiaId = c.getSendingPartner().getIiaId();
             }
         }
 
@@ -1425,7 +1428,7 @@ public class GuiIiaResource {
         clientRequest.setMethod(HttpMethodEnum.GET);
         clientRequest.setUrl(registryClient.getIiaApprovalHeiUrls(partnerHeiId).get("url"));
         Map<String, List<String>> paramsMap = new HashMap<>();
-        paramsMap.put("iia_id", Arrays.asList(iiaId));
+        paramsMap.put("iia_id", Arrays.asList(partnerIiaId));
         ParamsClass params = new ParamsClass();
         params.setUnknownFields(paramsMap);
         clientRequest.setParams(params);
@@ -1436,6 +1439,5 @@ public class GuiIiaResource {
         }
 
         return Response.ok(responseEnity).build();
-
     }
 }
