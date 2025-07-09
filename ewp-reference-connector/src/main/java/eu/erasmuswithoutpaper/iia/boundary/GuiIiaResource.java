@@ -1422,17 +1422,21 @@ public class GuiIiaResource {
             }
         }
 
+        LOG.fine("get-partner-approvals: Sending Partner: " + partnerHeiId);
+
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setHeiId(partnerHeiId);
         clientRequest.setHttpsec(true);
         clientRequest.setMethod(HttpMethodEnum.GET);
         clientRequest.setUrl(registryClient.getIiaApprovalHeiUrls(partnerHeiId).get("url"));
         Map<String, List<String>> paramsMap = new HashMap<>();
-        paramsMap.put("iia_id", Arrays.asList(partnerIiaId));
+        paramsMap.put("iia_id", Arrays.asList(iiaId));
         ParamsClass params = new ParamsClass();
         params.setUnknownFields(paramsMap);
         clientRequest.setParams(params);
+        LOG.fine("get-partner-approvals: Params: " + paramsMap);
         ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasApprovalResponse.class);
+        LOG.fine("get-partner-approvals: Response: " + clientResponse);
         IiasApprovalResponse responseEnity = (IiasApprovalResponse) clientResponse.getResult();
         if (responseEnity == null) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
