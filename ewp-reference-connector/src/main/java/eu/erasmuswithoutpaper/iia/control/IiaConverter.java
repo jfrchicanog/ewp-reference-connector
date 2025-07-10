@@ -482,45 +482,35 @@ public class IiaConverter {
 
     private void addToStudentMobilitySpecification(StudentMobilitySpecification conv, CooperationCondition cc) {
         //conv.setAvgMonths(BigInteger.ONE);
-        if (conv == null) {
+        if (conv == null || cc == null) {
             return;
         }
-        if (cc == null) {
-            return;
+        addToMobilitySpecification(conv, cc);
+
+        conv.getEqfLevel().clear();
+        if (cc.getEqfLevel() != null) {
+            for (byte b : cc.getEqfLevel()) {
+                conv.getEqfLevel().add(b);
+            }
         }
+
         if (cc.getDuration() != null && cc.getDuration().getNumber() != null) {
             conv.setTotalMonthsPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
         }
-
-        List<Byte> eqfLevels = new ArrayList<Byte>();
-        byte[] arrEqfLevel = cc.getEqfLevel();
-        if (arrEqfLevel == null) {
-            arrEqfLevel = new byte[0];
-        }
-        for (int i = 0; i < arrEqfLevel.length; i++) {
-            eqfLevels.add(new Byte(arrEqfLevel[i]));
-        }
-
-        conv.getEqfLevel().addAll(eqfLevels);
-
         conv.setBlended(cc.isBlended());
-
-        addToMobilitySpecification(conv, cc);
     }
 
     private void addToStaffMobilitySpecification(StaffMobilitySpecification conv, CooperationCondition cc) {
-        if (conv == null) {
+        if (conv == null || cc == null) {
             return;
         }
-        if (cc == null) {
-            return;
-        }
+        addToMobilitySpecification(conv, cc);
+
         //conv.setAvgDays(BigInteger.ONE);
         if (cc.getDuration() != null && cc.getDuration().getNumber() != null) {
             conv.setTotalDaysPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
         }
 
-        addToMobilitySpecification(conv, cc);
     }
 
 
