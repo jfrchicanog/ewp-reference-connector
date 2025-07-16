@@ -101,11 +101,26 @@ public class GuiInstitutionResource {
     public javax.ws.rs.core.Response heiData(@QueryParam("heiId") String heiId) {
         LOG.fine("hei-data: Hei searched: " + heiId);
 
+        Map<String, String> heiUrls = registryClient.getEwpInstanceHeiUrls(heiId);
+        if (heiUrls == null || heiUrls.isEmpty()) {
+            LOG.fine("hei-data: Hei not found: " + heiId);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        for (Map.Entry<String, String> entry : heiUrls.entrySet()) {
+            LOG.fine("hei-data: Hei URL: " + entry.getKey() + " -> " + entry.getValue());
+        }
+        String heiUrl = heiUrls.get("url");
+        if (heiUrl == null || heiUrl.isEmpty()) {
+            LOG.fine("hei-data: Hei URL not found for: " + heiId);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setHeiId(heiId);
         clientRequest.setHttpsec(true);
         clientRequest.setMethod(HttpMethodEnum.GET);
-        clientRequest.setUrl(registryClient.getEwpInstanceHeiUrls(heiId).get("url"));
+        clientRequest.setUrl(heiUrl);
         Map<String, List<String>> paramsMap = new HashMap<>();
         paramsMap.put("hei_id ", Collections.singletonList(heiId));
         ParamsClass params = new ParamsClass();
