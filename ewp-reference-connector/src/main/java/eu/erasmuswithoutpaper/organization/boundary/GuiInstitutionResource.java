@@ -117,7 +117,7 @@ public class GuiInstitutionResource {
         LOG.fine("hei-data: Response: " + clientResponse);
 
         if (responseEnity == null) {
-            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity(clientResponse).build();
         }
 
         return Response.ok(responseEnity).build();
