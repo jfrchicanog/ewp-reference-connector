@@ -1,25 +1,25 @@
 package eu.erasmuswithoutpaper.organization.boundary;
 
+import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
+import eu.erasmuswithoutpaper.api.institutions.InstitutionsResponse;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
+import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
+import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.HeiEntry;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.iia.boundary.AuxIiaThread;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.InternalAuthenticate;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,6 +39,8 @@ public class GuiInstitutionResource {
     
     @Inject
     SendMonitoringService sendMonitoringService;
+
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(GuiInstitutionResource.class.getCanonicalName());
 
     @POST
     @Path("save")
@@ -90,6 +92,36 @@ public class GuiInstitutionResource {
 
         }
         return javax.ws.rs.core.Response.ok(response).build();
+    }
+
+    @GET
+    @Path("hei-data")
+    @Produces(MediaType.APPLICATION_JSON)
+    @InternalAuthenticate
+    public javax.ws.rs.core.Response heiData(@QueryParam("heiId") String heiId) {
+        LOG.fine("hei-data: Hei searched: " + heiId);
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(heiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(registryClient.getEwpInstanceHeiUrls(heiId).get("url"));
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("hei_id ", Collections.singletonList(heiId));
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+        LOG.fine("hei-data: Params: " + paramsMap);
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, InstitutionsResponse.class);
+        InstitutionsResponse responseEnity = (InstitutionsResponse) clientResponse.getResult();
+        LOG.fine("hei-data: Response: " + clientResponse);
+
+        if (responseEnity == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        return Response.ok(responseEnity).build();
+
     }
 
     @GET
