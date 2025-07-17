@@ -133,11 +133,11 @@ public class GuiInstitutionResource {
         InstitutionsResponse responseEnity = (InstitutionsResponse) clientResponse.getResult();
         LOG.fine("hei-data: Response: " + clientResponse);
 
-        if (responseEnity == null) {
+        if (responseEnity == null || responseEnity.getHei() == null || responseEnity.getHei().isEmpty()) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity(clientResponse).build();
         }
 
-        return Response.ok(responseEnity).build();
+        return Response.ok(responseEnity.getHei().get(0)).build();
 
     }
 

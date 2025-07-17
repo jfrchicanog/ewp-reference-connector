@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
 import eu.erasmuswithoutpaper.common.control.*;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
@@ -300,6 +301,76 @@ public class GuiIiaResource {
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response iiasIndex(ClientRequest clientRequest) {
         ClientResponse iiaResponse = restClient.sendRequest(clientRequest, eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse.class);
+
+        try {
+            if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "index", Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), null);
+            } else if (iiaResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "index", Integer.toString(iiaResponse.getStatusCode()), iiaResponse.getErrorMessage(), "Error");
+            }
+        } catch (Exception e) {
+
+        }
+
+        GenericEntity<eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse> entity = null;
+        try {
+            eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse index = (eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse) iiaResponse.getResult();
+            entity = new GenericEntity<eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse>(index) {
+            };
+        } catch (Exception e) {
+            return javax.ws.rs.core.Response.serverError().entity(iiaResponse.getErrorMessage()).build();
+        }
+
+        return javax.ws.rs.core.Response.ok(entity).build();
+    }
+
+    @GET
+    @Path("iias-index")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response iiasIndex(@QueryParam("heiId") String heiId,
+                                               @QueryParam("receiving_academic_year_id") String receiving_academic_year_id,
+                                               @QueryParam("modified_since") String modified_since) {
+        LOG.fine("iias-index: Hei searched: " + heiId);
+
+        Map<String, String> heiUrls = registryClient.getIiaHeiUrls(heiId);
+        if (heiUrls == null || heiUrls.isEmpty()) {
+            LOG.fine("iias-index: Hei not found: " + heiId);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        for (Map.Entry<String, String> entry : heiUrls.entrySet()) {
+            LOG.fine("iias-index: Hei URL: " + entry.getKey() + " -> " + entry.getValue());
+        }
+        String heiUrl = heiUrls.get("url");
+        if (heiUrl == null || heiUrl.isEmpty()) {
+            LOG.fine("iias-index: Hei URL not found for: " + heiId);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        LOG.fine("iias-index: Hei URL found: " + heiUrl);
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(heiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(heiUrl);
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
+            paramsMap.put("receiving_academic_year_id", Collections.singletonList(receiving_academic_year_id));
+        }else {
+            LOG.fine("iias-index: receiving_academic_year_id is empty");
+        }
+        if (modified_since != null && !modified_since.isEmpty()) {
+            paramsMap.put("modified_since", Collections.singletonList(modified_since));
+        } else {
+            LOG.fine("iias-index: modified_since is empty");
+        }
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+        LOG.fine("iias-index: Params: " + paramsMap);
+        ClientResponse iiaResponse = restClient.sendRequest(clientRequest, IiasIndexResponse.class);
 
         try {
             if (iiaResponse.getStatusCode() <= 599 && iiaResponse.getStatusCode() >= 400) {
