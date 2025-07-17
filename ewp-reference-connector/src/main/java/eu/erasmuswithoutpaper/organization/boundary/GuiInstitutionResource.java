@@ -123,12 +123,12 @@ public class GuiInstitutionResource {
         clientRequest.setHttpsec(true);
         clientRequest.setMethod(HttpMethodEnum.GET);
         clientRequest.setUrl(heiUrl);
-        Map<String, List<String>> paramsMap = new HashMap<>();
+        /*Map<String, List<String>> paramsMap = new HashMap<>();
         paramsMap.put("hei_id ", Arrays.asList(heiId));
         ParamsClass params = new ParamsClass();
         params.setUnknownFields(paramsMap);
         clientRequest.setParams(params);
-        LOG.fine("hei-data: Params: " + paramsMap);
+        LOG.fine("hei-data: Params: " + paramsMap);*/
         ClientResponse clientResponse = restClient.sendRequest(clientRequest, InstitutionsResponse.class);
         InstitutionsResponse responseEnity = (InstitutionsResponse) clientResponse.getResult();
         LOG.fine("hei-data: Response: " + clientResponse);
