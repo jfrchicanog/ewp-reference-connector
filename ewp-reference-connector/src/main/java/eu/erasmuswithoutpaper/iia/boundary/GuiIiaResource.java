@@ -451,10 +451,10 @@ public class GuiIiaResource {
 
             if (!localHeiId.equals(partnerSending.getInstitutionId())) {
                 heiId = partnerSending.getInstitutionId();
-                partnerId = partnerReceiving.getIiaId();
+                partnerId = partnerSending.getIiaId();
             } else if (!localHeiId.equals(partnerReceiving.getInstitutionId())) {
                 heiId = partnerReceiving.getInstitutionId();
-                partnerId = partnerSending.getIiaId();
+                partnerId = partnerReceiving.getIiaId();
             }
         }
 
