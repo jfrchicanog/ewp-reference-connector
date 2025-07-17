@@ -358,7 +358,7 @@ public class GuiIiaResource {
         Map<String, List<String>> paramsMap = new HashMap<>();
         if (receiving_academic_year_id != null && !receiving_academic_year_id.isEmpty()) {
             paramsMap.put("receiving_academic_year_id", Collections.singletonList(receiving_academic_year_id));
-        }else {
+        } else {
             LOG.fine("iias-index: receiving_academic_year_id is empty");
         }
         if (modified_since != null && !modified_since.isEmpty()) {
@@ -412,6 +412,102 @@ public class GuiIiaResource {
         }
 
         return javax.ws.rs.core.Response.ok(iiaResponse).build();
+    }
+
+    @GET
+    @Path("iias")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response iias(@QueryParam("iiaId") String iiaId) {
+        LOG.fine("iias: IIA searched: " + iiaId);
+
+        if (iiaId == null || iiaId.isEmpty()) {
+            LOG.fine("iias: IIA ID is empty");
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        String localHeiId = iiasEJB.getHeiId();
+
+        Iia iia = iiasEJB.findById(iiaId);
+        if (iia == null) {
+            LOG.fine("iias: IIA not found: " + iiaId);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        IiaPartner partnerSending = null;
+        IiaPartner partnerReceiving = null;
+
+        String heiId = null;
+
+        for (CooperationCondition condition : iia.getCooperationConditions()) {
+            partnerSending = condition.getSendingPartner();
+            partnerReceiving = condition.getReceivingPartner();
+
+            LOG.fine("iias: partnerSending: " + partnerSending.getInstitutionId());
+            LOG.fine("iias: partnerReceiving: " + partnerReceiving.getInstitutionId());
+
+            Map<String, String> urls = null;
+
+            if (!localHeiId.equals(partnerSending.getInstitutionId())) {
+                heiId = partnerSending.getInstitutionId();
+            } else if (!localHeiId.equals(partnerReceiving.getInstitutionId())) {
+                heiId = partnerReceiving.getInstitutionId();
+            }
+        }
+
+        LOG.fine("iias: heiId: " + heiId);
+
+
+        Map<String, String> heiUrls = registryClient.getIiaHeiUrls(heiId);
+        if (heiUrls == null || heiUrls.isEmpty()) {
+            LOG.fine("iias: Hei not found: " + heiId);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        for (Map.Entry<String, String> entry : heiUrls.entrySet()) {
+            LOG.fine("iias: Hei URL: " + entry.getKey() + " -> " + entry.getValue());
+        }
+        String heiUrl = heiUrls.get("get-url");
+        if (heiUrl == null || heiUrl.isEmpty()) {
+            LOG.fine("iias: Hei URL not found for: " + heiId);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        LOG.fine("iias: Hei URL found: " + heiUrl);
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(heiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(heiUrl);
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("iia_id", Collections.singletonList(iiaId));
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+        LOG.fine("iias: Params: " + paramsMap);
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasGetResponse.class);
+
+        try {
+            if (clientResponse.getStatusCode() <= 599 && clientResponse.getStatusCode() >= 400) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), null);
+            } else if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), "Error");
+            }
+        } catch (Exception e) {
+
+        }
+
+        GenericEntity<eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse> entity = null;
+        try {
+            eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse iiaGetResponse = (eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse) clientResponse.getResult();
+            entity = new GenericEntity<eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse>(iiaGetResponse) {
+            };
+        } catch (Exception e) {
+            return javax.ws.rs.core.Response.serverError().entity(clientResponse.getErrorMessage()).build();
+        }
+        return Response.ok(entity).build();
+
     }
 
     @POST
