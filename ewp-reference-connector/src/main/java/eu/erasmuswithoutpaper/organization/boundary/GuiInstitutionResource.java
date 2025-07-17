@@ -124,7 +124,7 @@ public class GuiInstitutionResource {
         clientRequest.setMethod(HttpMethodEnum.GET);
         clientRequest.setUrl(heiUrl);
         Map<String, List<String>> paramsMap = new HashMap<>();
-        paramsMap.put("hei_id ", Collections.singletonList(heiId));
+        paramsMap.put("hei_id ", Arrays.asList(heiId));
         ParamsClass params = new ParamsClass();
         params.setUnknownFields(paramsMap);
         clientRequest.setParams(params);
