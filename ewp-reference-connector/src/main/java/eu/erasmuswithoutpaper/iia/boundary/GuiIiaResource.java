@@ -501,15 +501,14 @@ public class GuiIiaResource {
 
         }
 
-        GenericEntity<eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse> entity = null;
-        try {
-            eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse iiaGetResponse = (eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse) clientResponse.getResult();
-            entity = new GenericEntity<eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse>(iiaGetResponse) {
-            };
-        } catch (Exception e) {
-            return javax.ws.rs.core.Response.serverError().entity(clientResponse.getErrorMessage()).build();
+        IiasGetResponse iiaResponse = (IiasGetResponse) clientResponse.getResult();
+
+        if (iiaResponse == null || iiaResponse.getIia() == null || iiaResponse.getIia().isEmpty()) {
+            LOG.fine("iias: IIA not found in the response: " + iiaId);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
-        return Response.ok(entity).build();
+
+        return Response.ok(iiaResponse.getIia().get(0)).build();
 
     }
 
