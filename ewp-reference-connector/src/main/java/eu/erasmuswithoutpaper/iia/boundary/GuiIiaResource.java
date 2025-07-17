@@ -342,7 +342,7 @@ public class GuiIiaResource {
         for (Map.Entry<String, String> entry : heiUrls.entrySet()) {
             LOG.fine("iias-index: Hei URL: " + entry.getKey() + " -> " + entry.getValue());
         }
-        String heiUrl = heiUrls.get("url");
+        String heiUrl = heiUrls.get("index-url");
         if (heiUrl == null || heiUrl.isEmpty()) {
             LOG.fine("iias-index: Hei URL not found for: " + heiId);
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
