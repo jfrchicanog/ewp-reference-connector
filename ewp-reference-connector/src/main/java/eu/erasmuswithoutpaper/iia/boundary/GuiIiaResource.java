@@ -438,6 +438,7 @@ public class GuiIiaResource {
         IiaPartner partnerReceiving = null;
 
         String heiId = null;
+        String partnerId = null;
 
         for (CooperationCondition condition : iia.getCooperationConditions()) {
             partnerSending = condition.getSendingPartner();
@@ -450,12 +451,14 @@ public class GuiIiaResource {
 
             if (!localHeiId.equals(partnerSending.getInstitutionId())) {
                 heiId = partnerSending.getInstitutionId();
+                partnerId = partnerReceiving.getIiaId();
             } else if (!localHeiId.equals(partnerReceiving.getInstitutionId())) {
                 heiId = partnerReceiving.getInstitutionId();
+                partnerId = partnerSending.getIiaId();
             }
         }
 
-        LOG.fine("iias: heiId: " + heiId);
+        LOG.fine("iias: heiId: " + heiId + ", partnerId: " + partnerId);
 
 
         Map<String, String> heiUrls = registryClient.getIiaHeiUrls(heiId);
@@ -481,7 +484,7 @@ public class GuiIiaResource {
         clientRequest.setMethod(HttpMethodEnum.GET);
         clientRequest.setUrl(heiUrl);
         Map<String, List<String>> paramsMap = new HashMap<>();
-        paramsMap.put("iia_id", Collections.singletonList(iiaId));
+        paramsMap.put("iia_id", Collections.singletonList(partnerId));
         ParamsClass params = new ParamsClass();
         params.setUnknownFields(paramsMap);
         clientRequest.setParams(params);
