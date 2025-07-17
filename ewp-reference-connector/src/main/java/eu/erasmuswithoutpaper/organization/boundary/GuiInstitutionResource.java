@@ -116,6 +116,8 @@ public class GuiInstitutionResource {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
+        LOG.fine("hei-data: Hei URL found: " + heiUrl);
+
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setHeiId(heiId);
         clientRequest.setHttpsec(true);
