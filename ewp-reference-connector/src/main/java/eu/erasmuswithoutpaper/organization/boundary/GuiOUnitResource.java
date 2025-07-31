@@ -1,6 +1,8 @@
 package eu.erasmuswithoutpaper.organization.boundary;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -18,6 +20,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import eu.erasmuswithoutpaper.api.institutions.InstitutionsResponse;
+import eu.erasmuswithoutpaper.api.ounits.OunitsResponse;
+import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
+import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
+import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
@@ -36,6 +43,9 @@ public class GuiOUnitResource {
 
     @Inject
     RestClient restClient;
+
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(GuiOUnitResource.class.getCanonicalName());
+
 
     @POST
     @Path("save")
@@ -90,5 +100,46 @@ public class GuiOUnitResource {
         GenericEntity<List<OrganizationUnit>> entity = new GenericEntity<List<OrganizationUnit>>(ounitList) {
         };
         return Response.ok(entity).build();
+    }
+
+    @GET
+    @Path("get_partner")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getOunits(@QueryParam("heiId") String heiId) {
+        LOG.fine("ounits: Hei searched: " + heiId);
+
+        Map<String, String> heiUrls = registryClient.getEwpOrganizationUnitHeiUrls(heiId);
+        if (heiUrls == null || heiUrls.isEmpty()) {
+            LOG.fine("ounits: Hei not found: " + heiId);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        for (Map.Entry<String, String> entry : heiUrls.entrySet()) {
+            LOG.fine("ounits: Hei URL: " + entry.getKey() + " -> " + entry.getValue());
+        }
+        String heiUrl = heiUrls.get("url");
+        if (heiUrl == null || heiUrl.isEmpty()) {
+            LOG.fine("ounits: Hei URL not found for: " + heiId);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        LOG.fine("ounits: Hei URL found: " + heiUrl);
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(heiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(heiUrl);
+        /*Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("hei_id ", Arrays.asList(heiId));
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+        LOG.fine("hei-data: Params: " + paramsMap);*/
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, OunitsResponse.class);
+        OunitsResponse responseEnity = (OunitsResponse) clientResponse.getResult();
+        LOG.fine("ounits: Response: " + clientResponse);
+
+        return Response.ok(clientResponse).build();
     }
 }
