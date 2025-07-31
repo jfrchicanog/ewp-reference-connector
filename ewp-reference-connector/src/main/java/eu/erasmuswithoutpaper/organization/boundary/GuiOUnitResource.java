@@ -1,8 +1,6 @@
 package eu.erasmuswithoutpaper.organization.boundary;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -25,6 +23,7 @@ import eu.erasmuswithoutpaper.api.ounits.OunitsResponse;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
+import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
@@ -105,7 +104,7 @@ public class GuiOUnitResource {
     @GET
     @Path("get_partner")
     @InternalAuthenticate
-    public Response getOunits(@QueryParam("heiId") String heiId) {
+    public Response getOunits(@QueryParam("heiId") String heiId, @QueryParam("ounitId") List<String> organizationUnitIdList, @QueryParam("ounitCode") List<String> organizationUnitCodeList) {
         LOG.fine("ounits: Hei searched: " + heiId);
 
         Map<String, String> heiUrls = registryClient.getEwpOrganizationUnitHeiUrls(heiId);
@@ -130,12 +129,18 @@ public class GuiOUnitResource {
         clientRequest.setHttpsec(true);
         clientRequest.setMethod(HttpMethodEnum.GET);
         clientRequest.setUrl(heiUrl);
-        /*Map<String, List<String>> paramsMap = new HashMap<>();
-        paramsMap.put("hei_id ", Arrays.asList(heiId));
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        if (organizationUnitIdList != null && !organizationUnitIdList.isEmpty()) {
+            paramsMap.put("ounit_id", organizationUnitIdList);
+        } else if (organizationUnitCodeList != null && !organizationUnitCodeList.isEmpty()) {
+            paramsMap.put("ounit_code", organizationUnitCodeList);
+        } else {
+            return Response.status(Status.BAD_REQUEST).entity("No organization unit identifiers provided").build();
+        }
         ParamsClass params = new ParamsClass();
         params.setUnknownFields(paramsMap);
         clientRequest.setParams(params);
-        LOG.fine("hei-data: Params: " + paramsMap);*/
+        LOG.fine("ounits: Params: " + paramsMap);
         ClientResponse clientResponse = restClient.sendRequest(clientRequest, OunitsResponse.class);
         OunitsResponse responseEnity = (OunitsResponse) clientResponse.getResult();
         LOG.fine("ounits: Response: " + clientResponse);
