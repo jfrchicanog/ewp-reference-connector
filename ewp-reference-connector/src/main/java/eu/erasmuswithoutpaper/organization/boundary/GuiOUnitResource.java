@@ -104,7 +104,7 @@ public class GuiOUnitResource {
 
     @GET
     @Path("get_partner")
-    @Produces(MediaType.APPLICATION_XML)
+    @InternalAuthenticate
     public Response getOunits(@QueryParam("heiId") String heiId) {
         LOG.fine("ounits: Hei searched: " + heiId);
 
