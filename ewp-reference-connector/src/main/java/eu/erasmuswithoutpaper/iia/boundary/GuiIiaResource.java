@@ -111,19 +111,21 @@ public class GuiIiaResource {
     @GET
     @Path("get-approved")
     @InternalAuthenticate
-    public Response getApproved(@QueryParam("iia_id") String iiaId) {
-        if (iiaId != null) {
-            Iia iia = iiasEJB.findApprovedVersion(iiaId);
-            if (iia != null) {
-                String heiId = iiasEJB.getHeiId();
-                List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
-                return Response.ok(iiaResponse).build();
-            } else {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-        } else {
+    public Response getApproved(@QueryParam("iiaId") String iiaId) {
+        if (iiaId == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+
+        Iia iia = iiasEJB.findApprovedVersion(iiaId);
+
+        if (iia == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String heiId = iiasEJB.getHeiId();
+        List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
+        return Response.ok(iiaResponse).build();
+
     }
 
     @GET
@@ -1631,7 +1633,7 @@ public class GuiIiaResource {
                         .map(IiaApproval::getHeiId)
                         .collect(Collectors.toList());
 
-                if (!approvals.contains(partnerHeiId)) {
+                if (!approvals.contains(partnerHeiId) && approval.getIiaHash().equals(iia.getHashPartner())) {
                     LOG.fine("get-partner-approvals: Approval not found for partner: " + partnerHeiId);
                     execNotificationToAlgoriaApprove(iiaId, partnerHeiId);
                     IiaApproval iiaApproval = new IiaApproval();

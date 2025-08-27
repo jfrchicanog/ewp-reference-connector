@@ -550,4 +550,8 @@ public class IiasEJB {
         em.merge(iia);
         em.flush();
     }
+
+    public Iia findOriginal(String iiaId) {
+        return em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", iiaId).getSingleResult();
+    }
 }
