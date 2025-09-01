@@ -1710,21 +1710,59 @@ public class GuiIiaResource {
     private void generateFileSafely() {
         try {
             List<Iia> approvedIias = iiasEJB.findApprovedVersions();
-
+            approvedIias = Collections.singletonList(approvedIias.get(0));
             Files.createDirectories(OUTPUT.getParent());
             try (BufferedWriter w = Files.newBufferedWriter(
                     OUTPUT, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-
-                // TODO: put your real heavy work here
-                w.write("Export generated at " + Instant.now() + "\n");
-                for (int i = 1; i <= 100000; i++) {
-                    w.write("line " + i + "\n");
+                w.write("iia_id,partner_hash,hash_in_partner_system\n");
+                for (Iia iia : approvedIias) {
+                    String hashInPartnerSystem = getHasshFromPartner(iia);
+                    String line = iia.getId() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? hashInPartnerSystem : "") + "\n";
+                    w.write(line);
                 }
             }
         } catch (IOException e) {
             logger.error("Failed to generate the export file", e);
         }
+    }
+
+    private String getHasshFromPartner(Iia iia) {
+        String iiaId = iia.getId();
+
+        String partnerHeiId = "";
+        String localHeiId = iiasEJB.getHeiId();
+        for (CooperationCondition c : iia.getCooperationConditions()) {
+            if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
+                partnerHeiId = c.getReceivingPartner().getInstitutionId();
+            } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
+                partnerHeiId = c.getSendingPartner().getInstitutionId();
+            }
+        }
+
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(partnerHeiId);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(registryClient.getIiaApprovalHeiUrls(partnerHeiId).get("url"));
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        paramsMap.put("iia_id", Arrays.asList(iiaId));
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+        ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasApprovalResponse.class);
+        IiasApprovalResponse responseEnity = (IiasApprovalResponse) clientResponse.getResult();
+        if (responseEnity == null) {
+            return null;
+        }
+
+        for (IiasApprovalResponse.Approval approval : responseEnity.getApproval()) {
+            if (approval.getIiaId().equals(iiaId)) {
+                return approval.getIiaHash();
+            }
+        }
+        return null;
     }
 
 }
