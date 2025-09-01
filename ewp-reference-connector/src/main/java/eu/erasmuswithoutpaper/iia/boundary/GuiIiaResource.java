@@ -140,6 +140,21 @@ public class GuiIiaResource {
     }
 
     @GET
+    @Path("get-all-approved")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response allApproved() {
+        List<Iia> iiaList = iiasEJB.findApprovedVersions();
+
+        if (iiaList == null || iiaList.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String heiId = iiasEJB.getHeiId();
+        List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, iiaList);
+        return Response.ok(iiaResponse).build();
+    }
+
+    @GET
     @Path("get_other")
     @InternalAuthenticate
     public Response getOther(@QueryParam("iia_id") String iiaId, @QueryParam("hei_id") String heiId) {
@@ -1671,7 +1686,6 @@ public class GuiIiaResource {
         CompletableFuture.runAsync(() -> {
             try {
                 // your heavy work here
-                Thread.sleep(5000);
                 generateFileSafely();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1695,6 +1709,8 @@ public class GuiIiaResource {
 
     private void generateFileSafely() {
         try {
+            List<Iia> approvedIias = iiasEJB.findApprovedVersions();
+
             Files.createDirectories(OUTPUT.getParent());
             try (BufferedWriter w = Files.newBufferedWriter(
                     OUTPUT, StandardCharsets.UTF_8,

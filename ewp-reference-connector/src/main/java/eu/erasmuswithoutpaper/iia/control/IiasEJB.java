@@ -554,4 +554,8 @@ public class IiasEJB {
     public Iia findOriginal(String iiaId) {
         return em.createNamedQuery(Iia.findById, Iia.class).setParameter("id", iiaId).getSingleResult();
     }
+
+    public List<Iia> findApprovedVersions() {
+        return em.createNamedQuery(Iia.findByOriginalIiaIdNotNull, Iia.class).getResultList();
+    }
 }
