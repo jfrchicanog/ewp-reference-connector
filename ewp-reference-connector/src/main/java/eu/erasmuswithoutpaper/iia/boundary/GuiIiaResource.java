@@ -77,7 +77,6 @@ public class GuiIiaResource {
             Paths.get(System.getenv().getOrDefault("EXPORT_FILE", "/data/export.txt"));
 
 
-
     @GET
     @Path("get-range")
     @InternalAuthenticate
@@ -1710,7 +1709,7 @@ public class GuiIiaResource {
     private void generateFileSafely() {
         try {
             List<Iia> approvedIias = iiasEJB.findApprovedVersions();
-            approvedIias = approvedIias.stream().filter(iia -> iia.getOriginal().getId().equals("D9C3D776-A72F-4FBB-8D72-6DAEB629A163")).collect(Collectors.toList());
+            //approvedIias = approvedIias.stream().filter(iia -> iia.getOriginal().getId().equals("D9C3D776-A72F-4FBB-8D72-6DAEB629A163")).collect(Collectors.toList());
 
             String localHeiId = iiasEJB.getHeiId();
 
@@ -1720,11 +1719,15 @@ public class GuiIiaResource {
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
                 w.write("iia_id,our_hash,partner_hash,hash_in_partner_system\n");
                 for (Iia iia : approvedIias) {
-                    List<String> hashInPartnerSystem = getHasshFromPartner(iia, localHeiId);
-                    //if (hashInPartnerSystem == null || !hashInPartnerSystem.contains(iia.getConditionsHash())) {
-                        String line = iia.getOriginal().getId() + "," + iia.getConditionsHash() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? String.join(";", hashInPartnerSystem) : "") + "\n";
-                        w.write(line);
-                    //}
+                    try {
+                        List<String> hashInPartnerSystem = getHasshFromPartner(iia, localHeiId);
+                        if (hashInPartnerSystem == null || !hashInPartnerSystem.contains(iia.getConditionsHash())) {
+                            String line = iia.getOriginal().getId() + "," + iia.getConditionsHash() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? String.join(";", hashInPartnerSystem) : "") + "\n";
+                            w.write(line);
+                        }
+                    } catch (Exception e) {
+                        w.write(iia.getOriginal().getId() + "," + iia.getConditionsHash() + "," + iia.getHashPartner() + ",ERROR_FETCHING_HASH\n");
+                    }
                 }
                 w.write("iia_id,our_hash,partner_hash,hash_in_partner_system");
                 w.flush();
