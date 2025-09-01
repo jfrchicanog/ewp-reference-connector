@@ -1721,10 +1721,10 @@ public class GuiIiaResource {
                 w.write("iia_id,our_hash,partner_hash,hash_in_partner_system\n");
                 for (Iia iia : approvedIias) {
                     List<String> hashInPartnerSystem = getHasshFromPartner(iia, localHeiId);
-                    if (hashInPartnerSystem == null || !hashInPartnerSystem.contains(iia.getConditionsHash())) {
+                    //if (hashInPartnerSystem == null || !hashInPartnerSystem.contains(iia.getConditionsHash())) {
                         String line = iia.getOriginal().getId() + "," + iia.getConditionsHash() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? String.join(";", hashInPartnerSystem) : "") + "\n";
                         w.write(line);
-                    }
+                    //}
                 }
                 w.write("iia_id,our_hash,partner_hash,hash_in_partner_system");
                 w.flush();
