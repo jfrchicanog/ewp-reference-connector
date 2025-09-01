@@ -1717,8 +1717,8 @@ public class GuiIiaResource {
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
                 w.write("iia_id,partner_hash,hash_in_partner_system\n");
                 for (Iia iia : approvedIias) {
-                    String hashInPartnerSystem = getHasshFromPartner(iia);
-                    String line = iia.getOriginal().getId() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? hashInPartnerSystem : "") + "\n";
+                    List<String> hashInPartnerSystem = getHasshFromPartner(iia);
+                    String line = iia.getOriginal().getId() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? String.join(";", hashInPartnerSystem) : "") + "\n";
                     w.write(line);
                 }
             }
@@ -1727,19 +1727,16 @@ public class GuiIiaResource {
         }
     }
 
-    private String getHasshFromPartner(Iia iia) {
+    private List<String> getHasshFromPartner(Iia iia) {
         String iiaId = iia.getOriginal().getId();
 
         String partnerHeiId = "";
-        String partnerIiaId = "";
         String localHeiId = iiasEJB.getHeiId();
         for (CooperationCondition c : iia.getCooperationConditions()) {
             if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
                 partnerHeiId = c.getReceivingPartner().getInstitutionId();
-                partnerIiaId = c.getReceivingPartner().getIiaId();
             } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
                 partnerHeiId = c.getSendingPartner().getInstitutionId();
-                partnerIiaId = c.getSendingPartner().getIiaId();
             }
         }
 
@@ -1756,20 +1753,13 @@ public class GuiIiaResource {
         clientRequest.setParams(params);
         ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasApprovalResponse.class);
         IiasApprovalResponse responseEnity = (IiasApprovalResponse) clientResponse.getResult();
-        logger.info("approved-hash-sync: Response from partner: " + responseEnity);
         if (responseEnity == null) {
             return null;
         }
 
-        logger.info("approved-hash-sync: Approvals from partner: " + responseEnity.getApproval());
-
-        for (IiasApprovalResponse.Approval approval : responseEnity.getApproval()) {
-            logger.info("approved-hash-sync: Checking approval from partner: " + approval.getIiaHash(), approval.getIiaId());
-            if (approval.getIiaId().equals(partnerIiaId)) {
-                return approval.getIiaHash();
-            }
-        }
-        return null;
+        return responseEnity.getApproval().stream()
+                .map(IiasApprovalResponse.Approval::getIiaHash)
+                .collect(Collectors.toList());
     }
 
 }
