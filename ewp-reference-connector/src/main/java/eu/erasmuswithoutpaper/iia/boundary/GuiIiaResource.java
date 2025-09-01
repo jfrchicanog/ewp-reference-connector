@@ -1,5 +1,12 @@
 package eu.erasmuswithoutpaper.iia.boundary;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -65,6 +72,10 @@ public class GuiIiaResource {
 
     private static final Logger logger = LoggerFactory.getLogger(GuiIiaResource.class);
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(AuxIiaThread.class.getCanonicalName());
+
+    private static final java.nio.file.Path OUTPUT =
+            Paths.get(System.getenv().getOrDefault("EXPORT_FILE", "/data/export.txt"));
+
 
 
     @GET
@@ -1651,4 +1662,53 @@ public class GuiIiaResource {
 
         return Response.ok(responseEnity).build();
     }
+
+    @POST
+    @Path("approved-hash-sync")
+    @InternalAuthenticate
+    public javax.ws.rs.core.Response approvedHashSync() {
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                // your heavy work here
+                Thread.sleep(5000);
+                generateFileSafely();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        return javax.ws.rs.core.Response.ok().build();
+    }
+
+    @GET
+    @Path("approved-hash-sync")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response download() {
+        if (!Files.exists(OUTPUT))
+            throw new NotFoundException("File not ready yet");
+        String filename = OUTPUT.getFileName().toString();
+        return Response.ok(OUTPUT.toFile())
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .build();
+    }
+
+    private void generateFileSafely() {
+        try {
+            Files.createDirectories(OUTPUT.getParent());
+            try (BufferedWriter w = Files.newBufferedWriter(
+                    OUTPUT, StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+
+                // TODO: put your real heavy work here
+                w.write("Export generated at " + Instant.now() + "\n");
+                for (int i = 1; i <= 100000; i++) {
+                    w.write("line " + i + "\n");
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Failed to generate the export file", e);
+        }
+    }
+
 }
