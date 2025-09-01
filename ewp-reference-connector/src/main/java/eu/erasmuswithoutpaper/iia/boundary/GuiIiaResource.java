@@ -1718,7 +1718,7 @@ public class GuiIiaResource {
                 w.write("iia_id,partner_hash,hash_in_partner_system\n");
                 for (Iia iia : approvedIias) {
                     String hashInPartnerSystem = getHasshFromPartner(iia);
-                    String line = iia.getId() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? hashInPartnerSystem : "") + "\n";
+                    String line = iia.getOriginal().getId() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? hashInPartnerSystem : "") + "\n";
                     w.write(line);
                 }
             }
@@ -1728,7 +1728,7 @@ public class GuiIiaResource {
     }
 
     private String getHasshFromPartner(Iia iia) {
-        String iiaId = iia.getId();
+        String iiaId = iia.getOriginal().getId();
 
         String partnerHeiId = "";
         String partnerIiaId = "";
