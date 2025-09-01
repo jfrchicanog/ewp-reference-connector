@@ -1711,15 +1711,20 @@ public class GuiIiaResource {
         try {
             List<Iia> approvedIias = iiasEJB.findApprovedVersions();
             approvedIias = approvedIias.stream().filter(iia -> iia.getOriginal().getId().equals("D9C3D776-A72F-4FBB-8D72-6DAEB629A163")).collect(Collectors.toList());
+
+            String localHeiId = iiasEJB.getHeiId();
+
             Files.createDirectories(OUTPUT.getParent());
             try (BufferedWriter w = Files.newBufferedWriter(
                     OUTPUT, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
                 w.write("iia_id,our_hash,partner_hash,hash_in_partner_system\n");
                 for (Iia iia : approvedIias) {
-                    List<String> hashInPartnerSystem = getHasshFromPartner(iia);
-                    String line = iia.getOriginal().getId() + "," + iia.getConditionsHash() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? String.join(";", hashInPartnerSystem) : "") + "\n";
-                    w.write(line);
+                    List<String> hashInPartnerSystem = getHasshFromPartner(iia, localHeiId);
+                    if (hashInPartnerSystem == null || !hashInPartnerSystem.contains(iia.getConditionsHash())) {
+                        String line = iia.getOriginal().getId() + "," + iia.getConditionsHash() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? String.join(";", hashInPartnerSystem) : "") + "\n";
+                        w.write(line);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -1727,11 +1732,10 @@ public class GuiIiaResource {
         }
     }
 
-    private List<String> getHasshFromPartner(Iia iia) {
+    private List<String> getHasshFromPartner(Iia iia, String localHeiId) {
         String iiaId = iia.getOriginal().getId();
 
         String partnerHeiId = "";
-        String localHeiId = iiasEJB.getHeiId();
         for (CooperationCondition c : iia.getCooperationConditions()) {
             if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
                 partnerHeiId = c.getReceivingPartner().getInstitutionId();
