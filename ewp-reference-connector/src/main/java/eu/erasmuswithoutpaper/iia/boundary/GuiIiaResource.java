@@ -1726,6 +1726,8 @@ public class GuiIiaResource {
                         w.write(line);
                     }
                 }
+                w.write("iia_id,our_hash,partner_hash,hash_in_partner_system");
+                w.flush();
             }
         } catch (IOException e) {
             logger.error("Failed to generate the export file", e);
