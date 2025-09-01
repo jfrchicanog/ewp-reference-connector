@@ -1715,10 +1715,10 @@ public class GuiIiaResource {
             try (BufferedWriter w = Files.newBufferedWriter(
                     OUTPUT, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-                w.write("iia_id,partner_hash,hash_in_partner_system\n");
+                w.write("iia_id,our_hash,partner_hash,hash_in_partner_system\n");
                 for (Iia iia : approvedIias) {
                     List<String> hashInPartnerSystem = getHasshFromPartner(iia);
-                    String line = iia.getOriginal().getId() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? String.join(";", hashInPartnerSystem) : "") + "\n";
+                    String line = iia.getOriginal().getId() + "," + iia.getConditionsHash() + "," + iia.getHashPartner() + "," + (hashInPartnerSystem != null ? String.join(";", hashInPartnerSystem) : "") + "\n";
                     w.write(line);
                 }
             }
