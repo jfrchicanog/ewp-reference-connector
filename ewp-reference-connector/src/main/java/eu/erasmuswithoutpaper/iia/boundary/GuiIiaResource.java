@@ -1710,7 +1710,7 @@ public class GuiIiaResource {
     private void generateFileSafely() {
         try {
             List<Iia> approvedIias = iiasEJB.findApprovedVersions();
-            approvedIias = approvedIias.stream().filter(iia -> iia.getOriginal().equals("D9C3D776-A72F-4FBB-8D72-6DAEB629A163")).collect(Collectors.toList());
+            approvedIias = approvedIias.stream().filter(iia -> iia.getOriginal().getId().equals("D9C3D776-A72F-4FBB-8D72-6DAEB629A163")).collect(Collectors.toList());
             Files.createDirectories(OUTPUT.getParent());
             try (BufferedWriter w = Files.newBufferedWriter(
                     OUTPUT, StandardCharsets.UTF_8,
