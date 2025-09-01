@@ -1731,12 +1731,15 @@ public class GuiIiaResource {
         String iiaId = iia.getId();
 
         String partnerHeiId = "";
+        String partnerIiaId = "";
         String localHeiId = iiasEJB.getHeiId();
         for (CooperationCondition c : iia.getCooperationConditions()) {
             if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
                 partnerHeiId = c.getReceivingPartner().getInstitutionId();
+                partnerIiaId = c.getReceivingPartner().getIiaId();
             } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
                 partnerHeiId = c.getSendingPartner().getInstitutionId();
+                partnerIiaId = c.getSendingPartner().getIiaId();
             }
         }
 
@@ -1758,7 +1761,7 @@ public class GuiIiaResource {
         }
 
         for (IiasApprovalResponse.Approval approval : responseEnity.getApproval()) {
-            if (approval.getIiaId().equals(iiaId)) {
+            if (approval.getIiaId().equals(partnerIiaId)) {
                 return approval.getIiaHash();
             }
         }
