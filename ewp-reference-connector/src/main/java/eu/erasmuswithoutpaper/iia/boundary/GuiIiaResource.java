@@ -1756,11 +1756,15 @@ public class GuiIiaResource {
         clientRequest.setParams(params);
         ClientResponse clientResponse = restClient.sendRequest(clientRequest, IiasApprovalResponse.class);
         IiasApprovalResponse responseEnity = (IiasApprovalResponse) clientResponse.getResult();
+        logger.info("approved-hash-sync: Response from partner: " + responseEnity);
         if (responseEnity == null) {
             return null;
         }
 
+        logger.info("approved-hash-sync: Approvals from partner: " + responseEnity.getApproval());
+
         for (IiasApprovalResponse.Approval approval : responseEnity.getApproval()) {
+            logger.info("approved-hash-sync: Checking approval from partner: " + approval.getIiaHash(), approval.getIiaId());
             if (approval.getIiaId().equals(partnerIiaId)) {
                 return approval.getIiaHash();
             }
