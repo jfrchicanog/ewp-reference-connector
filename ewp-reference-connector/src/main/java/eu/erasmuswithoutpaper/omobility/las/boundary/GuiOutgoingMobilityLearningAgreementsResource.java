@@ -390,6 +390,12 @@ public class GuiOutgoingMobilityLearningAgreementsResource {
 
     private List<LearningAgreement> omobilitiesLas(List<OlearningAgreement> omobilityLasList, List<String> omobilityLasIdList) {
         List<LearningAgreement> omobilitiesLas = new ArrayList<>();
+        if (omobilityLasIdList == null || omobilityLasIdList.isEmpty()) {
+            omobilityLasList.stream().forEachOrdered((m) -> {
+                omobilitiesLas.add(converter.convertToLearningAgreements(m));
+            });
+            return omobilitiesLas;
+        }
         omobilityLasList.stream().forEachOrdered((m) -> {
             if (omobilityLasIdList.contains(m.getId())) {
                 omobilitiesLas.add(converter.convertToLearningAgreements(m));
