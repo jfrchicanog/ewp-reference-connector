@@ -398,7 +398,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
             return omobilitiesLas;
         }
         omobilityLasList.stream().forEachOrdered((m) -> {
-            if (omobilityLasIdList.contains(m.getId())) {
+            if (omobilityLasIdList.contains(m.getId()) || omobilityLasIdList.contains(m.getOmobilityId())) {
                 omobilitiesLas.add(converter.convertToLearningAgreements(m));
             }
         });
