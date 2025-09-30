@@ -161,10 +161,6 @@ public class GlobalProperties {
         return getIntProperty("ewp.api.ounits.max.codes", 1);
     }
     
-    public int getMaxLosIds() {
-        return getIntProperty("ewp.api.los.max.ids", 1);
-    }
-    
     public int getMaxMobilityIds() {
         return getIntProperty("ewp.api.mobilities.max.ids", 1);
     }
@@ -175,6 +171,14 @@ public class GlobalProperties {
     
     public int getMaxIiaCodes() {
         return getIntProperty("ewp.api.iias.max.codes", 1);
+    }
+
+    public int getMaxLosCodes() {
+        return getIntProperty("ewp.api.courses.max.codes", 1);
+    }
+
+    public int getMaxLosIds() {
+        return getIntProperty("ewp.api.courses.max.ids", 1);
     }
     
     public int getMaxFactsheetIds() {

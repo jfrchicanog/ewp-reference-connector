@@ -247,7 +247,7 @@ public class RegistryClient {
         ApiSearchConditions myConditions = new ApiSearchConditions();
         myConditions.setApiClassRequired(namespace, name, version);
         myConditions.setRequiredHei(heiId);
-        Element manifest = client.findApi(myConditions);
+        Collection<Element> manifest = client.findApis(myConditions);
 
         if (manifest != null) {
             return getUrlsFromManifestElement(manifest);
@@ -281,19 +281,21 @@ public class RegistryClient {
         return heis;
     }
 
-    private Map<String, String> getUrlsFromManifestElement(Element manifestElement) {
+    private Map<String, String> getUrlsFromManifestElement(Collection<Element> manifestElements) {
         Map<String, String> urlMap = new HashMap<>();
-        NodeList childNodeList = manifestElement.getChildNodes();
-        for (int i = 0; i < childNodeList.getLength(); i++) {
-            Node childNode = childNodeList.item(i);
-            if ("url".equalsIgnoreCase(childNode.getLocalName())) {
-                urlMap.put("url", childNode.getFirstChild().getNodeValue());
-            } else if ("index-url".equalsIgnoreCase(childNode.getLocalName())) {
-                urlMap.put("index-url", childNode.getFirstChild().getNodeValue());
-            } else if ("get-url".equalsIgnoreCase(childNode.getLocalName())) {
-                urlMap.put("get-url", childNode.getFirstChild().getNodeValue());
-            } else if ("update-url".equalsIgnoreCase(childNode.getLocalName())) {
-                urlMap.put("update-url", childNode.getFirstChild().getNodeValue());
+        for (Element manifestElement : manifestElements) {
+            NodeList childNodeList = manifestElement.getChildNodes();
+            for (int i = 0; i < childNodeList.getLength(); i++) {
+                Node childNode = childNodeList.item(i);
+                if ("url".equalsIgnoreCase(childNode.getLocalName())) {
+                    urlMap.put("url", childNode.getFirstChild().getNodeValue());
+                } else if ("index-url".equalsIgnoreCase(childNode.getLocalName())) {
+                    urlMap.put("index-url", childNode.getFirstChild().getNodeValue());
+                } else if ("get-url".equalsIgnoreCase(childNode.getLocalName())) {
+                    urlMap.put("get-url", childNode.getFirstChild().getNodeValue());
+                } else if ("update-url".equalsIgnoreCase(childNode.getLocalName())) {
+                    urlMap.put("update-url", childNode.getFirstChild().getNodeValue());
+                }
             }
         }
 

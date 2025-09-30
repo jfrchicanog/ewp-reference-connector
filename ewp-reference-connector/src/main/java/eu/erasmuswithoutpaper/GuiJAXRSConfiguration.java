@@ -1,6 +1,8 @@
 package eu.erasmuswithoutpaper;
 
 import eu.erasmuswithoutpaper.common.boundary.GuiHeis;
+import eu.erasmuswithoutpaper.courses.GuiCoursesReplicationResource;
+import eu.erasmuswithoutpaper.courses.GuiCoursesResource;
 import eu.erasmuswithoutpaper.echo.boundary.GuiEchoResource;
 import eu.erasmuswithoutpaper.factsheet.boundary.GuiFactsheetResource;
 import eu.erasmuswithoutpaper.home.boundary.GuiHomeResource;
@@ -43,6 +45,8 @@ public class GuiJAXRSConfiguration extends Application {
         resources.add(GuiOutgoingMobilityLearningAgreementsResource.class);
         resources.add(GuiOutgoingMobilityLearningAgreementsResourceREAL.class);
         resources.add(GuiHeis.class);
+        resources.add(GuiCoursesResource.class);
+        resources.add(GuiCoursesReplicationResource.class);
         return resources;
     }
 }

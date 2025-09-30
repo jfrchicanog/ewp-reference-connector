@@ -1,5 +1,7 @@
 package eu.erasmuswithoutpaper;
 
+import eu.erasmuswithoutpaper.courses.CoursesResource;
+import eu.erasmuswithoutpaper.courses.CoursesResourceReplication;
 import eu.erasmuswithoutpaper.discovery.boundary.ManifestResource;
 import eu.erasmuswithoutpaper.echo.boundary.EchoResource;
 import eu.erasmuswithoutpaper.factsheet.boundary.FactsheetResource;
@@ -24,6 +26,8 @@ public class RestJAXRSConfiguration extends Application {
         resources.add(EchoResource.class);
         resources.add(ManifestResource.class);
         resources.add(InstitutionResource.class);
+        //resources.add(CoursesResource.class);
+        //resources.add(CoursesResourceReplication.class);
         
         resources.add(OrganizationUnitResource.class);
         //resources.add(LosResource.class);
