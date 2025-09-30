@@ -539,4 +539,59 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
     }
 
 
+    @GET
+    @Path("get-partner")
+    public Response getPartner(@QueryParam("sending_hei_id") String sending_hei_id, @QueryParam("omobility_id") String omobility_id) {
+        LOG.fine("get-partner: Hei searched: " + sending_hei_id);
+
+        Map<String, String> heiUrls = registryClient.getOmobilityLasHeiUrls(sending_hei_id);
+        if (heiUrls == null || heiUrls.isEmpty()) {
+            LOG.fine("get-partner: Hei not found: " + sending_hei_id);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        for (Map.Entry<String, String> entry : heiUrls.entrySet()) {
+            LOG.fine("get-partner: Hei URL: " + entry.getKey() + " -> " + entry.getValue());
+        }
+        String heiUrl = heiUrls.get("get-url");
+        if (heiUrl == null || heiUrl.isEmpty()) {
+            LOG.fine("get-partner: Hei URL not found for: " + sending_hei_id);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        LOG.fine("get-partner: Hei URL found: " + heiUrl);
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(sending_hei_id);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(heiUrl);
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        if (sending_hei_id != null && !sending_hei_id.isEmpty()) {
+            paramsMap.put("sending_hei_id", Collections.singletonList(sending_hei_id));
+        } else {
+            LOG.fine("get-partner: sending_hei_id is empty");
+        }
+        if (omobility_id != null && !omobility_id.isEmpty()) {
+            paramsMap.put("omobility_id", Collections.singletonList(omobility_id));
+        } else {
+            LOG.fine("get-partner: receiving_hei_id is empty");
+        }
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+        LOG.fine("get-partner: Params: " + paramsMap);
+        ClientResponse iiaResponse = restClient.sendRequest(clientRequest, OmobilityLasGetResponse.class);
+
+        GenericEntity<OmobilityLasGetResponse> entity = null;
+        try {
+            OmobilityLasGetResponse index = (OmobilityLasGetResponse) iiaResponse.getResult();
+            entity = new GenericEntity<OmobilityLasGetResponse>(index) {
+            };
+        } catch (Exception e) {
+            return javax.ws.rs.core.Response.serverError().entity(iiaResponse.getErrorMessage()).build();
+        }
+
+        return javax.ws.rs.core.Response.ok(entity).build();
+    }
 }
