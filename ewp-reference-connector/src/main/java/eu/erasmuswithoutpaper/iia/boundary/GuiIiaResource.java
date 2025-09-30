@@ -1590,8 +1590,13 @@ public class GuiIiaResource {
 
         List<IiaApproval> approvals = iiasEJB.findIiaApproval(iiaId);
 
-        Set<String> approvedHeiIds = approvals.stream()
-                .map(IiaApproval::getHeiId)
+        Set<Map<String, String>> approvedHeiIds = approvals.stream()
+                .map(iiaApproval -> {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("heiId", iiaApproval.getHeiId());
+                    map.put("conditionsHash", iiaApproval.getConditionsHash());
+                    return map;
+                })
                 .collect(Collectors.toSet());
 
 
