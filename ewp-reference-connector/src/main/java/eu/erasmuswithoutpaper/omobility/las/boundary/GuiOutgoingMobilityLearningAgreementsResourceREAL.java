@@ -1,10 +1,8 @@
 package eu.erasmuswithoutpaper.omobility.las.boundary;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateRequest;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasUpdateResponse;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse;
+import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.*;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
 import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
@@ -23,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -482,5 +481,62 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
         return restClient.sendRequest(clientRequest, clazz);
     }
+
+    @GET
+    @Path("index-partner")
+    public Response indexPartner(@QueryParam("sending_hei_id") String sending_hei_id, @QueryParam("receiving_hei_id") String receiving_hei_id) {
+        LOG.fine("index-partner: Hei searched: " + sending_hei_id);
+
+        Map<String, String> heiUrls = registryClient.getOmobilityLasHeiUrls(sending_hei_id);
+        if (heiUrls == null || heiUrls.isEmpty()) {
+            LOG.fine("index-partner: Hei not found: " + sending_hei_id);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        for (Map.Entry<String, String> entry : heiUrls.entrySet()) {
+            LOG.fine("index-partner: Hei URL: " + entry.getKey() + " -> " + entry.getValue());
+        }
+        String heiUrl = heiUrls.get("index-url");
+        if (heiUrl == null || heiUrl.isEmpty()) {
+            LOG.fine("index-partner: Hei URL not found for: " + sending_hei_id);
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        LOG.fine("index-partner: Hei URL found: " + heiUrl);
+
+        ClientRequest clientRequest = new ClientRequest();
+        clientRequest.setHeiId(sending_hei_id);
+        clientRequest.setHttpsec(true);
+        clientRequest.setMethod(HttpMethodEnum.GET);
+        clientRequest.setUrl(heiUrl);
+        Map<String, List<String>> paramsMap = new HashMap<>();
+        if (sending_hei_id != null && !sending_hei_id.isEmpty()) {
+            paramsMap.put("sending_hei_id", Collections.singletonList(sending_hei_id));
+        } else {
+            LOG.fine("index-partner: sending_hei_id is empty");
+        }
+        if (receiving_hei_id != null && !receiving_hei_id.isEmpty()) {
+            paramsMap.put("receiving_hei_id", Collections.singletonList(receiving_hei_id));
+        } else {
+            LOG.fine("index-partner: receiving_hei_id is empty");
+        }
+        ParamsClass params = new ParamsClass();
+        params.setUnknownFields(paramsMap);
+        clientRequest.setParams(params);
+        LOG.fine("index-partner: Params: " + paramsMap);
+        ClientResponse iiaResponse = restClient.sendRequest(clientRequest, OmobilityLasIndexResponse.class);
+
+        GenericEntity<OmobilityLasIndexResponse> entity = null;
+        try {
+            OmobilityLasIndexResponse index = (OmobilityLasIndexResponse) iiaResponse.getResult();
+            entity = new GenericEntity<OmobilityLasIndexResponse>(index) {
+            };
+        } catch (Exception e) {
+            return javax.ws.rs.core.Response.serverError().entity(iiaResponse.getErrorMessage()).build();
+        }
+
+        return javax.ws.rs.core.Response.ok(entity).build();
+    }
+
 
 }
