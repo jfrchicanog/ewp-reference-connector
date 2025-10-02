@@ -32,8 +32,7 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-
-
+@Path("omobilities/las")
 public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
     private static final Logger log = LoggerFactory.getLogger(GuiOutgoingMobilityLearningAgreementsResourceREAL.class);
@@ -156,7 +155,6 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
     @POST
     @Path("update/approve")
-    @Consumes("application/json")
     public Response updateAccept(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws Exception {
         /*if (omobilityLasUpdateRequest.getApproveProposalV1() != null && omobilityLasUpdateRequest.getApproveProposalV1().getSignature() != null) {
             GregorianCalendar calendar = new GregorianCalendar();
