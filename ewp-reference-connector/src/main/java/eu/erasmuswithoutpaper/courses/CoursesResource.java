@@ -4,6 +4,7 @@ package eu.erasmuswithoutpaper.courses;
 import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
+import eu.erasmuswithoutpaper.iia.common.*;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 import https.github_com.erasmus_without_paper.ewp_specs_api_courses.tree.stable_v1.CoursesResponse;
 
@@ -102,7 +103,7 @@ public class CoursesResource {
 
         CoursesResponse response = new CoursesResponse();
 
-        //TODO: rest to algoria and get the courses
+        //TODO: implement the actual logic to fetch and filter courses based on the provided parameters.
 
         return Response.ok(response).build();
     }
@@ -117,5 +118,13 @@ public class CoursesResource {
         IiaTaskService.addTask(callableTask);
     }*/
 
+    private void execNotificationToAlgoria(String iiaId, String notifierHeiId, IiaTaskEnum iiaTaskService, String description) {
+
+        IiaTaskService.globalProperties = properties;
+        Callable<String> callableTask = IiaTaskService.createTask(iiaId, iiaTaskService, notifierHeiId, description);
+
+        //Put the task in the queue
+        IiaTaskService.addTask(callableTask);
+    }
 
 }

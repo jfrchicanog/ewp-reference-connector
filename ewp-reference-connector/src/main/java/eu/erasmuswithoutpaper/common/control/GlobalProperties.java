@@ -31,14 +31,17 @@ public class GlobalProperties {
     University university;
     String defaultUniversityName;
     String defaultAlgoriaToken = "675701176db0293a8cac23814481f8e50b320fbd";
+
+    String baseUrl = "https://relacionesi.uma.es/algoria";
     
-    String defaultAlgoriaApprovalURL = "https://relacionesi.uma.es/algoria/ewp_approved_agreement_notifications/";
-    String defaultAlgoriaCreatedURL = "https://relacionesi.uma.es/algoria/ewp_created_agreement_notifications/";
-    String defaultAlgoriaModifyURL = "https://relacionesi.uma.es/algoria/ewp_modified_agreement_notifications/";
-    String defaultAlgoriaDeleteURL = "https://relacionesi.uma.es/algoria/ewp_deleted_agreement_notifications/";
-    String defaultAlgoriaRevertURL = "https://relacionesi.uma.es/algoria/ewp_revert_agreement_notifications/";
-    String defaultAlgoriaTerminateURL = "https://relacionesi.uma.es/algoria/ewp_terminated_agreement_notifications/";
-    String defaultAlgoriaACURL = "https://relacionesi.uma.es/algoria/courses/";
+    String defaultAlgoriaApprovalURL = baseUrl + "/ewp_approved_agreement_notifications/";
+    String defaultAlgoriaCreatedURL = baseUrl + "/ewp_created_agreement_notifications/";
+    String defaultAlgoriaModifyURL = baseUrl + "/ewp_modified_agreement_notifications/";
+    String defaultAlgoriaDeleteURL = baseUrl + "/ewp_deleted_agreement_notifications/";
+    String defaultAlgoriaRevertURL = baseUrl + "/ewp_revert_agreement_notifications/";
+    String defaultAlgoriaTerminateURL = baseUrl + "/ewp_terminated_agreement_notifications/";
+    String defaultAlgoriaCRLIST = baseUrl + "/ewp_learning_oportunities/";
+    String defaultAlgoriaACURL = baseUrl + "/courses/";
     String defaultAlgoriaAuthorizationToken = "Token 6076263cedb35ca6c8abcfc6f872fb471130fdd7";
     //String defaultAlgoriaAuthorizationToken = "Token ab1a997c0f38eddbfb64c24b9e0162d366832f29";
     //String defaultAlgoriaAuthorizationToken = "Token aa38ee014e1ce693c30b399aab9668ebc13f21fd";
@@ -249,7 +252,15 @@ public class GlobalProperties {
         try {
             return configEJB.getValue("algoria.ac.url", defaultAlgoriaACURL);
         } catch (Exception e) {
-            return defaultAlgoriaTerminateURL;
+            return defaultAlgoriaACURL;
+        }
+    }
+
+    public String getAlgoriaGetCRListUrl() {
+        try {
+            return configEJB.getValue("algoria.cr.list", defaultAlgoriaCRLIST);
+        } catch (Exception e) {
+            return defaultAlgoriaCRLIST;
         }
     }
     
