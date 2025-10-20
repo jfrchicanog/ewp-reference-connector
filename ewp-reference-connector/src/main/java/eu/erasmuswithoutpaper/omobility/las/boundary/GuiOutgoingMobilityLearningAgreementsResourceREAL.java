@@ -674,9 +674,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
                     if (getIndex.getLa() != null && !getIndex.getLa().isEmpty()) {
                         LearningAgreement learningAgreement = getIndex.getLa().get(0);
                         OlearningAgreement newOlearningAgreement = converter.convertToOlearningAgreement(learningAgreement, true, null);
-                        LOG.fine("sync-partner: Inserting OlearningAgreement for omobility_id: " + newOlearningAgreement.getOmobilityId());
-                        LOG.fine("sync-partner: Inserting OlearningAgreement sending_hei: " + newOlearningAgreement.getSendingHei().getHeiId());
-                        LOG.fine("sync-partner: Inserting OlearningAgreement chenge_proposal_id: " + newOlearningAgreement.getChangesProposal().getId_changeProposal());//learningAgreementEJB.insert(newOlearningAgreement);
+                        learningAgreementEJB.insert(newOlearningAgreement);
                         LOG.fine("sync-partner: OlearningAgreement inserted: " + id);
                     } else {
                         LOG.fine("sync-partner: No LearningAgreement found in get response for omobility_id: " + id);
