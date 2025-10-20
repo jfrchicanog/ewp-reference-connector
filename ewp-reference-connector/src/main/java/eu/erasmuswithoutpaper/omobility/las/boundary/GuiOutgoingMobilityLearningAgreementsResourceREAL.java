@@ -608,6 +608,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
             LOG.fine("sync-partner: Hei URL: " + entry.getKey() + " -> " + entry.getValue());
         }
         String heiUrl = heiUrls.get("index-url");
+        String getUrl = heiUrls.get("get-url");
         if (heiUrl == null || heiUrl.isEmpty()) {
             LOG.fine("sync-partner: Hei URL not found for: " + sending_hei_id);
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
@@ -651,6 +652,37 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
             OlearningAgreement olearningAgreement = learningAgreementEJB.findBySendingHeiIdAndOmobilityId(sending_hei_id, id);
             if (olearningAgreement == null) {
                 LOG.fine("sync-partner: OlearningAgreement not found: " + id);
+                ClientRequest clientRequestGet = new ClientRequest();
+                clientRequestGet.setHeiId(sending_hei_id);
+                clientRequestGet.setHttpsec(true);
+                clientRequestGet.setMethod(HttpMethodEnum.GET);
+                clientRequestGet.setUrl(getUrl);
+                Map<String, List<String>> paramsMapGet = new HashMap<>();
+                if (sending_hei_id != null && !sending_hei_id.isEmpty()) {
+                    paramsMapGet.put("sending_hei_id", Collections.singletonList(sending_hei_id));
+                }
+                if (id != null && !id.isEmpty()) {
+                    paramsMapGet.put("omobility_id", Collections.singletonList(id));
+                }
+                ParamsClass paramsGet = new ParamsClass();
+                paramsGet.setUnknownFields(paramsMapGet);
+                clientRequestGet.setParams(paramsGet);
+                LOG.fine("sync-partner: get Params: " + paramsMapGet);
+                ClientResponse getResponse = restClient.sendRequest(clientRequestGet, OmobilityLasGetResponse.class);
+                try {
+                    OmobilityLasGetResponse getIndex = (OmobilityLasGetResponse) getResponse.getResult();
+                    LOG.fine("sync-partner: get Response: " + getResponse);
+                    /*if (getIndex.getLa() != null && !getIndex.getLa().isEmpty()) {
+                        LearningAgreement learningAgreement = getIndex.getLa().get(0);
+                        OlearningAgreement newOlearningAgreement = converter.convertToOlearningAgreement(learningAgreement, true, null);
+                        learningAgreementEJB.insert(newOlearningAgreement);
+                        LOG.fine("sync-partner: OlearningAgreement inserted: " + id);
+                    } else {
+                        LOG.fine("sync-partner: No LearningAgreement found in get response for omobility_id: " + id);
+                    }*/
+                } catch (Exception e) {
+                    LOG.fine("sync-partner: Error processing get response for omobility_id " + id + ": " + e.getMessage());
+                }
             } else {
                 LOG.fine("sync-partner: OlearningAgreement found: " + id);
             }
