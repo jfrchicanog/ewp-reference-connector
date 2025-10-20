@@ -689,4 +689,16 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
         return javax.ws.rs.core.Response.ok(entity).build();
     }
+
+    @GET
+    @Path("by-partner")
+    public Response hello(@QueryParam("sending_hei_id") String sendingHeiId, @QueryParam("omobility_id") String id) {
+        OmobilityLasGetResponse response = new OmobilityLasGetResponse();
+        OlearningAgreement olearningAgreement = learningAgreementEJB.findBySendingHeiIdAndOmobilityId(sendingHeiId, id);
+        if (olearningAgreement != null) {
+
+            response.getLa().add(converter.convertToLearningAgreements(olearningAgreement));
+        }
+        return Response.ok(response).build();
+    }
 }
