@@ -671,15 +671,16 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
                 ClientResponse getResponse = restClient.sendRequest(clientRequestGet, OmobilityLasGetResponse.class);
                 try {
                     OmobilityLasGetResponse getIndex = (OmobilityLasGetResponse) getResponse.getResult();
-                    LOG.fine("sync-partner: get Response: " + getResponse);
-                    /*if (getIndex.getLa() != null && !getIndex.getLa().isEmpty()) {
+                    if (getIndex.getLa() != null && !getIndex.getLa().isEmpty()) {
                         LearningAgreement learningAgreement = getIndex.getLa().get(0);
                         OlearningAgreement newOlearningAgreement = converter.convertToOlearningAgreement(learningAgreement, true, null);
-                        learningAgreementEJB.insert(newOlearningAgreement);
+                        LOG.fine("sync-partner: Inserting OlearningAgreement for omobility_id: " + newOlearningAgreement.getOmobilityId());
+                        LOG.fine("sync-partner: Inserting OlearningAgreement sending_hei: " + newOlearningAgreement.getSendingHei().getHeiId());
+                        LOG.fine("sync-partner: Inserting OlearningAgreement chenge_proposal_id: " + newOlearningAgreement.getChangesProposal().getId_changeProposal());//learningAgreementEJB.insert(newOlearningAgreement);
                         LOG.fine("sync-partner: OlearningAgreement inserted: " + id);
                     } else {
                         LOG.fine("sync-partner: No LearningAgreement found in get response for omobility_id: " + id);
-                    }*/
+                    }
                 } catch (Exception e) {
                     LOG.fine("sync-partner: Error processing get response for omobility_id " + id + ": " + e.getMessage());
                 }
