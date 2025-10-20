@@ -58,6 +58,18 @@ public class LearningAgreementEJB {
         return em.createNamedQuery(OlearningAgreement.findBySendingHeiId).setParameter("sendingHei", sendingHeiId).getResultList();
     }
 
+    public OlearningAgreement findBySendingHeiIdAndOmobilityId(String sendingHeiId, String omobilityId) {
+        List<OlearningAgreement> result = em.createNamedQuery(OlearningAgreement.findBySendingHeiIdAndOmobilityId, OlearningAgreement.class)
+                .setParameter("sendingHei", sendingHeiId)
+                .setParameter("omobilityId", omobilityId)
+                .getResultList();
+        if (result.isEmpty()) {
+            return null;
+        } else {
+            return result.get(0);
+        }
+    }
+
     public List<OlearningAgreement> findBySendingHeiIdFilterd(String sendingHeiId) {
         return em.createNamedQuery(OlearningAgreement.findBySendingHeiIdFilterd).setParameter("sendingHei", sendingHeiId).getResultList();
     }

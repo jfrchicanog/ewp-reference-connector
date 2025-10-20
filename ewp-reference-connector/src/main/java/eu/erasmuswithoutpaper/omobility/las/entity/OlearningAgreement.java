@@ -18,7 +18,8 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
     @NamedQuery(name = OlearningAgreement.findBySendingHeiId, query = "SELECT o FROM OlearningAgreement o WHERE o.sendingHei.heiId=:sendingHei"),
 	@NamedQuery(name = OlearningAgreement.findBySendingHeiIdFilterd, query = "SELECT o FROM OlearningAgreement o left join o.changesProposal cp left join cp.commentProposal ccp WHERE o.sendingHei.heiId=:sendingHei AND (cp.id IS NULL OR ccp.id IS NULL)"),
     @NamedQuery(name = OlearningAgreement.findByReceivingHeiId, query = "SELECT o FROM OlearningAgreement o WHERE o.receivingHei.heiId=:receivingHei"),
-	@NamedQuery(name = OlearningAgreement.findByChangesProposalId, query = "SELECT o FROM OlearningAgreement o WHERE o.changesProposal.id_changeProposal=:changesProposalId")
+	@NamedQuery(name = OlearningAgreement.findByChangesProposalId, query = "SELECT o FROM OlearningAgreement o WHERE o.changesProposal.id_changeProposal=:changesProposalId"),
+    @NamedQuery(name = OlearningAgreement.findBySendingHeiIdAndOmobilityId, query = "SELECT o FROM OlearningAgreement o WHERE o.sendingHei.heiId=:sendingHei AND o.omobilityId=:omobilityId"),
 })
 
 public class OlearningAgreement implements Serializable {
@@ -29,6 +30,7 @@ public class OlearningAgreement implements Serializable {
 	public static final String findBySendingHeiIdFilterd = PREFIX + "findBySendingHeiIdFilterd";
     public static final String findByReceivingHeiId = PREFIX + "findByReceivingHeiId";
 	public static final String findByChangesProposalId = PREFIX + "findByChangesProposalId";
+    public static final String findBySendingHeiIdAndOmobilityId = PREFIX + "findBySendingHeiIdAndOmobilityId";
     
     @Id
     @Column(updatable = false)
