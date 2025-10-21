@@ -93,13 +93,23 @@ public class GuiIiaResource {
     @GET
     @Path("get")
     @InternalAuthenticate
-    public Response get(@QueryParam("iia_id") String iiaId, @QueryParam("partner_id") String partnerId) {
+    public Response get(@QueryParam("iia_id") String iiaId, @QueryParam("partner_id") String partnerId, @QueryParam("type") String type) {
         if (iiaId != null) {
             Iia iia = iiasEJB.findById(iiaId);
             if (iia != null) {
                 String heiId = iiasEJB.getHeiId();
                 List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
-                return Response.ok(iiaResponse).build();
+                if ("xml".equalsIgnoreCase(type)) {
+                    IiasGetResponse response = new IiasGetResponse();
+                    response.getIia().addAll(iiaResponse);
+                    return Response.ok(response)
+                            .type(MediaType.APPLICATION_XML)
+                            .build();
+                } else {
+                    return Response.ok(iiaResponse)
+                            .type(MediaType.APPLICATION_JSON)
+                            .build();
+                }
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
