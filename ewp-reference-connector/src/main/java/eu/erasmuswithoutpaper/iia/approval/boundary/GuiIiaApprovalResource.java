@@ -11,11 +11,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -30,6 +26,7 @@ import javax.xml.transform.TransformerException;
 import eu.erasmuswithoutpaper.iia.control.IiaConverter;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import eu.erasmuswithoutpaper.iia.entity.*;
+import eu.erasmuswithoutpaper.security.InternalAuthenticate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -94,6 +91,18 @@ public class GuiIiaApprovalResource {
         String iia_Id = iiaApproval.getId();
         Iia iia = em.find(Iia.class, iia_Id);
         
+        notifyCnrPartner(iia);
+    }
+
+    @POST
+    @Path("sendCnrApproval")
+    @InternalAuthenticate
+    public void resendCnr(@QueryParam("iiaId") String iiaId) {
+        Iia iia = em.find(Iia.class, iiaId);
+        if (iia == null) {
+            return;
+        }
+
         notifyCnrPartner(iia);
     }
 
