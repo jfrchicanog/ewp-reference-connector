@@ -298,7 +298,12 @@ public class GuiIiaResource {
         LOG.fine("ADD: Add start");
         Iia iiaInternal = new Iia();
 
-        iiaConverter.convertToIia(iia, iiaInternal, iiasEJB.findAllInstitutions());
+        try {
+            iiaConverter.convertToIia(iia, iiaInternal, iiasEJB.findAllInstitutions());
+        } catch (Exception e) {
+            LOG.fine("ADD: Error converting IIA: " + e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity("Error converting IIA: " + e.getMessage()).build();
+        }
 
         iiasEJB.insertIia(iiaInternal);
 
@@ -558,7 +563,12 @@ public class GuiIiaResource {
         LOG.fine("UPDATE: Start Update");
         Iia iiaInternal = new Iia();
 
-        iiaConverter.convertToIia(iia, iiaInternal, iiasEJB.findAllInstitutions());
+        try {
+            iiaConverter.convertToIia(iia, iiaInternal, iiasEJB.findAllInstitutions());
+        } catch (Exception e) {
+            LOG.fine("ADD: Error converting IIA: " + e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity("Error converting IIA: " + e.getMessage()).build();
+        }
 
         //LOG.fine("UPDATE: Iia Code: " + iiaInternal.getCooperationConditions().stream().map(c -> c.getDuration().getNumber().toString()).collect(Collectors.joining(", ")));
 
