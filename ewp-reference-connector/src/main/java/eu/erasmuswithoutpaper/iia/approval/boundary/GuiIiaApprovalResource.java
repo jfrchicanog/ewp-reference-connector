@@ -94,7 +94,7 @@ public class GuiIiaApprovalResource {
         notifyCnrPartner(iia);
     }
 
-    @POST
+    @GET
     @Path("sendCnrApproval")
     @InternalAuthenticate
     public void resendCnr(@QueryParam("iiaId") String iiaId) {
