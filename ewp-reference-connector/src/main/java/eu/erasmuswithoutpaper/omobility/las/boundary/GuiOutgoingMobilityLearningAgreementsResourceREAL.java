@@ -13,6 +13,7 @@ import eu.erasmuswithoutpaper.iia.boundary.NotifyAux;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import eu.erasmuswithoutpaper.omobility.las.control.LearningAgreementEJB;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
+import eu.erasmuswithoutpaper.omobility.las.dto.SyncReturnDTO;
 import eu.erasmuswithoutpaper.omobility.las.entity.MobilityInstitution;
 import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
 import org.slf4j.Logger;
@@ -647,6 +648,9 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
             return javax.ws.rs.core.Response.serverError().entity(iiaResponse.getErrorMessage()).build();
         }
 
+        SyncReturnDTO syncReturnDTO = new SyncReturnDTO();
+        syncReturnDTO.setOmobilityIds(new ArrayList<>());
+
         entity.getEntity().getOmobilityId().forEach(id -> {
             LOG.fine("sync-partner: Processing omobility_id: " + id);
             OlearningAgreement olearningAgreement = learningAgreementEJB.findBySendingHeiIdAndOmobilityId(sending_hei_id, id);
@@ -674,8 +678,13 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
                     if (getIndex.getLa() != null && !getIndex.getLa().isEmpty()) {
                         LearningAgreement learningAgreement = getIndex.getLa().get(0);
                         OlearningAgreement newOlearningAgreement = converter.convertToOlearningAgreement(learningAgreement, true, null);
-                        learningAgreementEJB.insert(newOlearningAgreement);
+                        String ourId = learningAgreementEJB.insert(newOlearningAgreement);
                         LOG.fine("sync-partner: OlearningAgreement inserted: " + id);
+
+                        SyncReturnDTO.SyncReturnItemDTO syncReturnItemDTO = new SyncReturnDTO.SyncReturnItemDTO();
+                        syncReturnItemDTO.setOmobilityId(id);
+                        syncReturnItemDTO.setOurId(ourId);
+                        syncReturnDTO.getOmobilityIds().add(syncReturnItemDTO);
                     } else {
                         LOG.fine("sync-partner: No LearningAgreement found in get response for omobility_id: " + id);
                     }
@@ -684,10 +693,14 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
                 }
             } else {
                 LOG.fine("sync-partner: OlearningAgreement found: " + id);
+                SyncReturnDTO.SyncReturnItemDTO syncReturnItemDTO = new SyncReturnDTO.SyncReturnItemDTO();
+                syncReturnItemDTO.setOmobilityId(id);
+                syncReturnItemDTO.setOurId(olearningAgreement.getId());
+                syncReturnDTO.getOmobilityIds().add(syncReturnItemDTO);
             }
         });
 
-        return javax.ws.rs.core.Response.ok(entity).build();
+        return javax.ws.rs.core.Response.ok(syncReturnDTO).build();
     }
 
     @GET
