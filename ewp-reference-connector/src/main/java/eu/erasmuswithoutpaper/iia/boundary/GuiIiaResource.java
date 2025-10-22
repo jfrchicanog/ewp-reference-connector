@@ -460,7 +460,7 @@ public class GuiIiaResource {
     @Path("iias")
     @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response iias(@QueryParam("iiaId") String iiaId) {
+    public javax.ws.rs.core.Response iias(@QueryParam("iiaId") String iiaId, @QueryParam("type") String type) {
         LOG.fine("iias: IIA searched: " + iiaId);
 
         if (iiaId == null || iiaId.isEmpty()) {
@@ -550,7 +550,17 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        return Response.ok(iiaResponse.getIia().get(0)).build();
+
+
+        if ("xml".equalsIgnoreCase(type)) {
+            return Response.ok(iiaResponse)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+        } else {
+            return Response.ok(iiaResponse)
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
 
     }
 
