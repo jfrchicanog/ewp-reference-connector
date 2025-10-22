@@ -15,7 +15,7 @@ public class SyncReturnDTO {
 
     public static class SyncReturnItemDTO {
         private String omobilityId;
-        private String ourId;
+        private String ourewpid;
 
         public String getOmobilityId() {
             return omobilityId;
@@ -25,12 +25,12 @@ public class SyncReturnDTO {
             this.omobilityId = omobilityId;
         }
 
-        public String getOurId() {
-            return ourId;
+        public String getOurewpid() {
+            return ourewpid;
         }
 
-        public void setOurId(String ourId) {
-            this.ourId = ourId;
+        public void setOurewpid(String ourewpid) {
+            this.ourewpid = ourewpid;
         }
     }
 }

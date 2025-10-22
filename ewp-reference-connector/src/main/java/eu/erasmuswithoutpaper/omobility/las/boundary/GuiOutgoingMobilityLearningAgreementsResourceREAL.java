@@ -683,7 +683,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
                         SyncReturnDTO.SyncReturnItemDTO syncReturnItemDTO = new SyncReturnDTO.SyncReturnItemDTO();
                         syncReturnItemDTO.setOmobilityId(id);
-                        syncReturnItemDTO.setOurId(ourId);
+                        syncReturnItemDTO.setOurewpid(ourId);
                         syncReturnDTO.getOmobilityIds().add(syncReturnItemDTO);
                     } else {
                         LOG.fine("sync-partner: No LearningAgreement found in get response for omobility_id: " + id);
@@ -695,7 +695,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
                 LOG.fine("sync-partner: OlearningAgreement found: " + id);
                 SyncReturnDTO.SyncReturnItemDTO syncReturnItemDTO = new SyncReturnDTO.SyncReturnItemDTO();
                 syncReturnItemDTO.setOmobilityId(id);
-                syncReturnItemDTO.setOurId(olearningAgreement.getId());
+                syncReturnItemDTO.setOurewpid(olearningAgreement.getId());
                 syncReturnDTO.getOmobilityIds().add(syncReturnItemDTO);
             }
         });
