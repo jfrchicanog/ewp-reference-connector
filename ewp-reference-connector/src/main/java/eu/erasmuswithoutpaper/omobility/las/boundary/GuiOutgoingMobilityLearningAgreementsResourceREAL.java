@@ -1,6 +1,7 @@
 package eu.erasmuswithoutpaper.omobility.las.boundary;
 
 import eu.erasmuswithoutpaper.api.architecture.Empty;
+import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.*;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
@@ -23,6 +24,7 @@ import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -540,7 +542,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
     @GET
     @Path("get-partner")
-    public Response getPartner(@QueryParam("sending_hei_id") String sending_hei_id, @QueryParam("omobility_id") String omobility_id) {
+    public Response getPartner(@QueryParam("sending_hei_id") String sending_hei_id, @QueryParam("omobility_id") String omobility_id, @QueryParam("type") String type) {
         LOG.fine("get-partner: Hei searched: " + sending_hei_id);
 
         Map<String, String> heiUrls = registryClient.getOmobilityLasHeiUrls(sending_hei_id);
@@ -591,7 +593,15 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
             return javax.ws.rs.core.Response.serverError().entity(iiaResponse.getErrorMessage()).build();
         }
 
-        return javax.ws.rs.core.Response.ok(entity).build();
+        if ("xml".equalsIgnoreCase(type)) {
+            return Response.ok(entity)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+        } else {
+            return Response.ok(entity)
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
     }
 
     @GET
