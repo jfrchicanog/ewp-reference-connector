@@ -114,6 +114,7 @@ public class IiasEJB {
         em.persist(iiaInternal);
         em.flush();
 
+        /*
         String iiaIdGenerated = iiaInternal.getId();
         for (CooperationCondition condition : iiaInternal.getCooperationConditions()) {
             if (condition.getSendingPartner().getInstitutionId().equals(localHeiId)) {
@@ -135,7 +136,27 @@ public class IiasEJB {
         }
         LOG.fine("ADD: AFTER HASH");
 
-        em.merge(iiaInternal);
+        em.merge(iiaInternal);*/
+    }
+
+    public String updateHash(String id) {
+        Iia iia = em.find(Iia.class, id);
+        String hash = "";
+
+        LOG.fine("UPDATE HASH: CALC HASH");
+        try {
+            hash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(getHeiId(), Collections.singletonList(iia)).get(0));
+            iia.setConditionsHash(hash);
+        } catch (Exception e) {
+            LOG.fine("UPDATE HASH: HASH ERROR, Can't calculate sha256 updating iia");
+            LOG.fine(e.getMessage());
+        }
+        LOG.fine("UPDATE HASH: AFTER HASH");
+
+        em.merge(iia);
+        em.flush();
+
+        return hash;
     }
 
     public Iia insertReceivedIia(IiasGetResponse.Iia sendIia, Iia newIia) {
@@ -172,7 +193,7 @@ public class IiasEJB {
         em.merge(newIia);
         em.flush();
 
-        LOG.fine("AuxIiaThread_ADDEDIT: Calculate hash");
+        /*LOG.fine("AuxIiaThread_ADDEDIT: Calculate hash");
         try {
             newIia.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(localHeiId, Arrays.asList(em.find(Iia.class, newIia.getId()))).get(0)));
             LOG.fine("AuxIiaThread_ADDEDIT: HASH CALCULATED: " + newIia.getConditionsHash());
@@ -183,7 +204,7 @@ public class IiasEJB {
         LOG.fine("AuxIiaThread_ADDEDIT: After hash");
 
         em.merge(newIia);
-        em.flush();
+        em.flush();*/
 
         return newIia;
     }
@@ -260,7 +281,7 @@ public class IiasEJB {
         em.merge(localIia);
         em.flush();
 
-        String localHeiId = getHeiId();
+        /*String localHeiId = getHeiId();
 
         LOG.fine("UPDATE: CALC HASH");
         try {
@@ -271,10 +292,10 @@ public class IiasEJB {
         }
 
         em.merge(localIia);
-        em.flush();
+        em.flush();*/
     }
 
-    public String updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
+    public void updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
         String localHeiId = getHeiId();
         foundIia.setModifyDate(new Date());
         //em.merge(foundIia);
@@ -313,7 +334,7 @@ public class IiasEJB {
         em.merge(foundIia);
         em.flush();
 
-        String newHash = "";
+        /*String newHash = "";
 
         LOG.fine("UPDATE: CALC HASH");
         try {
@@ -322,7 +343,7 @@ public class IiasEJB {
         } catch (Exception e) {
             LOG.fine("UPDATE: HASH ERROR, Can't calculate sha256 updating iia");
             LOG.fine(e.getMessage());
-        }
+        }*/
 
         if (partnerHash != null) {
             LOG.fine("UPDATE *ESPECIAL*: PARTNER HASH SET TO: " + partnerHash);
@@ -332,7 +353,7 @@ public class IiasEJB {
         em.merge(foundIia);
         em.flush();
 
-        return newHash;
+        //return newHash;
     }
 
     public List<Iia> getByPartnerId(String heiId, String partnerId) {
@@ -488,7 +509,7 @@ public class IiasEJB {
             }
         }
 
-        iia.setConditionsHash(computeHash(iia));
+        //iia.setConditionsHash(computeHash(iia));
         em.merge(iia);
 
         em.flush();
@@ -513,15 +534,10 @@ public class IiasEJB {
         iia.setConditionsTerminatedAsAWhole(true);
         iia.setInEfect(false);
 
-        iia.setConditionsHash(computeHash(iia));
+        //iia.setConditionsHash(computeHash(iia));
 
         em.merge(iia);
         em.flush();
-    }
-
-    public void revertIiaAndTerminate(String iiaId, String approvedId) {
-        revertIia(iiaId, approvedId);
-        terminateIia(iiaId);
     }
 
     public List<Iia> findByDateRange(Date initDate, Date finDate) {

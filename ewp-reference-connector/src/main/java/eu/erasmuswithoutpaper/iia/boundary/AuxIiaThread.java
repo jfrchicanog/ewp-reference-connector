@@ -158,6 +158,7 @@ public class AuxIiaThread {
             LOG.fine("AuxIiaThread_ADDEDIT: Iia convertsed with conditions: " + newIia.getCooperationConditions().size());
 
             Iia persisted = iiasEJB.insertReceivedIia(sendIia, newIia);
+            iiasEJB.updateHash(persisted.getId());
 
             IiaConverter converter = new IiaConverter();
             List<IiasGetResponse.Iia> iias = converter.convertToIias(localHeiId, Arrays.asList(persisted));
@@ -192,6 +193,7 @@ public class AuxIiaThread {
             if (localIia.getHashPartner() == null) {
                 LOG.fine("AuxIiaThread_ADDEDIT: Not containing other HASH");
                 iiasEJB.updateWithPartnerIDs(localIia, sendIia, iiaId, heiId);
+                iiasEJB.updateHash(localIia.getId());
                 IiaConverter converter = new IiaConverter();
                 List<IiasGetResponse.Iia> iias = converter.convertToIias(localHeiId, Arrays.asList(localIia));
                 iias.get(0).getPartner().forEach(p -> {
@@ -227,7 +229,8 @@ public class AuxIiaThread {
                 Iia modifIia = new Iia();
                 iiaConverter.convertToIia(sendIia, modifIia, iiasEJB.findAllInstitutions());
 
-                String afterHash = iiasEJB.updateIia(modifIia, localIia, sendIia.getIiaHash());
+                iiasEJB.updateIia(modifIia, localIia, sendIia.getIiaHash());
+                String afterHash = iiasEJB.updateHash(localIia.getId());
 
                 LOG.fine("AuxIiaThread_ADDEDIT: After merging changes");
 
@@ -377,10 +380,12 @@ public class AuxIiaThread {
                     && sendIia.getCooperationConditions().isTerminatedAsAWhole() == approvedVersion.getConditionsTerminatedAsAWhole()) {
                 LOG.fine("AuxIiaThread_MODIFY: Revert before termination");
                 iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
+                iiasEJB.updateHash(localIia.getId());
                 execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.REVERTED, "Revert");
             } else {
                 LOG.fine("AuxIiaThread_MODIFY: Terminate");
                 iiasEJB.terminateIia(localIia.getId());
+                iiasEJB.updateHash(localIia.getId());
                 execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.TERMINATED, "Terminated");
             }
 
@@ -411,6 +416,7 @@ public class AuxIiaThread {
 
             LOG.fine("AuxIiaThread_MODIFY: Revert detected");
             iiasEJB.revertIia(localIia.getId(), approvedVersion.getId());
+            iiasEJB.updateHash(localIia.getId());
             execNotificationToAlgoria(localIia.getId(), heiId, IiaTaskEnum.REVERTED, "Revert");
 
             Iia finalLocalIia = localIia;

@@ -306,6 +306,7 @@ public class GuiIiaResource {
         }
 
         iiasEJB.insertIia(iiaInternal);
+        iiasEJB.updateHash(iiaInternal.getId());
 
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
@@ -615,7 +616,8 @@ public class GuiIiaResource {
         LOG.fine("OLODOLD Hash: " + foundIia.getConditionsHash());
         String oldHash = foundIia.getConditionsHash();
 
-        String newHash = iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
+        iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
+        String newHash = iiasEJB.updateHash(foundIia.getId());
 
         LOG.fine("OLD HASH: " + oldHash);
         LOG.fine("NEW HASH: " + newHash);
@@ -1135,6 +1137,7 @@ public class GuiIiaResource {
         }
 
         iiasEJB.revertIia(iia.getId(), clonedIia.getId());
+        iiasEJB.updateHash(iia.getId());
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -1172,6 +1175,7 @@ public class GuiIiaResource {
         LOG.fine("GuiIiaRecource: Before hash: " + iia.getConditionsHash());
 
         iiasEJB.terminateIia(iia.getId());
+        iiasEJB.updateHash(iia.getId());
 
         // Notify the partner about the deletion
         CompletableFuture.runAsync(() -> {
