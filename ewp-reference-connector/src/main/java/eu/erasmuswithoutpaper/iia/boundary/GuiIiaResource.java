@@ -315,7 +315,15 @@ public class GuiIiaResource {
         }
 
         iiasEJB.insertIia(iiaInternal);
-        iiasEJB.updateHash(iiaInternal.getId());
+        //iiasEJB.updateHash(iiaInternal.getId());
+        Response hashResponse = reCalcHash(iiaInternal.getId());
+        if (hashResponse.getStatus() != Response.Status.OK.getStatusCode()) {
+            return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        IiaResponse hashEntity = (IiaResponse) hashResponse.getEntity();
+        String newHash = hashEntity.getHashCode();
+
+        LOG.fine("ADD: New Hash: " + newHash);
 
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
