@@ -315,7 +315,8 @@ public class GuiIiaResource {
         }
 
         iiasEJB.insertIia(iiaInternal);
-        //iiasEJB.updateHash(iiaInternal.getId());
+        iiasEJB.updateHash(iiaInternal.getId());
+
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
         CompletableFuture.runAsync(() -> {
@@ -324,23 +325,12 @@ public class GuiIiaResource {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            //notifyPartner(iiaInternal);
-            LOG.fine("ADD:Stradt hash calculation");
-            Response hashResponse = reCalcHash(iiaInternal.getId());
-            if (hashResponse.getStatus() != Response.Status.OK.getStatusCode()) {
-                LOG.fine("ADD: Hash Calculation failed with status: " + hashResponse.getStatus());
-                //return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            }
-            IiaResponse hashEntity = (IiaResponse) hashResponse.getEntity();
-            String newHash = hashEntity.getHashCode();
-
-            LOG.fine("ADD: New Hash: " + newHash);
-
+            notifyPartner(iiaInternal);
         });
 
         LOG.fine("ADD: Notification send");
 
-        IiaResponse response = new IiaResponse(iiaInternal.getId(), "");
+        IiaResponse response = new IiaResponse(iiaInternal.getId(), iiaInternal.getConditionsHash());
 
         return Response.ok(response).build();
     }
@@ -636,13 +626,7 @@ public class GuiIiaResource {
         String oldHash = foundIia.getConditionsHash();
 
         iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
-        //String newHash = iiasEJB.updateHash(foundIia.getId());
-        Response hashResponse = reCalcHash(foundIia.getId());
-        if (hashResponse.getStatus() != Response.Status.OK.getStatusCode()) {
-            return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        IiaResponse hashEntity = (IiaResponse) hashResponse.getEntity();
-        String newHash = hashEntity.getHashCode();
+        String newHash = iiasEJB.updateHash(foundIia.getId());
 
         LOG.fine("OLD HASH: " + oldHash);
         LOG.fine("NEW HASH: " + newHash);
