@@ -316,8 +316,10 @@ public class GuiIiaResource {
 
         iiasEJB.insertIia(iiaInternal);
         //iiasEJB.updateHash(iiaInternal.getId());
+        LOG.fine("ADD:Stradt hash calculation");
         Response hashResponse = reCalcHash(iiaInternal.getId());
         if (hashResponse.getStatus() != Response.Status.OK.getStatusCode()) {
+            LOG.fine("ADD: Hash Calculation failed with status: " + hashResponse.getStatus());
             return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         IiaResponse hashEntity = (IiaResponse) hashResponse.getEntity();
