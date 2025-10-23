@@ -626,12 +626,14 @@ public class GuiIiaResource {
         //String oldHash = foundIia.getConditionsHash();
 
         iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
+        LOG.fine("UPDATE: Iia Updated");
         /*String newHash = iiasEJB.updateHash(foundIia.getId());
 
         LOG.fine("OLD HASH: " + oldHash);
         LOG.fine("NEW HASH: " + newHash);*/
         //if (!oldHash.equals(newHash)) {
             iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());
+            LOG.fine("UPDATE: Iia Approvals deleted");
         //}
 
         //Notify the partner about the modification using the API GUI IIA CNR
