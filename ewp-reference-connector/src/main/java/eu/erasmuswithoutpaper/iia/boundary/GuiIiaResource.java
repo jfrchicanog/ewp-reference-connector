@@ -131,7 +131,7 @@ public class GuiIiaResource {
     @GET
     @Path("get-approved")
     @InternalAuthenticate
-    public Response getApproved(@QueryParam("iiaId") String iiaId) {
+    public Response getApproved(@QueryParam("iiaId") String iiaId, @QueryParam("type") String type) {
         if (iiaId == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -144,8 +144,17 @@ public class GuiIiaResource {
 
         String heiId = iiasEJB.getHeiId();
         List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
-        return Response.ok(iiaResponse).build();
-
+        if ("xml".equalsIgnoreCase(type)) {
+            IiasGetResponse response = new IiasGetResponse();
+            response.getIia().addAll(iiaResponse);
+            return Response.ok(response)
+                    .type(MediaType.APPLICATION_XML)
+                    .build();
+        } else {
+            return Response.ok(iiaResponse)
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
     }
 
     @GET
@@ -616,8 +625,14 @@ public class GuiIiaResource {
         LOG.fine("OLODOLD Hash: " + foundIia.getConditionsHash());
         String oldHash = foundIia.getConditionsHash();
 
-        iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
-        String newHash = iiasEJB.updateHash(foundIia.getId());
+        //iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
+        //String newHash = iiasEJB.updateHash(foundIia.getId());
+        Response hashResponse = reCalcHash(foundIia.getId());
+        if (hashResponse.getStatus() != Response.Status.OK.getStatusCode()) {
+            return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        IiaResponse hashEntity = (IiaResponse) hashResponse.getEntity();
+        String newHash = hashEntity.getHashCode();
 
         LOG.fine("OLD HASH: " + oldHash);
         LOG.fine("NEW HASH: " + newHash);
