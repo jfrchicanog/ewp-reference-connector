@@ -625,7 +625,7 @@ public class GuiIiaResource {
         LOG.fine("OLODOLD Hash: " + foundIia.getConditionsHash());
         String oldHash = foundIia.getConditionsHash();
 
-        //iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
+        iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
         //String newHash = iiasEJB.updateHash(foundIia.getId());
         Response hashResponse = reCalcHash(foundIia.getId());
         if (hashResponse.getStatus() != Response.Status.OK.getStatusCode()) {
