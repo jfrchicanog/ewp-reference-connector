@@ -330,7 +330,7 @@ public class GuiIiaResource {
 
         LOG.fine("ADD: Notification send");
 
-        IiaResponse response = new IiaResponse(iiaInternal.getId(), "");
+        IiaResponse response = new IiaResponse(iiaInternal.getId(), "dont forget recalculate hash!");
 
         return Response.ok(response).build();
     }
@@ -646,7 +646,7 @@ public class GuiIiaResource {
             notifyPartner(iiaInternal);
         });*/
 
-        IiaResponse response = new IiaResponse(foundIia.getId(), "");
+        IiaResponse response = new IiaResponse(foundIia.getId(), "dont forget recalculate hash!");
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
