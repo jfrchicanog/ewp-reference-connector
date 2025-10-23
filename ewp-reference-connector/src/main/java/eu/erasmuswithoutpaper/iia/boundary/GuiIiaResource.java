@@ -316,17 +316,6 @@ public class GuiIiaResource {
 
         iiasEJB.insertIia(iiaInternal);
         //iiasEJB.updateHash(iiaInternal.getId());
-        LOG.fine("ADD:Stradt hash calculation");
-        Response hashResponse = reCalcHash(iiaInternal.getId());
-        if (hashResponse.getStatus() != Response.Status.OK.getStatusCode()) {
-            LOG.fine("ADD: Hash Calculation failed with status: " + hashResponse.getStatus());
-            return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        IiaResponse hashEntity = (IiaResponse) hashResponse.getEntity();
-        String newHash = hashEntity.getHashCode();
-
-        LOG.fine("ADD: New Hash: " + newHash);
-
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
         CompletableFuture.runAsync(() -> {
@@ -335,12 +324,23 @@ public class GuiIiaResource {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            notifyPartner(iiaInternal);
+            //notifyPartner(iiaInternal);
+            LOG.fine("ADD:Stradt hash calculation");
+            Response hashResponse = reCalcHash(iiaInternal.getId());
+            if (hashResponse.getStatus() != Response.Status.OK.getStatusCode()) {
+                LOG.fine("ADD: Hash Calculation failed with status: " + hashResponse.getStatus());
+                //return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            }
+            IiaResponse hashEntity = (IiaResponse) hashResponse.getEntity();
+            String newHash = hashEntity.getHashCode();
+
+            LOG.fine("ADD: New Hash: " + newHash);
+
         });
 
         LOG.fine("ADD: Notification send");
 
-        IiaResponse response = new IiaResponse(iiaInternal.getId(), iiaInternal.getConditionsHash());
+        IiaResponse response = new IiaResponse(iiaInternal.getId(), "");
 
         return Response.ok(response).build();
     }
