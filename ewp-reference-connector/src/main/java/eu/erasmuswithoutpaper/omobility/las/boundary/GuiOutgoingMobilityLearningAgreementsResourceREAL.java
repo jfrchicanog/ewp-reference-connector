@@ -158,6 +158,8 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
     @POST
     @Path("update/approve")
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_XML)
     public Response updateAccept(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws Exception {
         /*if (omobilityLasUpdateRequest.getApproveProposalV1() != null && omobilityLasUpdateRequest.getApproveProposalV1().getSignature() != null) {
             GregorianCalendar calendar = new GregorianCalendar();
@@ -198,6 +200,8 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
     @POST
     @Path("update/reject")
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_XML)
     public Response updateReject(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws JAXBException, IOException, DatatypeConfigurationException {
         /*if (omobilityLasUpdateRequest.getCommentProposalV1() != null && omobilityLasUpdateRequest.getCommentProposalV1().getSignature() != null) {
             GregorianCalendar calendar = new GregorianCalendar();
