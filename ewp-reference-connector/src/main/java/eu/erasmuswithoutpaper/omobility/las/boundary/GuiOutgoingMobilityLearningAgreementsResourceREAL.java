@@ -194,7 +194,9 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
         learningAgreementEJB.approveChangesProposal(omobilityLasUpdateRequest, id);
 
-        return Response.ok(response.getRawResponse()).build();
+        OmobilityLasUpdateResponse omobilityLasUpdateResponse = (OmobilityLasUpdateResponse) response.getResult();
+
+        return Response.ok(omobilityLasUpdateResponse).build();
     }
 
     @POST
@@ -235,7 +237,9 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
         learningAgreementEJB.rejectChangesProposal(omobilityLasUpdateRequest, id);
 
-        return Response.ok(response.getRawResponse()).build();
+        OmobilityLasUpdateResponse omobilityLasUpdateResponse = (OmobilityLasUpdateResponse) response.getResult();
+
+        return Response.ok(omobilityLasUpdateResponse).build();
         /*
         LOG.fine("REJCET: start");
         LOG.fine("REJCET: ownId: " + id);
