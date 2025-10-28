@@ -728,4 +728,18 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
         response.getLa().add(converter.convertToLearningAgreements(olearningAgreement));
         return Response.ok(response).build();
     }
+
+    @POST
+    @Path("save/approve")
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_XML)
+    public Response saveApproval(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) {
+        LOG.fine("SAVE APPROVE: start");
+        LOG.fine("SAVE APPROVE: ownId: " + id);
+        LOG.fine("SAVE APPROVE request: " + omobilityLasUpdateRequest.toString());
+
+        learningAgreementEJB.approveChangesProposal(omobilityLasUpdateRequest, id);
+
+        return Response.ok(omobilityLasUpdateRequest).build();
+    }
 }
