@@ -161,7 +161,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_XML)
     public Response updateAccept(@QueryParam("id") String id, OmobilityLasUpdateRequest omobilityLasUpdateRequest) throws Exception {
-        if (omobilityLasUpdateRequest.getApproveProposalV1() != null && omobilityLasUpdateRequest.getApproveProposalV1().getSignature() != null) {
+        /*if (omobilityLasUpdateRequest.getApproveProposalV1() != null && omobilityLasUpdateRequest.getApproveProposalV1().getSignature() != null) {
             GregorianCalendar calendar = new GregorianCalendar();
 
             // Set the desired timezone (e.g., +01:00)
@@ -169,7 +169,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
             calendar.setTimeZone(timeZone);
 
             omobilityLasUpdateRequest.getApproveProposalV1().getSignature().setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar));
-        }
+        }*/
         LOG.fine("APPROVE: start");
         LOG.fine("APPROVE: ownId: " + id);
         LOG.fine("APPROVE request: " + omobilityLasUpdateRequest.toString());
