@@ -173,6 +173,8 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
         LOG.fine("APPROVE: ownId: " + id);
         LOG.fine("APPROVE request: " + omobilityLasUpdateRequest.toString());
 
+        logOmob(omobilityLasUpdateRequest);
+
         Map<String, String> map = registryClient.getOmobilityLasHeiUrls(omobilityLasUpdateRequest.getSendingHeiId());
         LOG.fine("APPROVE: map: " + map.toString());
         String url = map.get("update-url");
@@ -199,6 +201,41 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
         return Response.ok(omobilityLasUpdateResponse).build();
     }
 
+    private void logOmob(OmobilityLasUpdateRequest omobilityLasUpdateRequest) {
+        LOG.fine("OmobilityLasUpdateRequest Details:");
+        LOG.fine(omobilityLasUpdateRequest.getSendingHeiId());
+        if (omobilityLasUpdateRequest.getApproveProposalV1() != null) {
+            LOG.fine("ApproveProposalV1 Details:");
+            LOG.fine(omobilityLasUpdateRequest.getApproveProposalV1().getOmobilityId());
+            LOG.fine(omobilityLasUpdateRequest.getApproveProposalV1().getChangesProposalId());
+            if (omobilityLasUpdateRequest.getApproveProposalV1().getSignature() != null) {
+                LOG.fine("Signature Details:");
+                LOG.fine(omobilityLasUpdateRequest.getApproveProposalV1().getSignature().getSignerName());
+                LOG.fine(omobilityLasUpdateRequest.getApproveProposalV1().getSignature().getSignerEmail());
+                LOG.fine(omobilityLasUpdateRequest.getApproveProposalV1().getSignature().getSignerPosition());
+                LOG.fine(omobilityLasUpdateRequest.getApproveProposalV1().getSignature().getTimestamp().toString());
+                LOG.fine(omobilityLasUpdateRequest.getApproveProposalV1().getSignature().getSignerApp());
+            } else {
+                LOG.fine("Signature is null");
+            }
+        } else if (omobilityLasUpdateRequest.getCommentProposalV1() != null) {
+            LOG.fine("CommentProposalV1 Details:");
+            LOG.fine(omobilityLasUpdateRequest.getCommentProposalV1().getOmobilityId());
+            LOG.fine(omobilityLasUpdateRequest.getCommentProposalV1().getChangesProposalId());
+            LOG.fine(omobilityLasUpdateRequest.getCommentProposalV1().getComment());
+            if (omobilityLasUpdateRequest.getCommentProposalV1().getSignature() != null) {
+                LOG.fine("Signature Details:");
+                LOG.fine(omobilityLasUpdateRequest.getCommentProposalV1().getSignature().getSignerName());
+                LOG.fine(omobilityLasUpdateRequest.getCommentProposalV1().getSignature().getSignerEmail());
+                LOG.fine(omobilityLasUpdateRequest.getCommentProposalV1().getSignature().getSignerPosition());
+                LOG.fine(omobilityLasUpdateRequest.getCommentProposalV1().getSignature().getTimestamp().toString());
+                LOG.fine(omobilityLasUpdateRequest.getCommentProposalV1().getSignature().getSignerApp());
+            } else {
+                LOG.fine("Signature is null");
+            }
+        }
+    }
+
     @POST
     @Path("update/reject")
     @Consumes(MediaType.APPLICATION_XML)
@@ -215,6 +252,8 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
         LOG.fine("REJCET: start");
         LOG.fine("REJCET: ownId: " + id);
         LOG.fine("REJCET request: " + omobilityLasUpdateRequest.toString());
+
+        logOmob(omobilityLasUpdateRequest);
 
         Map<String, String> map = registryClient.getOmobilityLasHeiUrls(omobilityLasUpdateRequest.getSendingHeiId());
         LOG.fine("REJCET: map: " + map.toString());
