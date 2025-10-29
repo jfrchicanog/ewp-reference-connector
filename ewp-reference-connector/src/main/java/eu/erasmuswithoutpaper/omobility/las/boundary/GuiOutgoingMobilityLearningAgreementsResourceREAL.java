@@ -783,4 +783,16 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
         return Response.ok(omobilityLasUpdateRequest).build();
     }
+
+    @POST
+    @Path("recive/xml")
+    @Consumes(MediaType.APPLICATION_XML)
+    public Response saveApproval(OmobilityLasUpdateRequest omobilityLasUpdateRequest) {
+        LOG.fine("SAVE APPROVE: start");
+        LOG.fine("SAVE APPROVE request: " + omobilityLasUpdateRequest.toString());
+
+        logOmob(omobilityLasUpdateRequest);
+
+        return Response.ok(omobilityLasUpdateRequest).build();
+    }
 }
