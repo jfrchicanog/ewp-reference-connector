@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.security.MessageDigest;
@@ -106,7 +105,7 @@ public class IiaConverter {
             //}
             converted.setIiaHash(iia.getConditionsHash());
 
-            IiaConverter.sortListsDeep(converted);
+            normalize(converted);
             return converted;
         }).collect(Collectors.toList());
     }
@@ -168,56 +167,477 @@ public class IiaConverter {
         return converted;
     }
 
-    public static void sortListsDeep(Object root) {
-        Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
-        sortListsDeepInternal(root, visited);
-    }
-
-    // ---- INTERNAL RECURSION ----
-    private static void sortListsDeepInternal(Object obj, Set<Object> visited) {
-        if (obj == null) return;
-
-        // Primitive/wrapper/String/Enum/Class: nothing to do
-        if (isLeafType(obj)) return;
-
-        // Avoid cycles
-        if (!visited.add(obj)) return;
-
-        // If it's a List, process elements first, then sort the list
-        if (obj instanceof List<?>) {
-            @SuppressWarnings("unchecked")
-            List<Object> list = (List<Object>) obj;
-            for (Object el : list) {
-                sortListsDeepInternal(el, visited);
-            }
-            // Sort this list by computeHash (nulls first for stability)
-            list.sort(Comparator.comparing(IiaConverter::computeHash,
-                    Comparator.nullsFirst(Comparator.naturalOrder())));
+    private void normalize(IiasGetResponse.Iia iia) {
+        if (iia == null) {
             return;
         }
+        if (iia.getCooperationConditions() != null) {
+            if (iia.getCooperationConditions().getStudentStudiesMobilitySpec() != null) {
+                iia.getCooperationConditions().getStudentStudiesMobilitySpec().forEach(spec -> {
+                    spec.getReceivingContact().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getContactName() != null && !o1.getContactName().isEmpty()) {
+                            toHashO1.append(o1.getContactName().get(0).getValue());
+                        }
+                        if (o1.getEmail() != null && !o1.getEmail().isEmpty()) {
+                            toHashO1.append(o1.getEmail().get(0));
+                        }
 
-        // Otherwise it's a POJO: inspect fields
-        Class<?> clazz = obj.getClass();
-        for (Field f : clazz.getDeclaredFields()) {
-            // Skip static fields
-            if (Modifier.isStatic(f.getModifiers())) continue;
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getContactName() != null && !o2.getContactName().isEmpty()) {
+                            toHashO2.append(o2.getContactName().get(0).getValue());
+                        }
+                        if (o2.getEmail() != null && !o2.getEmail().isEmpty()) {
+                            toHashO2.append(o2.getEmail().get(0));
+                        }
 
-            f.setAccessible(true);
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getRecommendedLanguageSkill().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getLanguage() != null) {
+                            toHashO1.append(o1.getLanguage());
+                        }
+                        if (o1.getCefrLevel() != null) {
+                            toHashO1.append(o1.getCefrLevel());
+                        }
 
-            // Skip fields named "id"
-            if (f.getName().equalsIgnoreCase("id")) continue;
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getLanguage() != null) {
+                            toHashO2.append(o2.getLanguage());
+                        }
+                        if (o2.getCefrLevel() != null) {
+                            toHashO2.append(o2.getCefrLevel());
+                        }
 
-            try {
-                Object value = f.get(obj);
-                if (value == null) continue;
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getSendingContact().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getContactName() != null && !o1.getContactName().isEmpty()) {
+                            toHashO1.append(o1.getContactName().get(0).getValue());
+                        }
+                        if (o1.getEmail() != null && !o1.getEmail().isEmpty()) {
+                            toHashO1.append(o1.getEmail().get(0));
+                        }
 
-                if (value instanceof List<?>) {
-                    sortListsDeepInternal(value, visited); // handles sort inside
-                } else if (!isLeafObject(value)) {
-                    sortListsDeepInternal(value, visited); // dive into nested object
-                }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Failed to access field: " + f.getName(), e);
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getContactName() != null && !o2.getContactName().isEmpty()) {
+                            toHashO2.append(o2.getContactName().get(0).getValue());
+                        }
+                        if (o2.getEmail() != null && !o2.getEmail().isEmpty()) {
+                            toHashO2.append(o2.getEmail().get(0));
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getSubjectArea().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getIscedFCode() != null && o1.getIscedFCode().getValue() != null) {
+                            toHashO1.append(o1.getIscedFCode().getValue());
+                        }
+                        if (o1.getIscedClarification() != null) {
+                            toHashO1.append(o1.getIscedClarification());
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getIscedFCode() != null && o2.getIscedFCode().getValue() != null) {
+                            toHashO2.append(o2.getIscedFCode().getValue());
+                        }
+                        if (o2.getIscedClarification() != null) {
+                            toHashO2.append(o2.getIscedClarification());
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                });
+                iia.getCooperationConditions().getStudentStudiesMobilitySpec().sort((o1, o2) -> {
+                    StringBuilder toHashO1 = new StringBuilder();
+                    if (o1.getSendingHeiId() != null) {
+                        toHashO1.append(o1.getSendingHeiId());
+                    }
+                    if (o1.getReceivingHeiId() != null) {
+                        toHashO1.append(o1.getReceivingHeiId());
+                    }
+                    if (o1.getSendingOunitId() != null) {
+                        toHashO1.append(o1.getSendingOunitId());
+                    }
+                    if (o1.getReceivingOunitId() != null) {
+                        toHashO1.append(o1.getReceivingOunitId());
+                    }
+                    if (o1.getEqfLevel() != null) {
+                        for (Byte b : o1.getEqfLevel()) {
+                            toHashO1.append(b);
+                        }
+                    }
+
+                    StringBuilder toHashO2 = new StringBuilder();
+                    if (o2.getSendingHeiId() != null) {
+                        toHashO2.append(o2.getSendingHeiId());
+                    }
+                    if (o2.getReceivingHeiId() != null) {
+                        toHashO2.append(o2.getReceivingHeiId());
+                    }
+                    if (o2.getSendingOunitId() != null) {
+                        toHashO2.append(o2.getSendingOunitId());
+                    }
+                    if (o2.getReceivingOunitId() != null) {
+                        toHashO2.append(o2.getReceivingOunitId());
+                    }
+                    if (o2.getEqfLevel() != null) {
+                        for (Byte b : o2.getEqfLevel()) {
+                            toHashO2.append(b);
+                        }
+                    }
+
+                    return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                });
+            }
+
+            if (iia.getCooperationConditions().getStudentTraineeshipMobilitySpec() != null) {
+                iia.getCooperationConditions().getStudentTraineeshipMobilitySpec().forEach(spec -> {
+                    spec.getReceivingContact().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getContactName() != null && !o1.getContactName().isEmpty()) {
+                            toHashO1.append(o1.getContactName().get(0).getValue());
+                        }
+                        if (o1.getEmail() != null && !o1.getEmail().isEmpty()) {
+                            toHashO1.append(o1.getEmail().get(0));
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getContactName() != null && !o2.getContactName().isEmpty()) {
+                            toHashO2.append(o2.getContactName().get(0).getValue());
+                        }
+                        if (o2.getEmail() != null && !o2.getEmail().isEmpty()) {
+                            toHashO2.append(o2.getEmail().get(0));
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getRecommendedLanguageSkill().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getLanguage() != null) {
+                            toHashO1.append(o1.getLanguage());
+                        }
+                        if (o1.getCefrLevel() != null) {
+                            toHashO1.append(o1.getCefrLevel());
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getLanguage() != null) {
+                            toHashO2.append(o2.getLanguage());
+                        }
+                        if (o2.getCefrLevel() != null) {
+                            toHashO2.append(o2.getCefrLevel());
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getSendingContact().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getContactName() != null && !o1.getContactName().isEmpty()) {
+                            toHashO1.append(o1.getContactName().get(0).getValue());
+                        }
+                        if (o1.getEmail() != null && !o1.getEmail().isEmpty()) {
+                            toHashO1.append(o1.getEmail().get(0));
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getContactName() != null && !o2.getContactName().isEmpty()) {
+                            toHashO2.append(o2.getContactName().get(0).getValue());
+                        }
+                        if (o2.getEmail() != null && !o2.getEmail().isEmpty()) {
+                            toHashO2.append(o2.getEmail().get(0));
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getSubjectArea().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getIscedFCode() != null && o1.getIscedFCode().getValue() != null) {
+                            toHashO1.append(o1.getIscedFCode().getValue());
+                        }
+                        if (o1.getIscedClarification() != null) {
+                            toHashO1.append(o1.getIscedClarification());
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getIscedFCode() != null && o2.getIscedFCode().getValue() != null) {
+                            toHashO2.append(o2.getIscedFCode().getValue());
+                        }
+                        if (o2.getIscedClarification() != null) {
+                            toHashO2.append(o2.getIscedClarification());
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                });
+                iia.getCooperationConditions().getStudentTraineeshipMobilitySpec().sort((o1, o2) -> {
+                    StringBuilder toHashO1 = new StringBuilder();
+                    if (o1.getSendingHeiId() != null) {
+                        toHashO1.append(o1.getSendingHeiId());
+                    }
+                    if (o1.getReceivingHeiId() != null) {
+                        toHashO1.append(o1.getReceivingHeiId());
+                    }
+                    if (o1.getSendingOunitId() != null) {
+                        toHashO1.append(o1.getSendingOunitId());
+                    }
+                    if (o1.getReceivingOunitId() != null) {
+                        toHashO1.append(o1.getReceivingOunitId());
+                    }
+                    if (o1.getEqfLevel() != null) {
+                        for (Byte b : o1.getEqfLevel()) {
+                            toHashO1.append(b);
+                        }
+                    }
+
+                    StringBuilder toHashO2 = new StringBuilder();
+                    if (o2.getSendingHeiId() != null) {
+                        toHashO2.append(o2.getSendingHeiId());
+                    }
+                    if (o2.getReceivingHeiId() != null) {
+                        toHashO2.append(o2.getReceivingHeiId());
+                    }
+                    if (o2.getSendingOunitId() != null) {
+                        toHashO2.append(o2.getSendingOunitId());
+                    }
+                    if (o2.getReceivingOunitId() != null) {
+                        toHashO2.append(o2.getReceivingOunitId());
+                    }
+                    if (o2.getEqfLevel() != null) {
+                        for (Byte b : o2.getEqfLevel()) {
+                            toHashO2.append(b);
+                        }
+                    }
+
+                    return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                });
+            }
+
+            if (iia.getCooperationConditions().getStaffTeacherMobilitySpec() != null) {
+                iia.getCooperationConditions().getStaffTeacherMobilitySpec().forEach(spec -> {
+                    spec.getReceivingContact().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getContactName() != null && !o1.getContactName().isEmpty()) {
+                            toHashO1.append(o1.getContactName().get(0).getValue());
+                        }
+                        if (o1.getEmail() != null && !o1.getEmail().isEmpty()) {
+                            toHashO1.append(o1.getEmail().get(0));
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getContactName() != null && !o2.getContactName().isEmpty()) {
+                            toHashO2.append(o2.getContactName().get(0).getValue());
+                        }
+                        if (o2.getEmail() != null && !o2.getEmail().isEmpty()) {
+                            toHashO2.append(o2.getEmail().get(0));
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getRecommendedLanguageSkill().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getLanguage() != null) {
+                            toHashO1.append(o1.getLanguage());
+                        }
+                        if (o1.getCefrLevel() != null) {
+                            toHashO1.append(o1.getCefrLevel());
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getLanguage() != null) {
+                            toHashO2.append(o2.getLanguage());
+                        }
+                        if (o2.getCefrLevel() != null) {
+                            toHashO2.append(o2.getCefrLevel());
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getSendingContact().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getContactName() != null && !o1.getContactName().isEmpty()) {
+                            toHashO1.append(o1.getContactName().get(0).getValue());
+                        }
+                        if (o1.getEmail() != null && !o1.getEmail().isEmpty()) {
+                            toHashO1.append(o1.getEmail().get(0));
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getContactName() != null && !o2.getContactName().isEmpty()) {
+                            toHashO2.append(o2.getContactName().get(0).getValue());
+                        }
+                        if (o2.getEmail() != null && !o2.getEmail().isEmpty()) {
+                            toHashO2.append(o2.getEmail().get(0));
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getSubjectArea().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getIscedFCode() != null && o1.getIscedFCode().getValue() != null) {
+                            toHashO1.append(o1.getIscedFCode().getValue());
+                        }
+                        if (o1.getIscedClarification() != null) {
+                            toHashO1.append(o1.getIscedClarification());
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getIscedFCode() != null && o2.getIscedFCode().getValue() != null) {
+                            toHashO2.append(o2.getIscedFCode().getValue());
+                        }
+                        if (o2.getIscedClarification() != null) {
+                            toHashO2.append(o2.getIscedClarification());
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                });
+                iia.getCooperationConditions().getStaffTeacherMobilitySpec().sort((o1, o2) -> {
+                    StringBuilder toHashO1 = new StringBuilder();
+                    if (o1.getSendingHeiId() != null) {
+                        toHashO1.append(o1.getSendingHeiId());
+                    }
+                    if (o1.getReceivingHeiId() != null) {
+                        toHashO1.append(o1.getReceivingHeiId());
+                    }
+                    if (o1.getSendingOunitId() != null) {
+                        toHashO1.append(o1.getSendingOunitId());
+                    }
+                    if (o1.getReceivingOunitId() != null) {
+                        toHashO1.append(o1.getReceivingOunitId());
+                    }
+
+                    StringBuilder toHashO2 = new StringBuilder();
+                    if (o2.getSendingHeiId() != null) {
+                        toHashO2.append(o2.getSendingHeiId());
+                    }
+                    if (o2.getReceivingHeiId() != null) {
+                        toHashO2.append(o2.getReceivingHeiId());
+                    }
+                    if (o2.getSendingOunitId() != null) {
+                        toHashO2.append(o2.getSendingOunitId());
+                    }
+                    if (o2.getReceivingOunitId() != null) {
+                        toHashO2.append(o2.getReceivingOunitId());
+                    }
+
+                    return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                });
+            }
+
+            if (iia.getCooperationConditions().getStaffTrainingMobilitySpec() != null) {
+                iia.getCooperationConditions().getStaffTrainingMobilitySpec().forEach(spec -> {
+                    spec.getReceivingContact().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getContactName() != null && !o1.getContactName().isEmpty()) {
+                            toHashO1.append(o1.getContactName().get(0).getValue());
+                        }
+                        if (o1.getEmail() != null && !o1.getEmail().isEmpty()) {
+                            toHashO1.append(o1.getEmail().get(0));
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getContactName() != null && !o2.getContactName().isEmpty()) {
+                            toHashO2.append(o2.getContactName().get(0).getValue());
+                        }
+                        if (o2.getEmail() != null && !o2.getEmail().isEmpty()) {
+                            toHashO2.append(o2.getEmail().get(0));
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getRecommendedLanguageSkill().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getLanguage() != null) {
+                            toHashO1.append(o1.getLanguage());
+                        }
+                        if (o1.getCefrLevel() != null) {
+                            toHashO1.append(o1.getCefrLevel());
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getLanguage() != null) {
+                            toHashO2.append(o2.getLanguage());
+                        }
+                        if (o2.getCefrLevel() != null) {
+                            toHashO2.append(o2.getCefrLevel());
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getSendingContact().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getContactName() != null && !o1.getContactName().isEmpty()) {
+                            toHashO1.append(o1.getContactName().get(0).getValue());
+                        }
+                        if (o1.getEmail() != null && !o1.getEmail().isEmpty()) {
+                            toHashO1.append(o1.getEmail().get(0));
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getContactName() != null && !o2.getContactName().isEmpty()) {
+                            toHashO2.append(o2.getContactName().get(0).getValue());
+                        }
+                        if (o2.getEmail() != null && !o2.getEmail().isEmpty()) {
+                            toHashO2.append(o2.getEmail().get(0));
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                    spec.getSubjectArea().sort((o1, o2) -> {
+                        StringBuilder toHashO1 = new StringBuilder();
+                        if (o1.getIscedFCode() != null && o1.getIscedFCode().getValue() != null) {
+                            toHashO1.append(o1.getIscedFCode().getValue());
+                        }
+                        if (o1.getIscedClarification() != null) {
+                            toHashO1.append(o1.getIscedClarification());
+                        }
+
+                        StringBuilder toHashO2 = new StringBuilder();
+                        if (o2.getIscedFCode() != null && o2.getIscedFCode().getValue() != null) {
+                            toHashO2.append(o2.getIscedFCode().getValue());
+                        }
+                        if (o2.getIscedClarification() != null) {
+                            toHashO2.append(o2.getIscedClarification());
+                        }
+
+                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    });
+                });
+                iia.getCooperationConditions().getStaffTrainingMobilitySpec().sort((o1, o2) -> {
+                    StringBuilder toHashO1 = new StringBuilder();
+                    if (o1.getSendingHeiId() != null) {
+                        toHashO1.append(o1.getSendingHeiId());
+                    }
+                    if (o1.getReceivingHeiId() != null) {
+                        toHashO1.append(o1.getReceivingHeiId());
+                    }
+                    if (o1.getSendingOunitId() != null) {
+                        toHashO1.append(o1.getSendingOunitId());
+                    }
+                    if (o1.getReceivingOunitId() != null) {
+                        toHashO1.append(o1.getReceivingOunitId());
+                    }
+
+                    StringBuilder toHashO2 = new StringBuilder();
+                    if (o2.getSendingHeiId() != null) {
+                        toHashO2.append(o2.getSendingHeiId());
+                    }
+                    if (o2.getReceivingHeiId() != null) {
+                        toHashO2.append(o2.getReceivingHeiId());
+                    }
+                    if (o2.getSendingOunitId() != null) {
+                        toHashO2.append(o2.getSendingOunitId());
+                    }
+                    if (o2.getReceivingOunitId() != null) {
+                        toHashO2.append(o2.getReceivingOunitId());
+                    }
+
+                    return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                });
             }
         }
     }
@@ -268,14 +688,6 @@ public class IiaConverter {
                 clazz == Boolean.class || clazz == Character.class;
     }
 
-    private static boolean isLeafType(Object o) {
-        return isPrimitiveOrWrapper(o.getClass())
-                || o instanceof String
-                || o.getClass().isEnum()
-                || o instanceof Class<?>;
-    }
-    private static boolean isLeafObject(Object o) { return isLeafType(o); }
-
     private IiasGetResponse.Iia.Partner convertToPartner(Iia iia, IiaPartner partner) {
         IiasGetResponse.Iia.Partner converted = new IiasGetResponse.Iia.Partner();
 
@@ -307,7 +719,7 @@ public class IiaConverter {
                         return stringWithOptionalLang;
                     }).
                     //sorted(Comparator.comparing(IiaConverter::computeHash)).
-                    collect(Collectors.toList()));
+                            collect(Collectors.toList()));
 
             if (partner.getSigningContact().getPerson() != null && partner.getSigningContact().getPerson().getGender() != null) {
                 contact.setPersonGender(partner.getSigningContact().getPerson().getGender().value());
