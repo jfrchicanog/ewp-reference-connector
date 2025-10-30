@@ -2,10 +2,12 @@ package eu.erasmuswithoutpaper.iia.boundary;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -1835,57 +1837,103 @@ public class GuiIiaResource {
             return;
         }
         if (iia.getCooperationConditions() != null) {
-            iia.getCooperationConditions().sort(Comparator.comparing(CooperationCondition::getId));
             iia.getCooperationConditions().forEach(cc -> {
-                LOG.fine("NORMALIZE: CC.Id: " + cc.getId());
                 if(cc.getSendingPartner() != null) {
                     if (cc.getSendingPartner().getContacts() != null) {
-                        cc.getSendingPartner().getContacts().sort(Comparator.comparing(Contact::getId));
-                        LOG.fine("NORMALIZE: CC.SendingPartner.Contacts: " + cc.getSendingPartner().getContacts().stream().map(Contact::getId).collect(Collectors.joining(",")));
+                        cc.getSendingPartner().getContacts().sort(Comparator.comparing(GuiIiaResource::computeHash));
+                        LOG.fine("NORMALIZE: CC.SendingPartner.Contacts: " + cc.getSendingPartner().getContacts().stream().map(GuiIiaResource::computeHash).collect(Collectors.joining(",")));
                     }
                     if(cc.getSendingPartner().getSigningContact() != null) {
                         if (cc.getSendingPartner().getSigningContact().getName() != null) {
-                            cc.getSendingPartner().getSigningContact().getName().sort(Comparator.comparing(LanguageItem::getId));
-                            LOG.fine("NORMALIZE: CC.SendingPartner.SigningContact.Name: " + cc.getSendingPartner().getSigningContact().getName().stream().map(LanguageItem::getId).collect(Collectors.joining(",")));
+                            cc.getSendingPartner().getSigningContact().getName().sort(Comparator.comparing(GuiIiaResource::computeHash));
+                            LOG.fine("NORMALIZE: CC.SendingPartner.SigningContact.Name: " + cc.getSendingPartner().getSigningContact().getName().stream().map(GuiIiaResource::computeHash).collect(Collectors.joining(",")));
                         }
                         if (cc.getSendingPartner().getSigningContact().getDescription() != null) {
-                            cc.getSendingPartner().getSigningContact().getDescription().sort(Comparator.comparing(LanguageItem::getId));
-                            LOG.fine("NORMALIZE: CC.SendingPartner.SigningContact.Description: " + cc.getSendingPartner().getSigningContact().getDescription().stream().map(LanguageItem::getId).collect(Collectors.joining(",")));
+                            cc.getSendingPartner().getSigningContact().getDescription().sort(Comparator.comparing(GuiIiaResource::computeHash));
+                            LOG.fine("NORMALIZE: CC.SendingPartner.SigningContact.Description: " + cc.getSendingPartner().getSigningContact().getDescription().stream().map(GuiIiaResource::computeHash).collect(Collectors.joining(",")));
                         }
                     }
                 }
 
                 if(cc.getReceivingPartner() != null) {
                     if (cc.getReceivingPartner().getContacts() != null) {
-                        cc.getReceivingPartner().getContacts().sort(Comparator.comparing(Contact::getId));
-                        LOG.fine("NORMALIZE: CC.ReceivingPartner.Contacts: " + cc.getReceivingPartner().getContacts().stream().map(Contact::getId).collect(Collectors.joining(",")));
+                        cc.getReceivingPartner().getContacts().sort(Comparator.comparing(GuiIiaResource::computeHash));
+                        LOG.fine("NORMALIZE: CC.ReceivingPartner.Contacts: " + cc.getReceivingPartner().getContacts().stream().map(GuiIiaResource::computeHash).collect(Collectors.joining(",")));
                     }
                     if(cc.getReceivingPartner().getSigningContact() != null) {
                         if (cc.getReceivingPartner().getSigningContact().getName() != null) {
-                            cc.getReceivingPartner().getSigningContact().getName().sort(Comparator.comparing(LanguageItem::getId));
-                            LOG.fine("NORMALIZE: CC.ReceivingPartner.SigningContact.Name: " + cc.getReceivingPartner().getSigningContact().getName().stream().map(LanguageItem::getId).collect(Collectors.joining(",")));
+                            cc.getReceivingPartner().getSigningContact().getName().sort(Comparator.comparing(GuiIiaResource::computeHash));
+                            LOG.fine("NORMALIZE: CC.ReceivingPartner.SigningContact.Name: " + cc.getReceivingPartner().getSigningContact().getName().stream().map(GuiIiaResource::computeHash).collect(Collectors.joining(",")));
                         }
                         if (cc.getReceivingPartner().getSigningContact().getDescription() != null) {
-                            cc.getReceivingPartner().getSigningContact().getDescription().sort(Comparator.comparing(LanguageItem::getId));
-                            LOG.fine("NORMALIZE: CC.ReceivingPartner.SigningContact.Description: " + cc.getReceivingPartner().getSigningContact().getDescription().stream().map(LanguageItem::getId).collect(Collectors.joining(",")));
+                            cc.getReceivingPartner().getSigningContact().getDescription().sort(Comparator.comparing(GuiIiaResource::computeHash));
+                            LOG.fine("NORMALIZE: CC.ReceivingPartner.SigningContact.Description: " + cc.getReceivingPartner().getSigningContact().getDescription().stream().map(GuiIiaResource::computeHash).collect(Collectors.joining(",")));
                         }
                     }
                 }
 
                 if (cc.getSubjectAreas() != null) {
-                    cc.getSubjectAreas().sort(Comparator.comparing(SubjectArea::getId));
-                    LOG.fine("NORMALIZE: CC.SubjectAreas: " + cc.getSubjectAreas().stream().map(SubjectArea::getId).collect(Collectors.joining(",")));
+                    cc.getSubjectAreas().sort(Comparator.comparing(GuiIiaResource::computeHash));
+                    LOG.fine("NORMALIZE: CC.SubjectAreas: " + cc.getSubjectAreas().stream().map(GuiIiaResource::computeHash).collect(Collectors.joining(",")));
                 }
                 if (cc.getReceivingAcademicYearId() != null) {
                     cc.getReceivingAcademicYearId().sort(String::compareTo);
                     LOG.fine("NORMALIZE: CC.ReceivingAcademicYearId: " + String.join(",", cc.getReceivingAcademicYearId()));
                 }
                 if (cc.getRecommendedLanguageSkill() != null) {
-                    cc.getRecommendedLanguageSkill().sort(Comparator.comparing(LanguageSkill::getId));
-                    LOG.fine("NORMALIZE: CC.RecommendedLanguageSkill: " + cc.getRecommendedLanguageSkill().stream().map(LanguageSkill::getId).collect(Collectors.joining(",")));
+                    cc.getRecommendedLanguageSkill().sort(Comparator.comparing(GuiIiaResource::computeHash));
+                    LOG.fine("NORMALIZE: CC.RecommendedLanguageSkill: " + cc.getRecommendedLanguageSkill().stream().map(GuiIiaResource::computeHash).collect(Collectors.joining(",")));
                 }
             });
+            iia.getCooperationConditions().sort(Comparator.comparing(GuiIiaResource::computeHash));
+            LOG.fine("NORMALIZE: IIA.CooperationConditions: " + iia.getCooperationConditions().stream().map(GuiIiaResource::computeHash).collect(Collectors.joining(",")));
         }
+    }
+
+    private static String computeHash(Object obj) {
+        if (obj == null) {
+            return "null"; // Return a constant for null values
+        }
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            StringBuilder sb = new StringBuilder();
+
+            // Use reflection to access fields of the object
+            for (Field field : obj.getClass().getDeclaredFields()) {
+                field.setAccessible(true); // Make private fields accessible
+
+                if (field.getName().equalsIgnoreCase("id")) {
+                    continue;
+                }
+
+                Object value = field.get(obj);
+                if (value == null) {
+                    sb.append("null"); // Add "null" for null fields
+                } else if (isPrimitiveOrWrapper(value.getClass()) || value instanceof String) {
+                    sb.append(value.toString()); // Add primitive or String value
+                } else {
+                    // Recursively compute hash for sub-objects
+                    sb.append(computeHash(value));
+                }
+            }
+
+            byte[] hashBytes = digest.digest(sb.toString().getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                hexString.append(String.format("%02x", b));
+            }
+            return hexString.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Error computing hash", e);
+        }
+    }
+
+    // Utility to check if a class is a primitive or wrapper
+    private static boolean isPrimitiveOrWrapper(Class<?> clazz) {
+        return clazz.isPrimitive() ||
+                clazz == Byte.class || clazz == Short.class || clazz == Integer.class ||
+                clazz == Long.class || clazz == Float.class || clazz == Double.class ||
+                clazz == Boolean.class || clazz == Character.class;
     }
 
 }
