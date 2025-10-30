@@ -10,6 +10,8 @@ import eu.erasmuswithoutpaper.api.iias.endpoints.StudentMobilitySpecification;
 import eu.erasmuswithoutpaper.api.iias.endpoints.SubjectArea;
 import eu.erasmuswithoutpaper.api.types.contact.Contact;
 import eu.erasmuswithoutpaper.common.control.ConverterHelper;
+import eu.erasmuswithoutpaper.iia.boundary.AuxIiaThread;
+import eu.erasmuswithoutpaper.iia.boundary.GuiIiaResource;
 import eu.erasmuswithoutpaper.iia.entity.*;
 import eu.erasmuswithoutpaper.imobility.control.IncomingMobilityConverter;
 import eu.erasmuswithoutpaper.organization.entity.*;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.security.MessageDigest;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 public class IiaConverter {
 
     private static final Logger logger = LoggerFactory.getLogger(IncomingMobilityConverter.class);
+    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(IncomingMobilityConverter.class.getCanonicalName());
 
     public List<IiasGetResponse.Iia> convertToIias(String hei_id, List<Iia> iiaList) {
         return iiaList.stream().map((Iia iia) -> {
@@ -101,6 +105,8 @@ public class IiaConverter {
             //    logger.error("Can't calculate sha256", e);
             //}
             converted.setIiaHash(iia.getConditionsHash());
+
+            IiaConverter.sortListsDeep(converted);
             return converted;
         }).collect(Collectors.toList());
     }
@@ -162,6 +168,60 @@ public class IiaConverter {
         return converted;
     }
 
+    public static void sortListsDeep(Object root) {
+        Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        sortListsDeepInternal(root, visited);
+    }
+
+    // ---- INTERNAL RECURSION ----
+    private static void sortListsDeepInternal(Object obj, Set<Object> visited) {
+        if (obj == null) return;
+
+        // Primitive/wrapper/String/Enum/Class: nothing to do
+        if (isLeafType(obj)) return;
+
+        // Avoid cycles
+        if (!visited.add(obj)) return;
+
+        // If it's a List, process elements first, then sort the list
+        if (obj instanceof List<?>) {
+            @SuppressWarnings("unchecked")
+            List<Object> list = (List<Object>) obj;
+            for (Object el : list) {
+                sortListsDeepInternal(el, visited);
+            }
+            // Sort this list by computeHash (nulls first for stability)
+            list.sort(Comparator.comparing(IiaConverter::computeHash,
+                    Comparator.nullsFirst(Comparator.naturalOrder())));
+            return;
+        }
+
+        // Otherwise it's a POJO: inspect fields
+        Class<?> clazz = obj.getClass();
+        for (Field f : clazz.getDeclaredFields()) {
+            // Skip static fields
+            if (Modifier.isStatic(f.getModifiers())) continue;
+
+            f.setAccessible(true);
+
+            // Skip fields named "id"
+            if (f.getName().equalsIgnoreCase("id")) continue;
+
+            try {
+                Object value = f.get(obj);
+                if (value == null) continue;
+
+                if (value instanceof List<?>) {
+                    sortListsDeepInternal(value, visited); // handles sort inside
+                } else if (!isLeafObject(value)) {
+                    sortListsDeepInternal(value, visited); // dive into nested object
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Failed to access field: " + f.getName(), e);
+            }
+        }
+    }
+
     private static String computeHash(Object obj) {
         if (obj == null) {
             return "null"; // Return a constant for null values
@@ -173,6 +233,11 @@ public class IiaConverter {
             // Use reflection to access fields of the object
             for (Field field : obj.getClass().getDeclaredFields()) {
                 field.setAccessible(true); // Make private fields accessible
+
+                if (field.getName().equalsIgnoreCase("id")) {
+                    continue;
+                }
+
                 Object value = field.get(obj);
                 if (value == null) {
                     sb.append("null"); // Add "null" for null fields
@@ -202,6 +267,14 @@ public class IiaConverter {
                 clazz == Long.class || clazz == Float.class || clazz == Double.class ||
                 clazz == Boolean.class || clazz == Character.class;
     }
+
+    private static boolean isLeafType(Object o) {
+        return isPrimitiveOrWrapper(o.getClass())
+                || o instanceof String
+                || o.getClass().isEnum()
+                || o instanceof Class<?>;
+    }
+    private static boolean isLeafObject(Object o) { return isLeafType(o); }
 
     private IiasGetResponse.Iia.Partner convertToPartner(Iia iia, IiaPartner partner) {
         IiasGetResponse.Iia.Partner converted = new IiasGetResponse.Iia.Partner();
