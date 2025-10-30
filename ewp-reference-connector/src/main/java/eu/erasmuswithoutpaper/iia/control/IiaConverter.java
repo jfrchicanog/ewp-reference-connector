@@ -129,7 +129,7 @@ public class IiaConverter {
                     ccMap.get("Staff-Teaching")
                             .stream()
                             .map(this::convertToStaffTeacherMobilitySpec)
-                            .sorted(Comparator.comparing(IiaConverter::computeHash))
+                            //.sorted(Comparator.comparing(IiaConverter::computeHash))
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Staff-Training")) {
@@ -137,7 +137,7 @@ public class IiaConverter {
                     ccMap.get("Staff-Training")
                             .stream()
                             .map(this::convertToStaffTrainingMobilitySpec)
-                            .sorted(Comparator.comparing(IiaConverter::computeHash))
+                            //.sorted(Comparator.comparing(IiaConverter::computeHash))
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Student-Studies")) {
@@ -145,7 +145,7 @@ public class IiaConverter {
                     ccMap.get("Student-Studies")
                             .stream()
                             .map(this::convertToStudentStudiesMobilitySpec)
-                            .sorted(Comparator.comparing(IiaConverter::computeHash))
+                            //.sorted(Comparator.comparing(IiaConverter::computeHash))
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Student-Training")) {
@@ -153,7 +153,7 @@ public class IiaConverter {
                     ccMap.get("Student-Training")
                             .stream()
                             .map(this::convertToStudentTraineeshipMobilitySpec)
-                            .sorted(Comparator.comparing(IiaConverter::computeHash))
+                            //.sorted(Comparator.comparing(IiaConverter::computeHash))
                             .collect(Collectors.toList()));
         }
 
@@ -233,7 +233,7 @@ public class IiaConverter {
                         stringWithOptionalLang.setLang(name.getLang());
                         return stringWithOptionalLang;
                     }).
-                    sorted(Comparator.comparing(IiaConverter::computeHash)).
+                    //sorted(Comparator.comparing(IiaConverter::computeHash)).
                     collect(Collectors.toList()));
 
             if (partner.getSigningContact().getPerson() != null && partner.getSigningContact().getPerson().getGender() != null) {
@@ -307,7 +307,7 @@ public class IiaConverter {
 
                         return recommendedLangSkill;
                     })
-                    .sorted(Comparator.comparing(IiaConverter::computeHash))
+                    //.sorted(Comparator.comparing(IiaConverter::computeHash))
                     .collect(Collectors.toList());
 
             conv.getRecommendedLanguageSkill().addAll(recommendedSkills);
@@ -336,7 +336,7 @@ public class IiaConverter {
 
                         return subjectArea;
                     })
-                    .sorted(Comparator.comparing(IiaConverter::computeHash))
+                    //.sorted(Comparator.comparing(IiaConverter::computeHash))
                     .collect(Collectors.toList());
 
             conv.getSubjectArea().addAll(subjectAreas);
@@ -356,7 +356,7 @@ public class IiaConverter {
                                     stringWithOptionalLang.setLang(name.getLang());
                                     return stringWithOptionalLang;
                                 })
-                                .sorted(Comparator.comparing(IiaConverter::computeHash))
+                                //.sorted(Comparator.comparing(IiaConverter::computeHash))
                                 .collect(Collectors.toList()));
                         if (recContact.getPerson() != null && recContact.getPerson().getGender() != null) {
                             contact.setPersonGender(recContact.getPerson().getGender().value());
@@ -369,7 +369,7 @@ public class IiaConverter {
 
                         return contact;
                     })
-                    .sorted(Comparator.comparing(IiaConverter::computeHash))
+                    //.sorted(Comparator.comparing(IiaConverter::computeHash))
                     .collect(Collectors.toList());
         }
 
@@ -388,7 +388,7 @@ public class IiaConverter {
                                     stringWithOptionalLang.setLang(name.getLang());
                                     return stringWithOptionalLang;
                                 })
-                                .sorted(Comparator.comparing(IiaConverter::computeHash))
+                                //.sorted(Comparator.comparing(IiaConverter::computeHash))
                                 .collect(Collectors.toList()));
                         if (sendContact.getPerson() != null && sendContact.getPerson().getGender() != null) {
                             contact.setPersonGender(sendContact.getPerson().getGender().value());
@@ -401,7 +401,7 @@ public class IiaConverter {
 
                         return contact;
                     })
-                    .sorted(Comparator.comparing(IiaConverter::computeHash))
+                    //.sorted(Comparator.comparing(IiaConverter::computeHash))
                     .collect(Collectors.toList());
         }
 
