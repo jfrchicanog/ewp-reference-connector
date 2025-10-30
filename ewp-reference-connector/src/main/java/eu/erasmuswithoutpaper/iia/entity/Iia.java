@@ -72,6 +72,7 @@ public class Iia implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinTable(name = "IIA_COOPERATION_CONDITION")
+    @OrderBy("id ASC")
     List<CooperationCondition> cooperationConditions;
 
     @Column(name = "CONDITIONS_HASH", nullable = true)

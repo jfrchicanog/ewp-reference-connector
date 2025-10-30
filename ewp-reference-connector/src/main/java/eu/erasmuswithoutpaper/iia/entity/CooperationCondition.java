@@ -6,25 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import org.apache.johnzon.mapper.JohnzonConverter;
 
@@ -71,6 +53,7 @@ public class CooperationCondition implements Serializable{
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "LANGSKILL_COOPERATION_CONDITION")
+    @OrderBy("id ASC")
     List<LanguageSkill> recommendedLanguageSkill;
     
     @ElementCollection
@@ -79,6 +62,7 @@ public class CooperationCondition implements Serializable{
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "SUBJECT_AREA_COOPERATION_CONDITION")
+    @OrderBy("id ASC")
     List<SubjectArea> subjectAreas;
     
     @Lob
