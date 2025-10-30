@@ -114,7 +114,7 @@ public class IiasEJB {
         em.persist(iiaInternal);
         em.flush();
 
-        /*
+
         String iiaIdGenerated = iiaInternal.getId();
         for (CooperationCondition condition : iiaInternal.getCooperationConditions()) {
             if (condition.getSendingPartner().getInstitutionId().equals(localHeiId)) {
@@ -136,7 +136,7 @@ public class IiasEJB {
         }
         LOG.fine("ADD: AFTER HASH");
 
-        em.merge(iiaInternal);*/
+        em.merge(iiaInternal);
     }
 
     public String updateHash(String id) {

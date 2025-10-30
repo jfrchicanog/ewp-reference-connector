@@ -105,33 +105,7 @@ public class IiaConverter {
         }).collect(Collectors.toList());
     }
 
-    public CooperationConditions removeContactInfo(CooperationConditions cc) {
-        cc.getStaffTeacherMobilitySpec().forEach(t -> {
-            t.getReceivingContact().clear();
-            t.getSendingContact().clear();
-        });
-
-        cc.getStaffTrainingMobilitySpec().forEach(t -> {
-            t.getReceivingContact().clear();
-            t.getSendingContact().clear();
-
-        });
-
-        cc.getStudentStudiesMobilitySpec().forEach(t -> {
-            t.getReceivingContact().clear();
-            t.getSendingContact().clear();
-        });
-
-        cc.getStudentTraineeshipMobilitySpec().forEach(t -> {
-            t.getReceivingContact().clear();
-            t.getSendingContact().clear();
-        });
-
-        return cc;
-    }
-
     public CooperationConditions convertToCooperationConditions(List<CooperationCondition> cooperationConditions, Boolean terminatedAsAWhole, String hei_id) {
-        // TODO: Add this
         Map<String, List<CooperationCondition>> ccMap = cooperationConditions
                 .stream()
                 .collect(Collectors.groupingBy(cc -> {
@@ -155,17 +129,7 @@ public class IiaConverter {
                     ccMap.get("Staff-Teaching")
                             .stream()
                             .map(this::convertToStaffTeacherMobilitySpec)
-                            .sorted((o1, o2) -> {
-                                if ((o1.getSendingHeiId() != null && o1.getSendingHeiId().equals(hei_id)) &&
-                                        (o2.getSendingHeiId() != null && !o2.getSendingHeiId().equals(hei_id))) {
-                                    return 1;
-                                } else if ((o1.getSendingHeiId() != null && !o1.getSendingHeiId().equals(hei_id)) &&
-                                        (o2.getSendingHeiId() != null && o2.getSendingHeiId().equals(hei_id))) {
-                                    return -1;
-                                } else {
-                                    return computeHash(o1).compareTo(computeHash(o2));
-                                }
-                            })
+                            .sorted(Comparator.comparing(IiaConverter::computeHash))
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Staff-Training")) {
@@ -173,17 +137,7 @@ public class IiaConverter {
                     ccMap.get("Staff-Training")
                             .stream()
                             .map(this::convertToStaffTrainingMobilitySpec)
-                            .sorted((o1, o2) -> {
-                                if ((o1.getSendingHeiId() != null && o1.getSendingHeiId().equals(hei_id)) &&
-                                        (o2.getSendingHeiId() != null && !o2.getSendingHeiId().equals(hei_id))) {
-                                    return 1;
-                                } else if ((o1.getSendingHeiId() != null && !o1.getSendingHeiId().equals(hei_id)) &&
-                                        (o2.getSendingHeiId() != null && o2.getSendingHeiId().equals(hei_id))) {
-                                    return -1;
-                                } else {
-                                    return computeHash(o1).compareTo(computeHash(o2));
-                                }
-                            })
+                            .sorted(Comparator.comparing(IiaConverter::computeHash))
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Student-Studies")) {
@@ -191,17 +145,7 @@ public class IiaConverter {
                     ccMap.get("Student-Studies")
                             .stream()
                             .map(this::convertToStudentStudiesMobilitySpec)
-                            .sorted((o1, o2) -> {
-                                if ((o1.getSendingHeiId() != null && o1.getSendingHeiId().equals(hei_id)) &&
-                                        (o2.getSendingHeiId() != null && !o2.getSendingHeiId().equals(hei_id))) {
-                                    return 1;
-                                } else if ((o1.getSendingHeiId() != null && !o1.getSendingHeiId().equals(hei_id)) &&
-                                        (o2.getSendingHeiId() != null && o2.getSendingHeiId().equals(hei_id))) {
-                                    return -1;
-                                } else {
-                                    return computeHash(o1).compareTo(computeHash(o2));
-                                }
-                            })
+                            .sorted(Comparator.comparing(IiaConverter::computeHash))
                             .collect(Collectors.toList()));
         }
         if (ccMap.containsKey("Student-Training")) {
@@ -209,20 +153,9 @@ public class IiaConverter {
                     ccMap.get("Student-Training")
                             .stream()
                             .map(this::convertToStudentTraineeshipMobilitySpec)
-                            .sorted((o1, o2) -> {
-                                if ((o1.getSendingHeiId() != null && o1.getSendingHeiId().equals(hei_id)) &&
-                                        (o2.getSendingHeiId() != null && !o2.getSendingHeiId().equals(hei_id))) {
-                                    return 1;
-                                } else if ((o1.getSendingHeiId() != null && !o1.getSendingHeiId().equals(hei_id)) &&
-                                        (o2.getSendingHeiId() != null && o2.getSendingHeiId().equals(hei_id))) {
-                                    return -1;
-                                } else {
-                                    return computeHash(o1).compareTo(computeHash(o2));
-                                }
-                            })
+                            .sorted(Comparator.comparing(IiaConverter::computeHash))
                             .collect(Collectors.toList()));
         }
-        converted.getStudentTraineeshipMobilitySpec();
 
         converted.setTerminatedAsAWhole(terminatedAsAWhole);
 
@@ -295,11 +228,13 @@ public class IiaConverter {
             Contact contact = new Contact();
 
             contact.getContactName().addAll(partner.getSigningContact().getName().stream().map(name -> {
-                StringWithOptionalLang stringWithOptionalLang = new StringWithOptionalLang();
-                stringWithOptionalLang.setValue(name.getText());
-                stringWithOptionalLang.setLang(name.getLang());
-                return stringWithOptionalLang;
-            }).collect(Collectors.toList()));
+                        StringWithOptionalLang stringWithOptionalLang = new StringWithOptionalLang();
+                        stringWithOptionalLang.setValue(name.getText());
+                        stringWithOptionalLang.setLang(name.getLang());
+                        return stringWithOptionalLang;
+                    }).
+                    sorted(Comparator.comparing(IiaConverter::computeHash)).
+                    collect(Collectors.toList()));
 
             if (partner.getSigningContact().getPerson() != null && partner.getSigningContact().getPerson().getGender() != null) {
                 contact.setPersonGender(partner.getSigningContact().getPerson().getGender().value());
@@ -355,23 +290,25 @@ public class IiaConverter {
         if (cc.getRecommendedLanguageSkill() != null) {
             List<RecommendedLanguageSkill> recommendedSkills = cc.getRecommendedLanguageSkill().stream().map((langskill) -> {
 
-                RecommendedLanguageSkill recommendedLangSkill = new RecommendedLanguageSkill();
+                        RecommendedLanguageSkill recommendedLangSkill = new RecommendedLanguageSkill();
 
-                recommendedLangSkill.setCefrLevel(langskill.getCefrLevel());
-                recommendedLangSkill.setLanguage(langskill.getLanguage());
+                        recommendedLangSkill.setCefrLevel(langskill.getCefrLevel());
+                        recommendedLangSkill.setLanguage(langskill.getLanguage());
 
-                if (langskill.getSubjectArea() != null) {
-                    SubjectArea subjectArea = new SubjectArea();
-                    subjectArea.setIscedClarification(langskill.getSubjectArea().getIscedClarification());
-                    SubjectArea.IscedFCode iscedFCode = new SubjectArea.IscedFCode();
-                    iscedFCode.setValue(langskill.getSubjectArea().getIscedFCode());
-                    subjectArea.setIscedFCode(iscedFCode);
+                        if (langskill.getSubjectArea() != null) {
+                            SubjectArea subjectArea = new SubjectArea();
+                            subjectArea.setIscedClarification(langskill.getSubjectArea().getIscedClarification());
+                            SubjectArea.IscedFCode iscedFCode = new SubjectArea.IscedFCode();
+                            iscedFCode.setValue(langskill.getSubjectArea().getIscedFCode());
+                            subjectArea.setIscedFCode(iscedFCode);
 
-                    recommendedLangSkill.setSubjectArea(subjectArea);
-                }
+                            recommendedLangSkill.setSubjectArea(subjectArea);
+                        }
 
-                return recommendedLangSkill;
-            }).collect(Collectors.toList());
+                        return recommendedLangSkill;
+                    })
+                    .sorted(Comparator.comparing(IiaConverter::computeHash))
+                    .collect(Collectors.toList());
 
             conv.getRecommendedLanguageSkill().addAll(recommendedSkills);
         }
@@ -390,15 +327,17 @@ public class IiaConverter {
 
         if (cc.getSubjectAreas() != null && !cc.getSubjectAreas().isEmpty()) {
             List<SubjectArea> subjectAreas = cc.getSubjectAreas().stream().map(subject -> {
-                SubjectArea subjectArea = new SubjectArea();
+                        SubjectArea subjectArea = new SubjectArea();
 
-                subjectArea.setIscedClarification(subject.getIscedClarification());
-                SubjectArea.IscedFCode iscedFCode = new SubjectArea.IscedFCode();
-                iscedFCode.setValue(subject.getIscedFCode());
-                subjectArea.setIscedFCode(iscedFCode);
+                        subjectArea.setIscedClarification(subject.getIscedClarification());
+                        SubjectArea.IscedFCode iscedFCode = new SubjectArea.IscedFCode();
+                        iscedFCode.setValue(subject.getIscedFCode());
+                        subjectArea.setIscedFCode(iscedFCode);
 
-                return subjectArea;
-            }).collect(Collectors.toList());
+                        return subjectArea;
+                    })
+                    .sorted(Comparator.comparing(IiaConverter::computeHash))
+                    .collect(Collectors.toList());
 
             conv.getSubjectArea().addAll(subjectAreas);
         }
@@ -412,11 +351,13 @@ public class IiaConverter {
                         Contact contact = new Contact();
 
                         contact.getContactName().addAll(recContact.getName().stream().map(name -> {
-                            StringWithOptionalLang stringWithOptionalLang = new StringWithOptionalLang();
-                            stringWithOptionalLang.setValue(name.getText());
-                            stringWithOptionalLang.setLang(name.getLang());
-                            return stringWithOptionalLang;
-                        }).collect(Collectors.toList()));
+                                    StringWithOptionalLang stringWithOptionalLang = new StringWithOptionalLang();
+                                    stringWithOptionalLang.setValue(name.getText());
+                                    stringWithOptionalLang.setLang(name.getLang());
+                                    return stringWithOptionalLang;
+                                })
+                                .sorted(Comparator.comparing(IiaConverter::computeHash))
+                                .collect(Collectors.toList()));
                         if (recContact.getPerson() != null && recContact.getPerson().getGender() != null) {
                             contact.setPersonGender(recContact.getPerson().getGender().value());
                         }
@@ -427,7 +368,9 @@ public class IiaConverter {
                         }
 
                         return contact;
-                    }).collect(Collectors.toList());
+                    })
+                    .sorted(Comparator.comparing(IiaConverter::computeHash))
+                    .collect(Collectors.toList());
         }
 
         conv.getReceivingContact().addAll(contactReceivings);
@@ -440,11 +383,13 @@ public class IiaConverter {
                         Contact contact = new Contact();
 
                         contact.getContactName().addAll(sendContact.getName().stream().map(name -> {
-                            StringWithOptionalLang stringWithOptionalLang = new StringWithOptionalLang();
-                            stringWithOptionalLang.setValue(name.getText());
-                            stringWithOptionalLang.setLang(name.getLang());
-                            return stringWithOptionalLang;
-                        }).collect(Collectors.toList()));
+                                    StringWithOptionalLang stringWithOptionalLang = new StringWithOptionalLang();
+                                    stringWithOptionalLang.setValue(name.getText());
+                                    stringWithOptionalLang.setLang(name.getLang());
+                                    return stringWithOptionalLang;
+                                })
+                                .sorted(Comparator.comparing(IiaConverter::computeHash))
+                                .collect(Collectors.toList()));
                         if (sendContact.getPerson() != null && sendContact.getPerson().getGender() != null) {
                             contact.setPersonGender(sendContact.getPerson().getGender().value());
                         }
@@ -455,7 +400,9 @@ public class IiaConverter {
                         }
 
                         return contact;
-                    }).collect(Collectors.toList());
+                    })
+                    .sorted(Comparator.comparing(IiaConverter::computeHash))
+                    .collect(Collectors.toList());
         }
 
         conv.getSendingContact().addAll(contactsSending);
@@ -513,6 +460,7 @@ public class IiaConverter {
 
     }
 
+    // ----------------------------------------------------------------------------------------------------------------
 
     public void convertToIia(IiasGetResponse.Iia iia, Iia iiaInternal, List<Institution> institutions) {
         try {
