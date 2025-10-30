@@ -191,7 +191,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getEmail().get(0));
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getRecommendedLanguageSkill().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -210,7 +210,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getCefrLevel());
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getSendingContact().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -229,7 +229,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getEmail().get(0));
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getSubjectArea().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -248,7 +248,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getIscedClarification());
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                 });
                 iia.getCooperationConditions().getStudentStudiesMobilitySpec().sort((o1, o2) -> {
@@ -290,7 +290,7 @@ public class IiaConverter {
                         }
                     }
 
-                    return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    return toHashO1.toString().compareTo(toHashO2.toString());
                 });
             }
 
@@ -313,7 +313,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getEmail().get(0));
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getRecommendedLanguageSkill().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -332,7 +332,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getCefrLevel());
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getSendingContact().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -351,7 +351,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getEmail().get(0));
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getSubjectArea().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -370,7 +370,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getIscedClarification());
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                 });
                 iia.getCooperationConditions().getStudentTraineeshipMobilitySpec().sort((o1, o2) -> {
@@ -412,7 +412,7 @@ public class IiaConverter {
                         }
                     }
 
-                    return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    return toHashO1.toString().compareTo(toHashO2.toString());
                 });
             }
 
@@ -435,7 +435,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getEmail().get(0));
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getRecommendedLanguageSkill().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -454,7 +454,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getCefrLevel());
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getSendingContact().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -473,7 +473,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getEmail().get(0));
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getSubjectArea().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -492,7 +492,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getIscedClarification());
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                 });
                 iia.getCooperationConditions().getStaffTeacherMobilitySpec().sort((o1, o2) -> {
@@ -524,7 +524,7 @@ public class IiaConverter {
                         toHashO2.append(o2.getReceivingOunitId());
                     }
 
-                    return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    return toHashO1.toString().compareTo(toHashO2.toString());
                 });
             }
 
@@ -547,7 +547,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getEmail().get(0));
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getRecommendedLanguageSkill().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -566,7 +566,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getCefrLevel());
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getSendingContact().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -585,7 +585,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getEmail().get(0));
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                     spec.getSubjectArea().sort((o1, o2) -> {
                         StringBuilder toHashO1 = new StringBuilder();
@@ -604,7 +604,7 @@ public class IiaConverter {
                             toHashO2.append(o2.getIscedClarification());
                         }
 
-                        return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                        return toHashO1.toString().compareTo(toHashO2.toString());
                     });
                 });
                 iia.getCooperationConditions().getStaffTrainingMobilitySpec().sort((o1, o2) -> {
@@ -636,7 +636,7 @@ public class IiaConverter {
                         toHashO2.append(o2.getReceivingOunitId());
                     }
 
-                    return computeHash(toHashO1.toString()).compareTo(computeHash(toHashO2.toString()));
+                    return toHashO1.toString().compareTo(toHashO2.toString());
                 });
             }
         }
