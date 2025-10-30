@@ -4,7 +4,10 @@ import eu.erasmuswithoutpaper.api.iias.endpoints.IiasGetResponse;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.entity.*;
 import eu.erasmuswithoutpaper.notification.entity.Notification;
+import eu.erasmuswithoutpaper.omobility.las.entity.Signature;
+import eu.erasmuswithoutpaper.organization.entity.Contact;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
+import eu.erasmuswithoutpaper.organization.entity.LanguageItem;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -580,44 +583,44 @@ public class IiasEJB {
             return null;
         }
         if (iia.getCooperationConditions() != null) {
-            iia.getCooperationConditions().size();
+            iia.getCooperationConditions().sort(Comparator.comparing(CooperationCondition::getId));
             iia.getCooperationConditions().forEach(cc -> {
                 if(cc.getSendingPartner() != null) {
                     if (cc.getSendingPartner().getContacts() != null) {
-                        cc.getSendingPartner().getContacts().size();
+                        cc.getSendingPartner().getContacts().sort(Comparator.comparing(Contact::getId));
                     }
                     if(cc.getSendingPartner().getSigningContact() != null) {
                         if (cc.getSendingPartner().getSigningContact().getName() != null) {
-                            cc.getSendingPartner().getSigningContact().getName().size();
+                            cc.getSendingPartner().getSigningContact().getName().sort(Comparator.comparing(LanguageItem::getId));
                         }
                         if (cc.getSendingPartner().getSigningContact().getDescription() != null) {
-                            cc.getSendingPartner().getSigningContact().getDescription().size();
+                            cc.getSendingPartner().getSigningContact().getDescription().sort(Comparator.comparing(LanguageItem::getId));
                         }
                     }
                 }
 
                 if(cc.getReceivingPartner() != null) {
                     if (cc.getReceivingPartner().getContacts() != null) {
-                        cc.getReceivingPartner().getContacts().size();
+                        cc.getReceivingPartner().getContacts().sort(Comparator.comparing(Contact::getId));
                     }
                     if(cc.getReceivingPartner().getSigningContact() != null) {
                         if (cc.getReceivingPartner().getSigningContact().getName() != null) {
-                            cc.getReceivingPartner().getSigningContact().getName().size();
+                            cc.getReceivingPartner().getSigningContact().getName().sort(Comparator.comparing(LanguageItem::getId));
                         }
                         if (cc.getReceivingPartner().getSigningContact().getDescription() != null) {
-                            cc.getReceivingPartner().getSigningContact().getDescription().size();
+                            cc.getReceivingPartner().getSigningContact().getDescription().sort(Comparator.comparing(LanguageItem::getId));
                         }
                     }
                 }
 
                 if (cc.getSubjectAreas() != null) {
-                    cc.getSubjectAreas().size();
+                    cc.getSubjectAreas().sort(Comparator.comparing(SubjectArea::getId));
                 }
                 if (cc.getReceivingAcademicYearId() != null) {
-                    cc.getReceivingAcademicYearId().size();
+                    cc.getReceivingAcademicYearId().sort(String::compareTo);
                 }
                 if (cc.getRecommendedLanguageSkill() != null) {
-                    cc.getRecommendedLanguageSkill().size();
+                    cc.getRecommendedLanguageSkill().sort(Comparator.comparing(LanguageSkill::getId));
                 }
             });
         }
