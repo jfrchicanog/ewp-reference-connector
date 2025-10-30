@@ -31,7 +31,7 @@ public class IiasEJB {
     }
 
     public Iia findById(String iiaId) {
-        return em.find(Iia.class, iiaId);
+        return normalize(em.find(Iia.class, iiaId));
     }
 
     public List<Iia> findByIdList(String iiaId) {
@@ -573,5 +573,25 @@ public class IiasEJB {
 
     public List<Iia> findApprovedVersions() {
         return em.createNamedQuery(Iia.findByOriginalIiaIdNotNull, Iia.class).getResultList();
+    }
+
+    private Iia normalize(Iia iia) {
+        if (iia == null) {
+            return null;
+        }
+        iia.getCooperationConditions().size();
+        iia.getCooperationConditions().forEach(cc -> {
+            cc.getSendingPartner().getContacts().size();
+            cc.getSendingPartner().getSigningContact().getName().size();
+            cc.getSendingPartner().getSigningContact().getDescription().size();
+            cc.getReceivingPartner().getContacts().size();
+            cc.getReceivingPartner().getSigningContact().getName().size();
+            cc.getReceivingPartner().getSigningContact().getDescription().size();
+
+            cc.getSubjectAreas().size();
+            cc.getReceivingAcademicYearId().size();
+            cc.getRecommendedLanguageSkill().size();
+        });
+        return iia;
     }
 }
