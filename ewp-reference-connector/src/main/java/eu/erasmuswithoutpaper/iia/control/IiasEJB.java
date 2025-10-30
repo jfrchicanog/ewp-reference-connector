@@ -579,19 +579,48 @@ public class IiasEJB {
         if (iia == null) {
             return null;
         }
-        iia.getCooperationConditions().size();
-        iia.getCooperationConditions().forEach(cc -> {
-            cc.getSendingPartner().getContacts().size();
-            cc.getSendingPartner().getSigningContact().getName().size();
-            cc.getSendingPartner().getSigningContact().getDescription().size();
-            cc.getReceivingPartner().getContacts().size();
-            cc.getReceivingPartner().getSigningContact().getName().size();
-            cc.getReceivingPartner().getSigningContact().getDescription().size();
+        if (iia.getCooperationConditions() != null) {
+            iia.getCooperationConditions().size();
+            iia.getCooperationConditions().forEach(cc -> {
+                if(cc.getSendingPartner() != null) {
+                    if (cc.getSendingPartner().getContacts() != null) {
+                        cc.getSendingPartner().getContacts().size();
+                    }
+                    if(cc.getSendingPartner().getSigningContact() != null) {
+                        if (cc.getSendingPartner().getSigningContact().getName() != null) {
+                            cc.getSendingPartner().getSigningContact().getName().size();
+                        }
+                        if (cc.getSendingPartner().getSigningContact().getDescription() != null) {
+                            cc.getSendingPartner().getSigningContact().getDescription().size();
+                        }
+                    }
+                }
 
-            cc.getSubjectAreas().size();
-            cc.getReceivingAcademicYearId().size();
-            cc.getRecommendedLanguageSkill().size();
-        });
+                if(cc.getReceivingPartner() != null) {
+                    if (cc.getReceivingPartner().getContacts() != null) {
+                        cc.getReceivingPartner().getContacts().size();
+                    }
+                    if(cc.getReceivingPartner().getSigningContact() != null) {
+                        if (cc.getReceivingPartner().getSigningContact().getName() != null) {
+                            cc.getReceivingPartner().getSigningContact().getName().size();
+                        }
+                        if (cc.getReceivingPartner().getSigningContact().getDescription() != null) {
+                            cc.getReceivingPartner().getSigningContact().getDescription().size();
+                        }
+                    }
+                }
+
+                if (cc.getSubjectAreas() != null) {
+                    cc.getSubjectAreas().size();
+                }
+                if (cc.getReceivingAcademicYearId() != null) {
+                    cc.getReceivingAcademicYearId().size();
+                }
+                if (cc.getRecommendedLanguageSkill() != null) {
+                    cc.getRecommendedLanguageSkill().size();
+                }
+            });
+        }
         return iia;
     }
 }
