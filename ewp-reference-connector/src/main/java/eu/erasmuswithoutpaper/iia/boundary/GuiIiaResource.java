@@ -100,7 +100,7 @@ public class GuiIiaResource {
     public Response get(@QueryParam("iia_id") String iiaId, @QueryParam("partner_id") String partnerId, @QueryParam("type") String type) {
         if (iiaId != null) {
             Iia iia = iiasEJB.findById(iiaId);
-            normalize(iia);
+            //normalize(iia);
             LOG.fine("---------------------------------------------");
             LOG.fine("TEMP_GET: FirstConditionSending_BBDD: " + iia.getCooperationConditions().get(0).getSendingPartner().getInstitutionId());
             LOG.fine("---------------------------------------------");
