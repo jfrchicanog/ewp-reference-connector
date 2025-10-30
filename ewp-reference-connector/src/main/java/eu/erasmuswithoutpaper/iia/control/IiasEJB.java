@@ -34,7 +34,7 @@ public class IiasEJB {
     }
 
     public Iia findById(String iiaId) {
-        return normalize(em.find(Iia.class, iiaId));
+        return em.find(Iia.class, iiaId);
     }
 
     public List<Iia> findByIdList(String iiaId) {
@@ -576,54 +576,5 @@ public class IiasEJB {
 
     public List<Iia> findApprovedVersions() {
         return em.createNamedQuery(Iia.findByOriginalIiaIdNotNull, Iia.class).getResultList();
-    }
-
-    private Iia normalize(Iia iia) {
-        if (iia == null) {
-            return null;
-        }
-        if (iia.getCooperationConditions() != null) {
-            iia.getCooperationConditions().sort(Comparator.comparing(CooperationCondition::getId));
-            iia.getCooperationConditions().forEach(cc -> {
-                if(cc.getSendingPartner() != null) {
-                    if (cc.getSendingPartner().getContacts() != null) {
-                        cc.getSendingPartner().getContacts().sort(Comparator.comparing(Contact::getId));
-                    }
-                    if(cc.getSendingPartner().getSigningContact() != null) {
-                        if (cc.getSendingPartner().getSigningContact().getName() != null) {
-                            cc.getSendingPartner().getSigningContact().getName().sort(Comparator.comparing(LanguageItem::getId));
-                        }
-                        if (cc.getSendingPartner().getSigningContact().getDescription() != null) {
-                            cc.getSendingPartner().getSigningContact().getDescription().sort(Comparator.comparing(LanguageItem::getId));
-                        }
-                    }
-                }
-
-                if(cc.getReceivingPartner() != null) {
-                    if (cc.getReceivingPartner().getContacts() != null) {
-                        cc.getReceivingPartner().getContacts().sort(Comparator.comparing(Contact::getId));
-                    }
-                    if(cc.getReceivingPartner().getSigningContact() != null) {
-                        if (cc.getReceivingPartner().getSigningContact().getName() != null) {
-                            cc.getReceivingPartner().getSigningContact().getName().sort(Comparator.comparing(LanguageItem::getId));
-                        }
-                        if (cc.getReceivingPartner().getSigningContact().getDescription() != null) {
-                            cc.getReceivingPartner().getSigningContact().getDescription().sort(Comparator.comparing(LanguageItem::getId));
-                        }
-                    }
-                }
-
-                if (cc.getSubjectAreas() != null) {
-                    cc.getSubjectAreas().sort(Comparator.comparing(SubjectArea::getId));
-                }
-                if (cc.getReceivingAcademicYearId() != null) {
-                    cc.getReceivingAcademicYearId().sort(String::compareTo);
-                }
-                if (cc.getRecommendedLanguageSkill() != null) {
-                    cc.getRecommendedLanguageSkill().sort(Comparator.comparing(LanguageSkill::getId));
-                }
-            });
-        }
-        return iia;
     }
 }
