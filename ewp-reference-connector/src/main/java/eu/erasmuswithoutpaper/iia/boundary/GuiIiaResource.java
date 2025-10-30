@@ -96,9 +96,15 @@ public class GuiIiaResource {
     public Response get(@QueryParam("iia_id") String iiaId, @QueryParam("partner_id") String partnerId, @QueryParam("type") String type) {
         if (iiaId != null) {
             Iia iia = iiasEJB.findById(iiaId);
+            LOG.fine("---------------------------------------------");
+            LOG.fine("TEMP_GET: FirstConditionSending_BBDD: " + iia.getCooperationConditions().get(0).getSendingPartner().getInstitutionId());
+            LOG.fine("---------------------------------------------");
             if (iia != null) {
                 String heiId = iiasEJB.getHeiId();
                 List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
+                LOG.fine("---------------------------------------------");
+                LOG.fine("TEMP_GET: FirstConditionSending_XMLOBJ: " + iiaResponse.get(0).getCooperationConditions().getStudentStudiesMobilitySpec().get(0).getSendingHeiId());
+                LOG.fine("---------------------------------------------");
                 if ("xml".equalsIgnoreCase(type)) {
                     IiasGetResponse response = new IiasGetResponse();
                     response.getIia().addAll(iiaResponse);
