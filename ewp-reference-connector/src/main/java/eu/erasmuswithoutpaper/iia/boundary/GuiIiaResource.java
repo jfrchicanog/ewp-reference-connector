@@ -100,15 +100,9 @@ public class GuiIiaResource {
     public Response get(@QueryParam("iia_id") String iiaId, @QueryParam("partner_id") String partnerId, @QueryParam("type") String type) {
         if (iiaId != null) {
             Iia iia = iiasEJB.findById(iiaId);
-            LOG.fine("---------------------------------------------");
-            LOG.fine("TEMP_GET: FirstConditionSending_BBDD: " + iia.getCooperationConditions().get(0).getSendingPartner().getInstitutionId());
-            LOG.fine("---------------------------------------------");
             if (iia != null) {
                 String heiId = iiasEJB.getHeiId();
                 List<IiasGetResponse.Iia> iiaResponse = iiaConverter.convertToIias(heiId, Collections.singletonList(iia));
-                LOG.fine("---------------------------------------------");
-                LOG.fine("TEMP_GET: FirstConditionSending_XMLOBJ: " + iiaResponse.get(0).getCooperationConditions().getStudentStudiesMobilitySpec().get(0).getSendingHeiId());
-                LOG.fine("---------------------------------------------");
                 if ("xml".equalsIgnoreCase(type)) {
                     IiasGetResponse response = new IiasGetResponse();
                     response.getIia().addAll(iiaResponse);
@@ -677,6 +671,26 @@ public class GuiIiaResource {
     @InternalAuthenticate
     public javax.ws.rs.core.Response computeHash(@QueryParam("iiaId") String iiaId) {
         Iia iia = iiasEJB.findById(iiaId);
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String hash = "";
+        try {
+            hash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(iiasEJB.getHeiId(), Collections.singletonList(iia)).get(0));
+        } catch (Exception e) {
+            return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
+        IiaResponse response = new IiaResponse(iiaId, hash);
+        return javax.ws.rs.core.Response.ok(response).build();
+    }
+
+    @GET
+    @Path("computeHashApproved")
+    @InternalAuthenticate
+    public javax.ws.rs.core.Response computeHashApproved(@QueryParam("iiaId") String iiaId) {
+        Iia iia = iiasEJB.findApprovedVersion(iiaId);
         if (iia == null) {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
