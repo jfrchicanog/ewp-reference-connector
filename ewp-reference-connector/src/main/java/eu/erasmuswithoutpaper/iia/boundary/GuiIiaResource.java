@@ -735,7 +735,7 @@ public class GuiIiaResource {
             notifyPartner(iia);
         });
 
-        IiaResponse response = new IiaResponse(iia.getId(), iia.getConditionsHash());
+        IiaResponse response = new IiaResponse(iiaId, iia.getConditionsHash());
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
@@ -755,7 +755,7 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
-        IiaResponse response = new IiaResponse(iia.getId(), iia.getConditionsHash());
+        IiaResponse response = new IiaResponse(iiaId, iia.getConditionsHash());
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
