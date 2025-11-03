@@ -701,8 +701,8 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        if (iiasEJB.isApproved(iiaId)) {
-            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        if (iia.getOriginal() != null) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity("Cannot recalculate hash for approved version").build();
         }
 
         try {
@@ -720,6 +720,26 @@ public class GuiIiaResource {
             }
             notifyPartner(iia);
         });
+
+        IiaResponse response = new IiaResponse(iia.getId(), iia.getConditionsHash());
+        return javax.ws.rs.core.Response.ok(response).build();
+    }
+
+    @GET
+    @Path("hashApproved")
+    @InternalAuthenticate
+    public javax.ws.rs.core.Response reCalcHashApproved(@QueryParam("iiaId") String iiaId) {
+        Iia iia = iiasEJB.findApprovedVersion(iiaId);
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        try {
+            iia.setConditionsHash(HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(iiasEJB.getHeiId(), Collections.singletonList(iia)).get(0)));
+            iiasEJB.update(iia);
+        } catch (Exception e) {
+            return javax.ws.rs.core.Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
 
         IiaResponse response = new IiaResponse(iia.getId(), iia.getConditionsHash());
         return javax.ws.rs.core.Response.ok(response).build();
