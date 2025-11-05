@@ -577,4 +577,20 @@ public class IiasEJB {
     public List<Iia> findApprovedVersions() {
         return em.createNamedQuery(Iia.findByOriginalIiaIdNotNull, Iia.class).getResultList();
     }
+
+    public List<String> findIiaIds(Boolean approved, String heiId) {
+        List<Iia> results = em.createNamedQuery(Iia.findByApprovalAndHei, Iia.class)
+                .setParameter("approved", approved)
+                .setParameter("heiId", heiId)
+                .getResultList();
+
+        if (results == null || results.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return results.stream()
+                .map(Iia::getId)
+                .distinct()
+                .collect(Collectors.toList());
+    }
 }

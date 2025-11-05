@@ -31,7 +31,18 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
                 "AND i.original is null"),
         @NamedQuery(name = Iia.findByOriginalIiaId, query = "SELECT i FROM Iia i JOIN i.original oi WHERE oi.id = :iiaId"),
         @NamedQuery(name = Iia.findByOriginalIiaIdNotNull, query = "SELECT i FROM Iia i JOIN i.original oi WHERE i.original is not null"),
-        @NamedQuery(name = Iia.findByDateRange, query = "SELECT i FROM Iia i WHERE i.modifyDate <= :endDate AND i.modifyDate >= :statrDate")
+        @NamedQuery(name = Iia.findByDateRange, query = "SELECT i FROM Iia i WHERE i.modifyDate <= :endDate AND i.modifyDate >= :statrDate"),
+        @NamedQuery(
+                name = Iia.findByApprovalAndHei,
+                query = "SELECT DISTINCT i FROM Iia i " +
+                        "LEFT JOIN i.cooperationConditions cc " +
+                        "LEFT JOIN cc.sendingPartner sp " +
+                        "LEFT JOIN cc.receivingPartner rp " +
+                        "WHERE (:approved IS NULL OR " +
+                        "      (:approved = TRUE AND i.original IS NOT NULL) OR " +
+                        "      (:approved = FALSE AND i.original IS NULL)) " +
+                        "AND (:heiId IS NULL OR sp.institutionId = :heiId OR rp.institutionId = :heiId)"
+        )
 })
 public class Iia implements Serializable {
 
@@ -46,6 +57,8 @@ public class Iia implements Serializable {
     public static final String findByOriginalIiaId = PREFIX + "byOriginalId";
     public static final String findByOriginalIiaIdNotNull = PREFIX + "byOriginalIdNotNull";
     public static final String findByDateRange = PREFIX + "byDateRange";
+
+    public static final String findByApprovalAndHei = PREFIX + "byApprovalAndHei";
 
     @Id
     @GeneratedValue(generator = "system-uuid")

@@ -84,6 +84,16 @@ public class GuiIiaResource {
 
 
     @GET
+    @Path("index")
+    @InternalAuthenticate
+    public Response index(@QueryParam("approved") Boolean approved, @QueryParam("heiId") String heiId) {
+        IiasIndexResponse response = new IiasIndexResponse();
+        response.getIiaId().addAll(iiasEJB.findIiaIds(approved, heiId));
+        return Response.ok(response).build();
+    }
+
+
+    @GET
     @Path("get-range")
     @InternalAuthenticate
     public Response get(@QueryParam("init-date") Date initDate, @QueryParam("fin-date") Date finDate) {
