@@ -85,6 +85,7 @@ public class GuiIiaResource {
 
     @GET
     @Path("index")
+    @Produces(MediaType.APPLICATION_JSON)
     @InternalAuthenticate
     public Response index(@QueryParam("approved") Boolean approved, @QueryParam("heiId") String heiId) {
         IiasIndexResponse response = new IiasIndexResponse();
