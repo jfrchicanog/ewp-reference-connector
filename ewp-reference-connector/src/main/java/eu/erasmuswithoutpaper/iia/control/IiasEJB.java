@@ -298,7 +298,7 @@ public class IiasEJB {
         em.flush();*/
     }
 
-    public void updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
+    public String updateIia(Iia iiaInternal, Iia foundIia, String partnerHash) {
         String localHeiId = getHeiId();
         foundIia.setModifyDate(new Date());
         //em.merge(foundIia);
@@ -337,7 +337,7 @@ public class IiasEJB {
         em.merge(foundIia);
         em.flush();
 
-        /*String newHash = "";
+        String newHash = "";
 
         LOG.fine("UPDATE: CALC HASH");
         try {
@@ -346,7 +346,7 @@ public class IiasEJB {
         } catch (Exception e) {
             LOG.fine("UPDATE: HASH ERROR, Can't calculate sha256 updating iia");
             LOG.fine(e.getMessage());
-        }*/
+        }
 
         if (partnerHash != null) {
             LOG.fine("UPDATE *ESPECIAL*: PARTNER HASH SET TO: " + partnerHash);
@@ -356,7 +356,7 @@ public class IiasEJB {
         em.merge(foundIia);
         em.flush();
 
-        //return newHash;
+        return newHash;
     }
 
     public List<Iia> getByPartnerId(String heiId, String partnerId) {

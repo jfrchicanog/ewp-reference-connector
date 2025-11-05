@@ -325,14 +325,14 @@ public class GuiIiaResource {
 
         System.out.println("ADD: Created Iia Id:" + iiaInternal.getId());
 
-        /*CompletableFuture.runAsync(() -> {
+        CompletableFuture.runAsync(() -> {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             notifyPartner(iiaInternal);
-        });*/
+        });
 
         LOG.fine("ADD: Notification send");
 
@@ -631,7 +631,7 @@ public class GuiIiaResource {
         LOG.fine("OLODOLD Hash: " + foundIia.getConditionsHash());
         //String oldHash = foundIia.getConditionsHash();
 
-        iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
+        String newHash = iiasEJB.updateIia(iiaInternal, foundIia, foundIia.getHashPartner());
         LOG.fine("UPDATE: Iia Updated");
         /*String newHash = iiasEJB.updateHash(foundIia.getId());
 
@@ -643,16 +643,16 @@ public class GuiIiaResource {
         //}
 
         //Notify the partner about the modification using the API GUI IIA CNR
-        /*CompletableFuture.runAsync(() -> {
+        CompletableFuture.runAsync(() -> {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             notifyPartner(iiaInternal);
-        });*/
+        });
 
-        IiaResponse response = new IiaResponse(foundIia.getId(), "dont forget recalculate hash!");
+        IiaResponse response = new IiaResponse(foundIia.getId(), newHash);
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
