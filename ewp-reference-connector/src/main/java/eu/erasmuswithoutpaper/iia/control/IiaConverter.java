@@ -927,7 +927,7 @@ public class IiaConverter {
         }
 
         if (cc.getDuration() != null && cc.getDuration().getNumber() != null) {
-            conv.setTotalMonthsPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
+            conv.setTotalMonthsPerYear(cc.getDuration().getNumber().setScale(0, RoundingMode.DOWN));
         }
         conv.setBlended(cc.isBlended());
     }
@@ -940,7 +940,7 @@ public class IiaConverter {
 
         //conv.setAvgDays(BigInteger.ONE);
         if (cc.getDuration() != null && cc.getDuration().getNumber() != null) {
-            conv.setTotalDaysPerYear(cc.getDuration().getNumber().setScale(2, RoundingMode.HALF_EVEN));
+            conv.setTotalDaysPerYear(cc.getDuration().getNumber().setScale(0, RoundingMode.DOWN));
         }
 
     }

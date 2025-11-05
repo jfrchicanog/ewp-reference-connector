@@ -37,8 +37,11 @@ import java.util.logging.Level;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Providers;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -61,6 +64,9 @@ public class HttpSignature {
 
     @Inject
     RegistryClient registryClient;
+
+    @Context
+    Providers providers;
 
     public boolean clientWantsSignedResponse(ContainerRequestContext requestContext) {
         // Check if client wants signed response and that the header is correct
@@ -90,9 +96,14 @@ public class HttpSignature {
             final String stringToday = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US)
                     .format(today);
 
-            byte[] bodyBytes = getByteArray(responseContext);
+            /*byte[] bodyBytes = getByteArray(responseContext);
             final byte[] digest = MessageDigest.getInstance("SHA-256").digest(bodyBytes);
-            final String digestHeader = "SHA-256=" + new String(Base64.encodeBase64(digest));
+            final String digestHeader = "SHA-256=" + new String(Base64.encodeBase64(digest));*/
+
+            byte[] bodyBytes = getEntityBytes(responseContext);
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(bodyBytes);
+            String digestHeader = "SHA-256=" + new String(Base64.encodeBase64(digest));
+
 
             List<String> headerNames = new ArrayList<>();
             final Map<String, String> headers = new HashMap<>();
@@ -464,6 +475,51 @@ public class HttpSignature {
         requestContext.setEntityStream(new ByteArrayInputStream(bodyBytes));
         return bodyBytes;
     }
+
+    @SuppressWarnings("unchecked")
+    private byte[] getEntityBytes(ContainerResponseContext rc) throws IOException {
+        Object entity = rc.getEntity();
+        if (entity == null) return new byte[0];
+
+        // Fast paths for common cases
+        if (entity instanceof byte[]) {
+            return (byte[]) entity;
+        }
+        if (entity instanceof String) {
+            byte[] bytes = ((String) entity).getBytes(StandardCharsets.UTF_8);
+            // ensure what goes out matches what we hashed
+            rc.setEntity(bytes, rc.getEntityAnnotations(),
+                    rc.getMediaType() != null ? rc.getMediaType() : MediaType.TEXT_PLAIN_TYPE);
+            return bytes;
+        }
+
+        MediaType mt = rc.getMediaType() != null ? rc.getMediaType() : MediaType.APPLICATION_OCTET_STREAM_TYPE;
+
+        // Ask JAX-RS for the exact writer it would use
+        Class<?> type = entity.getClass();
+        MessageBodyWriter<Object> writer =
+                (MessageBodyWriter<Object>) providers.getMessageBodyWriter(type, type, rc.getEntityAnnotations(), mt);
+
+        if (writer == null) {
+            // Fallback: safest is to fail or send empty with empty digest,
+            // but if you must proceed, convert via String and UTF-8:
+            byte[] bytes = entity.toString().getBytes(StandardCharsets.UTF_8);
+            rc.setEntity(bytes, rc.getEntityAnnotations(), mt);
+            return bytes;
+        }
+
+        // Render into a buffer
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        MultivaluedMap<String, Object> headers = rc.getHeaders();
+        writer.writeTo(entity, type, type, rc.getEntityAnnotations(), mt, headers, baos);
+
+        byte[] bytes = baos.toByteArray();
+
+        // Ensure the exact bytes we hashed are what will be sent
+        rc.setEntity(bytes, rc.getEntityAnnotations(), mt);
+        return bytes;
+    }
+
 
     private byte[] getByteArray(ContainerResponseContext responseContext) throws IOException {
         try {
