@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,9 +21,7 @@ import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +37,9 @@ import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import eu.erasmuswithoutpaper.iia.dto.ApprovedHashesDto;
 import eu.erasmuswithoutpaper.iia.entity.*;
+import eu.erasmuswithoutpaper.iia.job.HashRecalcJob;
+import eu.erasmuswithoutpaper.iia.job.JobInfo;
+import eu.erasmuswithoutpaper.iia.job.JobRegistry;
 import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
 import eu.erasmuswithoutpaper.organization.entity.Contact;
 import eu.erasmuswithoutpaper.organization.entity.LanguageItem;
@@ -61,6 +63,11 @@ public class GuiIiaResource {
 
     @EJB
     IiasEJB iiasEJB;
+
+    @EJB
+    JobRegistry jobs;
+    @EJB
+    HashRecalcJob job;
 
     @Inject
     RegistryClient registryClient;
@@ -1948,5 +1955,48 @@ public class GuiIiaResource {
         response.getIia().add(iia);
 
         return Response.ok(response).build();
+    }
+
+    @POST
+    @Path("massiveHashRecalc/start")
+    @InternalAuthenticate
+    public Response start(@Context UriInfo uriInfo) {
+        String jobId = jobs.createJob(0);
+        job.run(jobId);
+        URI location = uriInfo.getAbsolutePathBuilder().path(jobId).build();
+        return Response.accepted(new SimpleJobResponse(jobId, "accepted"))
+                .location(location)
+                .build();
+    }
+
+    @GET
+    @Path("massiveHashRecalc/status/{jobId}")
+    public Response status(@PathParam("jobId") String jobId) {
+        JobInfo info = jobs.get(jobId);
+        if (info == null) return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.ok(new StatusDto(jobId, info)).build();
+    }
+
+    @POST
+    @Path("massiveHashRecalc/cancel/{jobId}")
+    public Response cancel(@PathParam("jobId") String jobId) {
+        JobInfo info = jobs.get(jobId);
+        if (info == null) return Response.status(Response.Status.NOT_FOUND).build();
+        jobs.cancel(jobId);
+        return Response.ok(new SimpleJobResponse(jobId, "canceled")).build();
+    }
+
+    // DTOs
+    public static class SimpleJobResponse {
+        public String jobId; public String status;
+        public SimpleJobResponse(String jobId, String status){ this.jobId=jobId; this.status=status; }
+    }
+    public static class StatusDto {
+        public String jobId; public String status; public int total; public int processed;
+        public String error; public Long startedAt; public Long finishedAt;
+        public StatusDto(String id, JobInfo i){
+            jobId=id; status=i.status.name(); total=i.total; processed=i.processed;
+            error=i.error; startedAt=i.startedAt; finishedAt=i.finishedAt;
+        }
     }
 }

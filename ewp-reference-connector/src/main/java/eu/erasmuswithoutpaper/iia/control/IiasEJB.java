@@ -142,6 +142,20 @@ public class IiasEJB {
         em.merge(iiaInternal);
     }
 
+    public void updateHash(Iia iia) {
+        String hash = "";
+
+        try {
+            hash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(getHeiId(), Collections.singletonList(iia)).get(0));
+            iia.setConditionsHash(hash);
+        } catch (Exception e) {
+            LOG.fine(e.getMessage());
+        }
+        em.merge(iia);
+        em.flush();
+
+    }
+
     public String updateHash(String id) {
         Iia iia = em.find(Iia.class, id);
         String hash = "";
