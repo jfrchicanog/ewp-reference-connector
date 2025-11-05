@@ -3,6 +3,7 @@ package eu.erasmuswithoutpaper.iia.boundary;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse;
+import eu.erasmuswithoutpaper.api.iias.endpoints.StudentStudiesMobilitySpec;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
 import eu.erasmuswithoutpaper.common.control.*;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
@@ -1863,5 +1865,24 @@ public class GuiIiaResource {
         return responseEnity.getApproval().stream()
                 .map(IiasApprovalResponse.Approval::getIiaHash)
                 .collect(Collectors.toList());
+    }
+
+    @GET
+    @Path("getTest")
+    @InternalAuthenticate
+    public Response getTest() {
+        IiasGetResponse response = new IiasGetResponse();
+        IiasGetResponse.Iia iia = new IiasGetResponse.Iia();
+        IiasGetResponse.Iia.CooperationConditions c = new IiasGetResponse.Iia.CooperationConditions();
+        StudentStudiesMobilitySpec ssms = new StudentStudiesMobilitySpec();
+        ssms.setTotalMonthsPerYear(BigDecimal.valueOf(10));
+        c.getStudentStudiesMobilitySpec().add(ssms);
+        StudentStudiesMobilitySpec ssms2 = new StudentStudiesMobilitySpec();
+        ssms2.setTotalMonthsPerYear(BigDecimal.valueOf(5.0));
+        c.getStudentStudiesMobilitySpec().add(ssms2);
+        iia.setCooperationConditions(c);
+        response.getIia().add(iia);
+
+        return Response.ok(response).build();
     }
 }
