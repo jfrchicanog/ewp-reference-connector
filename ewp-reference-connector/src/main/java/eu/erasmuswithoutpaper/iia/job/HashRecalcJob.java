@@ -26,11 +26,6 @@ public class HashRecalcJob {
 
             for (Iia i : iias) {
                 if (info.status == JobStatus.CANCELED) return; // optional cancel support
-                if (i.getOriginal() != null) {
-                    // We only recalc hashes for original IIAs
-                    jobs.increment(jobId);
-                    continue;
-                }
                 iiasEJB.updateHash(i);
                 jobs.increment(jobId);
             }

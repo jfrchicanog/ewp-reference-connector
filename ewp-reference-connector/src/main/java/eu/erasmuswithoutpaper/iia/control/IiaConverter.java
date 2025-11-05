@@ -49,7 +49,7 @@ public class IiaConverter {
             Set<String> partnerKeys = uniquePartners.keySet();
             for (String partnerKey : partnerKeys) {
                 IiaPartner partner = uniquePartners.get(partnerKey);
-                converted.getPartner().add(convertToPartner(iia, partner));
+                converted.getPartner().add(convertToPartner(iia, partner, hei_id));
             }
 
 
@@ -688,7 +688,7 @@ public class IiaConverter {
                 clazz == Boolean.class || clazz == Character.class;
     }
 
-    private IiasGetResponse.Iia.Partner convertToPartner(Iia iia, IiaPartner partner) {
+    private IiasGetResponse.Iia.Partner convertToPartner(Iia iia, IiaPartner partner, String localHeiId) {
         IiasGetResponse.Iia.Partner converted = new IiasGetResponse.Iia.Partner();
 
         if (partner == null) {
