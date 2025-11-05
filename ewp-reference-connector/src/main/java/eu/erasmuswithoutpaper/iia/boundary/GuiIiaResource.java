@@ -36,6 +36,7 @@ import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskService;
 import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
+import eu.erasmuswithoutpaper.iia.dto.ApprovedHashesDto;
 import eu.erasmuswithoutpaper.iia.entity.*;
 import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
 import eu.erasmuswithoutpaper.organization.entity.Contact;
@@ -578,7 +579,6 @@ public class GuiIiaResource {
         }
 
 
-
         if ("xml".equalsIgnoreCase(type)) {
             return Response.ok(iiaResponse)
                     .type(MediaType.APPLICATION_XML)
@@ -649,8 +649,8 @@ public class GuiIiaResource {
         LOG.fine("OLD HASH: " + oldHash);
         LOG.fine("NEW HASH: " + newHash);*/
         //if (!oldHash.equals(newHash)) {
-            iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());
-            LOG.fine("UPDATE: Iia Approvals deleted");
+        iiasEJB.deleteAssociatedIiaApprovals(foundIia.getId());
+        LOG.fine("UPDATE: Iia Approvals deleted");
         //}
 
         //Notify the partner about the modification using the API GUI IIA CNR
@@ -1876,6 +1876,56 @@ public class GuiIiaResource {
         return responseEnity.getApproval().stream()
                 .map(IiasApprovalResponse.Approval::getIiaHash)
                 .collect(Collectors.toList());
+    }
+
+
+    @GET
+    @Path("getApprovedHashes")
+    @InternalAuthenticate
+    public javax.ws.rs.core.Response getApprovedHashes(@QueryParam("iiaId") String iiaId) {
+        Iia iia = iiasEJB.findById(iiaId);
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        String localHeiId = iiasEJB.getHeiId();
+        String iiaHash = iia.getConditionsHash();
+
+
+        ApprovedHashesDto dto = new ApprovedHashesDto();
+        dto.setIiaHash(iiaHash);
+
+        List<IiaApproval> approvals = iiasEJB.findIiaApproval(iiaId);
+
+        String ourExact = null, ourFallback = null;
+        String partnerExact = null, partnerFallback = null;
+
+        for (IiaApproval approval : approvals) {
+            String hash = approval.getConditionsHash();
+            boolean isExact = iiaHash != null && iiaHash.equals(hash);
+
+            if (approval.getHeiId().equals(localHeiId)) {
+                if (isExact) {
+                    ourExact = hash;                // lock in exact match
+                } else if (ourFallback == null) {
+                    ourFallback = hash;             // keep first seen as fallback
+                }
+            } else {
+                if (isExact) {
+                    partnerExact = hash;            // lock in exact match
+                } else if (partnerFallback == null) {
+                    partnerFallback = hash;         // keep first seen as fallback
+                }
+            }
+        }
+
+        String ourApprovalHash = (ourExact != null) ? ourExact : ourFallback;
+        String partnerApprovalHash = (partnerExact != null) ? partnerExact : partnerFallback;
+
+        dto.setOurApprovedHash(ourApprovalHash);
+        dto.setPartnerApprovedHash(partnerApprovalHash);
+
+        return javax.ws.rs.core.Response.ok(dto).build();
     }
 
     @GET
