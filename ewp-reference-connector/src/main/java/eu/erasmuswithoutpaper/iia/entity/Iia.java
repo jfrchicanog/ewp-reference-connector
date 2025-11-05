@@ -38,10 +38,11 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
                         "LEFT JOIN i.cooperationConditions cc " +
                         "LEFT JOIN cc.sendingPartner sp " +
                         "LEFT JOIN cc.receivingPartner rp " +
-                        "WHERE (:approved IS NULL OR " +
-                        "      (:approved = TRUE AND i.original IS NOT NULL) OR " +
-                        "      (:approved = FALSE AND i.original IS NULL)) " +
-                        "AND (:heiId IS NULL OR sp.institutionId = :heiId OR rp.institutionId = :heiId)"
+                        "WHERE i.original IS NULL " +  // always hide copies
+                        "AND (:heiId IS NULL OR sp.institutionId = :heiId OR rp.institutionId = :heiId) " +
+                        "AND ( :approved IS NULL " +
+                        "      OR (:approved = TRUE AND EXISTS (SELECT 1 FROM Iia c WHERE c.original = i)) " +
+                        "      OR (:approved = FALSE) )"
         )
 })
 public class Iia implements Serializable {
