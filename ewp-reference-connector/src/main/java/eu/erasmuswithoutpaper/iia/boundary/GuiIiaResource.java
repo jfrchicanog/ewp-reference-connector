@@ -1890,10 +1890,13 @@ public class GuiIiaResource {
 
         String localHeiId = iiasEJB.getHeiId();
         String iiaHash = iia.getConditionsHash();
+        String partnerHash = iia.getHashPartner();
 
 
         ApprovedHashesDto dto = new ApprovedHashesDto();
-        dto.setIiaHash(iiaHash);
+        dto.setOurApprovedHash(iiaHash);
+        dto.setPartnerApprovedHash(partnerHash);
+        dto.setIiaId(iiaId);
 
         List<IiaApproval> approvals = iiasEJB.findIiaApproval(iiaId);
 
@@ -1902,7 +1905,7 @@ public class GuiIiaResource {
 
         for (IiaApproval approval : approvals) {
             String hash = approval.getConditionsHash();
-            boolean isExact = iiaHash != null && iiaHash.equals(hash);
+            boolean isExact = iiaHash != null && (iiaHash.equals(hash) || partnerHash.equals(hash));
 
             if (approval.getHeiId().equals(localHeiId)) {
                 if (isExact) {

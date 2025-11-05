@@ -5,7 +5,8 @@ public class ApprovedHashesDto {
     private String iiaId;
     private String ourApprovedHash;
     private String partnerApprovedHash;
-    private String iiaHash;
+    private String ourIiaHash;
+    private String partnerIiaHash;
 
     public String getIiaId() {
         return iiaId;
@@ -31,11 +32,19 @@ public class ApprovedHashesDto {
         this.partnerApprovedHash = partnerApprovedHash;
     }
 
-    public String getIiaHash() {
-        return iiaHash;
+    public String getOurIiaHash() {
+        return ourIiaHash;
     }
 
-    public void setIiaHash(String iiaHash) {
-        this.iiaHash = iiaHash;
+    public void setOurIiaHash(String ourIiaHash) {
+        this.ourIiaHash = ourIiaHash;
+    }
+
+    public String getPartnerIiaHash() {
+        return partnerIiaHash;
+    }
+
+    public void setPartnerIiaHash(String partnerIiaHash) {
+        this.partnerIiaHash = partnerIiaHash;
     }
 }
