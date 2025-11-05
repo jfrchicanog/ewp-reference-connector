@@ -479,44 +479,63 @@ public class HttpSignature {
     @SuppressWarnings("unchecked")
     private byte[] getEntityBytes(ContainerResponseContext rc) throws IOException {
         Object entity = rc.getEntity();
-        if (entity == null) return new byte[0];
+        logger.debug("getEntityBytes: start, entity={}", entity == null ? "null" : entity.getClass().getName());
+
+        if (entity == null) {
+            logger.debug("Entity is null, returning empty byte array");
+            return new byte[0];
+        }
 
         // Fast paths for common cases
         if (entity instanceof byte[]) {
+            logger.debug("Entity is a byte[], returning directly (length={})", ((byte[]) entity).length);
             return (byte[]) entity;
         }
+
         if (entity instanceof String) {
+            logger.debug("Entity is a String, converting to UTF-8 bytes");
             byte[] bytes = ((String) entity).getBytes(StandardCharsets.UTF_8);
-            // ensure what goes out matches what we hashed
             rc.setEntity(bytes, rc.getEntityAnnotations(),
                     rc.getMediaType() != null ? rc.getMediaType() : MediaType.TEXT_PLAIN_TYPE);
+            logger.debug("String entity converted and set as new entity, length={}", bytes.length);
             return bytes;
         }
 
         MediaType mt = rc.getMediaType() != null ? rc.getMediaType() : MediaType.APPLICATION_OCTET_STREAM_TYPE;
+        logger.debug("Using media type: {}", mt);
 
-        // Ask JAX-RS for the exact writer it would use
         Class<?> type = entity.getClass();
+        logger.debug("Looking up MessageBodyWriter for type: {}", type.getName());
+
         MessageBodyWriter<Object> writer =
                 (MessageBodyWriter<Object>) providers.getMessageBodyWriter(type, type, rc.getEntityAnnotations(), mt);
 
         if (writer == null) {
-            // Fallback: safest is to fail or send empty with empty digest,
-            // but if you must proceed, convert via String and UTF-8:
+            logger.warn("No MessageBodyWriter found for type: {}, falling back to entity.toString()", type.getName());
             byte[] bytes = entity.toString().getBytes(StandardCharsets.UTF_8);
             rc.setEntity(bytes, rc.getEntityAnnotations(), mt);
             return bytes;
         }
 
-        // Render into a buffer
+        logger.debug("Found MessageBodyWriter: {}", writer.getClass().getName());
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         MultivaluedMap<String, Object> headers = rc.getHeaders();
-        writer.writeTo(entity, type, type, rc.getEntityAnnotations(), mt, headers, baos);
+
+        try {
+            logger.debug("Writing entity to ByteArrayOutputStream...");
+            writer.writeTo(entity, type, type, rc.getEntityAnnotations(), mt, headers, baos);
+        } catch (Exception e) {
+            logger.error("Error while writing entity to bytes", e);
+            throw e;
+        }
 
         byte[] bytes = baos.toByteArray();
+        logger.debug("Entity serialized successfully, byte length={}", bytes.length);
 
-        // Ensure the exact bytes we hashed are what will be sent
         rc.setEntity(bytes, rc.getEntityAnnotations(), mt);
+        logger.debug("Entity replaced in response context with serialized bytes.");
+
         return bytes;
     }
 
