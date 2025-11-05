@@ -1894,8 +1894,8 @@ public class GuiIiaResource {
 
 
         ApprovedHashesDto dto = new ApprovedHashesDto();
-        dto.setOurApprovedHash(iiaHash);
-        dto.setPartnerApprovedHash(partnerHash);
+        dto.setOurIiaHash(iiaHash);
+        dto.setPartnerIiaHash(partnerHash);
         dto.setIiaId(iiaId);
 
         List<IiaApproval> approvals = iiasEJB.findIiaApproval(iiaId);
