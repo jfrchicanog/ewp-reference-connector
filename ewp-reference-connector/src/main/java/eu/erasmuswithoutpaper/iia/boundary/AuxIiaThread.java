@@ -133,9 +133,13 @@ public class AuxIiaThread {
         LOG.fine("AuxIiaThread_ADDEDIT: SendIia found HEIID: " + sendIia.getPartner().stream().map(p -> (p.getHeiId() == null ? "" : p.getHeiId())).collect(Collectors.toList()));
         LOG.fine("AuxIiaThread_ADDEDIT: SendIia found IIAID: " + sendIia.getPartner().stream().map(p -> (p.getIiaId() == null ? "" : p.getIiaId())).collect(Collectors.toList()));
 
+        String partnerHeiId = null;
+        String partnerIiaId = null;
+
         for (IiasGetResponse.Iia.Partner partner : sendIia.getPartner()) {
             LOG.fine("AuxIiaThread_ADDEDIT: Partner heiID: " + partner.getHeiId());
             LOG.fine("AuxIiaThread_ADDEDIT: Partner ID: " + partner.getIiaId());
+
             if (localHeiId.equals(partner.getHeiId())) {
                 LOG.fine("AuxIiaThread_ADDEDIT: Own localeId found: " + (partner.getIiaId() == null ? "" : partner.getIiaId()));
                 if (partner.getIiaId() != null) {
@@ -147,10 +151,19 @@ public class AuxIiaThread {
                         break;
                     }
                 }
+            } else {
+                partnerHeiId  = partner.getHeiId();
+                partnerIiaId  = partner.getIiaId();
             }
         }
 
         LOG.fine("AuxIiaThread_ADDEDIT: Busqueda en bbdd " + (localIia != null));
+
+        if (localIia == null) {
+            localIia = iiasEJB.getByPartnerId(partnerHeiId, partnerIiaId).stream().findFirst().orElse(null);
+            LOG.fine("AuxIiaThread_ADDEDIT: Busqueda por partner " + (localIia != null));
+        }
+
         if (localIia == null) {
             Iia newIia = new Iia();
             iiaConverter.convertToIia(sendIia, newIia, iiasEJB.findAllInstitutions());
