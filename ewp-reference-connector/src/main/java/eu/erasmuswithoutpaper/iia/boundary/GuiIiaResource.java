@@ -2049,7 +2049,7 @@ public class GuiIiaResource {
 
         LOG.fine("iias-approve-test: IIA found, checking hash match");
 
-        if (!hashSitEquals(heiId, partnerId, iiaId, theIia.getConditionsHash())) {
+        if (!hashSitEquals(heiId, partnerId, iiaId, theIia.getHashPartner())) {
             return javax.ws.rs.core.Response.status(418).entity("Los acuerdos no coinciden").build();
         }
 
