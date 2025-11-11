@@ -984,7 +984,7 @@ public class GuiIiaResource {
         //get the first one found
         Iia theIia = foundIia.get(0);
 
-        if(!hashSitEquals(heiId, iiaId, null, theIia.getConditionsHash())) {
+        if (!hashSitEquals(heiId, iiaId, null, theIia.getConditionsHash())) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
 
@@ -1497,20 +1497,20 @@ public class GuiIiaResource {
     private boolean hashSitEquals(String heiId, String partnerId, String ourId, String hash) {
         IiasGetResponse.Iia remoteIia = sendGet(heiId, partnerId);
 
-        cheackAndUpdatetePartnerHash(ourId, remoteIia);
+        if (hash == null || hash.isEmpty()) {
+            hash = cheackAndUpdatetePartnerHash(ourId, remoteIia);
+        }
+
 
         return hash.equals(remoteIia.getIiaHash());
     }
 
-    private void cheackAndUpdatetePartnerHash(String iiaId, IiasGetResponse.Iia remoteIia) {
+    private String cheackAndUpdatetePartnerHash(String iiaId, IiasGetResponse.Iia remoteIia) {
         Iia iiaLocal = iiasEJB.findById(iiaId);
-        if (iiaLocal != null) {
-            LOG.fine("GuiIiaRecource: Updating partner hash if needed");
-            if(iiaLocal.getHashPartner() == null || iiaLocal.getHashPartner().isEmpty()) {
-                LOG.fine("GuiIiaRecource: Partner hash is empty for IIA " + iiaLocal.getId() + ", updating it with value: " + remoteIia.getIiaHash());
-                iiasEJB.updateHashPartner(iiaLocal.getId(), remoteIia.getIiaHash());
-            }
-        }
+        LOG.fine("GuiIiaRecource: Partner hash is empty for IIA " + iiaLocal.getId() + ", updating it with value: " + remoteIia.getIiaHash());
+        iiasEJB.updateHashPartner(iiaLocal.getId(), remoteIia.getIiaHash());
+
+        return remoteIia.getIiaHash();
     }
 
     private IiasGetResponse.Iia sendGet(String heiId, String iiaId) {
@@ -1979,15 +1979,32 @@ public class GuiIiaResource {
 
     // DTOs
     public static class SimpleJobResponse {
-        public String jobId; public String status;
-        public SimpleJobResponse(String jobId, String status){ this.jobId=jobId; this.status=status; }
+        public String jobId;
+        public String status;
+
+        public SimpleJobResponse(String jobId, String status) {
+            this.jobId = jobId;
+            this.status = status;
+        }
     }
+
     public static class StatusDto {
-        public String jobId; public String status; public int total; public int processed;
-        public String error; public Long startedAt; public Long finishedAt;
-        public StatusDto(String id, JobInfo i){
-            jobId=id; status=i.status.name(); total=i.total; processed=i.processed;
-            error=i.error; startedAt=i.startedAt; finishedAt=i.finishedAt;
+        public String jobId;
+        public String status;
+        public int total;
+        public int processed;
+        public String error;
+        public Long startedAt;
+        public Long finishedAt;
+
+        public StatusDto(String id, JobInfo i) {
+            jobId = id;
+            status = i.status.name();
+            total = i.total;
+            processed = i.processed;
+            error = i.error;
+            startedAt = i.startedAt;
+            finishedAt = i.finishedAt;
         }
     }
 
