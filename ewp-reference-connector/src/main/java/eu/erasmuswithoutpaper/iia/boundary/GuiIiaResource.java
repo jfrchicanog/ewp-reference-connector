@@ -1495,12 +1495,16 @@ public class GuiIiaResource {
     }
 
     private boolean hashSitEquals(String heiId, String partnerId, String ourId, String hash) {
+        LOG.fine("GuiIiaRecource: Starting hash comparison for IIA " + ourId + " with partner " + partnerId);
+        LOG.fine("GuiIiaRecource: Partner hash: " + (hash == null ? "null" : hash));
         IiasGetResponse.Iia remoteIia = sendGet(heiId, partnerId);
 
         if (hash == null || hash.isEmpty()) {
+            LOG.fine("GuiIiaRecource: Partner hash is empty, retrieving it from remote IIA");
             hash = cheackAndUpdatetePartnerHash(ourId, remoteIia);
         }
 
+        LOG.fine("GuiIiaRecource: Remote IIA hash: " + remoteIia.getIiaHash());
 
         return hash.equals(remoteIia.getIiaHash());
     }
