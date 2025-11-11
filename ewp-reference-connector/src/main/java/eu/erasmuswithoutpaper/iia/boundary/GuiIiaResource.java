@@ -984,8 +984,19 @@ public class GuiIiaResource {
         //get the first one found
         Iia theIia = foundIia.get(0);
 
-        if (!hashSitEquals(heiId, iiaId, null, theIia.getConditionsHash())) {
-            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        String partnerId = "";
+        for (CooperationCondition c : theIia.getCooperationConditions()) {
+            if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
+                partnerId = c.getReceivingPartner().getIiaId();
+            } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
+                partnerId = c.getSendingPartner().getIiaId();
+            }
+        }
+
+        LOG.fine("iias-approve-test: IIA found, checking hash match");
+
+        if (!hashSitEquals(heiId, partnerId, iiaId, theIia.getHashPartner())) {
+            return javax.ws.rs.core.Response.status(418).entity("Los acuerdos no coinciden").build();
         }
 
         LOG.fine("Iia found: " + theIia.getId());
@@ -2010,55 +2021,5 @@ public class GuiIiaResource {
             startedAt = i.startedAt;
             finishedAt = i.finishedAt;
         }
-    }
-
-    @POST
-    @Path("iias-approve-test")
-    @InternalAuthenticate
-    @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response iiasApproveTest(@FormParam("hei_id") String heiId, @FormParam("iia_id") String
-            iiaId) {
-
-        String localHeiId = iiasEJB.getHeiId();
-        //seek the iia by code and by the ouid of the sending institution
-        List<Iia> foundIia = iiasEJB.findByIdListApp(iiaId);
-
-        Predicate<Iia> condition = new Predicate<Iia>() {
-            @Override
-            public boolean test(Iia iia) {
-                List<CooperationCondition> cooperationConditions = iia.getCooperationConditions();
-
-                List<CooperationCondition> filtered = cooperationConditions.stream().filter(c -> localHeiId.equals(c.getSendingPartner().getInstitutionId())).collect(Collectors.toList());
-                return !filtered.isEmpty();
-            }
-        };
-
-        foundIia.stream().filter(condition).collect(Collectors.toList());
-
-        if (foundIia.isEmpty()) {
-            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
-        }
-
-        //get the first one found
-        Iia theIia = foundIia.get(0);
-
-        String partnerId = "";
-        for (CooperationCondition c : theIia.getCooperationConditions()) {
-            if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
-                partnerId = c.getReceivingPartner().getIiaId();
-            } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
-                partnerId = c.getSendingPartner().getIiaId();
-            }
-        }
-
-        LOG.fine("iias-approve-test: IIA found, checking hash match");
-
-        if (!hashSitEquals(heiId, partnerId, iiaId, theIia.getHashPartner())) {
-            return javax.ws.rs.core.Response.status(418).entity("Los acuerdos no coinciden").build();
-        }
-
-        LOG.fine("iias-approve-test: IIA and hash match, proceeding to approve");
-
-        return javax.ws.rs.core.Response.ok().build();
     }
 }
