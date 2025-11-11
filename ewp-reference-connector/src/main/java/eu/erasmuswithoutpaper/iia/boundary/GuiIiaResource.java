@@ -984,9 +984,9 @@ public class GuiIiaResource {
         //get the first one found
         Iia theIia = foundIia.get(0);
 
-        /*if(!hashSitEquals(theIia)) {
+        if(!hashSitEquals(heiId, iiaId, null, theIia.getConditionsHash())) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
-        }*/
+        }
 
         LOG.fine("Iia found: " + theIia.getId());
 
@@ -1494,39 +1494,37 @@ public class GuiIiaResource {
         IiaTaskService.addTask(callableTask);
     }
 
-    private boolean hashSitEquals(Iia iia) {
-        String localHeiId = iiasEJB.getHeiId();
-        if (iia.getCooperationConditions() == null || iia.getCooperationConditions().isEmpty()) {
-            return false;
-        }
-        String partnerHeiId = null;
-        String partnerIiaId = null;
-        if (localHeiId.equals(iia.getCooperationConditions().get(0).getSendingPartner().getInstitutionId())) {
-            partnerHeiId = iia.getCooperationConditions().get(0).getReceivingPartner().getInstitutionId();
-            partnerIiaId = iia.getCooperationConditions().get(0).getReceivingPartner().getIiaId();
-        }
-        if (localHeiId.equals(iia.getCooperationConditions().get(0).getReceivingPartner().getInstitutionId())) {
-            partnerHeiId = iia.getCooperationConditions().get(0).getSendingPartner().getInstitutionId();
-            partnerIiaId = iia.getCooperationConditions().get(0).getSendingPartner().getIiaId();
-        }
-        IiasGetResponse.Iia sendIia = null;
+    private boolean hashSitEquals(String heiId, String partnerId, String ourId, String hash) {
+        IiasGetResponse.Iia remoteIia = sendGet(heiId, partnerId);
+
+        cheackAndUpdatetePartnerHash(ourId, remoteIia);
+
+        String remoteHash = "";
         try {
-            sendIia = sendGet(partnerHeiId, partnerIiaId);
+            Iia newIia = new Iia();
+            iiaConverter.convertToIia(remoteIia, newIia, iiasEJB.findAllInstitutions());
+            remoteHash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(iiasEJB.getHeiId(), Collections.singletonList(newIia)).get(0));
         } catch (Exception e) {
-
-        }
-        if (sendIia == null || sendIia.getIiaHash() == null) {
             return false;
         }
 
-        LOG.fine("GuiIiaRecource: SendHash: " + sendIia.getIiaHash());
-        LOG.fine("GuiIiaRecource: LocalPartnerHash: " + iia.getHashPartner());
-
-        return sendIia.getIiaHash().equals(iia.getHashPartner());
-
+        LOG.fine("GuiIiaRecource: Local hash: " + hash);
+        LOG.fine("GuiIiaRecource: Remote hash: " + remoteHash);
+        return hash.equals(remoteHash);
     }
 
-    private IiasGetResponse.Iia sendGet(String heiId, String iiaId) throws Exception {
+    private void cheackAndUpdatetePartnerHash(String iiaId, IiasGetResponse.Iia remoteIia) {
+        Iia iiaLocal = iiasEJB.findById(iiaId);
+        if (iiaLocal != null) {
+            LOG.fine("GuiIiaRecource: Updating partner hash if needed");
+            if(iiaLocal.getHashPartner() == null || iiaLocal.getHashPartner().isEmpty()) {
+                LOG.fine("GuiIiaRecource: Partner hash is empty for IIA " + iiaLocal.getId() + ", updating it with value: " + remoteIia.getIiaHash());
+                iiasEJB.updateHashPartner(iiaLocal.getId(), remoteIia.getIiaHash());
+            }
+        }
+    }
+
+    private IiasGetResponse.Iia sendGet(String heiId, String iiaId) {
         LOG.fine("GuiIiaRecource: Empezando GET tras CNR");
         Map<String, String> map = registryClient.getIiaHeiUrls(heiId);
         if (map == null) {
@@ -1564,12 +1562,16 @@ public class GuiIiaResource {
 
         LOG.fine("GuiIiaRecource: Respuesta del cliente " + clientResponse.getStatusCode());
 
-        if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
-            if (clientResponse.getStatusCode() <= 599 && clientResponse.getStatusCode() >= 400) {
-                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), null);
-            } else if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
-                sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), "Error");
+        try {
+            if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                if (clientResponse.getStatusCode() <= 599 && clientResponse.getStatusCode() >= 400) {
+                    sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), null);
+                } else if (clientResponse.getStatusCode() != Response.Status.OK.getStatusCode()) {
+                    sendMonitoringService.sendMonitoring(clientRequest.getHeiId(), "iias", "get", Integer.toString(clientResponse.getStatusCode()), clientResponse.getErrorMessage(), "Error");
+                }
+                return null;
             }
+        } catch (Exception e) {
             return null;
         }
 
@@ -1998,5 +2000,55 @@ public class GuiIiaResource {
             jobId=id; status=i.status.name(); total=i.total; processed=i.processed;
             error=i.error; startedAt=i.startedAt; finishedAt=i.finishedAt;
         }
+    }
+
+    @POST
+    @Path("iias-approve-test")
+    @InternalAuthenticate
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response iiasApproveTest(@FormParam("hei_id") String heiId, @FormParam("iia_id") String
+            iiaId) {
+
+        String localHeiId = iiasEJB.getHeiId();
+        //seek the iia by code and by the ouid of the sending institution
+        List<Iia> foundIia = iiasEJB.findByIdListApp(iiaId);
+
+        Predicate<Iia> condition = new Predicate<Iia>() {
+            @Override
+            public boolean test(Iia iia) {
+                List<CooperationCondition> cooperationConditions = iia.getCooperationConditions();
+
+                List<CooperationCondition> filtered = cooperationConditions.stream().filter(c -> localHeiId.equals(c.getSendingPartner().getInstitutionId())).collect(Collectors.toList());
+                return !filtered.isEmpty();
+            }
+        };
+
+        foundIia.stream().filter(condition).collect(Collectors.toList());
+
+        if (foundIia.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        //get the first one found
+        Iia theIia = foundIia.get(0);
+
+        String partnerId = "";
+        for (CooperationCondition c : theIia.getCooperationConditions()) {
+            if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
+                partnerId = c.getReceivingPartner().getInstitutionId();
+            } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
+                partnerId = c.getSendingPartner().getInstitutionId();
+            }
+        }
+
+        LOG.fine("iias-approve-test: IIA found, checking hash match");
+
+        if (!hashSitEquals(heiId, partnerId, iiaId, theIia.getConditionsHash())) {
+            return javax.ws.rs.core.Response.status(418).entity("Los acuerdos no coinciden").build();
+        }
+
+        LOG.fine("iias-approve-test: IIA and hash match, proceeding to approve");
+
+        return javax.ws.rs.core.Response.ok().build();
     }
 }
