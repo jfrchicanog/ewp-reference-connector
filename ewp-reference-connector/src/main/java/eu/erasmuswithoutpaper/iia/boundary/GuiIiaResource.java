@@ -1499,18 +1499,7 @@ public class GuiIiaResource {
 
         cheackAndUpdatetePartnerHash(ourId, remoteIia);
 
-        String remoteHash = "";
-        try {
-            Iia newIia = new Iia();
-            iiaConverter.convertToIia(remoteIia, newIia, iiasEJB.findAllInstitutions());
-            remoteHash = HashCalculationUtility.calculateSha256(iiaConverter.convertToIias(iiasEJB.getHeiId(), Collections.singletonList(newIia)).get(0));
-        } catch (Exception e) {
-            return false;
-        }
-
-        LOG.fine("GuiIiaRecource: Local hash: " + hash);
-        LOG.fine("GuiIiaRecource: Remote hash: " + remoteHash);
-        return hash.equals(remoteHash);
+        return hash.equals(remoteIia.getIiaHash());
     }
 
     private void cheackAndUpdatetePartnerHash(String iiaId, IiasGetResponse.Iia remoteIia) {
