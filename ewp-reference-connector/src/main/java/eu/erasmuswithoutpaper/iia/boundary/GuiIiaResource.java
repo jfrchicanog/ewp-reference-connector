@@ -2035,9 +2035,9 @@ public class GuiIiaResource {
         String partnerId = "";
         for (CooperationCondition c : theIia.getCooperationConditions()) {
             if (c.getSendingPartner().getInstitutionId().equals(localHeiId)) {
-                partnerId = c.getReceivingPartner().getInstitutionId();
+                partnerId = c.getReceivingPartner().getIiaId();
             } else if (c.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
-                partnerId = c.getSendingPartner().getInstitutionId();
+                partnerId = c.getSendingPartner().getIiaId();
             }
         }
 
