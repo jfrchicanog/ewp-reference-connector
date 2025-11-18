@@ -283,6 +283,7 @@ public class IiaResource {
     @GET
     @Path("stats")
     @Produces(MediaType.APPLICATION_XML)
+    @EwpAuthenticate
     public javax.ws.rs.core.Response iiaGetStats() {
         LOG.fine("------------------------------ START /iias/stats ------------------------------");
         return iiaStats();
