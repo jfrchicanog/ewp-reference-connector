@@ -14,6 +14,9 @@ import eu.erasmuswithoutpaper.internal.StandardDateConverter;
 @Entity
 @NamedQueries({
         @NamedQuery(name = Iia.findAll, query = "SELECT i FROM Iia i"),
+        @NamedQuery(name = Iia.findAllNonApproved, query = "SELECT i FROM Iia i WHERE i.original is null"),
+        @NamedQuery(name = Iia.findAllApproved, query = "SELECT i FROM Iia i WHERE i.original is not null"),
+        @NamedQuery(name = Iia.findAllJustDraft, query = "SELECT i FROM Iia i WHERE i.original is null AND NOT EXISTS (SELECT 1 FROM Iia c WHERE c.original = i)"),
         @NamedQuery(name = Iia.findById, query = "SELECT i FROM Iia i WHERE i.id = :id"),
         @NamedQuery(name = Iia.findByIiaCode, query = "SELECT i FROM Iia i WHERE i.iiaCode = :iiaCode"),
         @NamedQuery(name = Iia.findByPartnerId, query = "SELECT i FROM Iia i JOIN i.cooperationConditions cc JOIN cc.sendingPartner sp JOIN cc.receivingPartner rp WHERE sp.iiaId = :iiaId or rp.iiaId = :iiaId"),
@@ -49,6 +52,9 @@ public class Iia implements Serializable {
 
     private static final String PREFIX = "eu.erasmuswithoutpaper.iia.entity.Iia.";
     public static final String findAll = PREFIX + "all";
+    public static final String findAllNonApproved = PREFIX + "allNonApproved";
+    public static final String findAllApproved = PREFIX + "allApproved";
+    public static final String findAllJustDraft = PREFIX + "allJustDraft";
     public static final String findById = PREFIX + "byId";
     public static final String findByIiaCode = PREFIX + "byIiaCode";
     public static final String findByPartnerId = PREFIX + "byPartnerId";

@@ -292,66 +292,36 @@ public class IiaResource {
 
         IiasStatsResponse response = new IiasStatsResponse();
 
-        BiPredicate<Iia, List<Notification>> conditionNotApproved = new BiPredicate<Iia, List<Notification>>() {
-            boolean notNotified = true;
+        List<Iia> nonApprovedIias = iiasEjb.findAllNoneApproved();
+        List<Iia> approvedIias = iiasEjb.findAllApproved();
+        List<Iia> justDraftIias = iiasEjb.findAllJustDraft();
 
-            @Override
-            public boolean test(Iia iia, List<Notification> iiaApprovalNotifications) {
+        String localHeiId = iiasEjb.getHeiId();
 
-                for (Notification iiaApprovalNotified : iiaApprovalNotifications) {
-                    if (iia.getId().equals(iiaApprovalNotified.getChangedElementIds())) {
-                        notNotified = false;
-                        break;
-                    }
-                }
+        int iiaPartnerUnapproved = 0;
+        int iiaLocallyUnapproved = 0;
 
-                return notNotified;
-            }
+        for (Iia iia : justDraftIias) {
+            List<IiaApproval> iiaApprovals = iiasEjb.findIiaApproval(iia.getId());
 
-        };
+            if (iiaApprovals != null && !iiaApprovals.isEmpty()) {
+                boolean localApproved = iiaApprovals.stream().anyMatch(iiaApproval -> iiaApproval.getHeiId().equals(localHeiId));
+                boolean partnerApproved = iiaApprovals.stream().anyMatch(iiaApproval -> !iiaApproval.getHeiId().equals(localHeiId));
 
-        BiPredicate<Iia, List<IiaApproval>> notApproved = new BiPredicate<Iia, List<IiaApproval>>() {
-            boolean notApproved = true;
 
-            @Override
-            public boolean test(Iia iia, List<IiaApproval> iiaApprovals) {
-
-                for (IiaApproval iiaApproval : iiaApprovals) {
-                    if (iia.getId().equals(iiaApproval.getId())) {
-                        notApproved = false;
-                    }
-                }
-
-                return notApproved;
-            }
-
-        };
-
-        //filtrar las iia de la institucion enviada por parametro
-        List<Iia> localIias = iiasEjb.findAll();
-        int iiaFetchable = localIias.size();
-
-        List<Notification> iiaApprovalNotifications = iiasEjb.findNotifications().stream().filter(n -> (n.getType().equals(NotificationTypes.IIAAPPROVAL))).collect(Collectors.toList());
-        List<Iia> localNotApprovedByPartner = localIias.stream().filter(iia -> conditionNotApproved.test(iia, iiaApprovalNotifications)).collect(Collectors.toList());
-        int iiaPartnerUnapproved = localNotApprovedByPartner.size();
-
-        List<IiaApproval> localIiasApproval = iiasEjb.findIiaApprovals().stream().filter(iiaapproval -> {
-            for (Iia iia : localIias) {
-                if (iia.getId().equals(iiaapproval.getId())) {//De todas las aprobadas solo obtener las que sean de la insitucion enviada por parametro
-                    return true;
+                if (localApproved && !partnerApproved) {
+                    iiaPartnerUnapproved++;
+                } else if (!localApproved && partnerApproved) {
+                    iiaLocallyUnapproved++;
                 }
             }
-            return false;
-        }).collect(Collectors.toList());
-        int iiaApproved = localIiasApproval.size();
+        }
 
-        List<Iia> localNotApproved = localIias.stream().filter(iia -> notApproved.test(iia, localIiasApproval)).collect(Collectors.toList());
-        int iiaLocallyUnapproved = localNotApproved.size();
 
-        response.setIiaFetchable(BigInteger.valueOf(iiaFetchable));
+        response.setIiaFetchable(BigInteger.valueOf(nonApprovedIias.size()));
         response.setIiaLocalApprovedPartnerUnapproved(BigInteger.valueOf(iiaPartnerUnapproved));
         response.setIiaLocalUnapprovedPartnerApproved(BigInteger.valueOf(iiaLocallyUnapproved));
-        response.setIiaBothApproved(BigInteger.valueOf(iiaApproved));
+        response.setIiaBothApproved(BigInteger.valueOf(approvedIias.size()));
 
         return Response.ok(response).build();
     }

@@ -607,4 +607,16 @@ public class IiasEJB {
                 .distinct()
                 .collect(Collectors.toList());
     }
+
+    public List<Iia> findAllNoneApproved() {
+        return em.createNamedQuery(Iia.findAllNonApproved, Iia.class).getResultList();
+    }
+
+    public List<Iia> findAllApproved() {
+        return em.createNamedQuery(Iia.findAllApproved, Iia.class).getResultList();
+    }
+
+    public List<Iia> findAllJustDraft() {
+        return em.createNamedQuery(Iia.findAllJustDraft, Iia.class).getResultList();
+    }
 }
