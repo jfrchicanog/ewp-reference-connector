@@ -1944,23 +1944,28 @@ public class GuiIiaResource {
         return javax.ws.rs.core.Response.ok(dto).build();
     }
 
-    @GET
-    @Path("getTest")
+    @DELETE
+    @Path("shadow-delete")
     @InternalAuthenticate
-    public Response getTest() {
-        IiasGetResponse response = new IiasGetResponse();
-        IiasGetResponse.Iia iia = new IiasGetResponse.Iia();
-        IiasGetResponse.Iia.CooperationConditions c = new IiasGetResponse.Iia.CooperationConditions();
-        StudentStudiesMobilitySpec ssms = new StudentStudiesMobilitySpec();
-        ssms.setTotalMonthsPerYear(BigDecimal.valueOf(10));
-        c.getStudentStudiesMobilitySpec().add(ssms);
-        StudentStudiesMobilitySpec ssms2 = new StudentStudiesMobilitySpec();
-        ssms2.setTotalMonthsPerYear(BigDecimal.valueOf(5.0));
-        c.getStudentStudiesMobilitySpec().add(ssms2);
-        iia.setCooperationConditions(c);
-        response.getIia().add(iia);
+    @Produces(MediaType.APPLICATION_JSON)
+    public javax.ws.rs.core.Response shadowDelete(@FormParam("iia_id") String iiaId, @FormParam("force") Boolean force) {
+        if (iiaId == null || iiaId.isEmpty()) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
 
-        return Response.ok(response).build();
+        Iia iia = iiasEJB.findById(iiaId);
+
+        if (iia == null) {
+            return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        if ((force != null && !force )&& iiasEJB.findApprovedVersion(iiaId) != null) {
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity("The IIA is approved").build();
+        }
+
+        iiasEJB.deleteIia(iia);
+
+        return javax.ws.rs.core.Response.ok().build();
     }
 
     @POST
