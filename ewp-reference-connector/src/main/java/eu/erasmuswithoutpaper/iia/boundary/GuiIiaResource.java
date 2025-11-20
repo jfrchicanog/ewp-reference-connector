@@ -1968,6 +1968,61 @@ public class GuiIiaResource {
         return javax.ws.rs.core.Response.ok().build();
     }
 
+    @GET
+    @Path("getDuplicatedId")
+    @InternalAuthenticate
+    public javax.ws.rs.core.Response getDuplicatedId() {
+        List<Iia> iias = iiasEJB.findAllNoneApproved();
+
+        String localHeiId = iiasEJB.getHeiId();
+        Map<String, Map<String, List<String>>> counts = new HashMap<>();
+
+        for (Iia iia : iias) {
+            IiaPartner partner = null;
+            if (iia.getCooperationConditions() != null) {
+                for (CooperationCondition condition : iia.getCooperationConditions()) {
+                    if (condition.getSendingPartner().getInstitutionId() != null
+                            && !condition.getSendingPartner().getInstitutionId().equals(localHeiId)) {
+                        partner = condition.getSendingPartner();
+                    }
+                    if (condition.getReceivingPartner().getInstitutionId() != null
+                            && !condition.getReceivingPartner().getInstitutionId().equals(localHeiId)) {
+                        partner = condition.getReceivingPartner();
+                    }
+                }
+            }
+
+            if (partner != null) {
+                if (!counts.containsKey(partner.getInstitutionId())) {
+                    Map<String, List<String>> iiaList = new HashMap<>();
+                    List<String> iiaIds = new ArrayList<>();
+                    iiaIds.add(iia.getId());
+                    iiaList.put(partner.getIiaId(), iiaIds);
+                    counts.put(partner.getInstitutionId(), iiaList);
+                } else {
+                    Map<String, List<String>> iiaList = counts.get(partner.getInstitutionId());
+                    if (iiaList.containsKey(partner.getIiaId())) {
+                        iiaList.get(partner.getIiaId()).add(iia.getId());
+                    } else {
+                        List<String> iiaIds = new ArrayList<>();
+                        iiaIds.add(iia.getId());
+                        iiaList.put(partner.getIiaId(), iiaIds);
+                    }
+
+                }
+            }
+        }
+
+        //filter only duplicated
+        counts.entrySet().removeIf(entry -> {
+            Map<String, List<String>> iiaMap = entry.getValue();
+            iiaMap.entrySet().removeIf(e -> e.getValue().size() < 2);
+            return iiaMap.isEmpty();
+        });
+
+        return javax.ws.rs.core.Response.ok(counts).build();
+    }
+
     @POST
     @Path("massiveHashRecalc/start")
     @InternalAuthenticate
