@@ -2017,12 +2017,12 @@ public class GuiIiaResource {
         counts.entrySet().removeIf(entry -> {
             Map<String, List<String>> iiaMap = entry.getValue();
             iiaMap.entrySet().removeIf(e -> e.getValue().size() < 2);
-            iiaMap.entrySet().removeIf(e -> e.getKey() == null || e.getKey().isEmpty() || e.getKey().equalsIgnoreCase("null"));
+            iiaMap.entrySet().removeIf(e -> {
+                String k = e.getKey();
+                return k == null || k.trim().isEmpty() || k.trim().equalsIgnoreCase("null");
+            });
             return iiaMap.isEmpty();
         });
-
-        //filter main map if empty
-        counts.entrySet().removeIf(entry -> entry.getValue().isEmpty());
 
         return javax.ws.rs.core.Response.ok(counts).build();
     }
