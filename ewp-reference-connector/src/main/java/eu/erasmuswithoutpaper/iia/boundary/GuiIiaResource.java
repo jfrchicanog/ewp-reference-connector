@@ -2,15 +2,11 @@ package eu.erasmuswithoutpaper.iia.boundary;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.security.MessageDigest;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -27,8 +23,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import eu.erasmuswithoutpaper.api.iias.endpoints.IiasIndexResponse;
-import eu.erasmuswithoutpaper.api.iias.endpoints.StudentStudiesMobilitySpec;
-import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
 import eu.erasmuswithoutpaper.common.control.*;
 import eu.erasmuswithoutpaper.iia.approval.entity.IiaApproval;
 import eu.erasmuswithoutpaper.iia.common.IiaTaskEnum;
@@ -40,9 +34,6 @@ import eu.erasmuswithoutpaper.iia.entity.*;
 import eu.erasmuswithoutpaper.iia.job.HashRecalcJob;
 import eu.erasmuswithoutpaper.iia.job.JobInfo;
 import eu.erasmuswithoutpaper.iia.job.JobRegistry;
-import eu.erasmuswithoutpaper.omobility.las.entity.OlearningAgreement;
-import eu.erasmuswithoutpaper.organization.entity.Contact;
-import eu.erasmuswithoutpaper.organization.entity.LanguageItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -2022,6 +2013,30 @@ public class GuiIiaResource {
                 return k == null || k.trim().isEmpty() || k.trim().equalsIgnoreCase("null");
             });
             return iiaMap.isEmpty();
+        });
+
+        //iterate for each send get to partener
+        counts.forEach((partnerHeiId, iiaMap) -> {
+            iiaMap.forEach((partnerIiaId, ourIiaIds) -> {
+                //send get to partnerHeiId with partnerIiaId
+                IiasGetResponse.Iia remoteIia = sendGet(partnerHeiId, partnerIiaId);
+                if (remoteIia != null) {
+                    AtomicReference<String> ourIdFromPartner = new AtomicReference<>();
+                    remoteIia.getPartner().forEach(p -> {
+                        if (p.getHeiId().equals(localHeiId)) {
+                            ourIdFromPartner.set(p.getIiaId());
+                        }
+                    });
+                    //mark the correct one with an *
+                    if (ourIdFromPartner.get() != null) {
+                        ourIiaIds.forEach(ourIiaId -> {
+                            if (ourIiaId.equals(ourIdFromPartner.get())) {
+                                ourIiaIds.set(ourIiaIds.indexOf(ourIiaId), ourIiaId + "*");
+                            }
+                        });
+                    }
+                }
+            });
         });
 
         return javax.ws.rs.core.Response.ok(counts).build();
