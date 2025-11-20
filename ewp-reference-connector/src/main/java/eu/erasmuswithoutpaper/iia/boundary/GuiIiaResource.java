@@ -2013,12 +2013,16 @@ public class GuiIiaResource {
             }
         }
 
-        //filter only duplicated
+        //filter only duplicated or if key is null
         counts.entrySet().removeIf(entry -> {
             Map<String, List<String>> iiaMap = entry.getValue();
             iiaMap.entrySet().removeIf(e -> e.getValue().size() < 2);
+            iiaMap.entrySet().removeIf(e -> e.getKey() == null || e.getKey().isEmpty() || e.getKey().equalsIgnoreCase("null"));
             return iiaMap.isEmpty();
         });
+
+        //filter main map if empty
+        counts.entrySet().removeIf(entry -> entry.getValue().isEmpty());
 
         return javax.ws.rs.core.Response.ok(counts).build();
     }
