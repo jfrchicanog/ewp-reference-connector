@@ -2019,22 +2019,26 @@ public class GuiIiaResource {
         counts.forEach((partnerHeiId, iiaMap) -> {
             iiaMap.forEach((partnerIiaId, ourIiaIds) -> {
                 //send get to partnerHeiId with partnerIiaId
-                IiasGetResponse.Iia remoteIia = sendGet(partnerHeiId, partnerIiaId);
-                if (remoteIia != null) {
-                    AtomicReference<String> ourIdFromPartner = new AtomicReference<>();
-                    remoteIia.getPartner().forEach(p -> {
-                        if (p.getHeiId().equals(localHeiId)) {
-                            ourIdFromPartner.set(p.getIiaId());
-                        }
-                    });
-                    //mark the correct one with an *
-                    if (ourIdFromPartner.get() != null) {
-                        ourIiaIds.forEach(ourIiaId -> {
-                            if (ourIiaId.equals(ourIdFromPartner.get())) {
-                                ourIiaIds.set(ourIiaIds.indexOf(ourIiaId), ourIiaId + "*");
+                try {
+                    IiasGetResponse.Iia remoteIia = sendGet(partnerHeiId, partnerIiaId);
+                    if (remoteIia != null) {
+                        AtomicReference<String> ourIdFromPartner = new AtomicReference<>();
+                        remoteIia.getPartner().forEach(p -> {
+                            if (p.getHeiId().equals(localHeiId)) {
+                                ourIdFromPartner.set(p.getIiaId());
                             }
                         });
+                        //mark the correct one with an *
+                        if (ourIdFromPartner.get() != null) {
+                            ourIiaIds.forEach(ourIiaId -> {
+                                if (ourIiaId.equals(ourIdFromPartner.get())) {
+                                    ourIiaIds.set(ourIiaIds.indexOf(ourIiaId), ourIiaId + "*");
+                                }
+                            });
+                        }
                     }
+                } catch (Exception e) {
+                    logger.error("Error fetching remote IIA for partnerHeiId: " + partnerHeiId + " and partnerIiaId: " + partnerIiaId, e);
                 }
             });
         });
