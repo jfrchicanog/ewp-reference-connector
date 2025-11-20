@@ -203,7 +203,7 @@ public class AuxIiaThread {
             });*/
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
             String json = ow.writeValueAsString(sendIia);
-            execNotificationToAlgoria("NEW IIA FORM " + heiId + " WITH PARTNER ID " + iiaId, heiId, IiaTaskEnum.CREATED, json);
+            execNotificationToAlgoria("PROV_" + UUID.randomUUID(), heiId, IiaTaskEnum.CREATED, json);
         } else {
             LOG.fine("AuxIiaThread_ADDEDIT: Found existing iia");
             if (localIia.getHashPartner() == null) {
