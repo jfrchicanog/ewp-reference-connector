@@ -165,7 +165,7 @@ public class AuxIiaThread {
         }
 
         if (localIia == null) {
-            Iia newIia = new Iia();
+            /*Iia newIia = new Iia();
             iiaConverter.convertToIia(sendIia, newIia, iiasEJB.findAllInstitutions());
 
             LOG.fine("AuxIiaThread_ADDEDIT: Iia convertsed with conditions: " + newIia.getCooperationConditions().size());
@@ -200,7 +200,10 @@ public class AuxIiaThread {
                 ClientResponse cnrResponse = notifyPartner(heiId, newIia.getId());
 
                 LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse != null ? cnrResponse.getStatusCode() : "NULL"));
-            });
+            });*/
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = ow.writeValueAsString(sendIia);
+            execNotificationToAlgoria("NEW IIA FORM " + heiId + " WITH PARTNER ID " + iiaId, heiId, IiaTaskEnum.CREATED, json);
         } else {
             LOG.fine("AuxIiaThread_ADDEDIT: Found existing iia");
             if (localIia.getHashPartner() == null) {
