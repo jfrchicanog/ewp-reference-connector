@@ -31,9 +31,7 @@ import eu.erasmuswithoutpaper.iia.control.HashCalculationUtility;
 import eu.erasmuswithoutpaper.iia.control.IiasEJB;
 import eu.erasmuswithoutpaper.iia.dto.ApprovedHashesDto;
 import eu.erasmuswithoutpaper.iia.entity.*;
-import eu.erasmuswithoutpaper.iia.job.HashRecalcJob;
-import eu.erasmuswithoutpaper.iia.job.JobInfo;
-import eu.erasmuswithoutpaper.iia.job.JobRegistry;
+import eu.erasmuswithoutpaper.iia.job.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +57,8 @@ public class GuiIiaResource {
     JobRegistry jobs;
     @EJB
     HashRecalcJob job;
+    @EJB
+    GetDupeJob dupeJob;
 
     @Inject
     RegistryClient registryClient;
@@ -2075,6 +2075,38 @@ public class GuiIiaResource {
         return Response.ok(new SimpleJobResponse(jobId, "canceled")).build();
     }
 
+    @POST
+    @Path("getDuplicatedId/start")
+    @InternalAuthenticate
+    public Response startgetDuplicatedId(@Context UriInfo uriInfo) {
+        String jobId = jobs.createJob(0);
+        dupeJob.run(jobId, registryClient, restClient);
+        URI location = uriInfo.getAbsolutePathBuilder().path(jobId).build();
+        return Response.accepted(new SimpleJobResponse(jobId, "accepted"))
+                .location(location)
+                .build();
+    }
+
+    @GET
+    @Path("getDuplicatedId/status/{jobId}")
+    public Response statusgetDuplicatedId(@PathParam("jobId") String jobId) {
+        JobInfo info = jobs.get(jobId);
+        if (info == null) return Response.status(Response.Status.NOT_FOUND).build();
+        if (info.status == JobStatus.COMPLETED) {
+            return Response.ok(new StatusDto(jobId, info, dupeJob.getCounts())).build();
+        }
+        return Response.ok(new StatusDto(jobId, info)).build();
+    }
+
+    @POST
+    @Path("getDuplicatedId/cancel/{jobId}")
+    public Response cancelgetDuplicatedId(@PathParam("jobId") String jobId) {
+        JobInfo info = jobs.get(jobId);
+        if (info == null) return Response.status(Response.Status.NOT_FOUND).build();
+        jobs.cancel(jobId);
+        return Response.ok(new SimpleJobResponse(jobId, "canceled")).build();
+    }
+
     // DTOs
     public static class SimpleJobResponse {
         public String jobId;
@@ -2094,6 +2126,7 @@ public class GuiIiaResource {
         public String error;
         public Long startedAt;
         public Long finishedAt;
+        public Object result;
 
         public StatusDto(String id, JobInfo i) {
             jobId = id;
@@ -2103,6 +2136,17 @@ public class GuiIiaResource {
             error = i.error;
             startedAt = i.startedAt;
             finishedAt = i.finishedAt;
+        }
+
+        public StatusDto(String id, JobInfo i, Object result) {
+            jobId = id;
+            status = i.status.name();
+            total = i.total;
+            processed = i.processed;
+            error = i.error;
+            startedAt = i.startedAt;
+            finishedAt = i.finishedAt;
+            this.result = result;
         }
     }
 }
