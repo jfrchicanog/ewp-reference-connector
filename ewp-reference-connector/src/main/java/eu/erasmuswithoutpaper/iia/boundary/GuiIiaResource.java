@@ -526,6 +526,11 @@ public class GuiIiaResource {
             }
         }
 
+        if (heiId == null || heiId.isEmpty() || partnerId == null || partnerId.isEmpty()) {
+            LOG.fine("iias: Could not determine heiId or partnerId for IIA: " + iiaId);
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity("Could not determine heiId or partnerId for IIA: " + iiaId).build();
+        }
+
         LOG.fine("iias: heiId: " + heiId + ", partnerId: " + partnerId);
 
 
