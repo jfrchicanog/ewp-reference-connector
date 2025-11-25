@@ -557,6 +557,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
     }
 
     private String processAcademicYearId(String receivingAcademicYearId) {
+        LOG.fine("processAcademicYearId: Processing academic year id: " + (receivingAcademicYearId == null ? "null" : receivingAcademicYearId));
         try {
             if (receivingAcademicYearId == null || receivingAcademicYearId.isEmpty()) {
                 return null;
