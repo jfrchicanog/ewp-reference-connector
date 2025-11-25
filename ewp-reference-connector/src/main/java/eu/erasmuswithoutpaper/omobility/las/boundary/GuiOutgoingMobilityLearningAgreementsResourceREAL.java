@@ -495,7 +495,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
     @GET
     @Path("index-partner")
-    public Response indexPartner(@QueryParam("sending_hei_id") String sending_hei_id, @QueryParam("receiving_hei_id") String receiving_hei_id, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id ) {
+    public Response indexPartner(@QueryParam("sending_hei_id") String sending_hei_id, @QueryParam("receiving_hei_id") String receiving_hei_id, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id) {
         LOG.fine("index-partner: Hei searched: " + sending_hei_id);
 
         Map<String, String> heiUrls = registryClient.getOmobilityLasHeiUrls(sending_hei_id);
