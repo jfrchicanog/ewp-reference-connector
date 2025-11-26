@@ -69,6 +69,13 @@ public class IiasEJB {
             }
         }
 
+        Iia approvedVersion = findApprovedVersion(iia.getId());
+        if (approvedVersion != null) {
+            deleteAssociatedIiaApprovals(approvedVersion.getId());
+            em.remove(approvedVersion);
+            em.flush();
+        }
+
         Iia iiaInternal = em.find(Iia.class, iia.getId());
         if (iiaInternal != null) {
             em.remove(iiaInternal);

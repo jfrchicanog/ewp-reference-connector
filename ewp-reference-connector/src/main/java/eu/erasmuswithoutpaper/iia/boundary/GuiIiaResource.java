@@ -1955,7 +1955,7 @@ public class GuiIiaResource {
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        if ((force != null && !force )&& iiasEJB.findApprovedVersion(iiaId) != null) {
+        if (!Boolean.TRUE.equals(force)  && iiasEJB.findApprovedVersion(iiaId) != null) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity("The IIA is approved").build();
         }
 
