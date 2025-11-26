@@ -488,7 +488,7 @@ public class GuiIiaResource {
     @Produces(MediaType.APPLICATION_JSON)
     public javax.ws.rs.core.Response iias(@QueryParam("iiaId") String iiaId, @QueryParam("type") String type, @QueryParam("heiId") String partnerHiid, @QueryParam("partnerId") String partnerIdParam) {
         Iia iia = null;
-        if (iiaId == null || iiaId.isEmpty()) {
+        if (iiaId != null && !iiaId.isEmpty()) {
             LOG.fine("iias: IIA searched: " + iiaId);
             iia = iiasEJB.findById(iiaId);
         } else if (partnerIdParam != null && !partnerIdParam.isEmpty() && partnerHiid != null && !partnerHiid.isEmpty()) {
