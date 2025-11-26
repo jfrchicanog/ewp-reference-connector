@@ -1944,7 +1944,7 @@ public class GuiIiaResource {
     @Path("shadow-delete")
     @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response shadowDelete(@FormParam("iia_id") String iiaId, @FormParam("force") Boolean force) {
+    public javax.ws.rs.core.Response shadowDelete(@QueryParam("iia_id") String iiaId, @QueryParam("force") Boolean force) {
         if (iiaId == null || iiaId.isEmpty()) {
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
         }
