@@ -486,17 +486,25 @@ public class GuiIiaResource {
     @Path("iias")
     @InternalAuthenticate
     @Produces(MediaType.APPLICATION_JSON)
-    public javax.ws.rs.core.Response iias(@QueryParam("iiaId") String iiaId, @QueryParam("type") String type) {
-        LOG.fine("iias: IIA searched: " + iiaId);
-
+    public javax.ws.rs.core.Response iias(@QueryParam("iiaId") String iiaId, @QueryParam("type") String type, @QueryParam("heiId") String partnerHiid, @QueryParam("partnerId") String partnerIdParam) {
+        Iia iia = null;
         if (iiaId == null || iiaId.isEmpty()) {
-            LOG.fine("iias: IIA ID is empty");
-            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+            LOG.fine("iias: IIA searched: " + iiaId);
+            iia = iiasEJB.findById(iiaId);
+        } else if (partnerIdParam != null && !partnerIdParam.isEmpty() && partnerHiid != null && !partnerHiid.isEmpty()) {
+            LOG.fine("iias: IIA searched by partnerId: " + partnerIdParam);
+            List<Iia> iiaList = iiasEJB.getByPartnerId(partnerHiid, partnerIdParam);
+            if (iiaList != null && !iiaList.isEmpty()) {
+                iia = iiaList.get(0);
+            }
+            iiaId = (iia != null) ? iia.getId() : null;
+        } else {
+            LOG.fine("iias: Missing parameters to search IIA");
+            return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).entity("Missing parameters to search IIA").build();
         }
 
         String localHeiId = iiasEJB.getHeiId();
 
-        Iia iia = iiasEJB.findById(iiaId);
         if (iia == null) {
             LOG.fine("iias: IIA not found: " + iiaId);
             return javax.ws.rs.core.Response.status(Response.Status.NOT_FOUND).build();
