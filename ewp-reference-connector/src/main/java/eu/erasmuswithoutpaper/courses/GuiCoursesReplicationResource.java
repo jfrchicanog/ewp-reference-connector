@@ -21,6 +21,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +92,15 @@ public class GuiCoursesReplicationResource {
         queryParams.put("mode", "LOS");
         queryParams.put("max_elements", "9000");
         if (modified_since != null && !modified_since.isEmpty()) {
-            queryParams.put("modified_since", modified_since.get(0).substring(0, 10));
+            String input = modified_since.get(0);
+
+            // Parse full xs:dateTime, e.g. 2004-02-12T15:19:21+01:00
+            OffsetDateTime odt = OffsetDateTime.parse(input);
+
+            // Extract date in yyyy-MM-dd
+            String dateOnly = odt.toLocalDate().toString();
+
+            queryParams.put("lois_after", dateOnly);
         }
         try {
             Response resp = AlgoriaTaskService.sendGetRequest(
