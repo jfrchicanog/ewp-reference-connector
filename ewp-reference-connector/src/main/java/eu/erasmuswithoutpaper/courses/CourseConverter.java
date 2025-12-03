@@ -1,0 +1,118 @@
+package eu.erasmuswithoutpaper.courses;
+
+import eu.erasmuswithoutpaper.api.architecture.StringWithOptionalLang;
+import eu.erasmuswithoutpaper.api.types.academicterm.AcademicTerm;
+import eu.erasmuswithoutpaper.courses.dto.AlgoriaLOIApiResponse;
+import eu.erasmuswithoutpaper.courses.dto.AlgoriaLOPKApiResponse;
+import https.github_com.erasmus_without_paper.ewp_specs_api_courses.tree.stable_v1.CoursesResponse;
+
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class CourseConverter {
+
+    public static CoursesResponse.LearningOpportunitySpecification convert(AlgoriaLOPKApiResponse algoriaLOApiResponse) {
+        if (algoriaLOApiResponse == null) {
+            return null;
+        }
+        CoursesResponse.LearningOpportunitySpecification los = new CoursesResponse.LearningOpportunitySpecification();
+        los.setLosId(algoriaLOApiResponse.getElement().getLos_id());
+        los.setLosCode(algoriaLOApiResponse.getElement().getLos_code());
+        los.setOunitId(algoriaLOApiResponse.getElement().getOrganizational_unit_id());
+        los.getTitle().addAll(algoriaLOApiResponse.getElement().getTitle().stream().map(title -> {
+            StringWithOptionalLang t = new StringWithOptionalLang();
+            t.setLang(title.getLang());
+            t.setValue(title.getValue());
+            return t;
+        }).collect(Collectors.toList()));
+        los.setType(algoriaLOApiResponse.getElement().getType());
+
+        los.setContains(convert(algoriaLOApiResponse.getElement().getChildren_los()));
+        return los;
+    }
+
+    private static CoursesResponse.LearningOpportunitySpecification.Contains convert(List<String> childrenLos) {
+        if (childrenLos == null || childrenLos.isEmpty()) {
+            return null;
+        }
+        CoursesResponse.LearningOpportunitySpecification.Contains contains = new CoursesResponse.LearningOpportunitySpecification.Contains();
+        contains.getLosId().addAll(childrenLos);
+        return contains;
+    }
+
+    public static CoursesResponse.LearningOpportunitySpecification.Specifies convert(AlgoriaLOIApiResponse learningOutcome) {
+        if (learningOutcome == null) {
+            return null;
+        }
+
+
+        CoursesResponse.LearningOpportunitySpecification.Specifies specifies = new CoursesResponse.LearningOpportunitySpecification.Specifies();
+        specifies.getLearningOpportunityInstance().addAll(learningOutcome.getElements().stream().map(loi -> {
+            CoursesResponse.LearningOpportunitySpecification.Specifies.LearningOpportunityInstance loiInstance = new CoursesResponse.LearningOpportunitySpecification.Specifies.LearningOpportunityInstance();
+            loiInstance.setLoiId(loi.getLoi_id());
+            if(loi.getAcademic_term() != null) {
+                loiInstance.setStart(toXMLGregorianCalendar(loi.getAcademic_term().getStart_date()));
+                loiInstance.setEnd(toXMLGregorianCalendar(loi.getAcademic_term().getEnd_date()));
+                loiInstance.setAcademicTerm(convert(loi.getAcademic_term()));
+            }
+            if(loi.getEcts_credits() != null) {
+                CoursesResponse.LearningOpportunitySpecification.Specifies.LearningOpportunityInstance.Credit credit = new CoursesResponse.LearningOpportunitySpecification.Specifies.LearningOpportunityInstance.Credit();
+                credit.setScheme("ects");
+                credit.setValue(loi.getEcts_credits());
+
+                loiInstance.getCredit().add(credit);
+            }
+            if(loi.getLanguage_of_instruction() != null) {
+                //serch english language if exists if not take first one
+                String languageValue = loi.getLanguage_of_instruction().stream()
+                        .filter(lang -> "en".equalsIgnoreCase(lang.getLang()))
+                        .findFirst()
+                        .orElse(loi.getLanguage_of_instruction().get(0))
+                        .getValue();
+                loiInstance.setLanguageOfInstruction(languageValue);
+            }
+
+
+
+            return loiInstance;
+        }).collect(Collectors.toList()));
+
+        return specifies;
+    }
+
+    private static AcademicTerm convert(AlgoriaLOIApiResponse.AcademicTermLOI academicTerm) {
+        if (academicTerm == null) {
+            return null;
+        }
+        AcademicTerm at = new AcademicTerm();
+        at.setAcademicYearId(academicTerm.getAcademic_year_id());
+        at.getDisplayName().addAll(academicTerm.getDisplay_name().stream().map(name -> {
+            StringWithOptionalLang t = new StringWithOptionalLang();
+            t.setLang(name.getLang());
+            t.setValue(name.getValue());
+            return t;
+        }).collect(Collectors.toList()));
+        at.setStartDate(toXMLGregorianCalendar(academicTerm.getStart_date()));
+        at.setEndDate(toXMLGregorianCalendar(academicTerm.getEnd_date()));
+
+        return at;
+    }
+
+    public static XMLGregorianCalendar toXMLGregorianCalendar(Date date) {
+        if (date == null) {
+            return null;
+        }
+        GregorianCalendar gc = new GregorianCalendar();
+        gc.setTime(date);
+        try {
+            return DatatypeFactory.newInstance().newXMLGregorianCalendar(gc);
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting Date to XMLGregorianCalendar", e);
+        }
+    }
+
+}
