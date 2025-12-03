@@ -287,6 +287,13 @@ public class AlgoriaTaskService {
         logger.info("ALGORIA URL: " + url);
         logger.info("ALGORIA TOKEN: " + token);
 
+        //log query params in formatted way
+        StringBuilder paramsLog = new StringBuilder();
+        for (Map.Entry<String, String> entry : urlParams.entrySet()) {
+            paramsLog.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+        }
+        logger.info("ALGORIA URL PARAMS: " + paramsLog.toString());
+
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         WebTarget target = clientBuilder.build().target(url);
 
