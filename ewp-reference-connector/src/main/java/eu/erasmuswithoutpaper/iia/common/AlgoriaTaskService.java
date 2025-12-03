@@ -284,6 +284,8 @@ public class AlgoriaTaskService {
                 break;
         }
 
+        logger.info("ALGORIA URL: " + url);
+        logger.info("ALGORIA TOKEN: " + token);
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         WebTarget target = clientBuilder.build().target(url);
