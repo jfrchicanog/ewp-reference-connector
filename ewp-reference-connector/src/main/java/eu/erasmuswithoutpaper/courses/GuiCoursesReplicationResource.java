@@ -88,6 +88,8 @@ public class GuiCoursesReplicationResource {
 
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("hei_id", hei_id);
+        queryParams.put("mode", "LOS");
+        queryParams.put("max_elements", "9000");
         if (modified_since != null && !modified_since.isEmpty()) {
             queryParams.put("modified_since", modified_since.get(0).substring(0, 10));
         }
