@@ -302,7 +302,7 @@ public class AlgoriaTaskService {
         logger.info("ALGORIA URL PARAMS: " + paramsLog.toString());
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        WebTarget target = clientBuilder.build().target(url);
+        WebTarget target = clientBuilder.build().target(url.trim());
 
         for (Map.Entry<String, String> entry : urlParams.entrySet()) {
             target = target.queryParam(entry.getKey(), entry.getValue());
