@@ -105,7 +105,7 @@ public class CoursesResourceReplication {
                 throw new EwpWebApplicationException("Error fetching data: " + resp.getStatusInfo().toString(), Response.Status.INTERNAL_SERVER_ERROR);
             }
             AlgoriaLOApiResponse apiResponse = resp.readEntity(AlgoriaLOApiResponse.class);
-            response.getLosId().addAll(apiResponse.getElements().stream().map(AlgoriaLOApiResponse.AlgoriaLOElement::getLosId).collect(Collectors.toList()));
+            response.getLosId().addAll(apiResponse.getElements().stream().map(AlgoriaLOApiResponse.AlgoriaLOElement::getLos_id).collect(Collectors.toList()));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             throw new EwpWebApplicationException("Error fetching data: " + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);

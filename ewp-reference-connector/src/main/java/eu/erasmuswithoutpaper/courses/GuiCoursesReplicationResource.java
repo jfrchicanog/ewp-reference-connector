@@ -126,7 +126,7 @@ public class GuiCoursesReplicationResource {
             }
             AlgoriaLOApiResponse apiResponse = resp.readEntity(AlgoriaLOApiResponse.class);
             LOG.fine("own: Fetched " + apiResponse.getElements().size() + " learning outcomes from Algoria.");
-            response.getLosId().addAll(apiResponse.getElements().stream().map(AlgoriaLOApiResponse.AlgoriaLOElement::getLosId).collect(Collectors.toList()));
+            response.getLosId().addAll(apiResponse.getElements().stream().map(AlgoriaLOApiResponse.AlgoriaLOElement::getLos_id).collect(Collectors.toList()));
         } catch (JsonProcessingException e) {
             throw new EwpWebApplicationException("Error fetching data: " + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
         }

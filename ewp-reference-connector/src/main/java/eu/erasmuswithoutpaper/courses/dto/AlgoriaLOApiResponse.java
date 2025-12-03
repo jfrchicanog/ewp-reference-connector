@@ -16,16 +16,12 @@ public class AlgoriaLOApiResponse {
 
     public static class AlgoriaLOElement {
         private long id;
-        @JsonProperty("los_id")
-        private String losId;
-        @JsonProperty("los_code")
-        private String losCode;
+        private String los_id;
+        private String los_code;
         private List<AlgoriaLOTitle> title;
         private String type;
-        @JsonProperty("organizational_unit_id")
-        private String organizationalUnitId;
-        @JsonProperty("children_los")
-        private List<String> childrenLos;
+        private String organizational_unit_id;
+        private List<String> children_los;
 
         public long getId() {
             return id;
@@ -35,20 +31,20 @@ public class AlgoriaLOApiResponse {
             this.id = id;
         }
 
-        public String getLosId() {
-            return losId;
+        public String getLos_id() {
+            return los_id;
         }
 
-        public void setLosId(String losId) {
-            this.losId = losId;
+        public void setLos_id(String los_id) {
+            this.los_id = los_id;
         }
 
-        public String getLosCode() {
-            return losCode;
+        public String getLos_code() {
+            return los_code;
         }
 
-        public void setLosCode(String losCode) {
-            this.losCode = losCode;
+        public void setLos_code(String los_code) {
+            this.los_code = los_code;
         }
 
         public List<AlgoriaLOTitle> getTitle() {
@@ -67,20 +63,20 @@ public class AlgoriaLOApiResponse {
             this.type = type;
         }
 
-        public String getOrganizationalUnitId() {
-            return organizationalUnitId;
+        public String getOrganizational_unit_id() {
+            return organizational_unit_id;
         }
 
-        public void setOrganizationalUnitId(String organizationalUnitId) {
-            this.organizationalUnitId = organizationalUnitId;
+        public void setOrganizational_unit_id(String organizational_unit_id) {
+            this.organizational_unit_id = organizational_unit_id;
         }
 
-        public List<String> getChildrenLos() {
-            return childrenLos;
+        public List<String> getChildren_los() {
+            return children_los;
         }
 
-        public void setChildrenLos(List<String> childrenLos) {
-            this.childrenLos = childrenLos;
+        public void setChildren_los(List<String> children_los) {
+            this.children_los = children_los;
         }
     }
 
