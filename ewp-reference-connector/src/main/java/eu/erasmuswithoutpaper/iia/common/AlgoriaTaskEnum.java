@@ -8,5 +8,6 @@ public enum AlgoriaTaskEnum {
     DELETED,
     REVERTED,
     TERMINATED,
-    GET_LIST
+    GET_LIST,
+    GET_DETAILS
 }

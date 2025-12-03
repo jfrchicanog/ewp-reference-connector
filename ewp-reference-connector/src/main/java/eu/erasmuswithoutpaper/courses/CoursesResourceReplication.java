@@ -93,7 +93,7 @@ public class CoursesResourceReplication {
         CourseReplicationResponse response = new CourseReplicationResponse();
 
         Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("hei_id", hei_id);
+        queryParams.put("hei_id", "uma.es");
         queryParams.put("mode", "LOS");
         queryParams.put("max_elements", "9000");
         if (modified_since != null && !modified_since.isEmpty()) {

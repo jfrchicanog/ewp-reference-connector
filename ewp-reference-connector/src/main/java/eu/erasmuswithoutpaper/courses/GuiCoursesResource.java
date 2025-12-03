@@ -1,5 +1,7 @@
 package eu.erasmuswithoutpaper.courses;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import eu.erasmuswithoutpaper.api.courses.replication.CourseReplicationResponse;
 import eu.erasmuswithoutpaper.api.iias.approval.IiasApprovalResponse;
 import eu.erasmuswithoutpaper.common.boundary.ClientRequest;
 import eu.erasmuswithoutpaper.common.boundary.ClientResponse;
@@ -7,17 +9,25 @@ import eu.erasmuswithoutpaper.common.boundary.HttpMethodEnum;
 import eu.erasmuswithoutpaper.common.boundary.ParamsClass;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.common.control.RestClient;
+import eu.erasmuswithoutpaper.courses.dto.AlgoriaLOApiResponse;
+import eu.erasmuswithoutpaper.courses.dto.AlgoriaLOIApiResponse;
+import eu.erasmuswithoutpaper.courses.dto.AlgoriaLOPKApiResponse;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
+import eu.erasmuswithoutpaper.iia.common.AlgoriaTaskEnum;
+import eu.erasmuswithoutpaper.iia.common.AlgoriaTaskService;
+import eu.erasmuswithoutpaper.iia.common.AlgoriaTaskTypeEnum;
 import eu.erasmuswithoutpaper.monitoring.SendMonitoringService;
 import https.github_com.erasmus_without_paper.ewp_specs_api_courses.tree.stable_v1.CoursesResponse;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Path("courses")
 public class GuiCoursesResource {
@@ -96,6 +106,122 @@ public class GuiCoursesResource {
         }
 
         return Response.ok(responseEnity).build();
+    }
+
+    @GET
+    @Path("own")
+    @Produces("application/json")
+    public Response getIiaCoursesOwn(@QueryParam("heiId") String hei_id, @QueryParam("losId") List<String> los_ids,
+                                  @QueryParam("losCode") List<String> los_codes, @QueryParam("loisBefore") List<String> lois_before,
+                                  @QueryParam("loisAfter") List<String> lois_after, @QueryParam("losAtDate") List<String> los_at_date) {
+
+        String code = "";
+        if (los_ids != null && !los_ids.isEmpty()) {
+            code = los_ids.get(0);
+        } else if (los_codes != null && !los_codes.isEmpty()) {
+            code = los_codes.get(0);
+        }
+
+        LOG.fine("own: Params: " + hei_id + ", code: " + code);
+        CoursesResponse response = new CoursesResponse();
+
+        Map<String, String> queryParams = new HashMap<>();
+        try {
+            Response resp = AlgoriaTaskService.sendGetRequest(
+                    AlgoriaTaskTypeEnum.COURSES,
+                    AlgoriaTaskEnum.GET_DETAILS,
+                    queryParams,
+                    code
+            );
+
+            if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
+                String errorBody = null;
+                try {
+                    if (resp.hasEntity()) {
+                        errorBody = resp.readEntity(String.class);
+                    }
+                } catch (Exception e) {
+                    errorBody = "Failed to read error body: " + e.getMessage();
+                }
+
+                LOG.severe(String.format(
+                        "Error fetching data from Algoria. " +
+                                "Status: %d (%s), URL params: %s, Body: %s",
+                        resp.getStatus(),
+                        resp.getStatusInfo().getReasonPhrase(),
+                        queryParams,
+                        errorBody
+                ));
+
+                throw new EwpWebApplicationException(
+                        "Error fetching data from Algoria: " + resp.getStatus() + " " + resp.getStatusInfo().getReasonPhrase(),
+                        Response.Status.INTERNAL_SERVER_ERROR
+                );
+            }
+            AlgoriaLOPKApiResponse apiResponse = resp.readEntity(AlgoriaLOPKApiResponse.class);
+            LOG.fine("own: Fetched " + (apiResponse.getElement() != null ? "1" :  "0")  + " learning outcomes from Algoria.");
+            //log first element
+            if (apiResponse.getElement() != null) {
+                LOG.fine("own: First element: " + apiResponse.getElement().getLos_id());
+            }
+            CoursesResponse.LearningOpportunitySpecification los = CourseConverter.convert(apiResponse);
+
+            AlgoriaLOIApiResponse algoriaLOIApiResponse = getLoi(apiResponse.getElement().getLos_id());
+
+            los.setSpecifies(CourseConverter.convert(algoriaLOIApiResponse));
+            response.getLearningOpportunitySpecification().add(los);
+        } catch (JsonProcessingException e) {
+            throw new EwpWebApplicationException("Error fetching data: " + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+
+        return Response.ok(response).build();
+    }
+
+
+    private AlgoriaLOIApiResponse getLoi(String los_id) throws JsonProcessingException {
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("hei_id", "uma.es");
+        queryParams.put("mode", "LOI");
+        queryParams.put("max_elements", "9000");
+        queryParams.put("los_id", los_id);
+
+        Response resp = AlgoriaTaskService.sendGetRequest(
+                AlgoriaTaskTypeEnum.COURSES,
+                AlgoriaTaskEnum.GET_LIST,
+                queryParams
+        );
+
+        if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
+            String errorBody = null;
+            try {
+                if (resp.hasEntity()) {
+                    errorBody = resp.readEntity(String.class);
+                }
+            } catch (Exception e) {
+                errorBody = "Failed to read error body: " + e.getMessage();
+            }
+
+            LOG.severe(String.format(
+                    "Error fetching data from Algoria. " +
+                            "Status: %d (%s), URL params: %s, Body: %s",
+                    resp.getStatus(),
+                    resp.getStatusInfo().getReasonPhrase(),
+                    queryParams,
+                    errorBody
+            ));
+
+            throw new EwpWebApplicationException(
+                    "Error fetching data from Algoria: " + resp.getStatus() + " " + resp.getStatusInfo().getReasonPhrase(),
+                    Response.Status.INTERNAL_SERVER_ERROR
+            );
+        }
+        AlgoriaLOIApiResponse apiResponse = resp.readEntity(AlgoriaLOIApiResponse.class);
+        LOG.fine("own: Fetched " + apiResponse.getElements().size() + " learning outcomes from Algoria.");
+        //log first element
+        if (!apiResponse.getElements().isEmpty()) {
+            LOG.fine("own: First element: " + apiResponse.getElements().get(0).getLoi_id());
+        }
+        return apiResponse;
     }
 
 }

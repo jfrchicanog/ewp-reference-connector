@@ -264,6 +264,10 @@ public class AlgoriaTaskService {
     }
 
     public static Response sendGetRequest(AlgoriaTaskTypeEnum type, AlgoriaTaskEnum mode, Map<String, String> urlParams) throws JsonProcessingException {
+        return sendGetRequest(type, mode, urlParams, null);
+    }
+
+    public static Response sendGetRequest(AlgoriaTaskTypeEnum type, AlgoriaTaskEnum mode, Map<String, String> urlParams, String id) throws JsonProcessingException {
 
         String token = globalProperties.getAlgoriaAuthotizationToken();
 
@@ -275,6 +279,9 @@ public class AlgoriaTaskService {
                 switch (mode) {
                     case GET_LIST:
                         url = globalProperties.getAlgoriaGetCRListUrl();
+                        break;
+                    case GET_DETAILS:
+                        url = globalProperties.getAlgoriaGetCRListUrl() + id;
                         break;
                     default:
                         break;
