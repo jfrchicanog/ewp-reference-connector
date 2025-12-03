@@ -265,7 +265,8 @@ public class AlgoriaTaskService {
 
     public static Response sendGetRequest(AlgoriaTaskTypeEnum type, AlgoriaTaskEnum mode, Map<String, String> urlParams) throws JsonProcessingException {
 
-        String token = globalProperties.getAlgoriaAuthotizationToken();
+        String rawToken = globalProperties.getAlgoriaAuthotizationToken();
+        String token = rawToken.replaceFirst("^Token\\s+", "");
 
         String url = null;
         //switch case to evaluate the mode
