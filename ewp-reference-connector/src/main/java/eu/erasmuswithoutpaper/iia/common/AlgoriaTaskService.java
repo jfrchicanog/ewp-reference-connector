@@ -265,8 +265,7 @@ public class AlgoriaTaskService {
 
     public static Response sendGetRequest(AlgoriaTaskTypeEnum type, AlgoriaTaskEnum mode, Map<String, String> urlParams) throws JsonProcessingException {
 
-        String rawToken = globalProperties.getAlgoriaAuthotizationToken();
-        String token = rawToken.replaceFirst("^Token\\s+", "");
+        String token = globalProperties.getAlgoriaAuthotizationToken();
 
         String url = null;
         //switch case to evaluate the mode
@@ -294,7 +293,7 @@ public class AlgoriaTaskService {
         }
 
         Invocation.Builder builder = target.request()
-                .header("Algoria-Token", token);
+                .header("Authorization", token);
 
         // GET, no body
         return builder.get();
