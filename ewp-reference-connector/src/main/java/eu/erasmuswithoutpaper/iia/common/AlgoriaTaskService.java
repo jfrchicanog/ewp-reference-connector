@@ -281,7 +281,7 @@ public class AlgoriaTaskService {
                         url = globalProperties.getAlgoriaGetCRListUrl();
                         break;
                     case GET_DETAILS:
-                        url = globalProperties.getAlgoriaGetCRListUrl() + id;
+                        url = globalProperties.getAlgoriaGetCRListUrl() + id + "/";
                         break;
                     default:
                         break;
