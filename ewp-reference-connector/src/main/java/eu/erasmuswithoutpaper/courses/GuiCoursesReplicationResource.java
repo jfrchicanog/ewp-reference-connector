@@ -126,6 +126,10 @@ public class GuiCoursesReplicationResource {
             }
             AlgoriaLOApiResponse apiResponse = resp.readEntity(AlgoriaLOApiResponse.class);
             LOG.fine("own: Fetched " + apiResponse.getElements().size() + " learning outcomes from Algoria.");
+            //log first element
+            if (!apiResponse.getElements().isEmpty()) {
+                LOG.fine("own: First element: " + apiResponse.getElements().get(0).getLos_id());
+            }
             response.getLosId().addAll(apiResponse.getElements().stream().map(AlgoriaLOApiResponse.AlgoriaLOElement::getLos_id).collect(Collectors.toList()));
         } catch (JsonProcessingException e) {
             throw new EwpWebApplicationException("Error fetching data: " + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
