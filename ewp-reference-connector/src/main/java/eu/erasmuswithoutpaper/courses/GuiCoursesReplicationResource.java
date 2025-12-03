@@ -79,10 +79,11 @@ public class GuiCoursesReplicationResource {
         return Response.ok(responseEnity).build();
     }
 
-    @GET()
+    @GET
     @Path("own")
     @Produces("application/json")
     public Response getIiaCoursesOwn(@QueryParam("heiId") String hei_id, @QueryParam("modifiedSince") List<String> modified_since) {
+        LOG.fine("own: Params: " + modified_since);
         CourseReplicationResponse response = new CourseReplicationResponse();
 
         Map<String, String> queryParams = new HashMap<>();
