@@ -6,8 +6,10 @@ import eu.erasmuswithoutpaper.courses.dto.AlgoriaLOIApiResponse;
 import eu.erasmuswithoutpaper.courses.dto.AlgoriaLOPKApiResponse;
 import https.github_com.erasmus_without_paper.ewp_specs_api_courses.tree.stable_v1.CoursesResponse;
 
+import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -102,16 +104,26 @@ public class CourseConverter {
         return at;
     }
 
-    public static XMLGregorianCalendar toXMLGregorianCalendar(Date date) {
+    public static XMLGregorianCalendar toXMLGregorianCalendar(String date) {
         if (date == null) {
             return null;
         }
-        GregorianCalendar gc = new GregorianCalendar();
-        gc.setTime(date);
+
         try {
-            return DatatypeFactory.newInstance().newXMLGregorianCalendar(gc);
+            // Parse date string to LocalDate
+            LocalDate localDate = LocalDate.parse(date);
+
+            // Convert LocalDate → XMLGregorianCalendar
+            return DatatypeFactory.newInstance()
+                    .newXMLGregorianCalendarDate(
+                            localDate.getYear(),
+                            localDate.getMonthValue(),
+                            localDate.getDayOfMonth(),
+                            DatatypeConstants.FIELD_UNDEFINED // timezone not specified
+                    );
+
         } catch (Exception e) {
-            throw new RuntimeException("Error converting Date to XMLGregorianCalendar", e);
+            throw new RuntimeException("Error converting String to XMLGregorianCalendar", e);
         }
     }
 
