@@ -92,7 +92,7 @@ public class GuiCoursesReplicationResource {
             queryParams.put("modified_since", modified_since.get(0).substring(0, 10));
         }
         try {
-            Response resp = AlgoriaTaskService.sendRequest(AlgoriaTaskTypeEnum.COURSES, AlgoriaTaskEnum.GET_LIST, queryParams, new HashMap<>());
+            Response resp = AlgoriaTaskService.sendGetRequest(AlgoriaTaskTypeEnum.COURSES, AlgoriaTaskEnum.GET_LIST, queryParams);
             if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
                 LOG.fine("Error fetching data from Algoria: " + resp.getStatusInfo().toString());
                 throw new EwpWebApplicationException("Error fetching data: " + resp.getStatusInfo().toString(), Response.Status.INTERNAL_SERVER_ERROR);

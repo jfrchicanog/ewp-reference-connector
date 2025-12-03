@@ -263,18 +263,7 @@ public class AlgoriaTaskService {
         return Base64.getEncoder().encodeToString(output);
     }
 
-    public static Response sendRequest(AlgoriaTaskTypeEnum type, AlgoriaTaskEnum mode, Map<String, String> urlParams, Map<String, String> jsonParams) throws JsonProcessingException {
-
-        //Build the json string
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode node = mapper.createObjectNode();
-        for (Map.Entry<String, String> entry : jsonParams.entrySet()) {
-            node.put(entry.getKey(), entry.getValue());
-        }
-
-        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
-
-        logger.info("Created json! " + json);
+    public static Response sendGetRequest(AlgoriaTaskTypeEnum type, AlgoriaTaskEnum mode, Map<String, String> urlParams) throws JsonProcessingException {
 
         String token = globalProperties.getAlgoriaAuthotizationToken();
 
@@ -295,17 +284,20 @@ public class AlgoriaTaskService {
                 break;
         }
 
-        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
 
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         WebTarget target = clientBuilder.build().target(url);
+
         for (Map.Entry<String, String> entry : urlParams.entrySet()) {
             target = target.queryParam(entry.getKey(), entry.getValue());
         }
 
-        Invocation.Builder postBuilder = target.request().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_TYPE);
-        postBuilder = postBuilder.header("Authorization", token);
+        Invocation.Builder builder = target.request()
+                .header("Algoria-Token", token);
 
-        return postBuilder.post(Entity.json(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8)));
+        // GET, no body
+        return builder.get();
+
     }
 
 }
