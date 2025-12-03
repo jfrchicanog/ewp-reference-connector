@@ -41,7 +41,7 @@ public class CoursesResource {
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_XML)
-    @EwpAuthenticate
+    //@EwpAuthenticate
     public Response coursesGet(@QueryParam("hei_id") List<String> hei_ids, @QueryParam("los_id") List<String> los_ids,
                                @QueryParam("los_code") List<String> los_codes, @QueryParam("lois_before") List<String> lois_before,
                                @QueryParam("lois_after") List<String> lois_after, @QueryParam("los_at_date") List<String> los_at_date) {
@@ -51,7 +51,7 @@ public class CoursesResource {
     @POST
     @Path("")
     @Produces(MediaType.APPLICATION_XML)
-    @EwpAuthenticate
+    //@EwpAuthenticate
     public Response coursesPost(@FormParam("hei_id") List<String> hei_ids, @FormParam("los_id") List<String> los_ids,
                                 @FormParam("los_code") List<String> los_codes, @FormParam("lois_before") List<String> lois_before,
                                 @FormParam("lois_after") List<String> lois_after, @FormParam("los_at_date") List<String> los_at_date) {
@@ -99,6 +99,10 @@ public class CoursesResource {
         }
         if (los_at_date != null && los_at_date.size() > 1) {
             throw new EwpWebApplicationException("Too many los_at_date values. Max is 1", Response.Status.BAD_REQUEST);
+        }
+
+        if (los_ids != null && !los_ids.isEmpty() && los_codes != null && !los_codes.isEmpty()) {
+            throw new EwpWebApplicationException("Cannot provide both lois_before and lois_after parameters.", Response.Status.BAD_REQUEST);
         }
 
         CoursesResponse response = new CoursesResponse();
