@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,61 +116,64 @@ public class GuiCoursesResource {
                                   @QueryParam("losCode") List<String> los_codes, @QueryParam("loisBefore") List<String> lois_before,
                                   @QueryParam("loisAfter") List<String> lois_after, @QueryParam("losAtDate") List<String> los_at_date) {
 
-        String code = "";
+        List<String> codes = new ArrayList<>();
         if (los_ids != null && !los_ids.isEmpty()) {
-            code = los_ids.get(0);
+            codes = los_ids;
         } else if (los_codes != null && !los_codes.isEmpty()) {
-            code = los_codes.get(0);
+            codes = los_codes;
         }
 
-        LOG.fine("own: Params: " + hei_id + ", code: " + code);
+        LOG.fine("own: Params: " + hei_id + ", code: " + codes);
         CoursesResponse response = new CoursesResponse();
 
         Map<String, String> queryParams = new HashMap<>();
         try {
-            Response resp = AlgoriaTaskService.sendGetRequest(
-                    AlgoriaTaskTypeEnum.COURSES,
-                    AlgoriaTaskEnum.GET_DETAILS,
-                    queryParams,
-                    code
-            );
+            for (String code : codes) {
 
-            if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
-                String errorBody = null;
-                try {
-                    if (resp.hasEntity()) {
-                        errorBody = resp.readEntity(String.class);
-                    }
-                } catch (Exception e) {
-                    errorBody = "Failed to read error body: " + e.getMessage();
-                }
-
-                LOG.severe(String.format(
-                        "Error fetching data from Algoria. " +
-                                "Status: %d (%s), URL params: %s, Body: %s",
-                        resp.getStatus(),
-                        resp.getStatusInfo().getReasonPhrase(),
+                Response resp = AlgoriaTaskService.sendGetRequest(
+                        AlgoriaTaskTypeEnum.COURSES,
+                        AlgoriaTaskEnum.GET_DETAILS,
                         queryParams,
-                        errorBody
-                ));
-
-                throw new EwpWebApplicationException(
-                        "Error fetching data from Algoria: " + resp.getStatus() + " " + resp.getStatusInfo().getReasonPhrase(),
-                        Response.Status.INTERNAL_SERVER_ERROR
+                        code
                 );
-            }
-            AlgoriaLOPKApiResponse apiResponse = resp.readEntity(AlgoriaLOPKApiResponse.class);
-            LOG.fine("own: Fetched " + (apiResponse.getElement() != null ? "1" :  "0")  + " learning outcomes from Algoria.");
-            //log first element
-            if (apiResponse.getElement() != null) {
-                LOG.fine("own: First element: " + apiResponse.getElement().getLos_id());
-            }
-            CoursesResponse.LearningOpportunitySpecification los = CourseConverter.convert(apiResponse);
 
-            AlgoriaLOIApiResponse algoriaLOIApiResponse = getLoi(apiResponse.getElement().getLos_id(), lois_before, lois_after, los_at_date);
+                if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
+                    String errorBody = null;
+                    try {
+                        if (resp.hasEntity()) {
+                            errorBody = resp.readEntity(String.class);
+                        }
+                    } catch (Exception e) {
+                        errorBody = "Failed to read error body: " + e.getMessage();
+                    }
 
-            los.setSpecifies(CourseConverter.convert(algoriaLOIApiResponse));
-            response.getLearningOpportunitySpecification().add(los);
+                    LOG.severe(String.format(
+                            "Error fetching data from Algoria. " +
+                                    "Status: %d (%s), URL params: %s, Body: %s",
+                            resp.getStatus(),
+                            resp.getStatusInfo().getReasonPhrase(),
+                            queryParams,
+                            errorBody
+                    ));
+
+                    throw new EwpWebApplicationException(
+                            "Error fetching data from Algoria: " + resp.getStatus() + " " + resp.getStatusInfo().getReasonPhrase(),
+                            Response.Status.INTERNAL_SERVER_ERROR
+                    );
+                }
+                AlgoriaLOPKApiResponse apiResponse = resp.readEntity(AlgoriaLOPKApiResponse.class);
+                LOG.fine("own: Fetched " + (apiResponse.getElement() != null ? "1" : "0") + " learning outcomes from Algoria.");
+                //log first element
+                if (apiResponse.getElement() != null) {
+                    LOG.fine("own: First element: " + apiResponse.getElement().getLos_id());
+                }
+                CoursesResponse.LearningOpportunitySpecification los = CourseConverter.convert(apiResponse);
+
+                AlgoriaLOIApiResponse algoriaLOIApiResponse = getLoi(apiResponse.getElement().getLos_id(), lois_before, lois_after, los_at_date);
+
+                los.setSpecifies(CourseConverter.convert(algoriaLOIApiResponse));
+                response.getLearningOpportunitySpecification().add(los);
+            }
         } catch (JsonProcessingException e) {
             throw new EwpWebApplicationException("Error fetching data: " + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
         }
