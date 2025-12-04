@@ -20,6 +20,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
@@ -82,7 +83,7 @@ public class GuiCoursesReplicationResource {
 
     @GET
     @Path("own")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_XML)
     public Response getIiaCoursesOwn(@QueryParam("heiId") String hei_id, @QueryParam("modifiedSince") List<String> modified_since) {
         LOG.fine("own: Params: " + modified_since);
         CourseReplicationResponse response = new CourseReplicationResponse();

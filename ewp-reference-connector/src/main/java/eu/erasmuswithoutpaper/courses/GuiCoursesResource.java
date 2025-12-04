@@ -21,6 +21,7 @@ import https.github_com.erasmus_without_paper.ewp_specs_api_courses.tree.stable_
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -115,7 +116,7 @@ public class GuiCoursesResource {
 
     @GET
     @Path("own")
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_XML)
     public Response getIiaCoursesOwn(@QueryParam("heiId") String hei_id, @QueryParam("losId") List<String> los_ids,
                                   @QueryParam("losCode") List<String> los_codes, @QueryParam("loisBefore") List<String> lois_before,
                                   @QueryParam("loisAfter") List<String> lois_after, @QueryParam("losAtDate") List<String> los_at_date) {
