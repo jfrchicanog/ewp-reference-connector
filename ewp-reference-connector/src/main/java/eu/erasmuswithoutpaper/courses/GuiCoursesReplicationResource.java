@@ -45,7 +45,7 @@ public class GuiCoursesReplicationResource {
 
     @GET
     @Produces("application/json")
-    public Response getIiaCourses(@QueryParam("heiId") String hei_id, @QueryParam("modifiedSince") List<String> modified_since) {
+    public Response getIiaCourses(@QueryParam("heiId") String hei_id, @QueryParam("modifiedSince") List<String> modified_since, @QueryParam("format") String format) {
         if (hei_id == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("hei_id is required").build();
         }
@@ -78,6 +78,9 @@ public class GuiCoursesReplicationResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
+        if ("xml".equalsIgnoreCase(format)) {
+            return Response.ok(responseEnity, MediaType.APPLICATION_XML).build();
+        }
         return Response.ok(responseEnity).build();
     }
 
