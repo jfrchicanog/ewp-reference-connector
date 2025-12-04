@@ -166,7 +166,7 @@ public class GuiCoursesResource {
             }
             CoursesResponse.LearningOpportunitySpecification los = CourseConverter.convert(apiResponse);
 
-            AlgoriaLOIApiResponse algoriaLOIApiResponse = getLoi(apiResponse.getElement().getLos_id());
+            AlgoriaLOIApiResponse algoriaLOIApiResponse = getLoi(apiResponse.getElement().getLos_id(), lois_before, lois_after, los_at_date);
 
             los.setSpecifies(CourseConverter.convert(algoriaLOIApiResponse));
             response.getLearningOpportunitySpecification().add(los);
@@ -178,12 +178,21 @@ public class GuiCoursesResource {
     }
 
 
-    private AlgoriaLOIApiResponse getLoi(String los_id) throws JsonProcessingException {
+    private AlgoriaLOIApiResponse getLoi(String los_id, List<String> lois_before, List<String> lois_after, List<String> los_at_date) throws JsonProcessingException {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("hei_id", "uma.es");
         queryParams.put("mode", "LOI");
         queryParams.put("max_elements", "9000");
         queryParams.put("los_id", los_id);
+        if (lois_before != null && !lois_before.isEmpty()) {
+            queryParams.put("lois_before", lois_before.get(0));
+        }
+        if (lois_after != null && !lois_after.isEmpty()) {
+            queryParams.put("lois_after", lois_after.get(0));
+        }
+        if (los_at_date != null && !los_at_date.isEmpty()) {
+            queryParams.put("los_at_date", los_at_date.get(0));
+        }
 
         Response resp = AlgoriaTaskService.sendGetRequest(
                 AlgoriaTaskTypeEnum.COURSES,
