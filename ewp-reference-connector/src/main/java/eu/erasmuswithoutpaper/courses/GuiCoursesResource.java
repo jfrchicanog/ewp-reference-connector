@@ -74,6 +74,10 @@ public class GuiCoursesResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("No courses API found for hei_id: " + hei_id).build();
         }
 
+        if (los_ids != null && !los_ids.isEmpty() && los_codes != null && !los_codes.isEmpty()) {
+            throw new EwpWebApplicationException("Cannot provide both lois_before and lois_after parameters.", Response.Status.BAD_REQUEST);
+        }
+
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setHeiId(hei_id);
         clientRequest.setHttpsec(true);
