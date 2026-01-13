@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -39,6 +40,20 @@ public class GuiHomeResource {
         Optional<String> hostnameProperty = properties.getHostname();
         String hostname = hostnameProperty.isPresent() ? hostnameProperty.get() : uriInfo.getBaseUri().getHost();
         return Response.ok(hostname).build();
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("health")
+    public Response healthGet() {
+        return Response.ok("OK").build();
+    }
+
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("health")
+    public Response healthPost() {
+        return Response.ok("OK").build();
     }
 }
 
