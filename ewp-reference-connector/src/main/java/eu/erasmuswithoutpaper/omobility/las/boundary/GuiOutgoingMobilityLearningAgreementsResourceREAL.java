@@ -644,7 +644,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
     @GET
     @Path("sync-partner")
-    public Response syncPartner(@QueryParam("sending_hei_id") String sending_hei_id, @QueryParam("receiving_hei_id") String receiving_hei_id) {
+    public Response syncPartner(@QueryParam("sending_hei_id") String sending_hei_id, @QueryParam("receiving_hei_id") String receiving_hei_id, @QueryParam("receiving_academic_year_id") String receiving_academic_year_id) {
         LOG.fine("sync-partner: Hei searched: " + sending_hei_id);
 
         Map<String, String> heiUrls = registryClient.getOmobilityLasHeiUrls(sending_hei_id);
@@ -665,6 +665,8 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
 
         LOG.fine("sync-partner: Hei URL found: " + heiUrl);
 
+        String receiving_academic_year_id_processed = processAcademicYearId(receiving_academic_year_id);
+
         ClientRequest clientRequest = new ClientRequest();
         clientRequest.setHeiId(sending_hei_id);
         clientRequest.setHttpsec(true);
@@ -680,6 +682,11 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
             paramsMap.put("receiving_hei_id", Collections.singletonList(receiving_hei_id));
         } else {
             LOG.fine("sync-partner: receiving_hei_id is empty");
+        }
+        if (receiving_academic_year_id_processed != null && !receiving_academic_year_id_processed.isEmpty()) {
+            paramsMap.put("receiving_academic_year_id", Collections.singletonList(receiving_academic_year_id_processed));
+        } else {
+            LOG.fine("sync-partner: receiving_academic_year_id is empty or invalid");
         }
         ParamsClass params = new ParamsClass();
         params.setUnknownFields(paramsMap);
