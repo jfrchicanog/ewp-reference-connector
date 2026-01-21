@@ -145,6 +145,7 @@ public class GlobalProperties {
     }
     
     public boolean isRegistryAutoRefreshing() {
+        logger.info("Registry auto refreshing: " + getProperty("ewp.registry.auto.refreshing"));
         return "true".equalsIgnoreCase(getProperty("ewp.registry.auto.refreshing"));
     }
     
