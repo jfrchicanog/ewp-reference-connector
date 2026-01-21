@@ -7,11 +7,7 @@ import eu.erasmuswithoutpaper.registryclient.DefaultCatalogueFetcher;
 
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
@@ -51,6 +47,8 @@ public class RegistryClient {
             return null;
         }
 
+        checkClientAndRefresh();
+
         for (X509Certificate certificate : certificates) {
             if (client.isCertificateKnown(certificate)) {
                 return certificate;
@@ -60,6 +58,8 @@ public class RegistryClient {
     }
 
     public Collection<String> getHeisCoveredByCertificate(X509Certificate certificate) {
+        checkClientAndRefresh();
+
         if (certificate != null && client.isCertificateKnown(certificate)) {
             Collection<String> heiIds = client.getHeisCoveredByCertificate(certificate);
             return heiIds;
@@ -244,6 +244,8 @@ public class RegistryClient {
     }
 
     private Map<String, String> getHeiUrls(String heiId, String namespace, String name, String version) {
+        checkClientAndRefresh();
+
         ApiSearchConditions myConditions = new ApiSearchConditions();
         myConditions.setApiClassRequired(namespace, name, version);
         myConditions.setRequiredHei(heiId);
@@ -255,6 +257,8 @@ public class RegistryClient {
     }
 
     private List<HeiEntry> getAllHeis() {
+        checkClientAndRefresh();
+
         ApiSearchConditions myConditions = new ApiSearchConditions();
 
         Collection<eu.erasmuswithoutpaper.registryclient.HeiEntry> list = client.findHeis(myConditions);
@@ -268,6 +272,8 @@ public class RegistryClient {
     }
 
     private List<HeiEntry> getHeis(String namespace, String name, String version) {
+        checkClientAndRefresh();
+
         ApiSearchConditions myConditions = new ApiSearchConditions();
         myConditions.setApiClassRequired(namespace, name, version);
 
@@ -303,15 +309,34 @@ public class RegistryClient {
     }
 
     public RSAPublicKey findRsaPublicKey(String fingerprint) {
+        checkClientAndRefresh();
+
         return client.findRsaPublicKey(fingerprint);
     }
 
     public RSAPublicKey findClientRsaPublicKey(String fingerprint) {
+        checkClientAndRefresh();
+
         RSAPublicKey rsaPublicKey = client.findRsaPublicKey(fingerprint);
         return rsaPublicKey != null && client.isClientKeyKnown(rsaPublicKey) ? rsaPublicKey : null;
     }
 
     public Collection<String> getHeisCoveredByClientKey(RSAPublicKey rsapk) {
+        checkClientAndRefresh();
+
         return client.getHeisCoveredByClientKey(rsapk);
+    }
+
+    private void checkClientAndRefresh() {
+        ClientImplOptions options = new ClientImplOptions();
+
+        Date acceptableUntil = new Date(client.getExpiryDate().getTime() + options.getMaxAcceptableStaleness());
+        if ((new Date()).after(acceptableUntil)) {
+            try {
+                client.refresh();
+            } catch (eu.erasmuswithoutpaper.registryclient.RegistryClient.RefreshFailureException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
