@@ -126,11 +126,21 @@ public class RestClient {
                     response = target.request().put(null);
                     break;
                 default:
-                    target = target.queryParam("hei_id", clientRequest.getHeiId());
+                    Form form = new Form();
+                    if (clientRequest.getHeiId() != null && !clientRequest.getHeiId().isEmpty()) {
+                        form.param("hei_id", clientRequest.getHeiId());
+                    }
                     for (Map.Entry<String, List<String>> entry : params.entrySet()) {
                         for (String value : entry.getValue()) {
-                            target = target.queryParam(entry.getKey(), value);
+                            form.param(entry.getKey(), value);
                         }
+                    }
+                    String queryString = formData2String(form);
+                    if (!queryString.isEmpty()) {
+                        String separator = clientRequest.getUrl().contains("?") ? "&" : "?";
+                        target = client().target(clientRequest.getUrl() + separator + queryString);
+                    } else {
+                        target = client().target(clientRequest.getUrl());
                     }
 
                     Invocation.Builder builder = target.request();
