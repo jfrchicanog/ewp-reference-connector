@@ -807,7 +807,7 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
         LOG.fine("get-partner: Hei URL found: " + heiUrl);
 
         ClientRequest clientRequest = new ClientRequest();
-        clientRequest.setHeiId(search_hei_id);
+        clientRequest.setHeiId(sending_hei_id);
         clientRequest.setHttpsec(true);
         clientRequest.setMethod(HttpMethodEnum.GET);
         clientRequest.setUrl(heiUrl);
