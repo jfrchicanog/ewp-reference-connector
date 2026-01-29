@@ -542,9 +542,6 @@ public class GuiOutgoingMobilityLearningAgreementsResourceREAL {
         params.setUnknownFields(paramsMap);
         clientRequest.setParams(params);
         LOG.fine("index-partner: Params: " + paramsMap);
-        //log raw response
-        ClientResponse raw = restClient.sendRequest(clientRequest, String.class);
-        LOG.fine("index-partner: Raw response: " + raw.getRawResponse());
         ClientResponse iiaResponse = restClient.sendRequest(clientRequest, OmobilityLasIndexResponse.class);
 
         GenericEntity<OmobilityLasIndexResponse> entity = null;
