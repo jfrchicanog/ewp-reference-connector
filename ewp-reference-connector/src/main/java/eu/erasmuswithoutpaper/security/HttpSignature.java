@@ -193,8 +193,10 @@ public class HttpSignature {
 
             final Signer signer = new Signer(key, signature);
             Signature signed;
-            String queryParams = uri.getQuery() == null ? "" : "?" + uri.getQuery();
-            signed = signer.sign(method, uri.getPath() + queryParams, headers);
+            String queryParams = uri.getRawQuery() == null ? "" : "?" + uri.getRawQuery();
+            String path = uri.getRawPath() == null ? uri.getPath() : uri.getRawPath();
+            logger.info("Signing (request-target): {} {}", method.toLowerCase(), path + queryParams);
+            signed = signer.sign(method, path + queryParams, headers);
 
             request.header("Authorization", signed.toString());
 
