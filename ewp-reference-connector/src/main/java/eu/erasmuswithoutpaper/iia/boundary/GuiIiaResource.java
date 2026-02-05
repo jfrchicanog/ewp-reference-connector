@@ -1010,6 +1010,7 @@ public class GuiIiaResource {
         approval.setIia(theIia);
         approval.setHeiId(localHeiId);
         approval.setConditionsHash(theIia.getConditionsHash());
+        approval.setConditionsHashPartner(theIia.getHashPartner());
 
         iiasEJB.insertIiaApproval(approval);
 
@@ -1714,6 +1715,7 @@ public class GuiIiaResource {
                     Map<String, String> map = new HashMap<>();
                     map.put("heiId", iiaApproval.getHeiId());
                     map.put("conditionsHash", iiaApproval.getConditionsHash());
+                    map.put("conditionsHashPartner", iiaApproval.getConditionsHashPartner());
                     return map;
                 })
                 .collect(Collectors.toSet());

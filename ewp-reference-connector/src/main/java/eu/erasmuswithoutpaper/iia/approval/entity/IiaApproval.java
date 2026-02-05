@@ -52,6 +52,9 @@ public class IiaApproval implements Serializable {
     @Column(name = "CONDITIONS_HASH", nullable = true)
     private String conditionsHash;
 
+    @Column(name = "CONDITIONS_HASH_PARTNER", nullable = true)
+    private String conditionsHashPartner;
+
     @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     @JoinColumn(name = "IIA_ID", referencedColumnName = "ID")
     private Iia iia;
@@ -141,6 +144,14 @@ public class IiaApproval implements Serializable {
 
     public void setHeiId(String heiId) {
         this.heiId = heiId;
+    }
+
+    public String getConditionsHashPartner() {
+        return conditionsHashPartner;
+    }
+
+    public void setConditionsHashPartner(String conditionsHashPartner) {
+        this.conditionsHashPartner = conditionsHashPartner;
     }
 
     @Override

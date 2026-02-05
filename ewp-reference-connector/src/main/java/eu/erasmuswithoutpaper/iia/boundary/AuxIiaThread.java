@@ -201,9 +201,9 @@ public class AuxIiaThread {
 
                 LOG.fine("AuxIiaThread_ADDEDIT: After CNR with code: " + (cnrResponse != null ? cnrResponse.getStatusCode() : "NULL"));
             });*/
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            /*ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
             String json = ow.writeValueAsString(sendIia);
-            execNotificationToAlgoria("FAKE_" + UUID.randomUUID(), heiId, IiaTaskEnum.CREATED, json);
+            execNotificationToAlgoria("FAKE_" + UUID.randomUUID(), heiId, IiaTaskEnum.CREATED, json);*/
         } else {
             LOG.fine("AuxIiaThread_ADDEDIT: Found existing iia");
             if (localIia.getHashPartner() == null) {

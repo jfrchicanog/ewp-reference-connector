@@ -573,6 +573,83 @@ public class OutgoingMobilityLearningAgreementsResource {
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
+    private javax.ws.rs.core.Response omobilityLasIndexAlgoria(List<String> sendingHeiIds, List<String> receivingHeiIdList, List<String> receiving_academic_year_ids, List<String> globalIds, List<String> mobilityTypes, List<String> modifiedSinces) {
+        String receiving_academic_year_id;
+        String globalId;
+        String mobilityType;
+        String modifiedSince;
+
+        Collection<String> heisCoveredByCertificate;
+        if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
+        } else {
+            heisCoveredByCertificate = registryClient.getHeisCoveredByCertificate((X509Certificate) httpRequest.getAttribute("EwpRequestCertificate"));
+        }
+
+        if (heisCoveredByCertificate.isEmpty()) {
+            return javax.ws.rs.core.Response.ok(new OmobilityLasIndexResponse()).build();
+        }
+
+        if (sendingHeiIds.size() != 1) {
+            throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        }
+        String sendingHeiId = sendingHeiIds.get(0);
+
+        Map<String, String> urls = registryClient.getOmobilityLasHeiUrls(sendingHeiId);
+        if (urls == null || urls.isEmpty()) {
+            throw new EwpWebApplicationException("Unknown heiId: " + sendingHeiId, Response.Status.BAD_REQUEST);
+        }
+
+
+        String fistYear = null;
+        if (receiving_academic_year_ids.size() > 1) {
+            throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        } else if (!receiving_academic_year_ids.isEmpty()) {
+            receiving_academic_year_id = receiving_academic_year_ids.get(0);
+            try {
+                //String adjustedDateString = receiving_academic_year_id.replaceAll("([\\+\\-]\\d{2}):(\\d{2})", "$1$2");
+                System.out.println((new SimpleDateFormat("yyyy/yyyy")).parse(receiving_academic_year_id));
+                fistYear = receiving_academic_year_id.split("/")[0];
+            } catch (ParseException e) {
+                throw new EwpWebApplicationException("Can not convert date.", Response.Status.BAD_REQUEST);
+            }
+        } else {
+            receiving_academic_year_id = null;
+        }
+
+        if (globalIds.size() > 1) {
+            throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        } else if (!globalIds.isEmpty()) {
+            globalId = globalIds.get(0);
+        } else {
+            globalId = null;
+        }
+
+        if (mobilityTypes.size() > 1) {
+            throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        } else if (!mobilityTypes.isEmpty()) {
+            mobilityType = mobilityTypes.get(0);
+        } else {
+            mobilityType = null;
+        }
+
+        if (modifiedSinces.size() > 1) {
+            throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
+        } else if (!modifiedSinces.isEmpty()) {
+            modifiedSince = modifiedSinces.get(0);
+        } else {
+            modifiedSince = null;
+        }
+
+        OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
+        List<OlearningAgreement> mobilityList = new ArrayList<>();
+
+        response.getOmobilityId().addAll(omobilityLasIds(mobilityList, receivingHeiIdList));
+        //}
+
+        return javax.ws.rs.core.Response.ok(response).build();
+    }
+
     private List<LearningAgreement> omobilitiesLas(List<OlearningAgreement> omobilityLasList, List<String> omobilityLasIdList) {
         List<LearningAgreement> omobilitiesLas = new ArrayList<>();
         omobilityLasList.stream().forEachOrdered((m) -> {
