@@ -1715,7 +1715,7 @@ public class GuiIiaResource {
                     Map<String, String> map = new HashMap<>();
                     map.put("heiId", iiaApproval.getHeiId());
                     map.put("conditionsHash", iiaApproval.getConditionsHash());
-                    map.put("conditionsHashPartner", iiaApproval.getConditionsHashPartner());
+                    map.put("conditionsHashPartner", iiaApproval.getConditionsHashPartner() == null ? "" : iiaApproval.getConditionsHashPartner());
                     return map;
                 })
                 .collect(Collectors.toSet());
