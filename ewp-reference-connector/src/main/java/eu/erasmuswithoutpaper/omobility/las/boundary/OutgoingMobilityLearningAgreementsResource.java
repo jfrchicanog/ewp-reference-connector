@@ -19,10 +19,14 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
 import eu.erasmuswithoutpaper.api.omobilities.las.OmobilityLas;
@@ -93,6 +97,14 @@ public class OutgoingMobilityLearningAgreementsResource {
     public javax.ws.rs.core.Response indexPost(@FormParam("sending_hei_id") List<String> sendingHeiIds, @FormParam("receiving_hei_id") List<String> receivingHeiIdList, @FormParam("receiving_academic_year_id") List<String> receiving_academic_year_ids,
                                                @FormParam("global_id") List<String> globalIds, @FormParam("mobility_type") List<String> mobilityTypes, @FormParam("modified_since") List<String> modifiedSinces) {
         return omobilityLasIndex(sendingHeiIds, receivingHeiIdList, receiving_academic_year_ids, globalIds, mobilityTypes, modifiedSinces);
+    }
+
+    @GET
+    @Path("index_test")
+    @Produces(MediaType.APPLICATION_XML)
+    public javax.ws.rs.core.Response indexGetTest(@QueryParam("sending_hei_id") List<String> sendingHeiIds, @QueryParam("receiving_hei_id") List<String> receivingHeiIdList, @QueryParam("receiving_academic_year_id") List<String> receiving_academic_year_ids,
+                                              @QueryParam("global_id") List<String> globalIds, @QueryParam("mobility_type") List<String> mobilityTypes, @QueryParam("modified_since") List<String> modifiedSinces) {
+        return omobilityLasIndexAlgoria(sendingHeiIds, receivingHeiIdList, receiving_academic_year_ids, globalIds, mobilityTypes, modifiedSinces);
     }
 
     @GET
@@ -644,8 +656,38 @@ public class OutgoingMobilityLearningAgreementsResource {
         OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
         List<OlearningAgreement> mobilityList = new ArrayList<>();
 
+        String heiId = heisCoveredByCertificate.iterator().next();
+        String url = properties.getAlgoriaOmobilityLasUrl(heiId);
+        String token = properties.getAlgoriaAuthotizationToken();
+
+        WebTarget target = ClientBuilder.newBuilder().build().target(url.trim());
+
+        if(fistYear != null) {
+            target = target.queryParam("receiving_academic_year", fistYear);
+        }
+        if (globalId != null) {
+            target = target.queryParam("global_id", globalId);
+        }
+        if (mobilityType != null) {
+            target = target.queryParam("mobility_type", mobilityType);
+        }
+        if (modifiedSince != null) {
+            target = target.queryParam("modified_since", modifiedSince);
+        }
+
+        Response algoriaResponse = target.request().header("Authorization", token).get();
+        String rawBody = algoriaResponse.readEntity(String.class);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(rawBody);
+            String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+            LOG.info("Algoria response (" + algoriaResponse.getStatus() + "):\n" + pretty);
+        } catch (Exception e) {
+            LOG.warning("Algoria response (" + algoriaResponse.getStatus() + ") raw:\n" + rawBody);
+        }
+
         response.getOmobilityId().addAll(omobilityLasIds(mobilityList, receivingHeiIdList));
-        //}
+
 
         return javax.ws.rs.core.Response.ok(response).build();
     }
