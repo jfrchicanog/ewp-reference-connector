@@ -554,7 +554,7 @@ public class OutgoingMobilityLearningAgreementsResource {
             ObjectNode wrapper = parent.objectNode();
             wrapper.set("component", value);
             parent.set(fieldName, wrapper);
-            value = wrapper.get("component");
+            value = wrapper;
         }
         if (value != null && value.isObject()) {
             JsonNode components = ((ObjectNode) value).get("component");
