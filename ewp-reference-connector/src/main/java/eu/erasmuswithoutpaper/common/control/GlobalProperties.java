@@ -285,6 +285,19 @@ public class GlobalProperties {
         }
         return base + heiId + "/";
     }
+
+    public String getAlgoriaOmobilityByIDLasUrl(String heiId, String mobilityId) {
+        String base = defaultAlgoriaOmobilityLasUrl;
+        try {
+            base = configEJB.getValue("algoria.omobility.las.url", defaultAlgoriaOmobilityLasUrl);
+        } catch (Exception e) {
+            base = defaultAlgoriaOmobilityLasUrl;
+        }
+        if (!base.endsWith("/")) {
+            base = base + "/";
+        }
+        return base + heiId + "/" + mobilityId + "/";
+    }
             
     public int getAlgoriaTaskDelay() {
     	return getIntProperty("algoria.task.delay", 2);

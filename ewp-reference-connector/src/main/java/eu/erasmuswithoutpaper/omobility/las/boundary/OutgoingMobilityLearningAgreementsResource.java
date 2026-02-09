@@ -25,6 +25,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
@@ -120,6 +121,13 @@ public class OutgoingMobilityLearningAgreementsResource {
     @EwpAuthenticate
     public javax.ws.rs.core.Response omobilityGetPost(@FormParam("sending_hei_id") List<String> sendingHeiId, @FormParam("omobility_id") List<String> mobilityIdList) {
         return mobilityGet(sendingHeiId, mobilityIdList);
+    }
+
+    @GET
+    @Path("get_test")
+    @Produces(MediaType.APPLICATION_XML)
+    public javax.ws.rs.core.Response omobilityGetGetTest(@QueryParam("sending_hei_id") List<String> sendingHeiId, @QueryParam("omobility_id") List<String> mobilityIdList) {
+        return mobilityGetAlgoria(sendingHeiId, mobilityIdList);
     }
 
     @POST
@@ -419,6 +427,48 @@ public class OutgoingMobilityLearningAgreementsResource {
         } else {
             LOG.fine("omobilityLasList is empty");
             return javax.ws.rs.core.Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        return javax.ws.rs.core.Response.ok(response).build();
+    }
+
+    private javax.ws.rs.core.Response mobilityGetAlgoria(List<String> sendingHeiIds, List<String> mobilityIdList) {
+        if (sendingHeiIds != null && sendingHeiIds.size() > 1) {
+            throw new EwpWebApplicationException("Only one sending HEI ID is allowed.", Response.Status.BAD_REQUEST);
+        }
+        if (sendingHeiIds == null || sendingHeiIds.isEmpty()) {
+            throw new EwpWebApplicationException("Missing sending HEI ID.", Response.Status.BAD_REQUEST);
+        }
+        String sendingHeiId = sendingHeiIds.get(0);
+        if (sendingHeiId == null || sendingHeiId.trim().isEmpty() || mobilityIdList == null || mobilityIdList.isEmpty()) {
+            throw new EwpWebApplicationException("Missing argumanets for get.", Response.Status.BAD_REQUEST);
+        }
+        LOG.fine("sendingHeiId: " + sendingHeiId);
+
+        if (mobilityIdList.size() > properties.getMaxOmobilitylasIds()) {
+            throw new EwpWebApplicationException("Max number of omobility learning agreements id's has exceeded.", Response.Status.BAD_REQUEST);
+        }
+
+        LOG.fine("mobilityIdList: " + mobilityIdList.toString());
+
+        OmobilityLasGetResponse response = new OmobilityLasGetResponse();
+        String token = properties.getAlgoriaAuthotizationToken();
+        ObjectMapper mapper = new ObjectMapper();
+
+        for (String mobilityId : mobilityIdList) {
+            String url = properties.getAlgoriaOmobilityByIDLasUrl(sendingHeiId, mobilityId);
+            WebTarget target = ClientBuilder.newBuilder().build().target(url.trim());
+            Response algoriaResponse = target.request().header("Authorization", token).get();
+            String rawBody = algoriaResponse.readEntity(String.class);
+            try {
+                JsonNode node = mapper.readTree(rawBody);
+                String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+                LOG.info("Algoria get response (" + algoriaResponse.getStatus() + ") for " + mobilityId + ":\n" + pretty);
+            } catch (Exception e) {
+                LOG.warning("Algoria get response (" + algoriaResponse.getStatus() + ") for " + mobilityId + " raw:\n" + rawBody);
+            } finally {
+                algoriaResponse.close();
+            }
         }
 
         return javax.ws.rs.core.Response.ok(response).build();
