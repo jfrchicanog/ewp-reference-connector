@@ -24,7 +24,7 @@ public class CoursesReplicationManifestEntry implements ManifestEntryStrategy {
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         SimpleCourseReplication replication = new SimpleCourseReplication();
         replication.setVersion(EwpConstants.COURSE_REPLICATION_VERSION);
-        replication.setUrl("courses/replication");
+        replication.setUrl(baseUri + "courses/replication");
         replication.setSupportsModifiedSince(true);
 
         HttpSecurityOptions httpSecurityOptions = new HttpSecurityOptions();

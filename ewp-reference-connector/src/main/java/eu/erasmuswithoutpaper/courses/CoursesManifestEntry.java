@@ -24,7 +24,7 @@ public class CoursesManifestEntry implements ManifestEntryStrategy {
     public ManifestApiEntryBase getManifestEntry(String baseUri) {
         Courses courses = new Courses();
         courses.setVersion(EwpConstants.COURSES_VERSION);
-        courses.setUrl("courses");
+        courses.setUrl(baseUri + "courses");
         courses.setMaxLosCodes(BigInteger.valueOf(globalProperties.getMaxLosCodes()));
         courses.setMaxLosIds(BigInteger.valueOf(globalProperties.getMaxLosIds()));
 
