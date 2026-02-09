@@ -592,7 +592,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         String mobilityType;
         String modifiedSince;
 
-        Collection<String> heisCoveredByCertificate;
+        /*Collection<String> heisCoveredByCertificate;
         if (httpRequest.getAttribute("EwpRequestRSAPublicKey") != null) {
             heisCoveredByCertificate = registryClient.getHeisCoveredByClientKey((RSAPublicKey) httpRequest.getAttribute("EwpRequestRSAPublicKey"));
         } else {
@@ -601,7 +601,7 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         if (heisCoveredByCertificate.isEmpty()) {
             return javax.ws.rs.core.Response.ok(new OmobilityLasIndexResponse()).build();
-        }
+        }*/
 
         if (sendingHeiIds.size() != 1) {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
@@ -659,8 +659,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
         List<OlearningAgreement> mobilityList = new ArrayList<>();
 
-        String heiId = heisCoveredByCertificate.iterator().next();
-        String url = properties.getAlgoriaOmobilityLasUrl(heiId);
+        String url = properties.getAlgoriaOmobilityLasUrl(sendingHeiId);
         String token = properties.getAlgoriaAuthotizationToken();
 
         WebTarget target = ClientBuilder.newBuilder().build().target(url.trim());
