@@ -20,6 +20,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -553,7 +554,21 @@ public class OutgoingMobilityLearningAgreementsResource {
             JsonNode node = mapper.valueToTree(request);
             pruneNulls(node);
             String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
-            LOG.info("Algoria update dry-run. URL: " + url + "\nJSON body:\n" + json);
+            LOG.info("Algoria update. URL: " + url + "\nJSON body:\n" + json);
+
+            String token = properties.getAlgoriaAuthotizationToken();
+            Response algoriaResponse = ClientBuilder.newBuilder()
+                .build()
+                .target(url.trim())
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header("Authorization", token)
+                .post(Entity.json(json));
+            try {
+                String rawBody = algoriaResponse.readEntity(String.class);
+                LOG.info("Algoria update response (" + algoriaResponse.getStatus() + "):\n" + rawBody);
+            } finally {
+                algoriaResponse.close();
+            }
         } catch (Exception e) {
             LOG.warning("Algoria update dry-run failed to serialize JSON: " + e.getMessage());
         }
@@ -561,7 +576,7 @@ public class OutgoingMobilityLearningAgreementsResource {
         OmobilityLasUpdateResponse response = new OmobilityLasUpdateResponse();
         MultilineStringWithOptionalLang message = new MultilineStringWithOptionalLang();
         message.setLang("en");
-        message.setValue("Algoria update request prepared (dry-run, no request was sent).");
+        message.setValue("Algoria update request sent.");
         response.getSuccessUserMessage().add(message);
 
         return javax.ws.rs.core.Response.ok(response).build();
