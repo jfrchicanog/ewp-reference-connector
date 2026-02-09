@@ -26,8 +26,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
@@ -471,15 +471,12 @@ public class OutgoingMobilityLearningAgreementsResource {
                 JsonNode laNode = root.get("la");
                 if (laNode != null && laNode.isObject()) {
                     ObjectNode laObject = (ObjectNode) laNode;
-                    JsonNode receivingHei = laObject.get("receivingHei");
-                    if (receivingHei != null && receivingHei.isObject()) {
-                        ObjectNode receivingHeiObj = (ObjectNode) receivingHei;
-                        JsonNode contactPerson = receivingHeiObj.get("contact-person");
-                        if (contactPerson != null && receivingHeiObj.get("contactPerson") == null) {
-                            receivingHeiObj.set("contactPerson", contactPerson);
-                            receivingHeiObj.remove("contact-person");
-                        }
-                    }
+
+                    normalizeReceivingHeiContactPerson(laObject);
+                    normalizeDates(laObject);
+                    normalizeComponents(laObject.get("firstVersion"));
+                    normalizeComponents(laObject.get("approvedChanges"));
+                    normalizeComponents(laObject.get("changesProposal"));
 
                     LearningAgreement la = mapper.treeToValue(laObject, LearningAgreement.class);
                     response.getLa().add(la);
@@ -493,6 +490,71 @@ public class OutgoingMobilityLearningAgreementsResource {
         }
 
         return javax.ws.rs.core.Response.ok(response).build();
+    }
+
+    private void normalizeReceivingHeiContactPerson(ObjectNode laObject) {
+        JsonNode receivingHei = laObject.get("receivingHei");
+        if (receivingHei != null && receivingHei.isObject()) {
+            ObjectNode receivingHeiObj = (ObjectNode) receivingHei;
+            JsonNode contactPerson = receivingHeiObj.get("contact-person");
+            if (contactPerson != null && receivingHeiObj.get("contactPerson") == null) {
+                receivingHeiObj.set("contactPerson", contactPerson);
+                receivingHeiObj.remove("contact-person");
+            }
+        }
+    }
+
+    private void normalizeDates(ObjectNode laObject) {
+        // Algoria sends dateTime for date fields, trim to yyyy-MM-dd
+        normalizeDateField(laObject, "startDate");
+        normalizeDateField(laObject, "endDate");
+        normalizeDateField(laObject, "ebdDate", "endDate");
+
+        JsonNode student = laObject.get("student");
+        if (student != null && student.isObject()) {
+            normalizeDateField((ObjectNode) student, "birthDate");
+        }
+    }
+
+    private void normalizeDateField(ObjectNode obj, String field) {
+        normalizeDateField(obj, field, field);
+    }
+
+    private void normalizeDateField(ObjectNode obj, String fromField, String toField) {
+        JsonNode value = obj.get(fromField);
+        if (value != null && value.isTextual()) {
+            String text = value.asText();
+            int t = text.indexOf('T');
+            if (t > 0) {
+                text = text.substring(0, t);
+            }
+            obj.put(toField, text);
+            if (!fromField.equals(toField)) {
+                obj.remove(fromField);
+            }
+        }
+    }
+
+    private void normalizeComponents(JsonNode listOfComponentsNode) {
+        if (listOfComponentsNode == null || !listOfComponentsNode.isObject()) {
+            return;
+        }
+
+        ObjectNode listObj = (ObjectNode) listOfComponentsNode;
+        wrapComponentListIfArray(listObj, "componentsStudied");
+        wrapComponentListIfArray(listObj, "componentsRecognized");
+        wrapComponentListIfArray(listObj, "virtualComponents");
+        wrapComponentListIfArray(listObj, "blendedMobilityComponents");
+        wrapComponentListIfArray(listObj, "shortTermDoctoralComponents");
+    }
+
+    private void wrapComponentListIfArray(ObjectNode parent, String fieldName) {
+        JsonNode value = parent.get(fieldName);
+        if (value != null && value.isArray()) {
+            ObjectNode wrapper = parent.objectNode();
+            wrapper.set("component", value);
+            parent.set(fieldName, wrapper);
+        }
     }
 
     private String getRequestToClient(String omobilityId, String heiId) {
