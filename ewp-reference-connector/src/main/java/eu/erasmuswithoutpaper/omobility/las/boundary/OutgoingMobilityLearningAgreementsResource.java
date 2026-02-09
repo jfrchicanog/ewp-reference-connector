@@ -462,13 +462,12 @@ public class OutgoingMobilityLearningAgreementsResource {
 
         for (String mobilityId : mobilityIdList) {
             String url = properties.getAlgoriaOmobilityByIDLasUrl(sendingHeiId, mobilityId);
+            LOG.fine("Algoria GET URL: " + url);
             WebTarget target = ClientBuilder.newBuilder().build().target(url.trim());
             Response algoriaResponse = target.request().header("Authorization", token).get();
             String rawBody = algoriaResponse.readEntity(String.class);
             try {
                 JsonNode root = mapper.readTree(rawBody);
-                String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
-                LOG.info("Algoria get response (" + algoriaResponse.getStatus() + ") for " + mobilityId + ":\n" + pretty);
 
                 JsonNode laNode = root.get("la");
                 if (laNode != null && laNode.isObject()) {
@@ -901,8 +900,6 @@ public class OutgoingMobilityLearningAgreementsResource {
         try {
             ObjectMapper mapper = new ObjectMapper();
             AlgoriaOmobilityLasIndexDto dto = mapper.readValue(rawBody, AlgoriaOmobilityLasIndexDto.class);
-            String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto);
-            LOG.info("Algoria response (" + algoriaResponse.getStatus() + "):\n" + pretty);
 
             if (dto.getElements() != null) {
                 response.getOmobilityId().addAll(dto.getElements());
