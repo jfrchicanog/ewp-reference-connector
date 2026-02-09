@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
@@ -549,7 +550,9 @@ public class OutgoingMobilityLearningAgreementsResource {
         mapper.registerModule(module);
 
         try {
-            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
+            JsonNode node = mapper.valueToTree(request);
+            pruneNulls(node);
+            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
             LOG.info("Algoria update dry-run. URL: " + url + "\nJSON body:\n" + json);
         } catch (Exception e) {
             LOG.warning("Algoria update dry-run failed to serialize JSON: " + e.getMessage());
@@ -578,6 +581,39 @@ public class OutgoingMobilityLearningAgreementsResource {
     private void stripTimezone(XMLGregorianCalendar cal) {
         if (cal != null) {
             cal.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+        }
+    }
+
+    private void pruneNulls(JsonNode node) {
+        if (node == null) {
+            return;
+        }
+        if (node.isObject()) {
+            ObjectNode obj = (ObjectNode) node;
+            List<String> toRemove = new ArrayList<>();
+            Iterator<Map.Entry<String, JsonNode>> fields = obj.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> entry = fields.next();
+                JsonNode value = entry.getValue();
+                if (value == null || value.isNull()) {
+                    toRemove.add(entry.getKey());
+                } else {
+                    pruneNulls(value);
+                }
+            }
+            if (!toRemove.isEmpty()) {
+                obj.remove(toRemove);
+            }
+        } else if (node.isArray()) {
+            ArrayNode arr = (ArrayNode) node;
+            for (int i = arr.size() - 1; i >= 0; i--) {
+                JsonNode value = arr.get(i);
+                if (value == null || value.isNull()) {
+                    arr.remove(i);
+                } else {
+                    pruneNulls(value);
+                }
+            }
         }
     }
 
