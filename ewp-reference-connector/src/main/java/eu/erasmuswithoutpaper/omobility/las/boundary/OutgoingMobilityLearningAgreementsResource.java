@@ -56,6 +56,8 @@ import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 @Path("omobilities/las")
 public class OutgoingMobilityLearningAgreementsResource {
@@ -479,6 +481,7 @@ public class OutgoingMobilityLearningAgreementsResource {
                     normalizeComponents(laObject.get("changesProposal"));
 
                     LearningAgreement la = mapper.treeToValue(laObject, LearningAgreement.class);
+                    stripDateTimezones(la);
                     response.getLa().add(la);
                 }
             } catch (Exception e) {
@@ -490,6 +493,23 @@ public class OutgoingMobilityLearningAgreementsResource {
         }
 
         return javax.ws.rs.core.Response.ok(response).build();
+    }
+
+    private void stripDateTimezones(LearningAgreement la) {
+        if (la == null) {
+            return;
+        }
+        stripTimezone(la.getStartDate());
+        stripTimezone(la.getEndDate());
+        if (la.getStudent() != null) {
+            stripTimezone(la.getStudent().getBirthDate());
+        }
+    }
+
+    private void stripTimezone(XMLGregorianCalendar cal) {
+        if (cal != null) {
+            cal.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+        }
     }
 
     private void normalizeReceivingHeiContactPerson(ObjectNode laObject) {
