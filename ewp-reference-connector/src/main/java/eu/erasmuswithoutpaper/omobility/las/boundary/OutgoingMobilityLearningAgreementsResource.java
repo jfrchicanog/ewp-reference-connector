@@ -554,6 +554,25 @@ public class OutgoingMobilityLearningAgreementsResource {
             ObjectNode wrapper = parent.objectNode();
             wrapper.set("component", value);
             parent.set(fieldName, wrapper);
+            value = wrapper.get("component");
+        }
+        if (value != null && value.isObject()) {
+            JsonNode components = ((ObjectNode) value).get("component");
+            if (components != null && components.isArray()) {
+                normalizeComponentCredits(components);
+            }
+        }
+    }
+
+    private void normalizeComponentCredits(JsonNode componentsArray) {
+        for (JsonNode compNode : componentsArray) {
+            if (compNode != null && compNode.isObject()) {
+                ObjectNode compObj = (ObjectNode) compNode;
+                JsonNode credit = compObj.get("credit");
+                if (credit != null && credit.isObject()) {
+                    compObj.set("credit", compObj.arrayNode().add(credit));
+                }
+            }
         }
     }
 
