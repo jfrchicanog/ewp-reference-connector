@@ -565,18 +565,38 @@ public class OutgoingMobilityLearningAgreementsResource {
                 .post(Entity.json(json));
             try {
                 String rawBody = algoriaResponse.readEntity(String.class);
-                LOG.info("Algoria update response (" + algoriaResponse.getStatus() + "):\n" + rawBody);
+                if (algoriaResponse.getStatus() < 200 || algoriaResponse.getStatus() >= 300) {
+                    throw new EwpWebApplicationException("Update failed. HTTP " + algoriaResponse.getStatus(), Response.Status.BAD_GATEWAY);
+                }
+                try {
+                    JsonNode respNode = mapper.readTree(rawBody);
+                    JsonNode successNode = respNode.get("success");
+                    if (successNode == null || !successNode.isBoolean()) {
+                        throw new EwpWebApplicationException("Update failed.", Response.Status.BAD_GATEWAY);
+                    }
+                    if (!successNode.asBoolean()) {
+                        throw new EwpWebApplicationException("Update failed", Response.Status.BAD_GATEWAY);
+                    }
+                } catch (EwpWebApplicationException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new EwpWebApplicationException("Update failed", Response.Status.BAD_GATEWAY);
+                }
             } finally {
                 algoriaResponse.close();
             }
         } catch (Exception e) {
-            LOG.warning("Algoria update dry-run failed to serialize JSON: " + e.getMessage());
+            if (e instanceof EwpWebApplicationException) {
+                throw (EwpWebApplicationException) e;
+            }
+            LOG.warning("Algoria update failed: " + e.getMessage());
+            throw new EwpWebApplicationException("Update failed", Response.Status.BAD_GATEWAY);
         }
 
         OmobilityLasUpdateResponse response = new OmobilityLasUpdateResponse();
         MultilineStringWithOptionalLang message = new MultilineStringWithOptionalLang();
         message.setLang("en");
-        message.setValue("Algoria update request sent.");
+        message.setValue("Updated.");
         response.getSuccessUserMessage().add(message);
 
         return javax.ws.rs.core.Response.ok(response).build();
