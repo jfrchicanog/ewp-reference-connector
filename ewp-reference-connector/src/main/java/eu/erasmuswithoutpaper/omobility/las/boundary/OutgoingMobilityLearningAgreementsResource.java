@@ -25,7 +25,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
@@ -48,6 +47,7 @@ import eu.erasmuswithoutpaper.imobility.entity.IMobilityStatus;
 import eu.erasmuswithoutpaper.omobility.las.control.LearningAgreementEJB;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
+import eu.erasmuswithoutpaper.omobility.las.dto.AlgoriaOmobilityLasGetDto;
 import eu.erasmuswithoutpaper.omobility.las.dto.AlgoriaOmobilityLasIndexDto;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
@@ -461,9 +461,13 @@ public class OutgoingMobilityLearningAgreementsResource {
             Response algoriaResponse = target.request().header("Authorization", token).get();
             String rawBody = algoriaResponse.readEntity(String.class);
             try {
-                JsonNode node = mapper.readTree(rawBody);
-                String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+                AlgoriaOmobilityLasGetDto dto = mapper.readValue(rawBody, AlgoriaOmobilityLasGetDto.class);
+                String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto);
                 LOG.info("Algoria get response (" + algoriaResponse.getStatus() + ") for " + mobilityId + ":\n" + pretty);
+
+                if (dto.getLa() != null) {
+                    response.getLa().add(dto.getLa());
+                }
             } catch (Exception e) {
                 LOG.warning("Algoria get response (" + algoriaResponse.getStatus() + ") for " + mobilityId + " raw:\n" + rawBody);
             } finally {
