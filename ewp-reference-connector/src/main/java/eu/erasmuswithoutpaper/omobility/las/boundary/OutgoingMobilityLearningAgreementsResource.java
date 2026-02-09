@@ -586,6 +586,7 @@ public class OutgoingMobilityLearningAgreementsResource {
     }
 
     private javax.ws.rs.core.Response omobilityLasIndexAlgoria(List<String> sendingHeiIds, List<String> receivingHeiIdList, List<String> receiving_academic_year_ids, List<String> globalIds, List<String> mobilityTypes, List<String> modifiedSinces) {
+        LOG.info("omobilityLasIndexAlgoria: Starting index request with parameters: sendingHeiIds=" + sendingHeiIds);
         String receiving_academic_year_id;
         String globalId;
         String mobilityType;
@@ -652,6 +653,8 @@ public class OutgoingMobilityLearningAgreementsResource {
         } else {
             modifiedSince = null;
         }
+
+        LOG.info("omobilityLasIndexAlgoria: Parameters parsed");
 
         OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
         List<OlearningAgreement> mobilityList = new ArrayList<>();
