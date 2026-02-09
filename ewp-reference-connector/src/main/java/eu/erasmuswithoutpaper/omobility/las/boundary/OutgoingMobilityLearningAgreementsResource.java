@@ -25,11 +25,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.erasmuswithoutpaper.api.architecture.Empty;
 import eu.erasmuswithoutpaper.api.architecture.MultilineStringWithOptionalLang;
-import eu.erasmuswithoutpaper.api.omobilities.las.OmobilityLas;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LasOutgoingStatsResponse;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.LearningAgreement;
 import eu.erasmuswithoutpaper.api.omobilities.las.endpoints.OmobilityLasGetResponse;
@@ -49,6 +47,7 @@ import eu.erasmuswithoutpaper.imobility.entity.IMobilityStatus;
 import eu.erasmuswithoutpaper.omobility.las.control.LearningAgreementEJB;
 import eu.erasmuswithoutpaper.omobility.las.control.OutgoingMobilityLearningAgreementsConverter;
 import eu.erasmuswithoutpaper.omobility.las.entity.*;
+import eu.erasmuswithoutpaper.omobility.las.dto.AlgoriaOmobilityLasIndexDto;
 import eu.erasmuswithoutpaper.organization.entity.Institution;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 
@@ -657,7 +656,6 @@ public class OutgoingMobilityLearningAgreementsResource {
         LOG.info("omobilityLasIndexAlgoria: Parameters parsed");
 
         OmobilityLasIndexResponse response = new OmobilityLasIndexResponse();
-        List<OlearningAgreement> mobilityList = new ArrayList<>();
 
         String url = properties.getAlgoriaOmobilityLasUrl(sendingHeiId);
         String token = properties.getAlgoriaAuthotizationToken();
@@ -681,15 +679,16 @@ public class OutgoingMobilityLearningAgreementsResource {
         String rawBody = algoriaResponse.readEntity(String.class);
         try {
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode node = mapper.readTree(rawBody);
-            String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+            AlgoriaOmobilityLasIndexDto dto = mapper.readValue(rawBody, AlgoriaOmobilityLasIndexDto.class);
+            String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto);
             LOG.info("Algoria response (" + algoriaResponse.getStatus() + "):\n" + pretty);
+
+            if (dto.getElements() != null) {
+                response.getOmobilityId().addAll(dto.getElements());
+            }
         } catch (Exception e) {
             LOG.warning("Algoria response (" + algoriaResponse.getStatus() + ") raw:\n" + rawBody);
         }
-
-        response.getOmobilityId().addAll(omobilityLasIds(mobilityList, receivingHeiIdList));
-
 
         return javax.ws.rs.core.Response.ok(response).build();
     }

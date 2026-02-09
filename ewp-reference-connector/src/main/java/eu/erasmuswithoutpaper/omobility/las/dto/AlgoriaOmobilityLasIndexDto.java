@@ -1,0 +1,25 @@
+package eu.erasmuswithoutpaper.omobility.las.dto;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class AlgoriaOmobilityLasIndexDto {
+    private List<String> elements = new ArrayList<>();
+    private Integer total_elements;
+
+    public List<String> getElements() {
+        return elements;
+    }
+
+    public void setElements(List<String> elements) {
+        this.elements = elements;
+    }
+
+    public Integer getTotal_elements() {
+        return total_elements;
+    }
+
+    public void setTotal_elements(Integer total_elements) {
+        this.total_elements = total_elements;
+    }
+}
