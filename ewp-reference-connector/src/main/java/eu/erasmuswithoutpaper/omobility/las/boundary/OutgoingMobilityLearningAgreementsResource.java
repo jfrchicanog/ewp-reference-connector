@@ -495,6 +495,55 @@ public class OutgoingMobilityLearningAgreementsResource {
         return javax.ws.rs.core.Response.ok(response).build();
     }
 
+    @POST
+    @Path("update_test")
+    @Produces(MediaType.APPLICATION_XML)
+    public javax.ws.rs.core.Response omobilityLasUpdatePostAlgoria(OmobilityLasUpdateRequest request) {
+        if (request == null) {
+            throw new EwpWebApplicationException("No update data was sent", Response.Status.BAD_REQUEST);
+        }
+        if (request.getSendingHeiId() == null || request.getSendingHeiId().isEmpty()) {
+            throw new EwpWebApplicationException("Mising required parameter, sending-hei-id is required", Response.Status.BAD_REQUEST);
+        }
+        if (request.getApproveProposalV1() == null && request.getCommentProposalV1() == null) {
+            throw new EwpWebApplicationException("Mising required parameter, approve-proposal-v1 and comment-proposal-v1 both of them can not be missing", Response.Status.BAD_REQUEST);
+        }
+
+        String omobilityId = null;
+        String action = null;
+        if (request.getApproveProposalV1() != null) {
+            omobilityId = request.getApproveProposalV1().getOmobilityId();
+            action = "approve";
+        } else if (request.getCommentProposalV1() != null) {
+            omobilityId = request.getCommentProposalV1().getOmobilityId();
+            action = "reject";
+        }
+
+        if (omobilityId == null || omobilityId.isEmpty()) {
+            throw new EwpWebApplicationException("Mising required parameter, omobility-id is required", Response.Status.BAD_REQUEST);
+        }
+
+        String url = properties.getAlgoriaOmobilityByIDLasUrl(request.getSendingHeiId(), omobilityId) + action + "/";
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        try {
+            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
+            LOG.info("Algoria update dry-run. URL: " + url + "\nJSON body:\n" + json);
+        } catch (Exception e) {
+            LOG.warning("Algoria update dry-run failed to serialize JSON: " + e.getMessage());
+        }
+
+        OmobilityLasUpdateResponse response = new OmobilityLasUpdateResponse();
+        MultilineStringWithOptionalLang message = new MultilineStringWithOptionalLang();
+        message.setLang("en");
+        message.setValue("Algoria update request prepared (dry-run, no request was sent).");
+        response.getSuccessUserMessage().add(message);
+
+        return javax.ws.rs.core.Response.ok(response).build();
+    }
+
     private void stripDateTimezones(LearningAgreement la) {
         if (la == null) {
             return;
