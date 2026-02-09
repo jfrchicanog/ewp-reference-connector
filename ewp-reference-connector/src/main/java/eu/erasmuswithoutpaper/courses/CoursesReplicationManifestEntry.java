@@ -1,5 +1,6 @@
 package eu.erasmuswithoutpaper.courses;
 
+import eu.erasmuswithoutpaper.PublicAPI;
 import eu.erasmuswithoutpaper.api.architecture.ManifestApiEntryBase;
 import eu.erasmuswithoutpaper.api.client.auth.methods.cliauth.httpsig.CliauthHttpsig;
 import eu.erasmuswithoutpaper.api.client.auth.methods.srvauth.httpsig.SrvauthHttpsig;
@@ -14,7 +15,7 @@ import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import javax.inject.Inject;
 import java.math.BigInteger;
 
-//@PublicAPI
+@PublicAPI
 public class CoursesReplicationManifestEntry implements ManifestEntryStrategy {
     @Inject
     GlobalProperties globalProperties;

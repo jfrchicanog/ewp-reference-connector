@@ -15,7 +15,7 @@ import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import javax.inject.Inject;
 import java.math.BigInteger;
 
-//@PublicAPI
+@PublicAPI
 public class CoursesManifestEntry implements ManifestEntryStrategy {
     @Inject
     GlobalProperties globalProperties;
