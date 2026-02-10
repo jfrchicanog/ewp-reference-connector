@@ -7,6 +7,7 @@ import eu.erasmuswithoutpaper.common.control.GlobalProperties;
 import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.courses.dto.AlgoriaLOApiResponse;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
+import eu.erasmuswithoutpaper.iia.boundary.CoursesEJB;
 import eu.erasmuswithoutpaper.iia.common.AlgoriaTaskEnum;
 import eu.erasmuswithoutpaper.iia.common.AlgoriaTaskService;
 import eu.erasmuswithoutpaper.iia.common.AlgoriaTaskTypeEnum;
@@ -14,6 +15,7 @@ import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 import https.github_com.erasmus_without_paper.ewp_specs_api_courses.tree.stable_v1.CoursesResponse;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +49,9 @@ public class CoursesResourceReplication {
 
     @Inject
     RegistryClient registryClient;
+
+    @EJB
+    CoursesEJB coursesEJB;
 
     @GET
     @Path("")
@@ -86,6 +91,12 @@ public class CoursesResourceReplication {
 
         String hei_id = hei_ids.get(0);
 
+        String localHeiId = coursesEJB.getHeiId();
+
+        if (!localHeiId.equals(hei_id)) {
+            throw new EwpWebApplicationException("Requested hei_id does not match the HEI covered by the certificate.", Response.Status.FORBIDDEN);
+        }
+
         if (modified_since != null && modified_since.size() > 1) {
             throw new EwpWebApplicationException("Not allow more than one value of modified_since", Response.Status.BAD_REQUEST);
         }
@@ -97,13 +108,19 @@ public class CoursesResourceReplication {
         queryParams.put("mode", "LOS");
         queryParams.put("max_elements", "9000");
         if (modified_since != null && !modified_since.isEmpty()) {
-            String input = modified_since.get(0);
+            String dateOnly = null;
+            try {
+                String input = modified_since.get(0);
 
-            // Parse full xs:dateTime, e.g. 2004-02-12T15:19:21+01:00
-            OffsetDateTime odt = OffsetDateTime.parse(input);
+                // Parse full xs:dateTime, e.g. 2004-02-12T15:19:21+01:00
+                OffsetDateTime odt = OffsetDateTime.parse(input);
 
-            // Extract date in yyyy-MM-dd
-            String dateOnly = odt.toLocalDate().toString();
+                // Extract date in yyyy-MM-dd
+                dateOnly = odt.toLocalDate().toString();
+
+            } catch (Exception e) {
+                throw new EwpWebApplicationException("Invalid modified_since format.", Response.Status.BAD_REQUEST);
+            }
 
             queryParams.put("lois_after", dateOnly);
         }
