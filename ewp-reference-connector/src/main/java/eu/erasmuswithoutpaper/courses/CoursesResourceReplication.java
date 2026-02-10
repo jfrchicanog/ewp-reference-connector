@@ -93,8 +93,8 @@ public class CoursesResourceReplication {
 
         String localHeiId = coursesEJB.getHeiId();
 
-        if (!localHeiId.equals(hei_id)) {
-            throw new EwpWebApplicationException("Requested hei_id does not match the HEI covered by the certificate.", Response.Status.FORBIDDEN);
+        if (!"uma.es".equals(hei_id) && !"test.uma.es".equals(hei_id)) {
+            throw new EwpWebApplicationException("Requested hei_id does not match the HEI covered by the certificate.", Response.Status.BAD_REQUEST);
         }
 
         if (modified_since != null && modified_since.size() > 1) {
