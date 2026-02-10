@@ -7,10 +7,12 @@ import eu.erasmuswithoutpaper.common.control.RegistryClient;
 import eu.erasmuswithoutpaper.courses.dto.AlgoriaLOIApiResponse;
 import eu.erasmuswithoutpaper.courses.dto.AlgoriaLOPKApiResponse;
 import eu.erasmuswithoutpaper.error.control.EwpWebApplicationException;
+import eu.erasmuswithoutpaper.iia.boundary.CoursesEJB;
 import eu.erasmuswithoutpaper.iia.common.*;
 import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 import https.github_com.erasmus_without_paper.ewp_specs_api_courses.tree.stable_v1.CoursesResponse;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +39,9 @@ public class CoursesResource {
 
     @Inject
     RegistryClient registryClient;
+
+    @EJB
+    CoursesEJB coursesEJB;
 
     @GET
     @Path("")
@@ -81,6 +86,11 @@ public class CoursesResource {
 
         String hei_id = hei_ids.get(0);
 
+        String localHeiId = coursesEJB.getHeiId();
+        if (!localHeiId.equals(hei_id)) {
+            throw new EwpWebApplicationException("hei_id does not match the HEI covered by the certificate.", Response.Status.BAD_REQUEST);
+        }
+
         if ((los_ids == null || los_ids.isEmpty()) && (los_codes == null || los_codes.isEmpty())) {
             throw new EwpWebApplicationException("At least one of los_id or los_code parameters is required.", Response.Status.BAD_REQUEST);
         }
@@ -94,11 +104,22 @@ public class CoursesResource {
         if (lois_before != null && lois_before.size() > 1) {
             throw new EwpWebApplicationException("Too many lois_before values. Max is 1", Response.Status.BAD_REQUEST);
         }
+        if (lois_before != null && !lois_before.isEmpty() && !isValidDate(lois_before.get(0))) {
+            throw new EwpWebApplicationException("Invalid format for lois_before. Expected ISO 8601 date-time format.", Response.Status.BAD_REQUEST);
+        }
+
         if (lois_after != null && lois_after.size() > 1) {
             throw new EwpWebApplicationException("Too many lois_after values. Max is 1", Response.Status.BAD_REQUEST);
         }
+        if (lois_after != null && !lois_after.isEmpty() && !isValidDate(lois_after.get(0))) {
+            throw new EwpWebApplicationException("Invalid format for lois_after. Expected ISO 8601 date-time format.", Response.Status.BAD_REQUEST);
+        }
+
         if (los_at_date != null && los_at_date.size() > 1) {
             throw new EwpWebApplicationException("Too many los_at_date values. Max is 1", Response.Status.BAD_REQUEST);
+        }
+        if (los_at_date != null && !los_at_date.isEmpty() && !isValidDate(los_at_date.get(0))) {
+            throw new EwpWebApplicationException("Invalid format for los_at_date. Expected ISO 8601 date-time format.", Response.Status.BAD_REQUEST);
         }
 
         if (los_ids != null && !los_ids.isEmpty() && los_codes != null && !los_codes.isEmpty()) {
@@ -223,6 +244,15 @@ public class CoursesResource {
             LOG.fine("own: First element: " + apiResponse.getElements().get(0).getLoi_id());
         }
         return apiResponse;
+    }
+
+    private boolean isValidDate(String dateStr) {
+        try {
+            java.time.LocalDate.parse(dateStr);
+            return true;
+        } catch (java.time.format.DateTimeParseException e) {
+            return false;
+        }
     }
 
 }

@@ -31,7 +31,7 @@ public class CourseConverter {
             t.setValue(title.getValue());
             return t;
         }).collect(Collectors.toList()));
-        los.setType(algoriaLOApiResponse.getElement().getType());
+        los.setType(paseType(algoriaLOApiResponse.getElement().getType()));
 
         los.setContains(convert(algoriaLOApiResponse.getElement().getChildren_los()));
         return los;
@@ -125,6 +125,29 @@ public class CourseConverter {
         } catch (Exception e) {
             throw new RuntimeException("Error converting String to XMLGregorianCalendar", e);
         }
+    }
+
+    private static String paseType(String type) {
+        if (type == null) {
+            return null;
+        }
+
+        String[] words = type.split("\\s+");
+        StringBuilder result = new StringBuilder();
+
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                result.append(
+                        Character.toUpperCase(word.charAt(0))
+                );
+                if (word.length() > 1) {
+                    result.append(word.substring(1).toLowerCase());
+                }
+                result.append(" ");
+            }
+        }
+
+        return result.toString().trim();
     }
 
 }
