@@ -64,7 +64,7 @@ import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
@@ -962,11 +962,22 @@ public class OutgoingMobilityLearningAgreementsResource {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
         } else if (!modifiedSinces.isEmpty()) {
             modifiedSince = modifiedSinces.get(0);
-            // Accept either ISO offset ("+01:00") or legacy space-separated offset (" 01:00")
-            DateTimeFormatter inputFormatter = new DateTimeFormatterBuilder()
-                    .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
-                    .toFormatter();
-            OffsetDateTime dateTime = OffsetDateTime.parse(modifiedSince, inputFormatter);
+            OffsetDateTime dateTime;
+            try {
+                dateTime = OffsetDateTime.parse(modifiedSince, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            } catch (DateTimeParseException ex) {
+                String normalized = modifiedSince.trim();
+                // If offset is space-separated or missing sign, normalize to "+HH:MM"
+                if (normalized.length() > 19) {
+                    char c = normalized.charAt(19);
+                    if (c == ' ') {
+                        normalized = normalized.substring(0, 19) + "+" + normalized.substring(20);
+                    } else if (c >= '0' && c <= '9') {
+                        normalized = normalized.substring(0, 19) + "+" + normalized.substring(19);
+                    }
+                }
+                dateTime = OffsetDateTime.parse(normalized, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            }
 
             DateTimeFormatter formatter =
                     DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
