@@ -199,6 +199,8 @@ public class CourseConverter {
                 return "de-DE";
             case "spanish":
                 return "es-ES";
+            case "español":
+                return "es-ES";
             // Add more languages as needed
             default:
                 return language; // Return as is if not recognized
