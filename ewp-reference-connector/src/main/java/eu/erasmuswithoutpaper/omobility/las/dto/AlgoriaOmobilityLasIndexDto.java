@@ -6,6 +6,7 @@ import java.util.List;
 public class AlgoriaOmobilityLasIndexDto {
     private List<String> elements = new ArrayList<>();
     private Integer total_elements;
+    private String info;
 
     public List<String> getElements() {
         return elements;
@@ -21,5 +22,13 @@ public class AlgoriaOmobilityLasIndexDto {
 
     public void setTotal_elements(Integer total_elements) {
         this.total_elements = total_elements;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
     }
 }
