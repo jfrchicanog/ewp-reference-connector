@@ -55,7 +55,7 @@ public class CourseConverter {
         CoursesResponse.LearningOpportunitySpecification.Specifies specifies = new CoursesResponse.LearningOpportunitySpecification.Specifies();
         specifies.getLearningOpportunityInstance().addAll(learningOutcome.getElements().stream().map(loi -> {
             CoursesResponse.LearningOpportunitySpecification.Specifies.LearningOpportunityInstance loiInstance = new CoursesResponse.LearningOpportunitySpecification.Specifies.LearningOpportunityInstance();
-            loiInstance.setLoiId(loi.getLoi_id());
+            loiInstance.setLoiId(convertToLOI(loi.getLoi_id()));
             if(loi.getAcademic_term() != null) {
                 loiInstance.setStart(toXMLGregorianCalendar(loi.getAcademic_term().getStart_date()));
                 loiInstance.setEnd(toXMLGregorianCalendar(loi.getAcademic_term().getEnd_date()));
@@ -75,7 +75,7 @@ public class CourseConverter {
                         .findFirst()
                         .orElse(loi.getLanguage_of_instruction().get(0))
                         .getValue();
-                loiInstance.setLanguageOfInstruction(languageValue);
+                loiInstance.setLanguageOfInstruction(convertToInternational(languageValue));
             }
 
 
@@ -91,7 +91,7 @@ public class CourseConverter {
             return null;
         }
         AcademicTerm at = new AcademicTerm();
-        at.setAcademicYearId(academicTerm.getAcademic_year_id());
+        at.setAcademicYearId(convertAcademicYearId(academicTerm.getAcademic_year_id()));
         at.getDisplayName().addAll(academicTerm.getDisplay_name().stream().map(name -> {
             StringWithOptionalLang t = new StringWithOptionalLang();
             t.setLang(name.getLang());
@@ -148,6 +148,61 @@ public class CourseConverter {
         }
 
         return result.toString().trim();
+    }
+
+    private static String convertToLOI(String loiId) {
+        if (loiId == null) {
+            return null;
+        }
+        if (loiId.startsWith("CR/")) {
+            return loiId.replaceFirst("CR/", "CRI/");
+        }
+        if (loiId.startsWith("CLS/")) {
+            return loiId.replaceFirst("CLS/", "CLSI/");
+        }
+        if (loiId.startsWith("MOD/")) {
+            return loiId.replaceFirst("MOD/", "MODI/");
+        }
+        if (loiId.startsWith("DEP/")) {
+            return loiId.replaceFirst("DEP/", "DEPI/");
+        }
+        return loiId;
+    }
+
+    private static String convertAcademicYearId(String academicYearId) {
+        if (academicYearId == null) {
+            return null;
+        }
+        // Convert "2023/24" to "2023/2024"
+        String[] parts = academicYearId.split("/");
+        if (parts.length == 2) {
+            String startYear = parts[0];
+            String endYear = parts[1];
+            if (endYear.length() == 2) {
+                endYear = startYear.substring(0, 2) + endYear;
+            }
+            return startYear + "/" + endYear;
+        }
+        return academicYearId;
+    }
+
+    private static String convertToInternational(String language) {
+        if (language == null) {
+            return null;
+        }
+        switch (language.toLowerCase()) {
+            case "english":
+                return "en-US";
+            case "french":
+                return "fr-FR";
+            case "german":
+                return "de-DE";
+            case "spanish":
+                return "es-ES";
+            // Add more languages as needed
+            default:
+                return language; // Return as is if not recognized
+        }
     }
 
 }
