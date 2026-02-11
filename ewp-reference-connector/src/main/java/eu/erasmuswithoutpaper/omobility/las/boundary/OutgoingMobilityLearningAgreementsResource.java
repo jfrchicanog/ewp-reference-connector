@@ -1004,6 +1004,7 @@ public class OutgoingMobilityLearningAgreementsResource {
             }
         } catch (Exception e) {
             LOG.warning("Algoria response (" + algoriaResponse.getStatus() + ") raw:\n" + rawBody);
+            LOG.warning("Algoria response parse error: " + e.getMessage());
         }
 
         return javax.ws.rs.core.Response.ok(response).build();
