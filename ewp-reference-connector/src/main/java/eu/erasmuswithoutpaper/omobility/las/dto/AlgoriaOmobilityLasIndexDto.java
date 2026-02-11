@@ -3,6 +3,9 @@ package eu.erasmuswithoutpaper.omobility.las.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AlgoriaOmobilityLasIndexDto {
     private List<String> elements = new ArrayList<>();
     private Integer total_elements;
