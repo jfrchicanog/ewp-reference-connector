@@ -961,6 +961,12 @@ public class OutgoingMobilityLearningAgreementsResource {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
         } else if (!modifiedSinces.isEmpty()) {
             modifiedSince = modifiedSinces.get(0);
+            OffsetDateTime dateTime = OffsetDateTime.parse(modifiedSince);
+
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+
+            modifiedSince = dateTime.format(formatter);
         } else {
             modifiedSince = null;
         }
@@ -978,13 +984,13 @@ public class OutgoingMobilityLearningAgreementsResource {
             target = target.queryParam("receiving_academic_year", fistYear);
         }
         if (globalId != null) {
-            target = target.queryParam("global_id", globalId);
+            target = target.queryParam("student_id", globalId);
         }
         if (mobilityType != null) {
             target = target.queryParam("mobility_type", mobilityType);
         }
         if (modifiedSince != null) {
-            target = target.queryParam("modified_since", modifiedSince);
+            target = target.queryParam("modified_since", modifiedSince); //TODO: check date format
         }
 
         Response algoriaResponse = target.request().header("Authorization", token).get();
