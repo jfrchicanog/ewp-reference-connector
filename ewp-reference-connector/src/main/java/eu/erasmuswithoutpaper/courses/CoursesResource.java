@@ -148,6 +148,16 @@ public class CoursesResource {
                 );
 
                 if (resp.getStatus() != Response.Status.OK.getStatusCode()) {
+                    if (resp.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+                        LOG.warning(String.format(
+                                "Data not found in Algoria. " +
+                                        "Status: %d (%s), URL params: %s",
+                                resp.getStatus(),
+                                resp.getStatusInfo().getReasonPhrase(),
+                                queryParams
+                        ));
+                        continue;
+                    }
                     String errorBody = null;
                     try {
                         if (resp.hasEntity()) {
