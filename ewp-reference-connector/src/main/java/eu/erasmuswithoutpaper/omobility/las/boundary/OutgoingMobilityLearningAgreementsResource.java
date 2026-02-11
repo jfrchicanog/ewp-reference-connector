@@ -64,6 +64,7 @@ import eu.erasmuswithoutpaper.security.EwpAuthenticate;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
@@ -961,7 +962,17 @@ public class OutgoingMobilityLearningAgreementsResource {
             throw new EwpWebApplicationException("Missing argumanets for indexes.", Response.Status.BAD_REQUEST);
         } else if (!modifiedSinces.isEmpty()) {
             modifiedSince = modifiedSinces.get(0);
-            OffsetDateTime dateTime = OffsetDateTime.parse(modifiedSince);
+            // Accept either ISO offset ("+01:00") or legacy space-separated offset (" 01:00")
+            DateTimeFormatter inputFormatter = new DateTimeFormatterBuilder()
+                    .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
+                    .optionalStart()
+                    .appendPattern("XXX")
+                    .optionalEnd()
+                    .optionalStart()
+                    .appendPattern(" xxx")
+                    .optionalEnd()
+                    .toFormatter();
+            OffsetDateTime dateTime = OffsetDateTime.parse(modifiedSince, inputFormatter);
 
             DateTimeFormatter formatter =
                     DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
