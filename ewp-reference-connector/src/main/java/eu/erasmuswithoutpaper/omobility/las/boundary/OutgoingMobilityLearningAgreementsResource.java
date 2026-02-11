@@ -965,12 +965,6 @@ public class OutgoingMobilityLearningAgreementsResource {
             // Accept either ISO offset ("+01:00") or legacy space-separated offset (" 01:00")
             DateTimeFormatter inputFormatter = new DateTimeFormatterBuilder()
                     .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
-                    .optionalStart()
-                    .appendPattern("XXX")
-                    .optionalEnd()
-                    .optionalStart()
-                    .appendPattern(" xxx")
-                    .optionalEnd()
                     .toFormatter();
             OffsetDateTime dateTime = OffsetDateTime.parse(modifiedSince, inputFormatter);
 
